@@ -9,6 +9,9 @@ import org.jsonschema2pojo.rules.RuleFactory;
 import org.jsonschema2pojo.util.ParcelableHelper;
 import org.jsonschema2pojo.util.ReflectionHelper;
 
+/**
+ * This is to customize the type of the generated model
+ */
 public class TigrisDBObjectRule extends org.jsonschema2pojo.rules.ObjectRule {
 
     protected TigrisDBObjectRule(

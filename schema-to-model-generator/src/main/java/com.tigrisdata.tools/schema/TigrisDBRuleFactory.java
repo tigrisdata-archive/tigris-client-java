@@ -11,6 +11,9 @@ import org.jsonschema2pojo.rules.RuleFactory;
 import org.jsonschema2pojo.util.ParcelableHelper;
 import org.jsonschema2pojo.util.ReflectionHelper;
 
+/**
+ * This is to customize the model generation
+ */
 public class TigrisDBRuleFactory extends RuleFactory {
   private final ReflectionHelper reflectionHelper;
 

@@ -11,9 +11,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
-public class JsonSchemaToJavaModelGenerator implements ModelGenerator {
+public class JsonSchemaToModelGenerator implements ModelGenerator {
 
-  public JsonSchemaToJavaModelGenerator() {}
+  public JsonSchemaToModelGenerator() {}
 
   @Override
   public void generate(

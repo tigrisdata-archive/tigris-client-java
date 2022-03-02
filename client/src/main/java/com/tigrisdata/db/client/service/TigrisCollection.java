@@ -1,3 +1,5 @@
 package com.tigrisdata.db.client.service;
 
-public interface TigrisCollection {}
+import com.tigrisdata.db.client.model.TigrisCollectionType;
+
+public interface TigrisCollection<T extends TigrisCollectionType> {}

@@ -11,9 +11,7 @@ import org.jsonschema2pojo.rules.RuleFactory;
 import org.jsonschema2pojo.util.ParcelableHelper;
 import org.jsonschema2pojo.util.ReflectionHelper;
 
-/**
- * This is to customize the model generation
- */
+/** This is to customize the model generation */
 public class TigrisDBRuleFactory extends RuleFactory {
   private final ReflectionHelper reflectionHelper;
 
@@ -30,10 +28,6 @@ public class TigrisDBRuleFactory extends RuleFactory {
 
   @Override
   public Rule<JPackage, JType> getObjectRule() {
-    return new TigrisDBObjectRule(
-            this,
-            new ParcelableHelper(),
-            reflectionHelper
-    );
+    return new TigrisDBObjectRule(this, new ParcelableHelper(), reflectionHelper);
   }
 }

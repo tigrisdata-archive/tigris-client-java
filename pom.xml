@@ -10,6 +10,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>client</module>
         <module>schema-to-model-generator</module>
     </modules>
     <properties>
@@ -28,7 +29,7 @@
                     <verbose>false</verbose>
                     <filesNamePattern>.*\.java</filesNamePattern>
                     <skip>false</skip>
-                    <skipSortingImports>false</skipSortingImports>
+                    <skipSortingImports>true</skipSortingImports>
                     <style>google</style>
                 </configuration>
                 <executions>

@@ -1,0 +1,4 @@
+[submodule "client/api"]
+	path = client/api
+	branch = main
+	url = git@github.com:tigrisdata/tigrisdb-api.git

@@ -1,15 +1,32 @@
 package com.tigrisdata.tools.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.sun.codemodel.*;
-import java.beans.ConstructorProperties;
-import java.util.*;
+import com.sun.codemodel.JAnnotationArrayMember;
+import com.sun.codemodel.JBlock;
+import com.sun.codemodel.JClass;
+import com.sun.codemodel.JConditional;
+import com.sun.codemodel.JDefinedClass;
+import com.sun.codemodel.JExpr;
+import com.sun.codemodel.JFieldVar;
+import com.sun.codemodel.JInvocation;
+import com.sun.codemodel.JMethod;
+import com.sun.codemodel.JMod;
+import com.sun.codemodel.JVar;
 import org.jsonschema2pojo.GenerationConfig;
 import org.jsonschema2pojo.Schema;
 import org.jsonschema2pojo.rules.Rule;
 import org.jsonschema2pojo.rules.RuleFactory;
 import org.jsonschema2pojo.util.NameHelper;
 import org.jsonschema2pojo.util.ReflectionHelper;
+
+import java.beans.ConstructorProperties;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * This class is created referring {@code ConstructorRule} for TigrisDB Schema This class is
@@ -105,7 +122,8 @@ public class TigrisDBConstructorRule implements Rule<JDefinedClass, JDefinedClas
           }
         }
       } else {
-        throw new IllegalArgumentException(PRIMARY_KEYS + " has to be" + " of " + "array type");
+        throw new IllegalArgumentException(
+            PRIMARY_KEYS + " has to " + "be" + " of " + "array type");
       }
     }
 

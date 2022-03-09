@@ -2,12 +2,12 @@ package com.tigrisdata.db.client.model;
 
 import com.tigrisdata.db.api.v1.grpc.User;
 
-public class ReadOptions {
+public class WriteOptions {
   private User.TransactionCtx transactionCtx;
 
-  public ReadOptions() {}
+  public WriteOptions() {}
 
-  public ReadOptions(User.TransactionCtx transactionCtx) {
+  public WriteOptions(User.TransactionCtx transactionCtx) {
     this.transactionCtx = transactionCtx;
   }
 

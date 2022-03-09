@@ -3,12 +3,17 @@ package com.tigrisdata.tools.service;
 import com.sun.codemodel.JCodeModel;
 import com.tigrisdata.tools.config.JavaCodeGenerationConfig;
 import com.tigrisdata.tools.schema.TigrisDBRuleFactory;
+import org.jsonschema2pojo.GenerationConfig;
+import org.jsonschema2pojo.Jackson2Annotator;
+import org.jsonschema2pojo.SchemaGenerator;
+import org.jsonschema2pojo.SchemaMapper;
+import org.jsonschema2pojo.SchemaStore;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
-import org.jsonschema2pojo.*;
 
 public class JsonSchemaToModelGenerator implements ModelGenerator {
 

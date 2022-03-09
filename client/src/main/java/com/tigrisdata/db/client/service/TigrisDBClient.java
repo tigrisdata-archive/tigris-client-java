@@ -1,7 +1,7 @@
 package com.tigrisdata.db.client.service;
 
 import com.tigrisdata.db.client.error.TigrisDBException;
-import com.tigrisdata.db.client.model.DatabaseOption;
+import com.tigrisdata.db.client.model.DatabaseOptions;
 import com.tigrisdata.db.client.model.TigrisDBResponse;
 
 import java.util.List;
@@ -24,7 +24,7 @@ public interface TigrisDBClient {
    * @return a list of @{@link TigrisDatabase}
    * @throws TigrisDBException authentication failure or any other error
    */
-  List<TigrisDatabase> listDatabases(DatabaseOption listDatabaseOptions) throws TigrisDBException;
+  List<TigrisDatabase> listDatabases(DatabaseOptions listDatabaseOptions) throws TigrisDBException;
 
   /**
    * Creates the database
@@ -34,7 +34,7 @@ public interface TigrisDBClient {
    * @return an instance of {@link TigrisDBResponse} from server
    * @throws TigrisDBException in case of auth error or any other failure.
    */
-  TigrisDBResponse createDatabase(String databaseName, DatabaseOption databaseOptions)
+  TigrisDBResponse createDatabase(String databaseName, DatabaseOptions databaseOptions)
       throws TigrisDBException;
 
   /**
@@ -45,6 +45,6 @@ public interface TigrisDBClient {
    * @return an instance of {@link TigrisDBResponse} from server
    * @throws TigrisDBException in case of auth error or any other failure.
    */
-  TigrisDBResponse dropDatabase(String databaseName, DatabaseOption databaseOptions)
+  TigrisDBResponse dropDatabase(String databaseName, DatabaseOptions databaseOptions)
       throws TigrisDBException;
 }

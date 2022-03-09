@@ -11,11 +11,11 @@ public interface TigrisCollection<T extends TigrisCollectionType> {
    * Reads a matching document
    *
    * @param filter filter to narrow down a single document
-   * @param readOption read option
+   * @param readOptions read option
    * @return an document of type {@code T}
    * @throws TigrisDBException in case of an error
    */
-  T read(TigrisFilter filter, ReadOption readOption) throws TigrisDBException;
+  T read(TigrisFilter filter, ReadOptions readOptions) throws TigrisDBException;
 
   /**
    * @param documents list of documents to insert

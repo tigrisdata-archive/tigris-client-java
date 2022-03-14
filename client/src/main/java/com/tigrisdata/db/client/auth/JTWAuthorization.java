@@ -5,14 +5,18 @@ public class JTWAuthorization implements AuthorizationToken {
   private final String refreshToken;
   private final String authorizationToken;
 
-  public JTWAuthorization(String tigrisdbApiToken) {
+  public JTWAuthorization(String tigrisDbApiToken) {
+    // shallow checks
+    if (tigrisDbApiToken == null || tigrisDbApiToken.isEmpty()) {
+      throw new IllegalArgumentException("Token is invalid");
+    }
     // TODO finalize the encoding mechanism
-    if (tigrisdbApiToken.contains(":")) {
-      String[] tokenParts = tigrisdbApiToken.split(":");
+    if (tigrisDbApiToken.contains(":")) {
+      String[] tokenParts = tigrisDbApiToken.split(":");
       this.refreshToken = tokenParts[0];
       this.authorizationToken = tokenParts[1];
     } else {
-      this.authorizationToken = tigrisdbApiToken;
+      this.authorizationToken = tigrisDbApiToken;
       this.refreshToken = "";
     }
   }

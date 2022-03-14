@@ -15,7 +15,9 @@ public final class TestUtils {
     ManagedChannelBuilder channel = InProcessChannelBuilder.forName(grpcServerName);
     StandardTigrisDBClient client =
         new StandardTigrisDBClient(
-            TigrisDBConfiguration.newBuilder().build(), new JTWAuthorization(""), channel);
+            TigrisDBConfiguration.newBuilder().build(),
+            new JTWAuthorization("some.dummy.token"),
+            channel);
     grpcCleanupRule.register(client.getChannel());
     return client;
   }

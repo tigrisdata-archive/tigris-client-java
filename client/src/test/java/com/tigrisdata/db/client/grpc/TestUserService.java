@@ -109,7 +109,8 @@ public class TestUserService extends TigrisDBGrpc.TigrisDBImplBase {
   @Override
   public void update(
       User.UpdateRequest request, StreamObserver<User.UpdateResponse> responseObserver) {
-    super.update(request, responseObserver);
+    responseObserver.onNext(User.UpdateResponse.newBuilder().setRc(123).build());
+    responseObserver.onCompleted();
   }
 
   @Override

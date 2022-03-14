@@ -103,7 +103,7 @@ public class StandardTigrisDBClientTest {
     TigrisDBClient client =
         new StandardTigrisDBClient(
             TigrisDBConfiguration.newBuilder().build(),
-            new JTWAuthorization(""),
+            new JTWAuthorization("some.test.token"),
             mockedChannelBuilder);
     client.close();
     Mockito.verify(mockedChannel, Mockito.times(1)).shutdown();

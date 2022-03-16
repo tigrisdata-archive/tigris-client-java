@@ -1,10 +1,10 @@
 package com.tigrisdata.tools.config;
 
+import org.jsonschema2pojo.AnnotationStyle;
 import static org.junit.Assert.*;
+import org.junit.Test;
 
 import java.io.File;
-import org.jsonschema2pojo.AnnotationStyle;
-import org.junit.Test;
 
 public class JavaCodeGenerationConfigTest {
   private static final String JAVA_PACKAGE = "com.tigrisdata.test";

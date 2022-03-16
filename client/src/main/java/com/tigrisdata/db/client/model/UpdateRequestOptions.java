@@ -1,9 +1,13 @@
 package com.tigrisdata.db.client.model;
 
 public class UpdateRequestOptions {
-  private final WriteOption writeOption;
+  private final WriteOptions writeOptions;
 
-  public UpdateRequestOptions(WriteOption writeOption) {
-    this.writeOption = writeOption;
+  public UpdateRequestOptions() {
+    this.writeOptions = new WriteOptions();
+  }
+
+  public UpdateRequestOptions(WriteOptions writeOptions) {
+    this.writeOptions = writeOptions;
   }
 }

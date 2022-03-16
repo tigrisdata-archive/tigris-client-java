@@ -4,23 +4,23 @@ import com.tigrisdata.db.client.error.TigrisDBException;
 import com.tigrisdata.db.client.model.DatabaseOptions;
 import com.tigrisdata.db.client.model.TigrisDBResponse;
 
+import java.io.Closeable;
 import java.util.List;
 
-public interface TigrisDBClient {
+public interface TigrisDBClient extends Closeable {
 
   /**
    * Retrieves the database instance
    *
    * @param databaseName databaseName
    * @return an instance of {@link TigrisDatabase}
-   * @throws TigrisDBException if database doesn't exist, authentication failure or any other error
    */
-  TigrisDatabase getDatabase(String databaseName) throws TigrisDBException;
+  TigrisDatabase getDatabase(String databaseName);
 
   /**
    * Lists the available databases for the current user.
    *
-   * @param listDatabaseOptions
+   * @param listDatabaseOptions options
    * @return a list of @{@link TigrisDatabase}
    * @throws TigrisDBException authentication failure or any other error
    */

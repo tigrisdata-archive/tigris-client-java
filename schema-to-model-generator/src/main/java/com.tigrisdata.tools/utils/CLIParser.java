@@ -1,12 +1,19 @@
 package com.tigrisdata.tools.utils;
 
 import com.tigrisdata.tools.config.JavaCodeGenerationConfig;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.jsonschema2pojo.AnnotationStyle;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.commons.cli.*;
-import org.jsonschema2pojo.AnnotationStyle;
 
 /** Utility for command line argument parsing */
 public final class CLIParser {

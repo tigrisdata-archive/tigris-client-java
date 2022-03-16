@@ -1,9 +1,10 @@
 package com.tigrisdata.tools.config;
 
-import java.io.File;
 import org.jsonschema2pojo.AnnotationStyle;
 import org.jsonschema2pojo.DefaultGenerationConfig;
 import org.jsonschema2pojo.GenerationConfig;
+
+import java.io.File;
 
 public class JavaCodeGenerationConfig {
 
@@ -137,79 +138,77 @@ public class JavaCodeGenerationConfig {
   }
 
   public GenerationConfig toGenerationConfig() {
-    GenerationConfig generationConfig =
-        new DefaultGenerationConfig() {
-          @Override
-          public boolean isGenerateBuilders() {
-            return true;
-          }
+    return new DefaultGenerationConfig() {
+      @Override
+      public boolean isGenerateBuilders() {
+        return true;
+      }
 
-          @Override
-          public boolean isIncludeTypeInfo() {
-            return includeTypeInformation;
-          }
+      @Override
+      public boolean isIncludeTypeInfo() {
+        return includeTypeInformation;
+      }
 
-          @Override
-          public boolean isUsePrimitives() {
-            return usePrimitiveTypes;
-          }
+      @Override
+      public boolean isUsePrimitives() {
+        return usePrimitiveTypes;
+      }
 
-          @Override
-          public String getTargetPackage() {
-            return javaPackageName;
-          }
+      @Override
+      public String getTargetPackage() {
+        return javaPackageName;
+      }
 
-          @Override
-          public boolean isIncludeHashcodeAndEquals() {
-            return includeHashCodeAndEquals;
-          }
+      @Override
+      public boolean isIncludeHashcodeAndEquals() {
+        return includeHashCodeAndEquals;
+      }
 
-          @Override
-          public AnnotationStyle getAnnotationStyle() {
-            return annotationStyle;
-          }
+      @Override
+      public AnnotationStyle getAnnotationStyle() {
+        return annotationStyle;
+      }
 
-          @Override
-          public boolean isIncludeJsr303Annotations() {
-            return includeJSR303Annotations;
-          }
+      @Override
+      public boolean isIncludeJsr303Annotations() {
+        return includeJSR303Annotations;
+      }
 
-          @Override
-          public boolean isConstructorsRequiredPropertiesOnly() {
-            return includeConstructorForRequiredTypesOnly;
-          }
+      @Override
+      public boolean isConstructorsRequiredPropertiesOnly() {
+        return includeConstructorForRequiredTypesOnly;
+      }
 
-          @Override
-          public boolean isIncludeGetters() {
-            return includeAccessors;
-          }
+      @Override
+      public boolean isIncludeGetters() {
+        return includeAccessors;
+      }
 
-          @Override
-          public boolean isIncludeConstructors() {
-            return includeConstructorForRequiredTypesOnly;
-          }
+      @Override
+      public boolean isIncludeConstructors() {
+        return includeConstructorForRequiredTypesOnly;
+      }
 
-          @Override
-          public boolean isIncludeSetters() {
-            return includeAccessors;
-          }
+      @Override
+      public boolean isIncludeSetters() {
+        return includeAccessors;
+      }
 
-          @Override
-          public boolean isUseInnerClassBuilders() {
-            return false;
-          }
+      @Override
+      public boolean isUseInnerClassBuilders() {
+        return false;
+      }
 
-          @Override
-          public boolean isIncludeAdditionalProperties() {
-            return includeAdditionalProperties;
-          }
+      @Override
+      public boolean isIncludeAdditionalProperties() {
+        return includeAdditionalProperties;
+      }
 
-          @Override
-          public boolean isUseTitleAsClassname() {
-            return useTitleAsClassName;
-          }
-        };
-    return generationConfig;
+      @Override
+      public boolean isUseTitleAsClassname() {
+        return useTitleAsClassName;
+      }
+    };
   }
 
   public static final class Builder {

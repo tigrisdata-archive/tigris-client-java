@@ -1,47 +1,114 @@
 package com.tigrisdata.db.client.service;
 
 import com.tigrisdata.db.client.error.TigrisDBException;
-import com.tigrisdata.db.client.model.*;
+import com.tigrisdata.db.client.model.DeleteRequestOptions;
+import com.tigrisdata.db.client.model.DeleteResponse;
+import com.tigrisdata.db.client.model.Field;
+import com.tigrisdata.db.client.model.InsertRequestOptions;
+import com.tigrisdata.db.client.model.InsertResponse;
+import com.tigrisdata.db.client.model.ReadRequestOptions;
+import com.tigrisdata.db.client.model.ReplaceRequestOptions;
+import com.tigrisdata.db.client.model.ReplaceResponse;
+import com.tigrisdata.db.client.model.TigrisCollectionType;
+import com.tigrisdata.db.client.model.TigrisFilter;
+import com.tigrisdata.db.client.model.UpdateRequestOptions;
+import com.tigrisdata.db.client.model.UpdateResponse;
 
+import java.util.Iterator;
 import java.util.List;
 
 public interface TigrisCollection<T extends TigrisCollectionType> {
 
   /**
+   * @param filter filter to narrow down read
+   * @param fields optionally specify fields you want to be returned from server
+   * @param readRequestOptions read options
+   * @return stream of documents
+   * @throws TigrisDBException
+   */
+  Iterator<T> read(
+      TigrisFilter filter, List<Field<?>> fields, ReadRequestOptions readRequestOptions)
+      throws TigrisDBException;
+
+  /**
    * Reads a matching document
    *
-   * @param filter filter to narrow down a single document
-   * @param readOptions read option
-   * @return an document of type {@code T}
+   * @param filter filter to narrow down read
+   * @param fields optionally specify fields you want to be returned from server
+   * @return stream of documents
    * @throws TigrisDBException in case of an error
    */
-  T read(TigrisFilter filter, ReadOptions readOptions) throws TigrisDBException;
+  Iterator<T> read(TigrisFilter filter, List<Field<?>> fields) throws TigrisDBException;
 
   /**
    * @param documents list of documents to insert
-   * @param writeOption write option
-   * @return an instance of {@link TigrisDBResponse} from server
+   * @param insertRequestOptions insert option
+   * @return an instance of {@link InsertResponse} from server
    * @throws TigrisDBException in case of an error
    */
-  TigrisDBResponse insert(List<T> documents, WriteOption writeOption) throws TigrisDBException;
+  InsertResponse insert(List<T> documents, InsertRequestOptions insertRequestOptions)
+      throws TigrisDBException;
+
+  /**
+   * @param documents list of documents to insert
+   * @return an instance of {@link InsertResponse} from server
+   * @throws TigrisDBException in case of an error
+   */
+  InsertResponse insert(List<T> documents) throws TigrisDBException;
+
+  /**
+   * @param filter
+   * @param fields
+   * @param updateRequestOptions
+   * @return
+   * @throws TigrisDBException
+   */
+  UpdateResponse update(
+      TigrisFilter filter, List<Field<?>> fields, UpdateRequestOptions updateRequestOptions)
+      throws TigrisDBException;
+
+  /**
+   * @param filter
+   * @param fields
+   * @return
+   * @throws TigrisDBException
+   */
+  UpdateResponse update(TigrisFilter filter, List<Field<?>> fields) throws TigrisDBException;
+  /**
+   * @param documents list of documents to replace
+   * @param replaceRequestOptions replace option
+   * @return an instance of {@link ReplaceResponse} from server
+   * @throws TigrisDBException in case of an error
+   */
+  ReplaceResponse replace(List<T> documents, ReplaceRequestOptions replaceRequestOptions)
+      throws TigrisDBException;
 
   /**
    * @param documents list of documents to replace
-   * @param writeOption write option
-   * @return an instance of {@link TigrisDBResponse} from server
+   * @return an instance of {@link ReplaceResponse} from server
    * @throws TigrisDBException in case of an error
    */
-  TigrisDBResponse replace(List<T> documents, WriteOption writeOption) throws TigrisDBException;
+  ReplaceResponse replace(List<T> documents) throws TigrisDBException;
 
   /**
    * Deletes the matching documents in the collection.
    *
    * @param filter filter to narrow down the documents to delete
-   * @param writeOption write option
-   * @return an instance of {@link TigrisDBResponse} from server
+   * @param deleteRequestOptions delete option
+   * @return an instance of {@link DeleteResponse} from server
    * @throws TigrisDBException in case of an error
    */
-  TigrisDBResponse delete(TigrisFilter filter, WriteOption writeOption) throws TigrisDBException;
+  DeleteResponse delete(TigrisFilter filter, DeleteRequestOptions deleteRequestOptions)
+      throws TigrisDBException;
+
+  /**
+   * Deletes the matching documents in the collection.
+   *
+   * @param filter filter to narrow down the documents to delete
+   * @return an instance of {@link DeleteResponse} from server
+   * @throws TigrisDBException in case of an error
+   */
+  DeleteResponse delete(TigrisFilter filter) throws TigrisDBException;
 
   /** @return Name of the collection */
   String name();

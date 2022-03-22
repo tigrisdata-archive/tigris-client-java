@@ -18,7 +18,7 @@ public interface TigrisDBClient extends Closeable {
   TigrisDatabase getDatabase(String databaseName);
 
   /**
-   * Lists the available databases for the current user.
+   * Lists the available databases for the current Api.
    *
    * @param listDatabaseOptions options
    * @return a list of @{@link TigrisDatabase}

@@ -1,7 +1,7 @@
 package com.tigrisdata.db.client.service;
 
+import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
-import com.tigrisdata.db.api.v1.grpc.User;
 import com.tigrisdata.db.client.error.TigrisDBException;
 import com.tigrisdata.db.client.model.TigrisCollectionType;
 import com.tigrisdata.db.client.model.TigrisDBResponse;
@@ -10,7 +10,7 @@ import io.grpc.Metadata;
 import io.grpc.stub.MetadataUtils;
 
 public class StandardTransactionSession implements TransactionSession {
-  private final User.TransactionCtx transactionCtx;
+  private final Api.TransactionCtx transactionCtx;
   private final String databaseName;
   private final TigrisDBGrpc.TigrisDBBlockingStub stub;
 
@@ -18,7 +18,7 @@ public class StandardTransactionSession implements TransactionSession {
   private static final String TRANSACTION_HEADER_ID_KEY = "tx-id";
 
   public StandardTransactionSession(
-      String databaseName, User.TransactionCtx transactionCtx, ManagedChannel managedChannel) {
+      String databaseName, Api.TransactionCtx transactionCtx, ManagedChannel managedChannel) {
     this.databaseName = databaseName;
     this.transactionCtx = transactionCtx;
 
@@ -45,8 +45,8 @@ public class StandardTransactionSession implements TransactionSession {
 
   @Override
   public TigrisDBResponse commit() throws TigrisDBException {
-    User.CommitTransactionRequest commitTransactionRequest =
-        User.CommitTransactionRequest.newBuilder()
+    Api.CommitTransactionRequest commitTransactionRequest =
+        Api.CommitTransactionRequest.newBuilder()
             .setDb(databaseName)
             .setTxCtx(transactionCtx)
             .build();
@@ -57,8 +57,8 @@ public class StandardTransactionSession implements TransactionSession {
 
   @Override
   public TigrisDBResponse rollback() throws TigrisDBException {
-    User.RollbackTransactionRequest rollbackTransactionRequest =
-        User.RollbackTransactionRequest.newBuilder()
+    Api.RollbackTransactionRequest rollbackTransactionRequest =
+        Api.RollbackTransactionRequest.newBuilder()
             .setDb(databaseName)
             .setTxCtx(transactionCtx)
             .build();
@@ -68,7 +68,7 @@ public class StandardTransactionSession implements TransactionSession {
   }
 
   // visible for testing
-  User.TransactionCtx getTransactionCtx() {
+  Api.TransactionCtx getTransactionCtx() {
     return transactionCtx;
   }
 }

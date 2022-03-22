@@ -7,8 +7,6 @@ import com.tigrisdata.db.client.model.Field;
 import com.tigrisdata.db.client.model.InsertRequestOptions;
 import com.tigrisdata.db.client.model.InsertResponse;
 import com.tigrisdata.db.client.model.ReadRequestOptions;
-import com.tigrisdata.db.client.model.ReplaceRequestOptions;
-import com.tigrisdata.db.client.model.ReplaceResponse;
 import com.tigrisdata.db.client.model.TigrisCollectionType;
 import com.tigrisdata.db.client.model.TigrisFilter;
 import com.tigrisdata.db.client.model.UpdateRequestOptions;
@@ -74,21 +72,6 @@ public interface TigrisCollection<T extends TigrisCollectionType> {
    * @throws TigrisDBException
    */
   UpdateResponse update(TigrisFilter filter, List<Field<?>> fields) throws TigrisDBException;
-  /**
-   * @param documents list of documents to replace
-   * @param replaceRequestOptions replace option
-   * @return an instance of {@link ReplaceResponse} from server
-   * @throws TigrisDBException in case of an error
-   */
-  ReplaceResponse replace(List<T> documents, ReplaceRequestOptions replaceRequestOptions)
-      throws TigrisDBException;
-
-  /**
-   * @param documents list of documents to replace
-   * @return an instance of {@link ReplaceResponse} from server
-   * @throws TigrisDBException in case of an error
-   */
-  ReplaceResponse replace(List<T> documents) throws TigrisDBException;
 
   /**
    * Deletes the matching documents in the collection.

@@ -1,8 +1,8 @@
 package com.tigrisdata.db.client.service;
 
 import com.google.protobuf.ByteString;
+import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
-import com.tigrisdata.db.api.v1.grpc.User;
 import com.tigrisdata.db.client.error.TigrisDBException;
 import com.tigrisdata.db.client.model.AlterCollectionResponse;
 import com.tigrisdata.db.client.model.CollectionOptions;
@@ -35,9 +35,9 @@ public class StandardTigrisDatabase implements TigrisDatabase {
 
   @Override
   public List<String> listCollections() throws TigrisDBException {
-    User.ListCollectionsRequest listCollectionsRequest =
-        User.ListCollectionsRequest.newBuilder().setDb(dbName).build();
-    User.ListCollectionsResponse listCollectionsResponse =
+    Api.ListCollectionsRequest listCollectionsRequest =
+        Api.ListCollectionsRequest.newBuilder().setDb(dbName).build();
+    Api.ListCollectionsResponse listCollectionsResponse =
         stub.listCollections(listCollectionsRequest);
     return new ArrayList<>(listCollectionsResponse.getCollectionsList());
   }
@@ -46,8 +46,8 @@ public class StandardTigrisDatabase implements TigrisDatabase {
   public CreateCollectionResponse createCollection(
       String collectionName, TigrisDBSchema schema, CollectionOptions collectionOptions)
       throws TigrisDBException {
-    User.CreateCollectionRequest createCollectionRequest =
-        User.CreateCollectionRequest.newBuilder()
+    Api.CreateCollectionRequest createCollectionRequest =
+        Api.CreateCollectionRequest.newBuilder()
             .setDb(dbName)
             .setCollection(collectionName)
             .setSchema(ByteString.copyFrom(schema.toString(), StandardCharsets.UTF_8))
@@ -60,8 +60,8 @@ public class StandardTigrisDatabase implements TigrisDatabase {
   public AlterCollectionResponse alterCollection(
       String collectionName, TigrisDBSchema schema, CollectionOptions collectionOptions)
       throws TigrisDBException {
-    User.AlterCollectionRequest alterCollectionRequest =
-        User.AlterCollectionRequest.newBuilder()
+    Api.AlterCollectionRequest alterCollectionRequest =
+        Api.AlterCollectionRequest.newBuilder()
             .setDb(dbName)
             .setCollection(collectionName)
             .setSchema(ByteString.copyFrom(schema.toString(), StandardCharsets.UTF_8))
@@ -73,8 +73,8 @@ public class StandardTigrisDatabase implements TigrisDatabase {
   @Override
   public TruncateCollectionResponse truncateCollection(String collectionName)
       throws TigrisDBException {
-    User.TruncateCollectionRequest truncateCollectionRequest =
-        User.TruncateCollectionRequest.newBuilder()
+    Api.TruncateCollectionRequest truncateCollectionRequest =
+        Api.TruncateCollectionRequest.newBuilder()
             .setDb(dbName)
             .setCollection(collectionName)
             .build();
@@ -84,8 +84,8 @@ public class StandardTigrisDatabase implements TigrisDatabase {
 
   @Override
   public DropCollectionResponse dropCollection(String collectionName) throws TigrisDBException {
-    User.DropCollectionRequest dropCollectionRequest =
-        User.DropCollectionRequest.newBuilder().setDb(dbName).setCollection(collectionName).build();
+    Api.DropCollectionRequest dropCollectionRequest =
+        Api.DropCollectionRequest.newBuilder().setDb(dbName).setCollection(collectionName).build();
     return new DropCollectionResponse(
         new TigrisDBResponse(stub.dropCollection(dropCollectionRequest).getMsg()));
   }
@@ -99,14 +99,14 @@ public class StandardTigrisDatabase implements TigrisDatabase {
   @Override
   public TransactionSession beginTransaction(TransactionOptions transactionOptions)
       throws TigrisDBException {
-    User.BeginTransactionRequest beginTransactionRequest =
-        User.BeginTransactionRequest.newBuilder()
+    Api.BeginTransactionRequest beginTransactionRequest =
+        Api.BeginTransactionRequest.newBuilder()
             .setDb(dbName)
-            .setOptions(User.TransactionOptions.newBuilder().build())
+            .setOptions(Api.TransactionOptions.newBuilder().build())
             .build();
-    User.BeginTransactionResponse beginTransactionResponse =
+    Api.BeginTransactionResponse beginTransactionResponse =
         stub.beginTransaction(beginTransactionRequest);
-    User.TransactionCtx transactionCtx = beginTransactionResponse.getTxCtx();
+    Api.TransactionCtx transactionCtx = beginTransactionResponse.getTxCtx();
     return new StandardTransactionSession(dbName, transactionCtx, managedChannel);
   }
 

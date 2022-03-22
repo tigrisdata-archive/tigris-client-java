@@ -3,8 +3,8 @@ package com.tigrisdata.db.client.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.protobuf.ByteString;
+import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
-import com.tigrisdata.db.api.v1.grpc.User;
 import com.tigrisdata.db.client.error.TigrisDBException;
 import com.tigrisdata.db.client.model.DeleteRequestOptions;
 import com.tigrisdata.db.client.model.DeleteResponse;
@@ -13,8 +13,6 @@ import com.tigrisdata.db.client.model.InsertRequestOptions;
 import com.tigrisdata.db.client.model.InsertResponse;
 import com.tigrisdata.db.client.model.Operators;
 import com.tigrisdata.db.client.model.ReadRequestOptions;
-import com.tigrisdata.db.client.model.ReplaceRequestOptions;
-import com.tigrisdata.db.client.model.ReplaceResponse;
 import com.tigrisdata.db.client.model.TigrisCollectionType;
 import com.tigrisdata.db.client.model.TigrisDBResponse;
 import com.tigrisdata.db.client.model.TigrisFilter;
@@ -51,17 +49,17 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
       TigrisFilter filter, List<Field<?>> fields, ReadRequestOptions readRequestOptions)
       throws TigrisDBException {
     try {
-      User.ReadRequest readRequest =
-          User.ReadRequest.newBuilder()
+      Api.ReadRequest readRequest =
+          Api.ReadRequest.newBuilder()
               .setDb(databaseName)
               .setCollection(collectionName)
               .setFilter(ByteString.copyFrom(filter.toString(), StandardCharsets.UTF_8))
               .setFields(ByteString.copyFromUtf8(Utilities.fields(fields)))
-              .setOptions(User.ReadRequestOptions.newBuilder().build())
+              .setOptions(Api.ReadRequestOptions.newBuilder().build())
               .build();
-      Iterator<User.ReadResponse> readResponseIterator = stub.read(readRequest);
+      Iterator<Api.ReadResponse> readResponseIterator = stub.read(readRequest);
 
-      Function<User.ReadResponse, T> converter =
+      Function<Api.ReadResponse, T> converter =
           readResponse -> {
             try {
               return objectMapper.readValue(
@@ -85,11 +83,15 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
   @Override
   public InsertResponse insert(List<T> documents, InsertRequestOptions insertRequestOptions)
       throws TigrisDBException {
-    User.InsertRequest.Builder insertRequestBuilder =
-        User.InsertRequest.newBuilder()
+    Api.InsertRequest.Builder insertRequestBuilder =
+        Api.InsertRequest.newBuilder()
             .setDb(databaseName)
             .setCollection(collectionName)
-            .setOptions(User.InsertRequestOptions.newBuilder().build());
+            .setOptions(
+                Api.InsertRequestOptions.newBuilder()
+                    .setMustNotExist(insertRequestOptions.isMustNotExist())
+                    .setWriteOptions(Api.WriteOptions.newBuilder().build())
+                    .build());
     for (T document : documents) {
       insertRequestBuilder.addDocuments(ByteString.copyFromUtf8(document.toString()));
     }
@@ -108,14 +110,14 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
       TigrisFilter filter, List<Field<?>> fields, UpdateRequestOptions updateRequestOptions)
       throws TigrisDBException {
     try {
-      User.UpdateRequest updateRequest =
-          User.UpdateRequest.newBuilder()
+      Api.UpdateRequest updateRequest =
+          Api.UpdateRequest.newBuilder()
               .setDb(databaseName)
               .setCollection(collectionName)
               .setFilter(ByteString.copyFromUtf8(filter.toString()))
               .setFields(ByteString.copyFromUtf8(Utilities.fieldsOperation(Operators.SET, fields)))
               .build();
-      User.UpdateResponse updateResponse = stub.update(updateRequest);
+      Api.UpdateResponse updateResponse = stub.update(updateRequest);
       return new UpdateResponse(updateResponse.getRc());
     } catch (JsonProcessingException jsonProcessingException) {
       throw new TigrisDBException("Failed to process fields", jsonProcessingException);
@@ -129,36 +131,15 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
   }
 
   @Override
-  public ReplaceResponse replace(List<T> documents, ReplaceRequestOptions replaceRequestOptions)
-      throws TigrisDBException {
-    User.ReplaceRequest.Builder replaceRequestBuilder =
-        User.ReplaceRequest.newBuilder()
-            .setDb(databaseName)
-            .setCollection(collectionName)
-            .setOptions(User.ReplaceRequestOptions.newBuilder().build());
-    for (T document : documents) {
-      replaceRequestBuilder.addDocuments(ByteString.copyFromUtf8(document.toString()));
-    }
-    stub.replace(replaceRequestBuilder.build());
-    // TODO actual status back
-    return new ReplaceResponse(new TigrisDBResponse("replaced"));
-  }
-
-  @Override
-  public ReplaceResponse replace(List<T> documents) throws TigrisDBException {
-    return this.replace(documents, new ReplaceRequestOptions(new WriteOptions()));
-  }
-
-  @Override
   public DeleteResponse delete(TigrisFilter filter, DeleteRequestOptions deleteRequestOptions)
       throws TigrisDBException {
-    User.DeleteRequest deleteRequest =
-        User.DeleteRequest.newBuilder()
+    Api.DeleteRequest deleteRequest =
+        Api.DeleteRequest.newBuilder()
             .setDb(databaseName)
             .setCollection(collectionName)
             .setOptions(
-                User.DeleteRequestOptions.newBuilder()
-                    .setWriteOptions(User.WriteOptions.newBuilder().build())
+                Api.DeleteRequestOptions.newBuilder()
+                    .setWriteOptions(Api.WriteOptions.newBuilder().build())
                     .build())
             .build();
     stub.delete(deleteRequest);

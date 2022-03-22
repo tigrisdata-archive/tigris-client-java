@@ -7,8 +7,6 @@ import com.tigrisdata.db.client.model.DeleteResponse;
 import com.tigrisdata.db.client.model.Fields;
 import com.tigrisdata.db.client.model.InsertRequestOptions;
 import com.tigrisdata.db.client.model.InsertResponse;
-import com.tigrisdata.db.client.model.ReplaceRequestOptions;
-import com.tigrisdata.db.client.model.ReplaceResponse;
 import com.tigrisdata.db.client.model.TigrisFilter;
 import com.tigrisdata.db.client.model.UpdateResponse;
 import io.grpc.inprocess.InProcessServerBuilder;
@@ -67,16 +65,6 @@ public class StandardTigrisCollectionTest {
     InsertResponse response =
         db1.getCollection(C1.class)
             .insert(Collections.singletonList(new C1("testInsert")), new InsertRequestOptions());
-    Assert.assertNotNull(response);
-  }
-
-  @Test
-  public void testReplace() throws TigrisDBException {
-    TigrisDBClient client = TestUtils.getTestClient(serverName, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("db1");
-    ReplaceResponse response =
-        db1.getCollection(C1.class)
-            .replace(Collections.singletonList(new C1("testInsert")), new ReplaceRequestOptions());
     Assert.assertNotNull(response);
   }
 

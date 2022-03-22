@@ -1,6 +1,6 @@
 package com.tigrisdata.db.client.grpc;
 
-import com.tigrisdata.db.api.v1.grpc.User;
+import com.tigrisdata.db.api.v1.grpc.Api;
 import io.grpc.stub.StreamObserver;
 
 import java.util.UUID;
@@ -12,46 +12,48 @@ public class TransactionTestUserService extends TestUserService {
 
   @Override
   public void beginTransaction(
-      User.BeginTransactionRequest request,
-      StreamObserver<User.BeginTransactionResponse> responseObserver) {
+      Api.BeginTransactionRequest request,
+      StreamObserver<Api.BeginTransactionResponse> responseObserver) {
     txId = UUID.randomUUID().toString();
     txOrigin = txId + "_origin";
     responseObserver.onNext(
-        User.BeginTransactionResponse.newBuilder()
-            .setTxCtx(User.TransactionCtx.newBuilder().setId(txId).setOrigin(txOrigin).build())
+        Api.BeginTransactionResponse.newBuilder()
+            .setTxCtx(Api.TransactionCtx.newBuilder().setId(txId).setOrigin(txOrigin).build())
             .build());
     responseObserver.onCompleted();
   }
 
   @Override
   public void commitTransaction(
-      User.CommitTransactionRequest request,
-      StreamObserver<User.CommitTransactionResponse> responseObserver) {
+      Api.CommitTransactionRequest request,
+      StreamObserver<Api.CommitTransactionResponse> responseObserver) {
     if (!isValidTransactionState()) {
       responseObserver.onError(new IllegalStateException("Transaction is not " + "active"));
+      return;
     }
     resetTx();
     txId = UUID.randomUUID().toString();
     txOrigin = txId + "_origin";
-    responseObserver.onNext(User.CommitTransactionResponse.newBuilder().build());
+    responseObserver.onNext(Api.CommitTransactionResponse.newBuilder().build());
     responseObserver.onCompleted();
   }
 
   @Override
   public void rollbackTransaction(
-      User.RollbackTransactionRequest request,
-      StreamObserver<User.RollbackTransactionResponse> responseObserver) {
+      Api.RollbackTransactionRequest request,
+      StreamObserver<Api.RollbackTransactionResponse> responseObserver) {
     if (!isValidTransactionState()) {
       responseObserver.onError(new IllegalStateException("Transaction is not " + "active"));
+      return;
     }
     resetTx();
-    responseObserver.onNext(User.RollbackTransactionResponse.newBuilder().build());
+    responseObserver.onNext(Api.RollbackTransactionResponse.newBuilder().build());
     responseObserver.onCompleted();
   }
 
   @Override
   public void insert(
-      User.InsertRequest request, StreamObserver<User.InsertResponse> responseObserver) {
+      Api.InsertRequest request, StreamObserver<Api.InsertResponse> responseObserver) {
     if (!isValidTransactionState()) {
       responseObserver.onError(new IllegalStateException("Transaction is not " + "active"));
     }
@@ -60,7 +62,7 @@ public class TransactionTestUserService extends TestUserService {
 
   @Override
   public void delete(
-      User.DeleteRequest request, StreamObserver<User.DeleteResponse> responseObserver) {
+      Api.DeleteRequest request, StreamObserver<Api.DeleteResponse> responseObserver) {
     if (!isValidTransactionState()) {
       responseObserver.onError(new IllegalStateException("Transaction is not " + "active"));
     }
@@ -68,17 +70,8 @@ public class TransactionTestUserService extends TestUserService {
   }
 
   @Override
-  public void replace(
-      User.ReplaceRequest request, StreamObserver<User.ReplaceResponse> responseObserver) {
-    if (!isValidTransactionState()) {
-      responseObserver.onError(new IllegalStateException("Transaction is not " + "active"));
-    }
-    super.replace(request, responseObserver);
-  }
-
-  @Override
   public void update(
-      User.UpdateRequest request, StreamObserver<User.UpdateResponse> responseObserver) {
+      Api.UpdateRequest request, StreamObserver<Api.UpdateResponse> responseObserver) {
     if (!isValidTransactionState()) {
       responseObserver.onError(new IllegalStateException("Transaction is not " + "active"));
     }

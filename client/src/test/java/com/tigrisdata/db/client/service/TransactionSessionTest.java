@@ -88,7 +88,7 @@ public class TransactionSessionTest {
           }
         });
 
-    c1TigrisCollection.replace(Collections.singletonList(new C1("foo")));
+    c1TigrisCollection.insert(Collections.singletonList(new C1("foo")));
 
     c1TigrisCollection.update(
         new TigrisFilter() {

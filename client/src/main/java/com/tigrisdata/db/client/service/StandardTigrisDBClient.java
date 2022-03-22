@@ -1,7 +1,7 @@
 package com.tigrisdata.db.client.service;
 
+import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
-import com.tigrisdata.db.api.v1.grpc.User;
 import com.tigrisdata.db.client.auth.AuthorizationToken;
 import com.tigrisdata.db.client.config.TigrisDBConfiguration;
 import com.tigrisdata.db.client.error.TigrisDBException;
@@ -75,8 +75,8 @@ public class StandardTigrisDBClient implements TigrisDBClient {
   @Override
   public List<TigrisDatabase> listDatabases(DatabaseOptions listDatabaseOptions)
       throws TigrisDBException {
-    User.ListDatabasesRequest listDatabasesRequest = User.ListDatabasesRequest.newBuilder().build();
-    User.ListDatabasesResponse listDatabasesResponse = stub.listDatabases(listDatabasesRequest);
+    Api.ListDatabasesRequest listDatabasesRequest = Api.ListDatabasesRequest.newBuilder().build();
+    Api.ListDatabasesResponse listDatabasesResponse = stub.listDatabases(listDatabasesRequest);
     List<TigrisDatabase> dbs = new ArrayList<>();
     for (String s : listDatabasesResponse.getDbsList()) {
       dbs.add(new StandardTigrisDatabase(s, stub, channel));
@@ -87,24 +87,24 @@ public class StandardTigrisDBClient implements TigrisDBClient {
   @Override
   public TigrisDBResponse createDatabase(String databaseName, DatabaseOptions databaseOptions)
       throws TigrisDBException {
-    User.CreateDatabaseRequest createDatabaseRequest =
-        User.CreateDatabaseRequest.newBuilder()
+    Api.CreateDatabaseRequest createDatabaseRequest =
+        Api.CreateDatabaseRequest.newBuilder()
             .setDb(databaseName)
-            .setOptions(User.DatabaseOptions.newBuilder().build())
+            .setOptions(Api.DatabaseOptions.newBuilder().build())
             .build();
-    User.CreateDatabaseResponse createDatabaseResponse = stub.createDatabase(createDatabaseRequest);
+    Api.CreateDatabaseResponse createDatabaseResponse = stub.createDatabase(createDatabaseRequest);
     return new TigrisDBResponse(createDatabaseResponse.getMsg());
   }
 
   @Override
   public TigrisDBResponse dropDatabase(String databaseName, DatabaseOptions databaseOptions)
       throws TigrisDBException {
-    User.DropDatabaseRequest dropDatabaseRequest =
-        User.DropDatabaseRequest.newBuilder()
+    Api.DropDatabaseRequest dropDatabaseRequest =
+        Api.DropDatabaseRequest.newBuilder()
             .setDb(databaseName)
-            .setOptions(User.DatabaseOptions.newBuilder().build())
+            .setOptions(Api.DatabaseOptions.newBuilder().build())
             .build();
-    User.DropDatabaseResponse dropDatabaseResponse = stub.dropDatabase(dropDatabaseRequest);
+    Api.DropDatabaseResponse dropDatabaseResponse = stub.dropDatabase(dropDatabaseRequest);
     return new TigrisDBResponse(dropDatabaseResponse.getMsg());
   }
 

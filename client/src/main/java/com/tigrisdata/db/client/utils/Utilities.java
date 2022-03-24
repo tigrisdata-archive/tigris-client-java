@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tigrisdata.db.client.model.Field;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -15,7 +14,7 @@ import java.util.function.Function;
 public final class Utilities {
   private Utilities() {}
 
-  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+  public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   public static <F, T> Iterator<T> from(Iterator<F> iterator, Function<F, T> converter) {
     return new ConvertedIterator<>(iterator, converter);
@@ -23,15 +22,15 @@ public final class Utilities {
 
   public static String fieldsOperation(String operator, List<Field<?>> fields)
       throws JsonProcessingException {
-    Map<String, Object> innerMap = new HashMap<>();
-    fields.forEach(f -> innerMap.put(f.name(), f.value()));
-    return OBJECT_MAPPER.writeValueAsString(Collections.singletonMap(operator, innerMap));
+    Map<String, Object> map = new LinkedHashMap<>();
+    fields.forEach(f -> map.put(f.name(), f.value()));
+    return OBJECT_MAPPER.writeValueAsString(Collections.singletonMap(operator, map));
   }
 
   public static String fields(List<Field<?>> fields) throws JsonProcessingException {
-    Map<String, Object> innerMap = new LinkedHashMap<>();
-    fields.forEach(f -> innerMap.put(f.name(), f.value()));
-    return OBJECT_MAPPER.writeValueAsString(innerMap);
+    Map<String, Object> map = new LinkedHashMap<>();
+    fields.forEach(f -> map.put(f.name(), f.value()));
+    return OBJECT_MAPPER.writeValueAsString(map);
   }
 
   static class ConvertedIterator<F, T> implements Iterator<T> {

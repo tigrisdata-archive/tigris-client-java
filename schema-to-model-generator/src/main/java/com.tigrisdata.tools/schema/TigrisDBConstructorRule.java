@@ -110,7 +110,7 @@ public class TigrisDBConstructorRule implements Rule<JDefinedClass, JDefinedClas
     LinkedHashSet<String> rtn = new LinkedHashSet<>();
     LinkedHashSet<String> draft4PKProperties = new LinkedHashSet<>();
 
-    // setup the set of PK properties for draft4 style PRIMARY_KEYS"
+    // set up the set of PK properties for draft4 style PRIMARY_KEYS"
     if (node.has(PRIMARY_KEYS)) {
       JsonNode pkArray = node.get(PRIMARY_KEYS);
       if (pkArray.isArray()) {
@@ -122,8 +122,7 @@ public class TigrisDBConstructorRule implements Rule<JDefinedClass, JDefinedClas
           }
         }
       } else {
-        throw new IllegalArgumentException(
-            PRIMARY_KEYS + " has to " + "be" + " of " + "array type");
+        throw new IllegalArgumentException(PRIMARY_KEYS + " has to be of array type");
       }
     }
 
@@ -203,7 +202,7 @@ public class TigrisDBConstructorRule implements Rule<JDefinedClass, JDefinedClas
     // if it's a subtype then ignore the instance initialization since
     // the subclass will initialize
     // it
-    constructorBlock.directStatement("// Skip initialization when called " + "from subclass");
+    constructorBlock.directStatement("// Skip initialization when called from subclass");
 
     JInvocation comparison =
         JExpr._this().invoke("getClass").invoke("equals").arg(JExpr.dotclass(concreteBuilderClass));

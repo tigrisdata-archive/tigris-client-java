@@ -65,8 +65,7 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
               return objectMapper.readValue(
                   readResponse.getDoc().toStringUtf8(), collectionTypeClass);
             } catch (JsonProcessingException e) {
-              throw new IllegalArgumentException(
-                  "Failed to convert response to" + " the user " + "type", e);
+              throw new IllegalArgumentException("Failed to convert response to  the user type", e);
             }
           };
       return Utilities.from(readResponseIterator, converter);

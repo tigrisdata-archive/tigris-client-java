@@ -46,9 +46,8 @@ public class StandardTigrisDBClient implements TigrisDBClient {
 
   // visible for testing
   StandardTigrisDBClient(
-      TigrisDBConfiguration clientConfiguration,
       AuthorizationToken authorizationToken,
-      ManagedChannelBuilder managedChannelBuilder) {
+      ManagedChannelBuilder<? extends ManagedChannelBuilder> managedChannelBuilder) {
     Metadata defaultHeaders = new Metadata();
     defaultHeaders.put(USER_AGENT_KEY, USER_AGENT_VALUE);
     defaultHeaders.put(CLIENT_VERSION_KEY, CLIENT_VERSION_VALUE);

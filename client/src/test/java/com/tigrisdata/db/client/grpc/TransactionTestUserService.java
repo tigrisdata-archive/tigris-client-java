@@ -27,8 +27,8 @@ public class TransactionTestUserService extends TestUserService {
   public void commitTransaction(
       Api.CommitTransactionRequest request,
       StreamObserver<Api.CommitTransactionResponse> responseObserver) {
-    if (!isValidTransactionState()) {
-      responseObserver.onError(new IllegalStateException("Transaction is not " + "active"));
+    if (isValidTransactionState()) {
+      responseObserver.onError(new IllegalStateException("Transaction is not active"));
       return;
     }
     resetTx();
@@ -42,8 +42,8 @@ public class TransactionTestUserService extends TestUserService {
   public void rollbackTransaction(
       Api.RollbackTransactionRequest request,
       StreamObserver<Api.RollbackTransactionResponse> responseObserver) {
-    if (!isValidTransactionState()) {
-      responseObserver.onError(new IllegalStateException("Transaction is not " + "active"));
+    if (isValidTransactionState()) {
+      responseObserver.onError(new IllegalStateException("Transaction is not active"));
       return;
     }
     resetTx();
@@ -54,8 +54,8 @@ public class TransactionTestUserService extends TestUserService {
   @Override
   public void insert(
       Api.InsertRequest request, StreamObserver<Api.InsertResponse> responseObserver) {
-    if (!isValidTransactionState()) {
-      responseObserver.onError(new IllegalStateException("Transaction is not " + "active"));
+    if (isValidTransactionState()) {
+      responseObserver.onError(new IllegalStateException("Transaction is not active"));
     }
     super.insert(request, responseObserver);
   }
@@ -63,8 +63,8 @@ public class TransactionTestUserService extends TestUserService {
   @Override
   public void delete(
       Api.DeleteRequest request, StreamObserver<Api.DeleteResponse> responseObserver) {
-    if (!isValidTransactionState()) {
-      responseObserver.onError(new IllegalStateException("Transaction is not " + "active"));
+    if (isValidTransactionState()) {
+      responseObserver.onError(new IllegalStateException("Transaction is not active"));
     }
     super.delete(request, responseObserver);
   }
@@ -72,8 +72,8 @@ public class TransactionTestUserService extends TestUserService {
   @Override
   public void update(
       Api.UpdateRequest request, StreamObserver<Api.UpdateResponse> responseObserver) {
-    if (!isValidTransactionState()) {
-      responseObserver.onError(new IllegalStateException("Transaction is not " + "active"));
+    if (isValidTransactionState()) {
+      responseObserver.onError(new IllegalStateException("Transaction is not active"));
     }
     super.update(request, responseObserver);
   }
@@ -86,9 +86,6 @@ public class TransactionTestUserService extends TestUserService {
   private boolean isValidTransactionState() {
     String incomingTxId = ContextSettingServerInterceptor.TX_ID_CONTEXT_KEY.get();
     String incomingTxOrigin = ContextSettingServerInterceptor.TX_ORIGIN_CONTEXT_KEY.get();
-    if (txId.equals(incomingTxId) && txOrigin.equals(incomingTxOrigin)) {
-      return true;
-    }
-    return false;
+    return !txId.equals(incomingTxId) || !txOrigin.equals(incomingTxOrigin);
   }
 }

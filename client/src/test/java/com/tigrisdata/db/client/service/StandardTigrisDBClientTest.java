@@ -1,7 +1,6 @@
 package com.tigrisdata.db.client.service;
 
-import com.tigrisdata.db.client.auth.JTWAuthorization;
-import com.tigrisdata.db.client.config.TigrisDBConfiguration;
+import com.tigrisdata.db.client.auth.TigrisAuthorizationToken;
 import com.tigrisdata.db.client.error.TigrisDBException;
 import com.tigrisdata.db.client.grpc.TestUserService;
 import com.tigrisdata.db.client.model.DatabaseOptions;
@@ -102,9 +101,7 @@ public class StandardTigrisDBClientTest {
 
     TigrisDBClient client =
         new StandardTigrisDBClient(
-            TigrisDBConfiguration.newBuilder().build(),
-            new JTWAuthorization("some.test.token"),
-            mockedChannelBuilder);
+            new TigrisAuthorizationToken("some.test.token"), mockedChannelBuilder);
     client.close();
     Mockito.verify(mockedChannel, Mockito.times(1)).shutdown();
   }

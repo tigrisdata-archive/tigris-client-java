@@ -63,7 +63,7 @@ public class TestUserService extends TigrisDBGrpc.TigrisDBImplBase {
       StreamObserver<Api.CommitTransactionResponse> responseObserver) {
     if (!request.getTxCtx().getId().equals(txId)
         || !request.getTxCtx().getOrigin().equals(txOrigin)) {
-      responseObserver.onError(new IllegalArgumentException("Unexpected" + " " + "transaction"));
+      responseObserver.onError(new IllegalArgumentException("Unexpected transaction"));
       responseObserver.onCompleted();
     }
     resetTx();
@@ -77,7 +77,7 @@ public class TestUserService extends TigrisDBGrpc.TigrisDBImplBase {
       StreamObserver<Api.RollbackTransactionResponse> responseObserver) {
     if (!request.getTxCtx().getId().equals(txId)
         || !request.getTxCtx().getOrigin().equals(txOrigin)) {
-      responseObserver.onError(new IllegalArgumentException("Unexpected" + " " + "transaction"));
+      responseObserver.onError(new IllegalArgumentException("Unexpected transaction"));
       responseObserver.onCompleted();
     }
     resetTx();

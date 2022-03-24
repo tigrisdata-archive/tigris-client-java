@@ -1,7 +1,5 @@
 package com.tigrisdata.db.client.auth;
 
-public interface AuthorizationToken extends Authentication {
+public interface AuthorizationToken extends Authorization {
   String getAuthorizationToken();
-
-  String getRefreshToken();
 }

@@ -7,6 +7,7 @@ import com.tigrisdata.db.client.model.TigrisCollectionType;
 import com.tigrisdata.db.client.model.TigrisDBResponse;
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.MetadataUtils;
 
 public class StandardTransactionSession implements TransactionSession {
@@ -17,7 +18,7 @@ public class StandardTransactionSession implements TransactionSession {
   private static final String TRANSACTION_HEADER_ORIGIN_KEY = "tx-origin";
   private static final String TRANSACTION_HEADER_ID_KEY = "tx-id";
 
-  public StandardTransactionSession(
+  StandardTransactionSession(
       String databaseName, Api.TransactionCtx transactionCtx, ManagedChannel managedChannel) {
     this.databaseName = databaseName;
     this.transactionCtx = transactionCtx;
@@ -45,26 +46,34 @@ public class StandardTransactionSession implements TransactionSession {
 
   @Override
   public TigrisDBResponse commit() throws TigrisDBException {
-    Api.CommitTransactionRequest commitTransactionRequest =
-        Api.CommitTransactionRequest.newBuilder()
-            .setDb(databaseName)
-            .setTxCtx(transactionCtx)
-            .build();
-    stub.commitTransaction(commitTransactionRequest);
-    // TODO actual status back
-    return new TigrisDBResponse("committed");
+    try {
+      Api.CommitTransactionRequest commitTransactionRequest =
+          Api.CommitTransactionRequest.newBuilder()
+              .setDb(databaseName)
+              .setTxCtx(transactionCtx)
+              .build();
+      stub.commitTransaction(commitTransactionRequest);
+      // TODO actual status back
+      return new TigrisDBResponse("committed");
+    } catch (StatusRuntimeException statusRuntimeException) {
+      throw new TigrisDBException("Failed to commit transaction", statusRuntimeException);
+    }
   }
 
   @Override
   public TigrisDBResponse rollback() throws TigrisDBException {
-    Api.RollbackTransactionRequest rollbackTransactionRequest =
-        Api.RollbackTransactionRequest.newBuilder()
-            .setDb(databaseName)
-            .setTxCtx(transactionCtx)
-            .build();
-    stub.rollbackTransaction(rollbackTransactionRequest);
-    // TODO actual status back
-    return new TigrisDBResponse("rolled back");
+    try {
+      Api.RollbackTransactionRequest rollbackTransactionRequest =
+          Api.RollbackTransactionRequest.newBuilder()
+              .setDb(databaseName)
+              .setTxCtx(transactionCtx)
+              .build();
+      stub.rollbackTransaction(rollbackTransactionRequest);
+      // TODO actual status back
+      return new TigrisDBResponse("rolled back");
+    } catch (StatusRuntimeException statusRuntimeException) {
+      throw new TigrisDBException("Failed to rollback transaction", statusRuntimeException);
+    }
   }
 
   // visible for testing

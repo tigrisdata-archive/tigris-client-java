@@ -110,7 +110,7 @@ public class TigrisDBConstructorRule implements Rule<JDefinedClass, JDefinedClas
     LinkedHashSet<String> rtn = new LinkedHashSet<>();
     LinkedHashSet<String> draft4PKProperties = new LinkedHashSet<>();
 
-    // set up the set of PK properties for draft4 style PRIMARY_KEYS"
+    // set up the set of PK properties for draft4 style PRIMARY_KEYS
     if (node.has(PRIMARY_KEYS)) {
       JsonNode pkArray = node.get(PRIMARY_KEYS);
       if (pkArray.isArray()) {

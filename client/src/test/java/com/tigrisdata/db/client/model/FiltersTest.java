@@ -83,11 +83,13 @@ public class FiltersTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void invalidCompositeFilterTest1() {
+    //noinspection ResultOfMethodCallIgnored
     Filters.or(Filters.eq("k1", 123));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void invalidCompositeFilterTest2() {
+    //noinspection ResultOfMethodCallIgnored
     Filters.and(Filters.eq("k1", 123));
   }
 }

@@ -14,6 +14,7 @@ import com.tigrisdata.db.client.model.TigrisDBSchema;
 import com.tigrisdata.db.client.model.TransactionOptions;
 import com.tigrisdata.db.client.model.TruncateCollectionResponse;
 import io.grpc.ManagedChannel;
+import io.grpc.StatusRuntimeException;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ public class StandardTigrisDatabase implements TigrisDatabase {
   private final TigrisDBGrpc.TigrisDBBlockingStub stub;
   private final ManagedChannel managedChannel;
 
-  public StandardTigrisDatabase(
+  StandardTigrisDatabase(
       String dbName, TigrisDBGrpc.TigrisDBBlockingStub stub, ManagedChannel managedChannel) {
     this.dbName = dbName;
     this.stub = stub;
@@ -35,59 +36,82 @@ public class StandardTigrisDatabase implements TigrisDatabase {
 
   @Override
   public List<String> listCollections() throws TigrisDBException {
-    Api.ListCollectionsRequest listCollectionsRequest =
-        Api.ListCollectionsRequest.newBuilder().setDb(dbName).build();
-    Api.ListCollectionsResponse listCollectionsResponse =
-        stub.listCollections(listCollectionsRequest);
-    return new ArrayList<>(listCollectionsResponse.getCollectionsList());
+    try {
+      Api.ListCollectionsRequest listCollectionsRequest =
+          Api.ListCollectionsRequest.newBuilder().setDb(dbName).build();
+      Api.ListCollectionsResponse listCollectionsResponse =
+          stub.listCollections(listCollectionsRequest);
+      return new ArrayList<>(listCollectionsResponse.getCollectionsList());
+    } catch (StatusRuntimeException statusRuntimeException) {
+      throw new TigrisDBException("Failed to list collections", statusRuntimeException);
+    }
   }
 
   @Override
   public CreateCollectionResponse createCollection(
       String collectionName, TigrisDBSchema schema, CollectionOptions collectionOptions)
       throws TigrisDBException {
-    Api.CreateCollectionRequest createCollectionRequest =
-        Api.CreateCollectionRequest.newBuilder()
-            .setDb(dbName)
-            .setCollection(collectionName)
-            .setSchema(ByteString.copyFrom(schema.toString(), StandardCharsets.UTF_8))
-            .build();
-    return new CreateCollectionResponse(
-        new TigrisDBResponse(stub.createCollection(createCollectionRequest).getMsg()));
+    try {
+      Api.CreateCollectionRequest createCollectionRequest =
+          Api.CreateCollectionRequest.newBuilder()
+              .setDb(dbName)
+              .setCollection(collectionName)
+              .setSchema(ByteString.copyFrom(schema.toString(), StandardCharsets.UTF_8))
+              .build();
+      return new CreateCollectionResponse(
+          new TigrisDBResponse(stub.createCollection(createCollectionRequest).getMsg()));
+    } catch (StatusRuntimeException statusRuntimeException) {
+      throw new TigrisDBException("Failed to create collection", statusRuntimeException);
+    }
   }
 
   @Override
   public AlterCollectionResponse alterCollection(
       String collectionName, TigrisDBSchema schema, CollectionOptions collectionOptions)
       throws TigrisDBException {
-    Api.AlterCollectionRequest alterCollectionRequest =
-        Api.AlterCollectionRequest.newBuilder()
-            .setDb(dbName)
-            .setCollection(collectionName)
-            .setSchema(ByteString.copyFrom(schema.toString(), StandardCharsets.UTF_8))
-            .build();
-    return new AlterCollectionResponse(
-        new TigrisDBResponse(stub.alterCollection(alterCollectionRequest).getMsg()));
+    try {
+      Api.AlterCollectionRequest alterCollectionRequest =
+          Api.AlterCollectionRequest.newBuilder()
+              .setDb(dbName)
+              .setCollection(collectionName)
+              .setSchema(ByteString.copyFrom(schema.toString(), StandardCharsets.UTF_8))
+              .build();
+      return new AlterCollectionResponse(
+          new TigrisDBResponse(stub.alterCollection(alterCollectionRequest).getMsg()));
+    } catch (StatusRuntimeException statusRuntimeException) {
+      throw new TigrisDBException("Failed to alter collection", statusRuntimeException);
+    }
   }
 
   @Override
   public TruncateCollectionResponse truncateCollection(String collectionName)
       throws TigrisDBException {
-    Api.TruncateCollectionRequest truncateCollectionRequest =
-        Api.TruncateCollectionRequest.newBuilder()
-            .setDb(dbName)
-            .setCollection(collectionName)
-            .build();
-    return new TruncateCollectionResponse(
-        new TigrisDBResponse(stub.truncateCollection(truncateCollectionRequest).getMsg()));
+    try {
+      Api.TruncateCollectionRequest truncateCollectionRequest =
+          Api.TruncateCollectionRequest.newBuilder()
+              .setDb(dbName)
+              .setCollection(collectionName)
+              .build();
+      return new TruncateCollectionResponse(
+          new TigrisDBResponse(stub.truncateCollection(truncateCollectionRequest).getMsg()));
+    } catch (StatusRuntimeException statusRuntimeException) {
+      throw new TigrisDBException("Failed to truncate collection", statusRuntimeException);
+    }
   }
 
   @Override
   public DropCollectionResponse dropCollection(String collectionName) throws TigrisDBException {
-    Api.DropCollectionRequest dropCollectionRequest =
-        Api.DropCollectionRequest.newBuilder().setDb(dbName).setCollection(collectionName).build();
-    return new DropCollectionResponse(
-        new TigrisDBResponse(stub.dropCollection(dropCollectionRequest).getMsg()));
+    try {
+      Api.DropCollectionRequest dropCollectionRequest =
+          Api.DropCollectionRequest.newBuilder()
+              .setDb(dbName)
+              .setCollection(collectionName)
+              .build();
+      return new DropCollectionResponse(
+          new TigrisDBResponse(stub.dropCollection(dropCollectionRequest).getMsg()));
+    } catch (StatusRuntimeException statusRuntimeException) {
+      throw new TigrisDBException("Failed to drop collection", statusRuntimeException);
+    }
   }
 
   @Override
@@ -99,15 +123,19 @@ public class StandardTigrisDatabase implements TigrisDatabase {
   @Override
   public TransactionSession beginTransaction(TransactionOptions transactionOptions)
       throws TigrisDBException {
-    Api.BeginTransactionRequest beginTransactionRequest =
-        Api.BeginTransactionRequest.newBuilder()
-            .setDb(dbName)
-            .setOptions(Api.TransactionOptions.newBuilder().build())
-            .build();
-    Api.BeginTransactionResponse beginTransactionResponse =
-        stub.beginTransaction(beginTransactionRequest);
-    Api.TransactionCtx transactionCtx = beginTransactionResponse.getTxCtx();
-    return new StandardTransactionSession(dbName, transactionCtx, managedChannel);
+    try {
+      Api.BeginTransactionRequest beginTransactionRequest =
+          Api.BeginTransactionRequest.newBuilder()
+              .setDb(dbName)
+              .setOptions(Api.TransactionOptions.newBuilder().build())
+              .build();
+      Api.BeginTransactionResponse beginTransactionResponse =
+          stub.beginTransaction(beginTransactionRequest);
+      Api.TransactionCtx transactionCtx = beginTransactionResponse.getTxCtx();
+      return new StandardTransactionSession(dbName, transactionCtx, managedChannel);
+    } catch (StatusRuntimeException statusRuntimeException) {
+      throw new TigrisDBException("Failed to begin transaction", statusRuntimeException);
+    }
   }
 
   @Override

@@ -20,6 +20,7 @@ import com.tigrisdata.db.client.model.UpdateRequestOptions;
 import com.tigrisdata.db.client.model.UpdateResponse;
 import com.tigrisdata.db.client.model.WriteOptions;
 import com.tigrisdata.db.client.utils.Utilities;
+import io.grpc.StatusRuntimeException;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
@@ -35,7 +36,7 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
   private final TigrisDBGrpc.TigrisDBBlockingStub stub;
   private final ObjectMapper objectMapper;
 
-  public StandardTigrisCollection(
+  StandardTigrisCollection(
       String databaseName, Class<T> collectionTypeClass, TigrisDBGrpc.TigrisDBBlockingStub stub) {
     this.databaseName = databaseName;
     this.collectionName = collectionTypeClass.getSimpleName();
@@ -71,6 +72,8 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
       return Utilities.from(readResponseIterator, converter);
     } catch (JsonProcessingException jsonProcessingException) {
       throw new TigrisDBException("Failed to process fields", jsonProcessingException);
+    } catch (StatusRuntimeException exception) {
+      throw new TigrisDBException("Failed to read", exception);
     }
   }
 
@@ -82,26 +85,30 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
   @Override
   public InsertResponse insert(List<T> documents, InsertRequestOptions insertRequestOptions)
       throws TigrisDBException {
-    Api.InsertRequest.Builder insertRequestBuilder =
-        Api.InsertRequest.newBuilder()
-            .setDb(databaseName)
-            .setCollection(collectionName)
-            .setOptions(
-                Api.InsertRequestOptions.newBuilder()
-                    .setMustNotExist(insertRequestOptions.isMustNotExist())
-                    .setWriteOptions(Api.WriteOptions.newBuilder().build())
-                    .build());
-    for (T document : documents) {
-      insertRequestBuilder.addDocuments(ByteString.copyFromUtf8(document.toString()));
+    try {
+      Api.InsertRequest.Builder insertRequestBuilder =
+          Api.InsertRequest.newBuilder()
+              .setDb(databaseName)
+              .setCollection(collectionName)
+              .setOptions(
+                  Api.InsertRequestOptions.newBuilder()
+                      .setMustNotExist(insertRequestOptions.isMustNotExist())
+                      .setWriteOptions(Api.WriteOptions.newBuilder().build())
+                      .build());
+      for (T document : documents) {
+        insertRequestBuilder.addDocuments(ByteString.copyFromUtf8(document.toString()));
+      }
+      stub.insert(insertRequestBuilder.build());
+      // TODO actual status back
+      return new InsertResponse(new TigrisDBResponse("inserted"));
+    } catch (StatusRuntimeException statusRuntimeException) {
+      throw new TigrisDBException("Failed to insert ", statusRuntimeException);
     }
-    stub.insert(insertRequestBuilder.build());
-    // TODO actual status back
-    return new InsertResponse(new TigrisDBResponse("inserted"));
   }
 
   @Override
   public InsertResponse insert(List<T> documents) throws TigrisDBException {
-    return this.insert(documents, new InsertRequestOptions(new WriteOptions()));
+    return insert(documents, new InsertRequestOptions(new WriteOptions()));
   }
 
   @Override
@@ -120,6 +127,8 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
       return new UpdateResponse(updateResponse.getRc());
     } catch (JsonProcessingException jsonProcessingException) {
       throw new TigrisDBException("Failed to process fields", jsonProcessingException);
+    } catch (StatusRuntimeException statusRuntimeException) {
+      throw new TigrisDBException("Failed to update ", statusRuntimeException);
     }
   }
 
@@ -132,23 +141,27 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
   @Override
   public DeleteResponse delete(TigrisFilter filter, DeleteRequestOptions deleteRequestOptions)
       throws TigrisDBException {
-    Api.DeleteRequest deleteRequest =
-        Api.DeleteRequest.newBuilder()
-            .setDb(databaseName)
-            .setCollection(collectionName)
-            .setOptions(
-                Api.DeleteRequestOptions.newBuilder()
-                    .setWriteOptions(Api.WriteOptions.newBuilder().build())
-                    .build())
-            .build();
-    stub.delete(deleteRequest);
-    // TODO actual status back
-    return new DeleteResponse(new TigrisDBResponse("deleted"));
+    try {
+      Api.DeleteRequest deleteRequest =
+          Api.DeleteRequest.newBuilder()
+              .setDb(databaseName)
+              .setCollection(collectionName)
+              .setOptions(
+                  Api.DeleteRequestOptions.newBuilder()
+                      .setWriteOptions(Api.WriteOptions.newBuilder().build())
+                      .build())
+              .build();
+      stub.delete(deleteRequest);
+      // TODO actual status back
+      return new DeleteResponse(new TigrisDBResponse("deleted"));
+    } catch (StatusRuntimeException statusRuntimeException) {
+      throw new TigrisDBException("Failed to delete", statusRuntimeException);
+    }
   }
 
   @Override
   public DeleteResponse delete(TigrisFilter filter) throws TigrisDBException {
-    return this.delete(filter, new DeleteRequestOptions(new WriteOptions()));
+    return delete(filter, new DeleteRequestOptions(new WriteOptions()));
   }
 
   @Override

@@ -5,7 +5,6 @@ import com.tigrisdata.db.client.grpc.ContextSettingServerInterceptor;
 import com.tigrisdata.db.client.grpc.TransactionTestUserService;
 import com.tigrisdata.db.client.model.TigrisFilter;
 import com.tigrisdata.db.client.model.TransactionOptions;
-import io.grpc.StatusRuntimeException;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.testing.GrpcCleanupRule;
 import org.junit.Assert;
@@ -52,7 +51,7 @@ public class TransactionSessionTest {
     try {
       transactionSession.commit();
       Assert.fail("above is expected to fail");
-    } catch (StatusRuntimeException ignore) {
+    } catch (TigrisDBException ignore) {
 
     }
   }
@@ -66,7 +65,7 @@ public class TransactionSessionTest {
     try {
       transactionSession.rollback();
       Assert.fail("above is expected to fail");
-    } catch (StatusRuntimeException ignore) {
+    } catch (TigrisDBException ignore) {
 
     }
   }

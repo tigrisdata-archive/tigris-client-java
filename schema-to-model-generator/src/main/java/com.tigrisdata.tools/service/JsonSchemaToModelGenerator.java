@@ -24,6 +24,7 @@ public class JsonSchemaToModelGenerator implements ModelGenerator {
       List<File> jsonSchemaFiles, JavaCodeGenerationConfig javaCodeGenerationConfig)
       throws IllegalStateException {
     if (!javaCodeGenerationConfig.getOutputDirectory().exists()) {
+      //noinspection ResultOfMethodCallIgnored
       javaCodeGenerationConfig.getOutputDirectory().mkdirs();
     }
     for (File jsonSchemaFile : jsonSchemaFiles) {

@@ -11,6 +11,7 @@ import com.tigrisdata.db.client.model.TigrisDBResponse;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Metadata;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.MetadataUtils;
 
 import java.util.ArrayList;
@@ -18,7 +19,6 @@ import java.util.List;
 
 public class StandardTigrisDBClient implements TigrisDBClient {
 
-  private final AuthorizationToken authorizationToken;
   private final ManagedChannel channel;
   private final TigrisDBGrpc.TigrisDBBlockingStub stub;
   private static final Metadata.Key<String> USER_AGENT_KEY =
@@ -35,7 +35,6 @@ public class StandardTigrisDBClient implements TigrisDBClient {
     defaultHeaders.put(USER_AGENT_KEY, USER_AGENT_VALUE);
     defaultHeaders.put(CLIENT_VERSION_KEY, CLIENT_VERSION_VALUE);
 
-    this.authorizationToken = authorizationToken;
     this.channel =
         ManagedChannelBuilder.forTarget(clientConfiguration.getBaseURL())
             .intercept(new AuthHeaderInterceptor(authorizationToken))
@@ -51,8 +50,6 @@ public class StandardTigrisDBClient implements TigrisDBClient {
     Metadata defaultHeaders = new Metadata();
     defaultHeaders.put(USER_AGENT_KEY, USER_AGENT_VALUE);
     defaultHeaders.put(CLIENT_VERSION_KEY, CLIENT_VERSION_VALUE);
-
-    this.authorizationToken = authorizationToken;
     this.channel =
         managedChannelBuilder
             .intercept(new AuthHeaderInterceptor(authorizationToken))
@@ -61,6 +58,13 @@ public class StandardTigrisDBClient implements TigrisDBClient {
     this.stub = TigrisDBGrpc.newBlockingStub(channel);
   }
 
+  /**
+   * Creates a new instance of @{@link StandardTigrisDBClient} with the given inputs
+   *
+   * @param authorizationToken
+   * @param tigrisDBConfiguration
+   * @return a new instance of @{@link StandardTigrisDBClient}
+   */
   public static StandardTigrisDBClient getInstance(
       AuthorizationToken authorizationToken, TigrisDBConfiguration tigrisDBConfiguration) {
     return new StandardTigrisDBClient(tigrisDBConfiguration, authorizationToken);
@@ -74,37 +78,50 @@ public class StandardTigrisDBClient implements TigrisDBClient {
   @Override
   public List<TigrisDatabase> listDatabases(DatabaseOptions listDatabaseOptions)
       throws TigrisDBException {
-    Api.ListDatabasesRequest listDatabasesRequest = Api.ListDatabasesRequest.newBuilder().build();
-    Api.ListDatabasesResponse listDatabasesResponse = stub.listDatabases(listDatabasesRequest);
-    List<TigrisDatabase> dbs = new ArrayList<>();
-    for (String s : listDatabasesResponse.getDbsList()) {
-      dbs.add(new StandardTigrisDatabase(s, stub, channel));
+    try {
+      Api.ListDatabasesRequest listDatabasesRequest = Api.ListDatabasesRequest.newBuilder().build();
+      Api.ListDatabasesResponse listDatabasesResponse = stub.listDatabases(listDatabasesRequest);
+      List<TigrisDatabase> dbs = new ArrayList<>();
+      for (String s : listDatabasesResponse.getDbsList()) {
+        dbs.add(new StandardTigrisDatabase(s, stub, channel));
+      }
+      return dbs;
+    } catch (StatusRuntimeException statusRuntimeException) {
+      throw new TigrisDBException("Failed to list databases", statusRuntimeException);
     }
-    return dbs;
   }
 
   @Override
   public TigrisDBResponse createDatabase(String databaseName, DatabaseOptions databaseOptions)
       throws TigrisDBException {
-    Api.CreateDatabaseRequest createDatabaseRequest =
-        Api.CreateDatabaseRequest.newBuilder()
-            .setDb(databaseName)
-            .setOptions(Api.DatabaseOptions.newBuilder().build())
-            .build();
-    Api.CreateDatabaseResponse createDatabaseResponse = stub.createDatabase(createDatabaseRequest);
-    return new TigrisDBResponse(createDatabaseResponse.getMsg());
+    try {
+      Api.CreateDatabaseRequest createDatabaseRequest =
+          Api.CreateDatabaseRequest.newBuilder()
+              .setDb(databaseName)
+              .setOptions(Api.DatabaseOptions.newBuilder().build())
+              .build();
+      Api.CreateDatabaseResponse createDatabaseResponse =
+          stub.createDatabase(createDatabaseRequest);
+      return new TigrisDBResponse(createDatabaseResponse.getMsg());
+    } catch (StatusRuntimeException statusRuntimeException) {
+      throw new TigrisDBException("Failed to create database", statusRuntimeException);
+    }
   }
 
   @Override
   public TigrisDBResponse dropDatabase(String databaseName, DatabaseOptions databaseOptions)
       throws TigrisDBException {
-    Api.DropDatabaseRequest dropDatabaseRequest =
-        Api.DropDatabaseRequest.newBuilder()
-            .setDb(databaseName)
-            .setOptions(Api.DatabaseOptions.newBuilder().build())
-            .build();
-    Api.DropDatabaseResponse dropDatabaseResponse = stub.dropDatabase(dropDatabaseRequest);
-    return new TigrisDBResponse(dropDatabaseResponse.getMsg());
+    try {
+      Api.DropDatabaseRequest dropDatabaseRequest =
+          Api.DropDatabaseRequest.newBuilder()
+              .setDb(databaseName)
+              .setOptions(Api.DatabaseOptions.newBuilder().build())
+              .build();
+      Api.DropDatabaseResponse dropDatabaseResponse = stub.dropDatabase(dropDatabaseRequest);
+      return new TigrisDBResponse(dropDatabaseResponse.getMsg());
+    } catch (StatusRuntimeException statusRuntimeException) {
+      throw new TigrisDBException("Failed to drop database", statusRuntimeException);
+    }
   }
 
   @Override

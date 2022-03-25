@@ -21,7 +21,7 @@ public class TransactionalTigrisCollection<T extends TigrisCollectionType>
     extends StandardTigrisCollection<T> implements TransactionTigrisCollection<T> {
   private final Api.TransactionCtx transactionCtx;
 
-  public TransactionalTigrisCollection(
+  TransactionalTigrisCollection(
       String databaseName,
       Class<T> collectionTypeClass,
       TigrisDBGrpc.TigrisDBBlockingStub stub,
@@ -66,16 +66,16 @@ public class TransactionalTigrisCollection<T extends TigrisCollectionType>
 
   @Override
   public Iterator<T> read(TigrisFilter filter, List<Field<?>> fields) throws TigrisDBException {
-    return this.read(filter, fields, new ReadRequestOptions(new ReadOptions(transactionCtx)));
+    return read(filter, fields, new ReadRequestOptions(new ReadOptions(transactionCtx)));
   }
 
   @Override
   public InsertResponse insert(List<T> documents) throws TigrisDBException {
-    return this.insert(documents, new InsertRequestOptions(new WriteOptions(transactionCtx)));
+    return insert(documents, new InsertRequestOptions(new WriteOptions(transactionCtx)));
   }
 
   @Override
   public DeleteResponse delete(TigrisFilter filter) throws TigrisDBException {
-    return this.delete(filter, new DeleteRequestOptions(new WriteOptions(transactionCtx)));
+    return delete(filter, new DeleteRequestOptions(new WriteOptions(transactionCtx)));
   }
 }

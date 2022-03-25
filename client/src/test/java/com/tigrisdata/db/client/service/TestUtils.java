@@ -1,7 +1,6 @@
 package com.tigrisdata.db.client.service;
 
-import com.tigrisdata.db.client.auth.JTWAuthorization;
-import com.tigrisdata.db.client.config.TigrisDBConfiguration;
+import com.tigrisdata.db.client.auth.TigrisAuthorizationToken;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.testing.GrpcCleanupRule;
@@ -12,12 +11,10 @@ public final class TestUtils {
 
   public static StandardTigrisDBClient getTestClient(
       String grpcServerName, GrpcCleanupRule grpcCleanupRule) {
-    ManagedChannelBuilder channel = InProcessChannelBuilder.forName(grpcServerName);
+    ManagedChannelBuilder<InProcessChannelBuilder> channel =
+        InProcessChannelBuilder.forName(grpcServerName);
     StandardTigrisDBClient client =
-        new StandardTigrisDBClient(
-            TigrisDBConfiguration.newBuilder().build(),
-            new JTWAuthorization("some.dummy.token"),
-            channel);
+        new StandardTigrisDBClient(new TigrisAuthorizationToken("some.dummy.token"), channel);
     grpcCleanupRule.register(client.getChannel());
     return client;
   }

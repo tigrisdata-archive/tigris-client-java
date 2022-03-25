@@ -52,7 +52,7 @@ public class TransactionSessionTest {
     try {
       transactionSession.commit();
       Assert.fail("above is expected to fail");
-    } catch (StatusRuntimeException exception) {
+    } catch (StatusRuntimeException ignore) {
 
     }
   }
@@ -66,7 +66,7 @@ public class TransactionSessionTest {
     try {
       transactionSession.rollback();
       Assert.fail("above is expected to fail");
-    } catch (StatusRuntimeException exception) {
+    } catch (StatusRuntimeException ignore) {
 
     }
   }

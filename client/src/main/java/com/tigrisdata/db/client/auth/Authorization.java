@@ -1,3 +1,3 @@
 package com.tigrisdata.db.client.auth;
 
-public interface Authentication {}
+public interface Authorization {}

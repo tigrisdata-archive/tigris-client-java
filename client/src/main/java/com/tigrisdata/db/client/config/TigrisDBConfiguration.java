@@ -27,7 +27,7 @@ public class TigrisDBConfiguration {
 
     private String baseURL;
     private TigrisDBConfiguration.NetworkConfig network;
-    public static final String DEFAULT_BASE_URL = "https://dev.tigrisdata" + ".cloud/api/";
+    public static final String DEFAULT_BASE_URL = "https://dev.tigrisdata.cloud/api/";
 
     private TigrisDBClientConfigurationBuilder() {
       this.baseURL = DEFAULT_BASE_URL;

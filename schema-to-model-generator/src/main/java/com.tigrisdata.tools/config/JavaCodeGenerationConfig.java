@@ -221,7 +221,7 @@ public class JavaCodeGenerationConfig {
     private boolean initializeCollections = true;
     private boolean includeConstructorForRequiredTypesOnly = true;
     private boolean generateBuilders = false;
-    private boolean includeTypeInformation = true;
+    private boolean includeTypeInformation = false;
     private boolean includeHashCodeAndEquals = true;
     private AnnotationStyle annotationStyle = AnnotationStyle.JACKSON;
     private boolean includeAdditionalProperties = false;

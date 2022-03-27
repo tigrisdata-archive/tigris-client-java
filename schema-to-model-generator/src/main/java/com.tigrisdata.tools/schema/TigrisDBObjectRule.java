@@ -1,6 +1,7 @@
 package com.tigrisdata.tools.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.sun.codemodel.JDefinedClass;
 import com.sun.codemodel.JPackage;
 import com.sun.codemodel.JType;
 import org.jsonschema2pojo.Schema;
@@ -30,7 +31,8 @@ public class TigrisDBObjectRule extends org.jsonschema2pojo.rules.ObjectRule {
   public JType apply(
       String nodeName, JsonNode node, JsonNode parent, JPackage _package, Schema schema) {
     // TODO: implement the type
-    // result._implements()
-    return super.apply(nodeName, node, parent, _package, schema);
+    JDefinedClass result = (JDefinedClass) super.apply(nodeName, node, parent, _package, schema);
+    result._implements(com.tigrisdata.db.client.model.TigrisCollectionType.class);
+    return result;
   }
 }

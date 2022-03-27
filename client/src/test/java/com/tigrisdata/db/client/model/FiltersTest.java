@@ -7,16 +7,16 @@ public class FiltersTest {
 
   @Test
   public void equalFilterTest() {
-    Assert.assertEquals("{\"$eq\":{\"k1\":123}}", Filters.eq("k1", 123).toString());
-    Assert.assertEquals("{\"$eq\":{\"k2\":false}}", Filters.eq("k2", false).toString());
-    Assert.assertEquals("{\"$eq\":{\"k3\":true}}", Filters.eq("k3", true).toString());
-    Assert.assertEquals("{\"$eq\":{\"k4\":\"val1\"}}", Filters.eq("k4", "val1").toString());
+    Assert.assertEquals("{\"k1\":123}", Filters.eq("k1", 123).toString());
+    Assert.assertEquals("{\"k2\":false}", Filters.eq("k2", false).toString());
+    Assert.assertEquals("{\"k3\":true}", Filters.eq("k3", true).toString());
+    Assert.assertEquals("{\"k4\":\"val1\"}", Filters.eq("k4", "val1").toString());
   }
 
   @Test
   public void orFilterTest() {
     Assert.assertEquals(
-        "{\"$or\":[{\"$eq\":{\"k1\":123}},{\"$eq\":{\"k2\":false}},{\"$eq\":{\"k3\":\"val3\"}}]",
+        "{\"$or\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}]",
         Filters.or(Filters.eq("k1", 123), Filters.eq("k2", false), Filters.eq("k3", "val3"))
             .toString());
   }
@@ -24,7 +24,7 @@ public class FiltersTest {
   @Test
   public void andFilterTest() {
     Assert.assertEquals(
-        "{\"$and\":[{\"$eq\":{\"k1\":123}},{\"$eq\":{\"k2\":false}},{\"$eq\":{\"k3\":\"val3\"}}]",
+        "{\"$and\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}]",
         Filters.and(Filters.eq("k1", 123), Filters.eq("k2", false), Filters.eq("k3", "val3"))
             .toString());
   }
@@ -37,8 +37,8 @@ public class FiltersTest {
         Filters.and(Filters.eq("k1", 456), Filters.eq("k2", false), Filters.eq("k3", "val4"));
 
     Assert.assertEquals(
-        "{\"$or\":[{\"$and\":[{\"$eq\":{\"k1\":123}},{\"$eq\":{\"k2\":false}},{\"$eq\":{\"k3\":\"val3\"}}],"
-            + "{\"$and\":[{\"$eq\":{\"k1\":456}},{\"$eq\":{\"k2\":false}},{\"$eq\":{\"k3\":\"val4\"}}]]",
+        "{\"$or\":[{\"$and\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}],"
+            + "{\"$and\":[{\"k1\":456},{\"k2\":false},{\"k3\":\"val4\"}]]",
         Filters.or(filter1, filter2).toString());
   }
 
@@ -50,8 +50,8 @@ public class FiltersTest {
         Filters.and(Filters.eq("k4", 456), Filters.eq("k5", false), Filters.eq("k6", "val4"));
 
     Assert.assertEquals(
-        "{\"$and\":[{\"$and\":[{\"$eq\":{\"k1\":123}},{\"$eq\":{\"k2\":false}},{\"$eq\":{\"k3\":\"val3\"}}],"
-            + "{\"$and\":[{\"$eq\":{\"k4\":456}},{\"$eq\":{\"k5\":false}},{\"$eq\":{\"k6\":\"val4\"}}]]",
+        "{\"$and\":[{\"$and\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}],"
+            + "{\"$and\":[{\"k4\":456},{\"k5\":false},{\"k6\":\"val4\"}]]",
         Filters.and(filter1, filter2).toString());
   }
 
@@ -63,8 +63,8 @@ public class FiltersTest {
         Filters.or(Filters.eq("k1", 456), Filters.eq("k2", false), Filters.eq("k3", "val4"));
 
     Assert.assertEquals(
-        "{\"$and\":[{\"$or\":[{\"$eq\":{\"k1\":123}},{\"$eq\":{\"k2\":false}},{\"$eq\":{\"k3\":\"val3\"}}],"
-            + "{\"$or\":[{\"$eq\":{\"k1\":456}},{\"$eq\":{\"k2\":false}},{\"$eq\":{\"k3\":\"val4\"}}]]",
+        "{\"$and\":[{\"$or\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}],"
+            + "{\"$or\":[{\"k1\":456},{\"k2\":false},{\"k3\":\"val4\"}]]",
         Filters.and(filter1, filter2).toString());
   }
 
@@ -76,8 +76,8 @@ public class FiltersTest {
         Filters.or(Filters.eq("k4", 456), Filters.eq("k5", false), Filters.eq("k6", "val4"));
 
     Assert.assertEquals(
-        "{\"$and\":[{\"$or\":[{\"$eq\":{\"k1\":123}},{\"$eq\":{\"k2\":false}},{\"$eq\":{\"k3\":\"val3\"}}],"
-            + "{\"$or\":[{\"$eq\":{\"k4\":456}},{\"$eq\":{\"k5\":false}},{\"$eq\":{\"k6\":\"val4\"}}]]",
+        "{\"$and\":[{\"$or\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}],"
+            + "{\"$or\":[{\"k4\":456},{\"k5\":false},{\"k6\":\"val4\"}]]",
         Filters.and(filter1, filter2).toString());
   }
 

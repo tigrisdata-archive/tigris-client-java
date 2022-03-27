@@ -107,6 +107,6 @@ public class StandardTigrisCollectionTest {
     TigrisDBClient client = TestUtils.getTestClient(serverName, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
     TigrisCollection<C1> collection = db1.getCollection(C1.class);
-    Assert.assertEquals("C1", collection.name());
+    Assert.assertEquals("c1", collection.name());
   }
 }

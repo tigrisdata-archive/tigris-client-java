@@ -13,6 +13,8 @@ import io.grpc.ManagedChannelBuilder;
 import io.grpc.Metadata;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.MetadataUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,17 +31,24 @@ public class StandardTigrisDBClient implements TigrisDBClient {
   private static final String USER_AGENT_VALUE = "tigrisdb-client-java.grpc";
   private static final String CLIENT_VERSION_VALUE = "1.0";
 
+  private static final Logger log = LoggerFactory.getLogger(StandardTigrisDBClient.class);
+
   private StandardTigrisDBClient(
       TigrisDBConfiguration clientConfiguration, AuthorizationToken authorizationToken) {
     Metadata defaultHeaders = new Metadata();
     defaultHeaders.put(USER_AGENT_KEY, USER_AGENT_VALUE);
     defaultHeaders.put(CLIENT_VERSION_KEY, CLIENT_VERSION_VALUE);
 
-    this.channel =
+    ManagedChannelBuilder channelBuilder =
         ManagedChannelBuilder.forTarget(clientConfiguration.getBaseURL())
             .intercept(new AuthHeaderInterceptor(authorizationToken))
-            .intercept(MetadataUtils.newAttachHeadersInterceptor(defaultHeaders))
-            .build();
+            .intercept(MetadataUtils.newAttachHeadersInterceptor(defaultHeaders));
+    if (clientConfiguration.getNetwork().isUsePlainText()) {
+      log.warn(
+          "Client is configured to use plaintext communication. It is advised to not use plaintext communication");
+      channelBuilder.usePlaintext();
+    }
+    this.channel = channelBuilder.build();
     this.stub = TigrisDBGrpc.newBlockingStub(channel);
   }
 

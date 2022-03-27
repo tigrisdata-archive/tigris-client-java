@@ -1,3 +1,5 @@
 package com.tigrisdata.db.client.model;
 
-public interface TigrisDBSchema {}
+public interface TigrisDBSchema {
+  String getSchemaContent();
+}

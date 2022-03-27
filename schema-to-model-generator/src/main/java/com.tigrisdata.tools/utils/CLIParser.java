@@ -22,7 +22,7 @@ public final class CLIParser {
   private static final Option INPUT_SCHEMA_FILES =
       Option.builder()
           .option("i")
-          .hasArg()
+          .hasArgs()
           .desc("Comma seperated input json schema files")
           .required()
           .longOpt("input_json_schema_files")

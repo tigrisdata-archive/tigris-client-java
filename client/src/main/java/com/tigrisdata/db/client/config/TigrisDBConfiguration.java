@@ -52,6 +52,7 @@ public class TigrisDBConfiguration {
 
   public static class NetworkConfig {
     private final Duration deadline;
+    private final boolean usePlainText;
 
     public static NetworkConfigBuilder newBuilder() {
       return new NetworkConfigBuilder();
@@ -59,23 +60,35 @@ public class TigrisDBConfiguration {
 
     private NetworkConfig(NetworkConfigBuilder networkConfigBuilder) {
       this.deadline = networkConfigBuilder.deadline;
+      this.usePlainText = networkConfigBuilder.usePlainText;
     }
 
     public Duration getDeadline() {
       return this.deadline;
     }
 
+    public boolean isUsePlainText() {
+      return usePlainText;
+    }
+
     public static class NetworkConfigBuilder {
       public static final Duration DEFAULT_DEADLINE = Duration.ofSeconds(5);
 
       private Duration deadline;
+      private boolean usePlainText;
 
       public NetworkConfigBuilder() {
         this.deadline = DEFAULT_DEADLINE;
+        this.usePlainText = false;
       }
 
       public NetworkConfigBuilder withDeadline(Duration deadline) {
         this.deadline = deadline;
+        return this;
+      }
+
+      public NetworkConfigBuilder usePlainText() {
+        this.usePlainText = true;
         return this;
       }
 

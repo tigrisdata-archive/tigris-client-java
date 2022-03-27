@@ -14,6 +14,7 @@ import com.tigrisdata.db.client.model.TigrisCollectionType;
 import com.tigrisdata.db.client.model.TigrisFilter;
 import com.tigrisdata.db.client.model.WriteOptions;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -72,6 +73,11 @@ public class TransactionalTigrisCollection<T extends TigrisCollectionType>
   @Override
   public InsertResponse insert(List<T> documents) throws TigrisDBException {
     return insert(documents, new InsertRequestOptions(new WriteOptions(transactionCtx)));
+  }
+
+  @Override
+  public InsertResponse insert(T document) throws TigrisDBException {
+    return this.insert(Collections.singletonList(document));
   }
 
   @Override

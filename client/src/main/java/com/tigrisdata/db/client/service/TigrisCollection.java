@@ -55,6 +55,15 @@ public interface TigrisCollection<T extends TigrisCollectionType> {
   InsertResponse insert(List<T> documents) throws TigrisDBException;
 
   /**
+   * inserts a single document to the collection
+   *
+   * @param document
+   * @return
+   * @throws TigrisDBException
+   */
+  InsertResponse insert(T document) throws TigrisDBException;
+
+  /**
    * @param filter
    * @param fields
    * @param updateRequestOptions

@@ -12,6 +12,7 @@
     <modules>
         <module>client</module>
         <module>schema-to-model-generator</module>
+        <module>source-code-generator-maven-plugin</module>
     </modules>
     <properties>
         <maven.compiler.source>8</maven.compiler.source>

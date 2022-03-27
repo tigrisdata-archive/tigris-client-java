@@ -56,7 +56,7 @@ public class StandardTigrisDatabase implements TigrisDatabase {
           Api.CreateCollectionRequest.newBuilder()
               .setDb(dbName)
               .setCollection(collectionName)
-              .setSchema(ByteString.copyFrom(schema.toString(), StandardCharsets.UTF_8))
+              .setSchema(ByteString.copyFrom(schema.getSchemaContent(), StandardCharsets.UTF_8))
               .build();
       return new CreateCollectionResponse(
           new TigrisDBResponse(stub.createCollection(createCollectionRequest).getMsg()));
@@ -74,7 +74,7 @@ public class StandardTigrisDatabase implements TigrisDatabase {
           Api.AlterCollectionRequest.newBuilder()
               .setDb(dbName)
               .setCollection(collectionName)
-              .setSchema(ByteString.copyFrom(schema.toString(), StandardCharsets.UTF_8))
+              .setSchema(ByteString.copyFrom(schema.getSchemaContent(), StandardCharsets.UTF_8))
               .build();
       return new AlterCollectionResponse(
           new TigrisDBResponse(stub.alterCollection(alterCollectionRequest).getMsg()));

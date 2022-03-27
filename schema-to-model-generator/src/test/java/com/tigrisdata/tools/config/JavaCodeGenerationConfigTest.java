@@ -24,7 +24,7 @@ public class JavaCodeGenerationConfigTest {
     assertTrue(config.isInitializeCollections());
     assertTrue(config.isIncludeConstructorForRequiredTypesOnly());
     assertFalse(config.isGenerateBuilders());
-    assertTrue(config.isIncludeTypeInformation());
+    assertFalse(config.isIncludeTypeInformation());
     assertTrue(config.isIncludeHashCodeAndEquals());
 
     assertEquals(AnnotationStyle.JACKSON, config.getAnnotationStyle());

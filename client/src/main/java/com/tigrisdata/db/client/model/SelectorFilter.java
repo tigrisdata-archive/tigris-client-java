@@ -3,7 +3,6 @@ package com.tigrisdata.db.client.model;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tigrisdata.db.client.utils.Utilities;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -22,12 +21,10 @@ public class SelectorFilter<T> implements TigrisFilter {
 
   @Override
   public String toString() {
-    Map<String, Map<String, Object>> outerMap = new HashMap<>();
-    Map<String, Object> innerMap = new LinkedHashMap<>();
-    outerMap.put(comparisonOperator.getOperator(), innerMap);
-    innerMap.put(key, val);
+    Map<String, Object> map = new LinkedHashMap<>();
+    map.put(key, val);
     try {
-      return Utilities.OBJECT_MAPPER.writeValueAsString(outerMap);
+      return Utilities.OBJECT_MAPPER.writeValueAsString(map);
     } catch (JsonProcessingException e) {
       throw new IllegalStateException(e);
     }

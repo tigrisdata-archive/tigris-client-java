@@ -23,6 +23,7 @@ import com.tigrisdata.db.client.utils.Utilities;
 import io.grpc.StatusRuntimeException;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
@@ -39,7 +40,7 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
   StandardTigrisCollection(
       String databaseName, Class<T> collectionTypeClass, TigrisDBGrpc.TigrisDBBlockingStub stub) {
     this.databaseName = databaseName;
-    this.collectionName = collectionTypeClass.getSimpleName();
+    this.collectionName = collectionTypeClass.getSimpleName().toLowerCase();
     this.collectionTypeClass = collectionTypeClass;
     this.stub = stub;
     this.objectMapper = new ObjectMapper();
@@ -96,11 +97,14 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
                       .setWriteOptions(Api.WriteOptions.newBuilder().build())
                       .build());
       for (T document : documents) {
-        insertRequestBuilder.addDocuments(ByteString.copyFromUtf8(document.toString()));
+        insertRequestBuilder.addDocuments(
+            ByteString.copyFromUtf8(Utilities.OBJECT_MAPPER.writeValueAsString(document)));
       }
       stub.insert(insertRequestBuilder.build());
       // TODO actual status back
       return new InsertResponse(new TigrisDBResponse("inserted"));
+    } catch (JsonProcessingException ex) {
+      throw new TigrisDBException("Failed to serialize to JSON", ex);
     } catch (StatusRuntimeException statusRuntimeException) {
       throw new TigrisDBException("Failed to insert ", statusRuntimeException);
     }
@@ -109,6 +113,11 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
   @Override
   public InsertResponse insert(List<T> documents) throws TigrisDBException {
     return insert(documents, new InsertRequestOptions(new WriteOptions()));
+  }
+
+  @Override
+  public InsertResponse insert(T document) throws TigrisDBException {
+    return insert(Collections.singletonList(document));
   }
 
   @Override

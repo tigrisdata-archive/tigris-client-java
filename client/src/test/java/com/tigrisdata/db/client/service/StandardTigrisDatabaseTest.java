@@ -59,7 +59,10 @@ public class StandardTigrisDatabaseTest {
     TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
     CreateCollectionResponse response =
-        db1.createCollection("db1_c5", new TigrisDBJSONSchema(), new CollectionOptions());
+        db1.createCollection(
+            "db1_c5",
+            new TigrisDBJSONSchema("src/test/resources/test-schema.json"),
+            new CollectionOptions());
     Assert.assertEquals("db1_c5 created", response.getTigrisDBResponse().getMessage());
     MatcherAssert.assertThat(
         db1.listCollections(),
@@ -71,7 +74,10 @@ public class StandardTigrisDatabaseTest {
     TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
     AlterCollectionResponse response =
-        db1.alterCollection("db1_c4", new TigrisDBJSONSchema(), new CollectionOptions());
+        db1.alterCollection(
+            "db1_c4",
+            new TigrisDBJSONSchema("src/test/resources/test-schema.json"),
+            new CollectionOptions());
     Assert.assertEquals("db1_c4 altered", response.getTigrisDBResponse().getMessage());
   }
 
@@ -98,7 +104,7 @@ public class StandardTigrisDatabaseTest {
     TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
     TigrisCollection<C1> c1TigrisCollection = db1.getCollection(C1.class);
-    Assert.assertEquals("C1", c1TigrisCollection.name());
+    Assert.assertEquals("c1", c1TigrisCollection.name());
   }
 
   @Test

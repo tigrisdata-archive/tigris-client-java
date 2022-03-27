@@ -1,5 +1,6 @@
 package com.tigrisdata.tools.schema;
 
+import com.sun.codemodel.JClassContainer;
 import com.sun.codemodel.JDefinedClass;
 import com.sun.codemodel.JPackage;
 import com.sun.codemodel.JType;
@@ -19,6 +20,11 @@ public class TigrisDBRuleFactory extends RuleFactory {
       GenerationConfig generationConfig, Annotator annotator, SchemaStore schemaStore) {
     super(generationConfig, annotator, schemaStore);
     this.reflectionHelper = new ReflectionHelper(this);
+  }
+
+  @Override
+  public Rule<JClassContainer, JType> getTypeRule() {
+    return new TigrisDBTypeRule(this);
   }
 
   @Override

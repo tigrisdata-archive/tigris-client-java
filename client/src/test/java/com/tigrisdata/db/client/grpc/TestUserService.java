@@ -151,17 +151,6 @@ public class TestUserService extends TigrisDBGrpc.TigrisDBImplBase {
   }
 
   @Override
-  public void truncateCollection(
-      Api.TruncateCollectionRequest request,
-      StreamObserver<Api.TruncateCollectionResponse> responseObserver) {
-    responseObserver.onNext(
-        Api.TruncateCollectionResponse.newBuilder()
-            .setMsg(request.getCollection() + " truncated")
-            .build());
-    responseObserver.onCompleted();
-  }
-
-  @Override
   public void listDatabases(
       Api.ListDatabasesRequest request,
       StreamObserver<Api.ListDatabasesResponse> responseObserver) {

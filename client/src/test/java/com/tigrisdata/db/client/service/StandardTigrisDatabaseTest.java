@@ -8,7 +8,6 @@ import com.tigrisdata.db.client.model.CreateCollectionResponse;
 import com.tigrisdata.db.client.model.DropCollectionResponse;
 import com.tigrisdata.db.client.model.TigrisDBJSONSchema;
 import com.tigrisdata.db.client.model.TransactionOptions;
-import com.tigrisdata.db.client.model.TruncateCollectionResponse;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.testing.GrpcCleanupRule;
 import org.hamcrest.MatcherAssert;
@@ -79,14 +78,6 @@ public class StandardTigrisDatabaseTest {
             new TigrisDBJSONSchema("src/test/resources/test-schema.json"),
             new CollectionOptions());
     Assert.assertEquals("db1_c4 altered", response.getTigrisDBResponse().getMessage());
-  }
-
-  @Test
-  public void testTruncateCollection() throws TigrisDBException {
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("db1");
-    TruncateCollectionResponse response = db1.truncateCollection("db1_c4");
-    Assert.assertEquals("db1_c4 truncated", response.getTigrisDBResponse().getMessage());
   }
 
   @Test

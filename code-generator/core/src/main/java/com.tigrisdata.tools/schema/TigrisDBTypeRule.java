@@ -9,11 +9,10 @@ import org.jsonschema2pojo.Schema;
 import org.jsonschema2pojo.rules.ArrayRule;
 import org.jsonschema2pojo.rules.FormatRule;
 import org.jsonschema2pojo.rules.ObjectRule;
-import static org.jsonschema2pojo.rules.PrimitiveTypes.isPrimitive;
-import static org.jsonschema2pojo.rules.PrimitiveTypes.primitiveType;
+import org.jsonschema2pojo.rules.PrimitiveTypes;
 import org.jsonschema2pojo.rules.Rule;
 import org.jsonschema2pojo.rules.RuleFactory;
-import static org.jsonschema2pojo.util.TypeUtil.resolveType;
+import org.jsonschema2pojo.util.TypeUtil;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -79,10 +78,10 @@ public class TigrisDBTypeRule implements Rule<JClassContainer, JType> {
     } else if (node.has("existingJavaType")) {
       String typeName = node.path("existingJavaType").asText();
 
-      if (isPrimitive(typeName, jClassContainer.owner())) {
-        type = primitiveType(typeName, jClassContainer.owner());
+      if (PrimitiveTypes.isPrimitive(typeName, jClassContainer.owner())) {
+        type = PrimitiveTypes.primitiveType(typeName, jClassContainer.owner());
       } else {
-        type = resolveType(jClassContainer, typeName);
+        type = TypeUtil.resolveType(jClassContainer, typeName);
       }
     } else if (propertyTypeName.equals("string")) {
 

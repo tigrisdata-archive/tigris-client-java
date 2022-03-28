@@ -8,7 +8,6 @@ import com.tigrisdata.db.client.model.DropCollectionResponse;
 import com.tigrisdata.db.client.model.TigrisCollectionType;
 import com.tigrisdata.db.client.model.TigrisDBSchema;
 import com.tigrisdata.db.client.model.TransactionOptions;
-import com.tigrisdata.db.client.model.TruncateCollectionResponse;
 
 import java.util.List;
 
@@ -47,15 +46,6 @@ public interface TigrisDatabase {
   AlterCollectionResponse alterCollection(
       String collectionName, TigrisDBSchema schema, CollectionOptions collectionOptions)
       throws TigrisDBException;
-
-  /**
-   * Truncates the collection.
-   *
-   * @param collectionName name of the collection
-   * @return the instance of {@link TruncateCollectionResponse} from server
-   * @throws TigrisDBException in case of an error.
-   */
-  TruncateCollectionResponse truncateCollection(String collectionName) throws TigrisDBException;
 
   /**
    * Drops the collection.

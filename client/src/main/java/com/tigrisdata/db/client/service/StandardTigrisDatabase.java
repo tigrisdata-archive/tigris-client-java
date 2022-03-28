@@ -12,7 +12,6 @@ import com.tigrisdata.db.client.model.TigrisCollectionType;
 import com.tigrisdata.db.client.model.TigrisDBResponse;
 import com.tigrisdata.db.client.model.TigrisDBSchema;
 import com.tigrisdata.db.client.model.TransactionOptions;
-import com.tigrisdata.db.client.model.TruncateCollectionResponse;
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
 
@@ -80,22 +79,6 @@ public class StandardTigrisDatabase implements TigrisDatabase {
           new TigrisDBResponse(stub.alterCollection(alterCollectionRequest).getMsg()));
     } catch (StatusRuntimeException statusRuntimeException) {
       throw new TigrisDBException("Failed to alter collection", statusRuntimeException);
-    }
-  }
-
-  @Override
-  public TruncateCollectionResponse truncateCollection(String collectionName)
-      throws TigrisDBException {
-    try {
-      Api.TruncateCollectionRequest truncateCollectionRequest =
-          Api.TruncateCollectionRequest.newBuilder()
-              .setDb(dbName)
-              .setCollection(collectionName)
-              .build();
-      return new TruncateCollectionResponse(
-          new TigrisDBResponse(stub.truncateCollection(truncateCollectionRequest).getMsg()));
-    } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisDBException("Failed to truncate collection", statusRuntimeException);
     }
   }
 

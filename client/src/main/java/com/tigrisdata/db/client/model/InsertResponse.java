@@ -6,4 +6,8 @@ public class InsertResponse {
   public InsertResponse(TigrisDBResponse tigrisDBResponse) {
     this.tigrisDBResponse = tigrisDBResponse;
   }
+
+  public TigrisDBResponse getTigrisDBResponse() {
+    return tigrisDBResponse;
+  }
 }

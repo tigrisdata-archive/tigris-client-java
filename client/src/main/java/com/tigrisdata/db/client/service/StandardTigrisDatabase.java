@@ -15,6 +15,7 @@ import com.tigrisdata.db.client.model.TransactionOptions;
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,6 +60,8 @@ public class StandardTigrisDatabase implements TigrisDatabase {
               .build();
       return new CreateCollectionResponse(
           new TigrisDBResponse(stub.createCollection(createCollectionRequest).getMsg()));
+    } catch (IOException ioException) {
+      throw new TigrisDBException("Failed to read schema content", ioException);
     } catch (StatusRuntimeException statusRuntimeException) {
       throw new TigrisDBException("Failed to create collection", statusRuntimeException);
     }
@@ -77,6 +80,8 @@ public class StandardTigrisDatabase implements TigrisDatabase {
               .build();
       return new AlterCollectionResponse(
           new TigrisDBResponse(stub.alterCollection(alterCollectionRequest).getMsg()));
+    } catch (IOException ioException) {
+      throw new TigrisDBException("Failed to read schema content", ioException);
     } catch (StatusRuntimeException statusRuntimeException) {
       throw new TigrisDBException("Failed to alter collection", statusRuntimeException);
     }

@@ -4,13 +4,13 @@ public enum LogicalFilterOperator {
   OR("$or"),
   AND("$and");
 
-  private final String operatorName;
+  private final String operator;
 
-  LogicalFilterOperator(String operatorName) {
-    this.operatorName = operatorName;
+  LogicalFilterOperator(String operator) {
+    this.operator = operator;
   }
 
-  public String getOperatorName() {
-    return operatorName;
+  public String getOperator() {
+    return operator;
   }
 }

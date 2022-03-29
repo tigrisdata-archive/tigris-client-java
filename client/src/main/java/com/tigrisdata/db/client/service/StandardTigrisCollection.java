@@ -51,13 +51,19 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
       TigrisFilter filter, List<Field<?>> fields, ReadRequestOptions readRequestOptions)
       throws TigrisDBException {
     try {
+      Api.ReadRequestOptions readRequestOptionsAPI =
+          Api.ReadRequestOptions.newBuilder()
+              .setLimit(readRequestOptions.getLimit())
+              .setSkip(readRequestOptions.getSkip())
+              .build();
+
       Api.ReadRequest readRequest =
           Api.ReadRequest.newBuilder()
               .setDb(databaseName)
               .setCollection(collectionName)
               .setFilter(ByteString.copyFrom(filter.toString(), StandardCharsets.UTF_8))
               .setFields(ByteString.copyFromUtf8(Utilities.fields(fields)))
-              .setOptions(Api.ReadRequestOptions.newBuilder().build())
+              .setOptions(readRequestOptionsAPI)
               .build();
       Iterator<Api.ReadResponse> readResponseIterator = stub.read(readRequest);
 
@@ -81,6 +87,18 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
   @Override
   public Iterator<T> read(TigrisFilter filter, List<Field<?>> fields) throws TigrisDBException {
     return this.read(filter, fields, new ReadRequestOptions());
+  }
+
+  @Override
+  public T readOne(TigrisFilter filter) throws TigrisDBException {
+    ReadRequestOptions readRequestOptions = new ReadRequestOptions();
+    readRequestOptions.setLimit(1L);
+    readRequestOptions.setSkip(0L);
+    Iterator<T> iterator = this.read(filter, Collections.emptyList(), readRequestOptions);
+    if (iterator.hasNext()) {
+      return iterator.next();
+    }
+    return null;
   }
 
   @Override

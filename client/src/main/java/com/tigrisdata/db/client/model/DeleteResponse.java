@@ -6,4 +6,8 @@ public class DeleteResponse {
   public DeleteResponse(TigrisDBResponse tigrisDBResponse) {
     this.tigrisDBResponse = tigrisDBResponse;
   }
+
+  public TigrisDBResponse getTigrisDBResponse() {
+    return tigrisDBResponse;
+  }
 }

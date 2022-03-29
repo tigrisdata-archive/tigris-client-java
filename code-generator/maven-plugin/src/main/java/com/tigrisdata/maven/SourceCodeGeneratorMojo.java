@@ -39,20 +39,21 @@ public class SourceCodeGeneratorMojo extends AbstractMojo {
 
   @Override
   public void execute() {
+    File schemaDirFile =
+        new File(project.getBasedir().getAbsolutePath() + File.separator + schemaDir);
     File[] schemaFiles =
-        new File(schemaDir)
-            .listFiles(
-                pathname ->
-                    pathname.getAbsolutePath().endsWith(JSON_EXTENSION)
-                        || pathname.getAbsolutePath().endsWith(JSON_EXTENSION.toUpperCase()));
+        schemaDirFile.listFiles(
+            pathname -> pathname.getAbsolutePath().toLowerCase().endsWith(JSON_EXTENSION));
     if (schemaFiles == null || schemaFiles.length == 0) {
       getLog().warn("No schema files found in the schemaDir=" + schemaDir + " skipping execution");
       return;
     }
-
+    File outputDirectoryFile =
+        new File(project.getBasedir().getAbsolutePath() + File.separator + outputDirectory);
     getLog().info("Input schema files = " + Arrays.toString(schemaFiles));
     getLog().info("packageName = " + packageName);
-    File outputDirectoryFile = new File(outputDirectory);
+    getLog().info("OutputDir = " + outputDirectoryFile.getAbsolutePath());
+
     ModelGenerator modelGenerator = new JsonSchemaToModelGenerator();
     modelGenerator.generate(
         Arrays.asList(schemaFiles),

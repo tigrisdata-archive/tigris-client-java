@@ -71,6 +71,15 @@ public class TransactionalTigrisCollection<T extends TigrisCollectionType>
   }
 
   @Override
+  public T readOne(TigrisFilter filter) throws TigrisDBException {
+    Iterator<T> iterator = this.read(filter, Collections.emptyList());
+    if (iterator.hasNext()) {
+      return iterator.next();
+    }
+    return null;
+  }
+
+  @Override
   public InsertResponse insert(List<T> documents) throws TigrisDBException {
     return insert(documents, new InsertRequestOptions(new WriteOptions(transactionCtx)));
   }

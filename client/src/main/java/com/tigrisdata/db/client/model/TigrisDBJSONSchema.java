@@ -3,28 +3,47 @@ package com.tigrisdata.db.client.model;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class TigrisDBJSONSchema implements TigrisDBSchema {
 
   private final String jsonSchemaFile;
+  private final InputStream jsonSchemaInputStream;
   private static final Logger log = LoggerFactory.getLogger(TigrisDBJSONSchema.class);
 
   public TigrisDBJSONSchema(String jsonSchemaFile) {
     this.jsonSchemaFile = jsonSchemaFile;
+    this.jsonSchemaInputStream = null;
+  }
+
+  public TigrisDBJSONSchema(InputStream jsonSchemaInputStream) {
+    this.jsonSchemaFile = null;
+    this.jsonSchemaInputStream = jsonSchemaInputStream;
   }
 
   @Override
-  public String getSchemaContent() {
-    try {
-      return Files.readAllLines(new File(jsonSchemaFile).toPath()).stream()
-          .collect(Collectors.joining("\n"));
-    } catch (IOException ioException) {
-      log.error("failed to read schema", ioException);
-      return "";
+  public String getSchemaContent() throws IOException {
+    if (jsonSchemaFile == null && jsonSchemaInputStream == null) {
+      throw new IllegalStateException("jsonSchemaFile and jsonSchemaInputStream both are null");
+    }
+    if (jsonSchemaInputStream != null) {
+      try (BufferedReader bufferedReader =
+          new BufferedReader(
+              new InputStreamReader(jsonSchemaInputStream, StandardCharsets.UTF_8))) {
+        log.info("reading schema from jsonSchemaInputStream");
+        return bufferedReader.lines().collect(Collectors.joining("\n"));
+      }
+    } else {
+      log.info("reading schema from jsonSchemaFile");
+      return String.join("\n", Files.readAllLines(new File(jsonSchemaFile).toPath()));
     }
   }
 
@@ -40,9 +59,7 @@ public class TigrisDBJSONSchema implements TigrisDBSchema {
 
     TigrisDBJSONSchema that = (TigrisDBJSONSchema) o;
 
-    return jsonSchemaFile != null
-        ? jsonSchemaFile.equals(that.jsonSchemaFile)
-        : that.jsonSchemaFile == null;
+    return Objects.equals(jsonSchemaFile, that.jsonSchemaFile);
   }
 
   @Override

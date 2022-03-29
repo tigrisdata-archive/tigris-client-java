@@ -29,7 +29,7 @@ public interface TigrisCollection<T extends TigrisCollectionType> {
       throws TigrisDBException;
 
   /**
-   * Reads a matching document
+   * Reads matching documents
    *
    * @param filter filter to narrow down read
    * @param fields optionally specify fields you want to be returned from server
@@ -37,6 +37,16 @@ public interface TigrisCollection<T extends TigrisCollectionType> {
    * @throws TigrisDBException in case of an error
    */
   Iterator<T> read(TigrisFilter filter, List<Field<?>> fields) throws TigrisDBException;
+
+  /**
+   * Reads a single document. This method is generally recommended for point lookup, if used for
+   * non-point lookup any arbitrary matching document will be returned.
+   *
+   * @param filter
+   * @return
+   * @throws TigrisDBException
+   */
+  T readOne(TigrisFilter filter) throws TigrisDBException;
 
   /**
    * @param documents list of documents to insert

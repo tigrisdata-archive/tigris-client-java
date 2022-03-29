@@ -20,7 +20,7 @@ public class LogicalFilter implements TigrisFilter {
   @Override
   public String toString() {
     return "{\""
-        + logicalFilterOperator.getOperatorName()
+        + logicalFilterOperator.getOperator()
         + "\":["
         + Arrays.stream(tigrisFilters).map(TigrisFilter::toString).collect(Collectors.joining(","))
         + "]";

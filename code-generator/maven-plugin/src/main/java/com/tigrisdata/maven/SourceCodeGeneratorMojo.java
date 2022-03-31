@@ -13,9 +13,14 @@
  */
 package com.tigrisdata.maven;
 
+import com.google.gson.JsonParser;
+import com.tigrisdata.maven.utils.GitUtils;
 import com.tigrisdata.tools.config.JavaCodeGenerationConfig;
 import com.tigrisdata.tools.service.JsonSchemaToModelGenerator;
 import com.tigrisdata.tools.service.ModelGenerator;
+import com.tigrisdata.tools.validation.DefaultValidator;
+import com.tigrisdata.tools.validation.ValidationException;
+import com.tigrisdata.tools.validation.Validator;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -23,6 +28,9 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.Arrays;
 
 /** Read TigrisDB Schema and generate Java models. */
@@ -44,11 +52,19 @@ public class SourceCodeGeneratorMojo extends AbstractMojo {
   @Parameter(required = true, readonly = true)
   private String packageName;
 
+  @Parameter(readonly = true, defaultValue = "false")
+  private String disableValidation;
+
   /** The current Maven project. */
   @Parameter(defaultValue = "${project}", readonly = true)
   protected MavenProject project;
 
+  private final Validator validator;
   private static final String JSON_EXTENSION = ".json";
+
+  public SourceCodeGeneratorMojo() {
+    this.validator = new DefaultValidator();
+  }
 
   @Override
   public void execute() {
@@ -61,6 +77,42 @@ public class SourceCodeGeneratorMojo extends AbstractMojo {
       getLog().warn("No schema files found in the schemaDir=" + schemaDir + " skipping execution");
       return;
     }
+
+    if (!Boolean.parseBoolean(disableValidation)) {
+      try {
+        validateSchema(schemaFiles);
+      } catch (ValidationException ex) {
+        getLog().error("Failed to validate schema", ex);
+        return;
+      } catch (IOException e) {
+        getLog().warn("We were unable to validate the schema compatibility due to ", e);
+      }
+    }
+    generateModels(schemaFiles);
+  }
+
+  private void validateSchema(File[] schemaFiles) throws IOException, ValidationException {
+    final String repoRoot = System.getProperty("user.dir");
+
+    for (File schemaFile : schemaFiles) {
+      String filePathFromRoot =
+          schemaFile.getAbsolutePath().replaceAll(repoRoot + File.separator, "");
+      getLog().info("Validating " + filePathFromRoot);
+      String previousContent = "";
+      try {
+        previousContent = GitUtils.getHeadContent(repoRoot, filePathFromRoot);
+      } catch (IllegalArgumentException illegalArgumentException) {
+        getLog().info("No HEAD copy of " + filePathFromRoot + " found, skipping validation");
+        continue;
+      }
+      validator.validate(
+          JsonParser.parseReader(new StringReader(previousContent)).getAsJsonObject(),
+          JsonParser.parseReader(new FileReader(schemaFile)).getAsJsonObject());
+      getLog().info("No issues found");
+    }
+  }
+
+  private void generateModels(File[] schemaFiles) {
     File outputDirectoryFile =
         new File(project.getBasedir().getAbsolutePath() + File.separator + outputDirectory);
     getLog().info("Input schema files = " + Arrays.toString(schemaFiles));

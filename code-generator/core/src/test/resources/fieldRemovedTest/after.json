@@ -9,13 +9,10 @@
     "name": {
       "description": "Name of the user",
       "type": "string"
-    },
-    "balance": {
-      "description": "user balance in USD",
-      "type": "double"
     }
   },
   "primary_key": [
-    "id"
+    "id",
+    "name"
   ]
 }

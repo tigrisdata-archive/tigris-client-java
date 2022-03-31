@@ -12,10 +12,11 @@
     },
     "balance": {
       "description": "user balance in USD",
-      "type": "double"
+      "type": "string"
     }
   },
   "primary_key": [
-    "id"
+    "id",
+    "name"
   ]
 }

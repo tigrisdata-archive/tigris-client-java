@@ -17,6 +17,8 @@ import com.tigrisdata.db.client.error.TigrisDBException;
 import com.tigrisdata.db.client.model.DeleteRequestOptions;
 import com.tigrisdata.db.client.model.DeleteResponse;
 import com.tigrisdata.db.client.model.Field;
+import com.tigrisdata.db.client.model.InsertOrReplaceRequestOptions;
+import com.tigrisdata.db.client.model.InsertOrReplaceResponse;
 import com.tigrisdata.db.client.model.InsertRequestOptions;
 import com.tigrisdata.db.client.model.InsertResponse;
 import com.tigrisdata.db.client.model.ReadRequestOptions;
@@ -76,6 +78,29 @@ public interface TigrisCollection<T extends TigrisCollectionType> {
    * @throws TigrisDBException in case of an error
    */
   InsertResponse insert(List<T> documents) throws TigrisDBException;
+
+  /**
+   * Inserts the documents if they don't exist already (matched by primary key), replaces them
+   * otherwise.
+   *
+   * @param documents list of documents to replace
+   * @param insertOrReplaceRequestOptions replace option
+   * @return an instance of {@link InsertOrReplaceResponse} from server
+   * @throws TigrisDBException in case of an error
+   */
+  InsertOrReplaceResponse insertOrReplace(
+      List<T> documents, InsertOrReplaceRequestOptions insertOrReplaceRequestOptions)
+      throws TigrisDBException;
+
+  /**
+   * Inserts the documents if they don't exist already (matched by primary key), replaces them
+   * otherwise.
+   *
+   * @param documents list of documents to replace
+   * @return an instance of {@link InsertOrReplaceResponse} from server
+   * @throws TigrisDBException in case of an error
+   */
+  InsertOrReplaceResponse insertOrReplace(List<T> documents) throws TigrisDBException;
 
   /**
    * inserts a single document to the collection

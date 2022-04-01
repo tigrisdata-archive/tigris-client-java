@@ -106,6 +106,13 @@ public class TestUserService extends TigrisDBGrpc.TigrisDBImplBase {
   }
 
   @Override
+  public void replace(
+      Api.ReplaceRequest request, StreamObserver<Api.ReplaceResponse> responseObserver) {
+    responseObserver.onNext(Api.ReplaceResponse.newBuilder().build());
+    responseObserver.onCompleted();
+  }
+
+  @Override
   public void delete(
       Api.DeleteRequest request, StreamObserver<Api.DeleteResponse> responseObserver) {
     responseObserver.onNext(Api.DeleteResponse.newBuilder().build());

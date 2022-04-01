@@ -13,12 +13,12 @@
  */
 package com.tigrisdata.db.client.model;
 
-public class InsertRequestOptions {
+public class InsertOrReplaceRequestOptions {
   private WriteOptions writeOptions;
 
-  public InsertRequestOptions() {}
+  public InsertOrReplaceRequestOptions() {}
 
-  public InsertRequestOptions(WriteOptions writeOptions) {
+  public InsertOrReplaceRequestOptions(WriteOptions writeOptions) {
     this.writeOptions = writeOptions;
   }
 

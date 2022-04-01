@@ -23,7 +23,7 @@ public class TigrisDBJSONSchemaTest {
 
   private static final String EXPECTED_SCHEMA =
       "{\n"
-          + "  \"title\": \"User\",\n"
+          + "  \"name\": \"User\",\n"
           + "  \"description\": \"This document records the details of user for tigris store\",\n"
           + "  \"properties\": {\n"
           + "    \"id\": {\n"

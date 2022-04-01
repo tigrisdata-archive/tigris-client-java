@@ -22,6 +22,8 @@ import com.tigrisdata.db.client.error.TigrisDBException;
 import com.tigrisdata.db.client.model.DeleteRequestOptions;
 import com.tigrisdata.db.client.model.DeleteResponse;
 import com.tigrisdata.db.client.model.Field;
+import com.tigrisdata.db.client.model.InsertOrReplaceRequestOptions;
+import com.tigrisdata.db.client.model.InsertOrReplaceResponse;
 import com.tigrisdata.db.client.model.InsertRequestOptions;
 import com.tigrisdata.db.client.model.InsertResponse;
 import com.tigrisdata.db.client.model.Operators;
@@ -124,7 +126,6 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
               .setCollection(collectionName)
               .setOptions(
                   Api.InsertRequestOptions.newBuilder()
-                      .setMustNotExist(insertRequestOptions.isMustNotExist())
                       .setWriteOptions(Api.WriteOptions.newBuilder().build())
                       .build());
       for (T document : documents) {
@@ -149,6 +150,38 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
   @Override
   public InsertResponse insert(T document) throws TigrisDBException {
     return insert(Collections.singletonList(document));
+  }
+
+  @Override
+  public InsertOrReplaceResponse insertOrReplace(
+      List<T> documents, InsertOrReplaceRequestOptions insertOrReplaceRequestOptions)
+      throws TigrisDBException {
+    try {
+      Api.ReplaceRequest.Builder replaceRequestBuilder =
+          Api.ReplaceRequest.newBuilder()
+              .setDb(databaseName)
+              .setCollection(collectionName)
+              .setOptions(
+                  Api.ReplaceRequestOptions.newBuilder()
+                      .setWriteOptions(Api.WriteOptions.newBuilder().build())
+                      .build());
+      for (T document : documents) {
+        replaceRequestBuilder.addDocuments(
+            ByteString.copyFromUtf8(Utilities.OBJECT_MAPPER.writeValueAsString(document)));
+      }
+      stub.replace(replaceRequestBuilder.build());
+      // TODO actual status back
+      return new InsertOrReplaceResponse(new TigrisDBResponse("inserted"));
+    } catch (JsonProcessingException ex) {
+      throw new TigrisDBException("Failed to serialize to JSON", ex);
+    } catch (StatusRuntimeException statusRuntimeException) {
+      throw new TigrisDBException("Failed to insert ", statusRuntimeException);
+    }
+  }
+
+  @Override
+  public InsertOrReplaceResponse insertOrReplace(List<T> documents) throws TigrisDBException {
+    return insertOrReplace(documents, new InsertOrReplaceRequestOptions());
   }
 
   @Override

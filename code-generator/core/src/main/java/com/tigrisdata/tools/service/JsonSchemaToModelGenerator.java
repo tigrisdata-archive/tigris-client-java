@@ -51,7 +51,7 @@ public class JsonSchemaToModelGenerator implements ModelGenerator {
                 new TigrisDBRuleFactory(
                     generationConfig, new Jackson2Annotator(generationConfig), new SchemaStore()),
                 new SchemaGenerator());
-        mapper.generate(codeModel, "title", javaCodeGenerationConfig.getJavaPackageName(), source);
+        mapper.generate(codeModel, "name", javaCodeGenerationConfig.getJavaPackageName(), source);
         codeModel.build(javaCodeGenerationConfig.getOutputDirectory());
       } catch (MalformedURLException malformedURLException) {
         throw new IllegalStateException(

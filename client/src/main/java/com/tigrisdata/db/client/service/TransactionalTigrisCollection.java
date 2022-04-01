@@ -19,6 +19,8 @@ import com.tigrisdata.db.client.error.TigrisDBException;
 import com.tigrisdata.db.client.model.DeleteRequestOptions;
 import com.tigrisdata.db.client.model.DeleteResponse;
 import com.tigrisdata.db.client.model.Field;
+import com.tigrisdata.db.client.model.InsertOrReplaceRequestOptions;
+import com.tigrisdata.db.client.model.InsertOrReplaceResponse;
 import com.tigrisdata.db.client.model.InsertRequestOptions;
 import com.tigrisdata.db.client.model.InsertResponse;
 import com.tigrisdata.db.client.model.ReadOptions;
@@ -65,6 +67,23 @@ public class TransactionalTigrisCollection<T extends TigrisCollectionType>
       insertRequestOptions.setWriteOptions(new WriteOptions(transactionCtx));
     }
     return super.insert(documents, insertRequestOptions);
+  }
+
+  @Override
+  public InsertOrReplaceResponse insertOrReplace(
+      List<T> documents, InsertOrReplaceRequestOptions insertOrReplaceRequestOptions)
+      throws TigrisDBException {
+    if (insertOrReplaceRequestOptions.getWriteOptions() != null) {
+      insertOrReplaceRequestOptions.getWriteOptions().setTransactionCtx(transactionCtx);
+    } else {
+      insertOrReplaceRequestOptions.setWriteOptions(new WriteOptions(transactionCtx));
+    }
+    return super.insertOrReplace(documents, insertOrReplaceRequestOptions);
+  }
+
+  @Override
+  public InsertOrReplaceResponse insertOrReplace(List<T> documents) throws TigrisDBException {
+    return insertOrReplace(documents, new InsertOrReplaceRequestOptions());
   }
 
   @Override

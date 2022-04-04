@@ -21,16 +21,16 @@ import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
 import com.tigrisdata.db.client.error.TigrisDBException;
 import com.tigrisdata.db.client.model.DeleteRequestOptions;
 import com.tigrisdata.db.client.model.DeleteResponse;
-import com.tigrisdata.db.client.model.Field;
 import com.tigrisdata.db.client.model.InsertOrReplaceRequestOptions;
 import com.tigrisdata.db.client.model.InsertOrReplaceResponse;
 import com.tigrisdata.db.client.model.InsertRequestOptions;
 import com.tigrisdata.db.client.model.InsertResponse;
-import com.tigrisdata.db.client.model.Operators;
+import com.tigrisdata.db.client.model.ReadFields;
 import com.tigrisdata.db.client.model.ReadRequestOptions;
 import com.tigrisdata.db.client.model.TigrisCollectionType;
 import com.tigrisdata.db.client.model.TigrisDBResponse;
 import com.tigrisdata.db.client.model.TigrisFilter;
+import com.tigrisdata.db.client.model.UpdateFields;
 import com.tigrisdata.db.client.model.UpdateRequestOptions;
 import com.tigrisdata.db.client.model.UpdateResponse;
 import com.tigrisdata.db.client.model.WriteOptions;
@@ -63,7 +63,7 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
 
   @Override
   public Iterator<T> read(
-      TigrisFilter filter, List<Field<?>> fields, ReadRequestOptions readRequestOptions)
+      TigrisFilter filter, ReadFields fields, ReadRequestOptions readRequestOptions)
       throws TigrisDBException {
     try {
       Api.ReadRequestOptions readRequestOptionsAPI =
@@ -72,15 +72,17 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
               .setSkip(readRequestOptions.getSkip())
               .build();
 
-      Api.ReadRequest readRequest =
+      Api.ReadRequest.Builder readRequestBuilder =
           Api.ReadRequest.newBuilder()
               .setDb(databaseName)
               .setCollection(collectionName)
-              .setFilter(ByteString.copyFrom(filter.toString(), StandardCharsets.UTF_8))
-              .setFields(ByteString.copyFromUtf8(Utilities.fields(fields)))
-              .setOptions(readRequestOptionsAPI)
-              .build();
-      Iterator<Api.ReadResponse> readResponseIterator = stub.read(readRequest);
+              .setFilter(ByteString.copyFrom(filter.toJSON(), StandardCharsets.UTF_8))
+              .setOptions(readRequestOptionsAPI);
+      if (!fields.isEmpty()) {
+        readRequestBuilder.setFields(ByteString.copyFromUtf8(fields.toJSON()));
+      }
+
+      Iterator<Api.ReadResponse> readResponseIterator = stub.read(readRequestBuilder.build());
 
       Function<Api.ReadResponse, T> converter =
           readResponse -> {
@@ -100,7 +102,7 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
   }
 
   @Override
-  public Iterator<T> read(TigrisFilter filter, List<Field<?>> fields) throws TigrisDBException {
+  public Iterator<T> read(TigrisFilter filter, ReadFields fields) throws TigrisDBException {
     return this.read(filter, fields, new ReadRequestOptions());
   }
 
@@ -109,7 +111,7 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
     ReadRequestOptions readRequestOptions = new ReadRequestOptions();
     readRequestOptions.setLimit(1L);
     readRequestOptions.setSkip(0L);
-    Iterator<T> iterator = this.read(filter, Collections.emptyList(), readRequestOptions);
+    Iterator<T> iterator = this.read(filter, ReadFields.empty(), readRequestOptions);
     if (iterator.hasNext()) {
       return iterator.next();
     }
@@ -186,7 +188,7 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
 
   @Override
   public UpdateResponse update(
-      TigrisFilter filter, List<Field<?>> fields, UpdateRequestOptions updateRequestOptions)
+      TigrisFilter filter, UpdateFields updateFields, UpdateRequestOptions updateRequestOptions)
       throws TigrisDBException {
     try {
       Api.UpdateRequest updateRequest =
@@ -194,7 +196,7 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
               .setDb(databaseName)
               .setCollection(collectionName)
               .setFilter(ByteString.copyFromUtf8(filter.toString()))
-              .setFields(ByteString.copyFromUtf8(Utilities.fieldsOperation(Operators.SET, fields)))
+              .setFields(ByteString.copyFromUtf8(updateFields.toJSON()))
               .build();
       Api.UpdateResponse updateResponse = stub.update(updateRequest);
       return new UpdateResponse(updateResponse.getRc());
@@ -206,9 +208,9 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
   }
 
   @Override
-  public UpdateResponse update(TigrisFilter filter, List<Field<?>> fields)
+  public UpdateResponse update(TigrisFilter filter, UpdateFields updateFields)
       throws TigrisDBException {
-    return update(filter, fields, new UpdateRequestOptions());
+    return update(filter, updateFields, new UpdateRequestOptions());
   }
 
   @Override

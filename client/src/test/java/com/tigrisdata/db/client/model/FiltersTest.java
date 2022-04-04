@@ -20,10 +20,10 @@ public class FiltersTest {
 
   @Test
   public void equalFilterTest() {
-    Assert.assertEquals("{\"k1\":123}", Filters.eq("k1", 123).toString());
-    Assert.assertEquals("{\"k2\":false}", Filters.eq("k2", false).toString());
-    Assert.assertEquals("{\"k3\":true}", Filters.eq("k3", true).toString());
-    Assert.assertEquals("{\"k4\":\"val1\"}", Filters.eq("k4", "val1").toString());
+    Assert.assertEquals("{\"k1\":123}", Filters.eq("k1", 123).toJSON());
+    Assert.assertEquals("{\"k2\":false}", Filters.eq("k2", false).toJSON());
+    Assert.assertEquals("{\"k3\":true}", Filters.eq("k3", true).toJSON());
+    Assert.assertEquals("{\"k4\":\"val1\"}", Filters.eq("k4", "val1").toJSON());
   }
 
   @Test
@@ -31,7 +31,7 @@ public class FiltersTest {
     Assert.assertEquals(
         "{\"$or\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}]",
         Filters.or(Filters.eq("k1", 123), Filters.eq("k2", false), Filters.eq("k3", "val3"))
-            .toString());
+            .toJSON());
   }
 
   @Test
@@ -39,7 +39,7 @@ public class FiltersTest {
     Assert.assertEquals(
         "{\"$and\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}]",
         Filters.and(Filters.eq("k1", 123), Filters.eq("k2", false), Filters.eq("k3", "val3"))
-            .toString());
+            .toJSON());
   }
 
   @Test
@@ -52,7 +52,7 @@ public class FiltersTest {
     Assert.assertEquals(
         "{\"$or\":[{\"$and\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}],"
             + "{\"$and\":[{\"k1\":456},{\"k2\":false},{\"k3\":\"val4\"}]]",
-        Filters.or(filter1, filter2).toString());
+        Filters.or(filter1, filter2).toJSON());
   }
 
   @Test
@@ -65,7 +65,7 @@ public class FiltersTest {
     Assert.assertEquals(
         "{\"$and\":[{\"$and\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}],"
             + "{\"$and\":[{\"k4\":456},{\"k5\":false},{\"k6\":\"val4\"}]]",
-        Filters.and(filter1, filter2).toString());
+        Filters.and(filter1, filter2).toJSON());
   }
 
   @Test
@@ -78,7 +78,7 @@ public class FiltersTest {
     Assert.assertEquals(
         "{\"$and\":[{\"$or\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}],"
             + "{\"$or\":[{\"k1\":456},{\"k2\":false},{\"k3\":\"val4\"}]]",
-        Filters.and(filter1, filter2).toString());
+        Filters.and(filter1, filter2).toJSON());
   }
 
   @Test
@@ -91,7 +91,7 @@ public class FiltersTest {
     Assert.assertEquals(
         "{\"$and\":[{\"$or\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}],"
             + "{\"$or\":[{\"k4\":456},{\"k5\":false},{\"k6\":\"val4\"}]]",
-        Filters.and(filter1, filter2).toString());
+        Filters.and(filter1, filter2).toJSON());
   }
 
   @Test(expected = IllegalArgumentException.class)

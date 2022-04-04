@@ -2,7 +2,7 @@
 
 Java driver for TigrisDB
 
-![build status](https://github.com/tigrisdata/tigrisdb-client-java/actions/workflows/java-ci/badge.svg)
+[![java-ci](https://github.com/tigrisdata/tigrisdb-client-java/actions/workflows/java-ci.yml/badge.svg?branch=main)](https://github.com/tigrisdata/tigrisdb-client-java/actions/workflows/java-ci.yml)
 
 # Usage
 

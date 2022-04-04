@@ -16,14 +16,15 @@ package com.tigrisdata.db.client.service;
 import com.tigrisdata.db.client.error.TigrisDBException;
 import com.tigrisdata.db.client.model.DeleteRequestOptions;
 import com.tigrisdata.db.client.model.DeleteResponse;
-import com.tigrisdata.db.client.model.Field;
 import com.tigrisdata.db.client.model.InsertOrReplaceRequestOptions;
 import com.tigrisdata.db.client.model.InsertOrReplaceResponse;
 import com.tigrisdata.db.client.model.InsertRequestOptions;
 import com.tigrisdata.db.client.model.InsertResponse;
+import com.tigrisdata.db.client.model.ReadFields;
 import com.tigrisdata.db.client.model.ReadRequestOptions;
 import com.tigrisdata.db.client.model.TigrisCollectionType;
 import com.tigrisdata.db.client.model.TigrisFilter;
+import com.tigrisdata.db.client.model.UpdateFields;
 import com.tigrisdata.db.client.model.UpdateRequestOptions;
 import com.tigrisdata.db.client.model.UpdateResponse;
 
@@ -39,8 +40,7 @@ public interface TigrisCollection<T extends TigrisCollectionType> {
    * @return stream of documents
    * @throws TigrisDBException
    */
-  Iterator<T> read(
-      TigrisFilter filter, List<Field<?>> fields, ReadRequestOptions readRequestOptions)
+  Iterator<T> read(TigrisFilter filter, ReadFields fields, ReadRequestOptions readRequestOptions)
       throws TigrisDBException;
 
   /**
@@ -51,7 +51,7 @@ public interface TigrisCollection<T extends TigrisCollectionType> {
    * @return stream of documents
    * @throws TigrisDBException in case of an error
    */
-  Iterator<T> read(TigrisFilter filter, List<Field<?>> fields) throws TigrisDBException;
+  Iterator<T> read(TigrisFilter filter, ReadFields fields) throws TigrisDBException;
 
   /**
    * Reads a single document. This method is generally recommended for point lookup, if used for
@@ -111,22 +111,22 @@ public interface TigrisCollection<T extends TigrisCollectionType> {
 
   /**
    * @param filter
-   * @param fields
+   * @param updateFields
    * @param updateRequestOptions
    * @return
    * @throws TigrisDBException
    */
   UpdateResponse update(
-      TigrisFilter filter, List<Field<?>> fields, UpdateRequestOptions updateRequestOptions)
+      TigrisFilter filter, UpdateFields updateFields, UpdateRequestOptions updateRequestOptions)
       throws TigrisDBException;
 
   /**
    * @param filter
-   * @param fields
+   * @param updateFields
    * @return
    * @throws TigrisDBException
    */
-  UpdateResponse update(TigrisFilter filter, List<Field<?>> fields) throws TigrisDBException;
+  UpdateResponse update(TigrisFilter filter, UpdateFields updateFields) throws TigrisDBException;
 
   /**
    * Deletes the matching documents in the collection.

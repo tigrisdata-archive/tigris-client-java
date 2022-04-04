@@ -31,11 +31,11 @@ public class LogicalFilter implements TigrisFilter {
   }
 
   @Override
-  public String toString() {
+  public String toJSON() {
     return "{\""
         + logicalFilterOperator.getOperator()
         + "\":["
-        + Arrays.stream(tigrisFilters).map(TigrisFilter::toString).collect(Collectors.joining(","))
+        + Arrays.stream(tigrisFilters).map(TigrisFilter::toJSON).collect(Collectors.joining(","))
         + "]";
   }
 }

@@ -27,20 +27,23 @@ import com.tigrisdata.db.client.model.TigrisFilter;
 import com.tigrisdata.db.client.model.UpdateRequestOptions;
 import com.tigrisdata.db.client.model.UpdateResponse;
 
-import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
-public interface TigrisCollection<T extends TigrisCollectionType> {
+public interface TigrisAsyncCollection<T extends TigrisCollectionType> {
 
   /**
    * @param filter filter to narrow down read
    * @param fields optionally specify fields you want to be returned from server
    * @param readRequestOptions read options
-   * @return stream of documents
+   * @param reader reader callback
    * @throws TigrisDBException
    */
-  Iterator<T> read(
-      TigrisFilter filter, List<Field<?>> fields, ReadRequestOptions readRequestOptions)
+  void read(
+      TigrisFilter filter,
+      List<Field<?>> fields,
+      ReadRequestOptions readRequestOptions,
+      TigrisDBAsyncReader<T> reader)
       throws TigrisDBException;
 
   /**
@@ -48,46 +51,56 @@ public interface TigrisCollection<T extends TigrisCollectionType> {
    *
    * @param filter filter to narrow down read
    * @param fields optionally specify fields you want to be returned from server
-   * @return stream of documents
+   * @param reader reader callback
    * @throws TigrisDBException in case of an error
    */
-  Iterator<T> read(TigrisFilter filter, List<Field<?>> fields) throws TigrisDBException;
+  void read(TigrisFilter filter, List<Field<?>> fields, TigrisDBAsyncReader<T> reader)
+      throws TigrisDBException;
 
   /**
    * Reads a single document. This method is generally recommended for point lookup, if used for
    * non-point lookup any arbitrary matching document will be returned.
    *
    * @param filter
-   * @return
+   * @return a future to the document
    * @throws TigrisDBException
    */
-  T readOne(TigrisFilter filter) throws TigrisDBException;
+  CompletableFuture<T> readOne(TigrisFilter filter) throws TigrisDBException;
 
   /**
    * @param documents list of documents to insert
    * @param insertRequestOptions insert option
-   * @return an instance of {@link InsertResponse} from server
+   * @return a future to the {@link InsertResponse}
    * @throws TigrisDBException in case of an error
    */
-  InsertResponse insert(List<T> documents, InsertRequestOptions insertRequestOptions)
-      throws TigrisDBException;
+  CompletableFuture<InsertResponse> insert(
+      List<T> documents, InsertRequestOptions insertRequestOptions) throws TigrisDBException;
 
   /**
    * @param documents list of documents to insert
-   * @return an instance of {@link InsertResponse} from server
+   * @return a future to the {@link InsertResponse}
    * @throws TigrisDBException in case of an error
    */
-  InsertResponse insert(List<T> documents) throws TigrisDBException;
+  CompletableFuture<InsertResponse> insert(List<T> documents) throws TigrisDBException;
+
+  /**
+   * inserts a single document to the collection
+   *
+   * @param document
+   * @return a future to the {@link InsertResponse}
+   * @throws TigrisDBException
+   */
+  CompletableFuture<InsertResponse> insert(T document) throws TigrisDBException;
 
   /**
    * Inserts the documents if they don't exist already, replaces them otherwise.
    *
    * @param documents list of documents to replace
    * @param insertOrReplaceRequestOptions option
-   * @return an instance of {@link InsertOrReplaceResponse} from server
+   * @return a future to the {@link InsertOrReplaceResponse}
    * @throws TigrisDBException in case of an error
    */
-  InsertOrReplaceResponse insertOrReplace(
+  CompletableFuture<InsertOrReplaceResponse> insertOrReplace(
       List<T> documents, InsertOrReplaceRequestOptions insertOrReplaceRequestOptions)
       throws TigrisDBException;
 
@@ -95,58 +108,51 @@ public interface TigrisCollection<T extends TigrisCollectionType> {
    * Inserts the documents if they don't exist already, replaces them otherwise.
    *
    * @param documents list of documents to replace
-   * @return an instance of {@link InsertOrReplaceResponse} from server
+   * @return a future to the {@link InsertOrReplaceResponse}
    * @throws TigrisDBException in case of an error
    */
-  InsertOrReplaceResponse insertOrReplace(List<T> documents) throws TigrisDBException;
-
-  /**
-   * inserts a single document to the collection
-   *
-   * @param document
-   * @return
-   * @throws TigrisDBException
-   */
-  InsertResponse insert(T document) throws TigrisDBException;
+  CompletableFuture<InsertOrReplaceResponse> insertOrReplace(List<T> documents)
+      throws TigrisDBException;
 
   /**
    * @param filter
    * @param fields
    * @param updateRequestOptions
-   * @return
+   * @return a future to the {@link UpdateResponse}
    * @throws TigrisDBException
    */
-  UpdateResponse update(
+  CompletableFuture<UpdateResponse> update(
       TigrisFilter filter, List<Field<?>> fields, UpdateRequestOptions updateRequestOptions)
       throws TigrisDBException;
 
   /**
    * @param filter
    * @param fields
-   * @return
+   * @return a future to the {@link UpdateResponse}
    * @throws TigrisDBException
    */
-  UpdateResponse update(TigrisFilter filter, List<Field<?>> fields) throws TigrisDBException;
-
-  /**
-   * Deletes the matching documents in the collection.
-   *
-   * @param filter filter to narrow down the documents to delete
-   * @param deleteRequestOptions delete option
-   * @return an instance of {@link DeleteResponse} from server
-   * @throws TigrisDBException in case of an error
-   */
-  DeleteResponse delete(TigrisFilter filter, DeleteRequestOptions deleteRequestOptions)
+  CompletableFuture<UpdateResponse> update(TigrisFilter filter, List<Field<?>> fields)
       throws TigrisDBException;
 
   /**
    * Deletes the matching documents in the collection.
    *
    * @param filter filter to narrow down the documents to delete
-   * @return an instance of {@link DeleteResponse} from server
+   * @param deleteRequestOptions delete option
+   * @return a future to the {@link DeleteResponse}
    * @throws TigrisDBException in case of an error
    */
-  DeleteResponse delete(TigrisFilter filter) throws TigrisDBException;
+  CompletableFuture<DeleteResponse> delete(
+      TigrisFilter filter, DeleteRequestOptions deleteRequestOptions) throws TigrisDBException;
+
+  /**
+   * Deletes the matching documents in the collection.
+   *
+   * @param filter filter to narrow down the documents to delete
+   * @return a future to the {@link DeleteResponse}
+   * @throws TigrisDBException in case of an error
+   */
+  CompletableFuture<DeleteResponse> delete(TigrisFilter filter) throws TigrisDBException;
 
   /** @return Name of the collection */
   String name();

@@ -15,7 +15,6 @@ package com.tigrisdata.db.client.service;
 
 import com.tigrisdata.db.client.error.TigrisDBException;
 import com.tigrisdata.db.client.grpc.TestUserService;
-import com.tigrisdata.db.client.model.AlterCollectionResponse;
 import com.tigrisdata.db.client.model.CollectionOptions;
 import com.tigrisdata.db.client.model.CreateCollectionResponse;
 import com.tigrisdata.db.client.model.DropCollectionResponse;
@@ -79,18 +78,6 @@ public class StandardTigrisDatabaseTest {
     MatcherAssert.assertThat(
         db1.listCollections(),
         Matchers.containsInAnyOrder("db1_c0", "db1_c1", "db1_c2", "db1_c3", "db1_c4", "db1_c5"));
-  }
-
-  @Test
-  public void testAlterCollection() throws TigrisDBException {
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("db1");
-    AlterCollectionResponse response =
-        db1.alterCollection(
-            "db1_c4",
-            new TigrisDBJSONSchema("src/test/resources/test-schema.json"),
-            new CollectionOptions());
-    Assert.assertEquals("db1_c4 altered", response.getTigrisDBResponse().getMessage());
   }
 
   @Test

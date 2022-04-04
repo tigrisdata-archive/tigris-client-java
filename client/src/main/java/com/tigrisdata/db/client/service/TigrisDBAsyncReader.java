@@ -11,16 +11,23 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tigrisdata.db.client.model;
+package com.tigrisdata.db.client.service;
 
-public class AlterCollectionResponse {
-  private final TigrisDBResponse tigrisDBResponse;
+import com.tigrisdata.db.client.model.TigrisCollectionType;
 
-  public AlterCollectionResponse(TigrisDBResponse tigrisDBResponse) {
-    this.tigrisDBResponse = tigrisDBResponse;
-  }
+/**
+ * A callback that reads the documents
+ *
+ * @param <T> Collection type
+ */
+public interface TigrisDBAsyncReader<T extends TigrisCollectionType> {
 
-  public TigrisDBResponse getTigrisDBResponse() {
-    return tigrisDBResponse;
-  }
+  /** @param document next document */
+  void onNext(T document);
+
+  /** @param t captures the error */
+  void onError(Throwable t);
+
+  /** Gets invoked when read is completed */
+  void onCompleted();
 }

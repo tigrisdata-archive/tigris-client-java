@@ -22,16 +22,17 @@ import com.tigrisdata.db.client.model.TigrisDBSchema;
 import com.tigrisdata.db.client.model.TransactionOptions;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
-public interface TigrisDatabase {
+public interface TigrisAsyncDatabase {
 
   /**
    * Return list of collection names
    *
-   * @return list of collection names (TODO: order specification)
+   * @return a future to the {@link List} of {@link String} representing collection names
    * @throws TigrisDBException in case of an error.
    */
-  List<String> listCollections() throws TigrisDBException;
+  CompletableFuture<List<String>> listCollections() throws TigrisDBException;
 
   /**
    * Creates a collection under current database.
@@ -39,10 +40,10 @@ public interface TigrisDatabase {
    * @param collectionName name of the collection
    * @param schema schema of the collection
    * @param collectionOptions collection option
-   * @return the instance of {@link CreateCollectionResponse} from server
+   * @return the future to the {@link CreateCollectionResponse}
    * @throws TigrisDBException in case of an error.
    */
-  CreateCollectionResponse createCollection(
+  CompletableFuture<CreateCollectionResponse> createCollection(
       String collectionName, TigrisDBSchema schema, CollectionOptions collectionOptions)
       throws TigrisDBException;
 
@@ -50,28 +51,30 @@ public interface TigrisDatabase {
    * Drops the collection.
    *
    * @param collectionName name of the collection
-   * @return the instance of {@link DropCollectionResponse} from server
+   * @return the future to the {@link DropCollectionResponse}
    * @throws TigrisDBException in case of an error.
    */
-  DropCollectionResponse dropCollection(String collectionName) throws TigrisDBException;
+  CompletableFuture<DropCollectionResponse> dropCollection(String collectionName)
+      throws TigrisDBException;
 
   /**
    * Return an instance of {@link TigrisCollection}
    *
    * @param collectionTypeClass Class type of the collection
    * @param <C> type of the collection that is of type {@link TigrisCollectionType}
-   * @return an instance of {@link TigrisCollection}
+   * @return an instance of {@link TigrisAsyncCollection}
    */
-  <C extends TigrisCollectionType> TigrisCollection<C> getCollection(Class<C> collectionTypeClass);
+  <C extends TigrisCollectionType> TigrisAsyncCollection<C> getCollection(
+      Class<C> collectionTypeClass);
 
   /**
    * Begins the transaction on current database
    *
    * @param transactionOptions options
-   * @return transaction aware instance of {@link TransactionSession}
+   * @return the future to the {@link TransactionAsyncSession}
    * @throws TigrisDBException in case of an error
    */
-  TransactionSession beginTransaction(TransactionOptions transactionOptions)
+  CompletableFuture<TransactionAsyncSession> beginTransaction(TransactionOptions transactionOptions)
       throws TigrisDBException;
 
   /** @return name of the current database */

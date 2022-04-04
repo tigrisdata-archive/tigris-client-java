@@ -16,8 +16,8 @@ package com.tigrisdata.db.client.service;
 import com.tigrisdata.db.client.error.TigrisDBException;
 import com.tigrisdata.db.client.grpc.ContextSettingServerInterceptor;
 import com.tigrisdata.db.client.grpc.TransactionTestUserService;
-import com.tigrisdata.db.client.model.TigrisFilter;
 import com.tigrisdata.db.client.model.TransactionOptions;
+import com.tigrisdata.db.client.model.UpdateFields;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.testing.GrpcCleanupRule;
 import org.junit.Assert;
@@ -92,24 +92,15 @@ public class TransactionSessionTest {
 
     c1TigrisCollection.insert(Collections.singletonList(new C1("hello")));
 
-    c1TigrisCollection.delete(
-        new TigrisFilter() {
-          @Override
-          public String toString() {
-            return "testHeadersOnServer";
-          }
-        });
+    c1TigrisCollection.delete(() -> "testHeadersOnServer");
 
     c1TigrisCollection.insert(Collections.singletonList(new C1("foo")));
 
     c1TigrisCollection.update(
-        new TigrisFilter() {
-          @Override
-          public String toString() {
-            return "testHeadersOnServer";
-          }
-        },
-        Collections.emptyList());
+        () -> "testHeadersOnServer",
+        UpdateFields.newBuilder()
+            .set(UpdateFields.SetFields.newBuilder().set("age", 100).build())
+            .build());
 
     transactionSession.commit();
   }

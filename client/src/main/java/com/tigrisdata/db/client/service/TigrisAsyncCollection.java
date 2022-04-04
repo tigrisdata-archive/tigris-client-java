@@ -16,14 +16,15 @@ package com.tigrisdata.db.client.service;
 import com.tigrisdata.db.client.error.TigrisDBException;
 import com.tigrisdata.db.client.model.DeleteRequestOptions;
 import com.tigrisdata.db.client.model.DeleteResponse;
-import com.tigrisdata.db.client.model.Field;
 import com.tigrisdata.db.client.model.InsertOrReplaceRequestOptions;
 import com.tigrisdata.db.client.model.InsertOrReplaceResponse;
 import com.tigrisdata.db.client.model.InsertRequestOptions;
 import com.tigrisdata.db.client.model.InsertResponse;
+import com.tigrisdata.db.client.model.ReadFields;
 import com.tigrisdata.db.client.model.ReadRequestOptions;
 import com.tigrisdata.db.client.model.TigrisCollectionType;
 import com.tigrisdata.db.client.model.TigrisFilter;
+import com.tigrisdata.db.client.model.UpdateFields;
 import com.tigrisdata.db.client.model.UpdateRequestOptions;
 import com.tigrisdata.db.client.model.UpdateResponse;
 
@@ -41,7 +42,7 @@ public interface TigrisAsyncCollection<T extends TigrisCollectionType> {
    */
   void read(
       TigrisFilter filter,
-      List<Field<?>> fields,
+      ReadFields fields,
       ReadRequestOptions readRequestOptions,
       TigrisDBAsyncReader<T> reader)
       throws TigrisDBException;
@@ -54,7 +55,7 @@ public interface TigrisAsyncCollection<T extends TigrisCollectionType> {
    * @param reader reader callback
    * @throws TigrisDBException in case of an error
    */
-  void read(TigrisFilter filter, List<Field<?>> fields, TigrisDBAsyncReader<T> reader)
+  void read(TigrisFilter filter, ReadFields fields, TigrisDBAsyncReader<T> reader)
       throws TigrisDBException;
 
   /**
@@ -122,7 +123,7 @@ public interface TigrisAsyncCollection<T extends TigrisCollectionType> {
    * @throws TigrisDBException
    */
   CompletableFuture<UpdateResponse> update(
-      TigrisFilter filter, List<Field<?>> fields, UpdateRequestOptions updateRequestOptions)
+      TigrisFilter filter, UpdateFields fields, UpdateRequestOptions updateRequestOptions)
       throws TigrisDBException;
 
   /**
@@ -131,7 +132,7 @@ public interface TigrisAsyncCollection<T extends TigrisCollectionType> {
    * @return a future to the {@link UpdateResponse}
    * @throws TigrisDBException
    */
-  CompletableFuture<UpdateResponse> update(TigrisFilter filter, List<Field<?>> fields)
+  CompletableFuture<UpdateResponse> update(TigrisFilter filter, UpdateFields fields)
       throws TigrisDBException;
 
   /**

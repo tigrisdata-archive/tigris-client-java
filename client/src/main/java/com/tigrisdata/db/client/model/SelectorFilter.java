@@ -33,7 +33,7 @@ public class SelectorFilter<T> implements TigrisFilter {
   }
 
   @Override
-  public String toString() {
+  public String toJSON() {
     Map<String, Object> map = new LinkedHashMap<>();
     map.put(key, val);
     try {

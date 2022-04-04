@@ -18,11 +18,11 @@ import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
 import com.tigrisdata.db.client.error.TigrisDBException;
 import com.tigrisdata.db.client.model.DeleteRequestOptions;
 import com.tigrisdata.db.client.model.DeleteResponse;
-import com.tigrisdata.db.client.model.Field;
 import com.tigrisdata.db.client.model.InsertOrReplaceRequestOptions;
 import com.tigrisdata.db.client.model.InsertOrReplaceResponse;
 import com.tigrisdata.db.client.model.InsertRequestOptions;
 import com.tigrisdata.db.client.model.InsertResponse;
+import com.tigrisdata.db.client.model.ReadFields;
 import com.tigrisdata.db.client.model.ReadOptions;
 import com.tigrisdata.db.client.model.ReadRequestOptions;
 import com.tigrisdata.db.client.model.TigrisCollectionType;
@@ -48,14 +48,14 @@ public class TransactionalTigrisCollection<T extends TigrisCollectionType>
 
   @Override
   public Iterator<T> read(
-      TigrisFilter filter, List<Field<?>> fields, ReadRequestOptions readRequestOptions)
+      TigrisFilter filter, ReadFields fields, ReadRequestOptions readRequestOptions)
       throws TigrisDBException {
     if (readRequestOptions.getReadOptions() != null) {
       readRequestOptions.getReadOptions().setTransactionCtx(transactionCtx);
     } else {
       readRequestOptions.setReadOptions(new ReadOptions(transactionCtx));
     }
-    return super.read(filter, fields, readRequestOptions);
+    return super.read(filter, ReadFields.empty(), readRequestOptions);
   }
 
   @Override
@@ -98,13 +98,13 @@ public class TransactionalTigrisCollection<T extends TigrisCollectionType>
   }
 
   @Override
-  public Iterator<T> read(TigrisFilter filter, List<Field<?>> fields) throws TigrisDBException {
+  public Iterator<T> read(TigrisFilter filter, ReadFields fields) throws TigrisDBException {
     return read(filter, fields, new ReadRequestOptions(new ReadOptions(transactionCtx)));
   }
 
   @Override
   public T readOne(TigrisFilter filter) throws TigrisDBException {
-    Iterator<T> iterator = this.read(filter, Collections.emptyList());
+    Iterator<T> iterator = this.read(filter, ReadFields.empty());
     if (iterator.hasNext()) {
       return iterator.next();
     }

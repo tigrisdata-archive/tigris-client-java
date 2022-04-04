@@ -13,4 +13,6 @@
  */
 package com.tigrisdata.db.client.model;
 
-public interface TigrisFilter {}
+public interface TigrisFilter {
+  String toJSON();
+}

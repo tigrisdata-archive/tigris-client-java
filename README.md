@@ -1,4 +1,5 @@
 # TigrisDB Java Client
+
 Java driver for TigrisDB
 
 ![build status](https://github.com/tigrisdata/tigrisdb-client-java/actions/workflows/java-ci/badge.svg)
@@ -39,6 +40,7 @@ peopleCollection.delete(Filters.eq("id", 1));
 ```
 
 ----
+
 # TigrisDB Maven Plugin
 
 TigrisDB maven plugin reads schema files as input and generates the Java models

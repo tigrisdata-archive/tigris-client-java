@@ -17,7 +17,6 @@ import com.google.protobuf.ByteString;
 import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
 import com.tigrisdata.db.client.error.TigrisDBException;
-import com.tigrisdata.db.client.model.AlterCollectionResponse;
 import com.tigrisdata.db.client.model.CollectionOptions;
 import com.tigrisdata.db.client.model.CreateCollectionResponse;
 import com.tigrisdata.db.client.model.DropCollectionResponse;
@@ -77,26 +76,6 @@ public class StandardTigrisDatabase implements TigrisDatabase {
       throw new TigrisDBException("Failed to read schema content", ioException);
     } catch (StatusRuntimeException statusRuntimeException) {
       throw new TigrisDBException("Failed to create collection", statusRuntimeException);
-    }
-  }
-
-  @Override
-  public AlterCollectionResponse alterCollection(
-      String collectionName, TigrisDBSchema schema, CollectionOptions collectionOptions)
-      throws TigrisDBException {
-    try {
-      Api.AlterCollectionRequest alterCollectionRequest =
-          Api.AlterCollectionRequest.newBuilder()
-              .setDb(dbName)
-              .setCollection(collectionName)
-              .setSchema(ByteString.copyFrom(schema.getSchemaContent(), StandardCharsets.UTF_8))
-              .build();
-      return new AlterCollectionResponse(
-          new TigrisDBResponse(stub.alterCollection(alterCollectionRequest).getMsg()));
-    } catch (IOException ioException) {
-      throw new TigrisDBException("Failed to read schema content", ioException);
-    } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisDBException("Failed to alter collection", statusRuntimeException);
     }
   }
 

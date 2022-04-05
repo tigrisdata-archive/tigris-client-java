@@ -88,6 +88,11 @@ public final class UpdateFields {
       return this;
     }
 
+    public SetFieldsBuilder set(String fieldName, double newValue) {
+      internalMap.put(fieldName, newValue);
+      return this;
+    }
+
     public SetFields build() {
       if (internalMap.isEmpty()) {
         throw new IllegalStateException("No fields are set");

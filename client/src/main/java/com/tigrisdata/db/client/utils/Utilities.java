@@ -14,8 +14,13 @@
 package com.tigrisdata.db.client.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.Iterator;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.function.Function;
 
 public final class Utilities {
@@ -23,8 +28,48 @@ public final class Utilities {
 
   public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
-  public static <F, T> Iterator<T> from(Iterator<F> iterator, Function<F, T> converter) {
+  /**
+   * Converts from {@link Iterator<F>} to {@link Iterator<T>}
+   *
+   * @param iterator source iterator
+   * @param converter function that converts F to T type
+   * @param <F> source type
+   * @param <T> destination type
+   * @return an instance of {@link Iterator<T>}
+   */
+  public static <F, T> Iterator<T> transformIterator(
+      Iterator<F> iterator, Function<F, T> converter) {
     return new ConvertedIterator<>(iterator, converter);
+  }
+
+  /**
+   * Converts {@link ListenableFuture<F>} to {@link CompletableFuture<T>}
+   *
+   * @param listenableFuture source listenable future
+   * @param converter function that converts type F to type T
+   * @param executor executor to run callback that transforms Future when source Future is complete
+   * @param <F> from type
+   * @param <T> to type
+   * @return an instance of {@link CompletableFuture<T>}
+   */
+  public static <F, T> CompletableFuture<T> transformFuture(
+      ListenableFuture<F> listenableFuture, Function<F, T> converter, Executor executor) {
+    CompletableFuture<T> result = new CompletableFuture<>();
+    Futures.addCallback(
+        listenableFuture,
+        new FutureCallback<F>() {
+          @Override
+          public void onSuccess(F f) {
+            result.complete(converter.apply(f));
+          }
+
+          @Override
+          public void onFailure(Throwable throwable) {
+            result.completeExceptionally(throwable);
+          }
+        },
+        executor);
+    return result;
   }
 
   static class ConvertedIterator<F, T> implements Iterator<T> {

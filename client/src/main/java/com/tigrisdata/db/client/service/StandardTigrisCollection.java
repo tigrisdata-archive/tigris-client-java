@@ -93,7 +93,7 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
               throw new IllegalArgumentException("Failed to convert response to  the user type", e);
             }
           };
-      return Utilities.from(readResponseIterator, converter);
+      return Utilities.transformIterator(readResponseIterator, converter);
     } catch (JsonProcessingException jsonProcessingException) {
       throw new TigrisDBException("Failed to process fields", jsonProcessingException);
     } catch (StatusRuntimeException exception) {

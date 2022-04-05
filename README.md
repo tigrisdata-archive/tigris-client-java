@@ -8,35 +8,40 @@ Java driver for TigrisDB
 
 ```java
 // prepare config
-TigrisDBConfiguration tigrisDBConfiguration =
-TigrisDBConfiguration.newBuilder("tigris-data-host:port").build();
-    
+TigrisDBConfiguration tigrisDBConfiguration=
+        TigrisDBConfiguration.newBuilder("tigris-data-host:port").build();
+
 // initialize the client
-TigrisDBClient tigrisDBClient = StandardTigrisDBClient.getInstance(new TigrisAuthorizationToken("your-api-token"),
-        tigrisDBConfiguration);
-    
+TigrisDBClient tigrisDBClient=StandardTigrisDBClient.getInstance(
+        new TigrisAuthorizationToken("your-api-token"),
+        tigrisDBConfiguration
+        );
+
 // get access to your database
-TigrisDatabase myDB = tigrisDBClient.getDatabase("your-db-name");
-    
+TigrisDatabase myDB=tigrisDBClient.getDatabase("your-db-name");
+
 // get access to your collection
-TigrisCollection<Person> peopleCollection = myDB.getCollection(Person.class);
+TigrisCollection<Person> peopleCollection=myDB.getCollection(Person.class);
 
 // insert
-peopleCollection.insert(new Person(1, "Alice"));
+peopleCollection.insert(new Person(1,"Alice"));
 
 // read
-Person alice = peopleCollection.readOne(Filters.eq("id", 1));
-    
+Person alice=peopleCollection.readOne(Filters.eq("id",1));
+
 // update
 peopleCollection.update(
-    Filters.eq("id", 1),
-    Collections.singletonList(
-        Fields.stringField("name", "Dr. Alice")
-    )
+    Filters.eq("id",1),
+    UpdateFields.newBuilder()
+        .set(
+            UpdateFields.SetFields.newBuilder()
+            .set("name","Dr. Alice")
+            .build()
+            ).build()
 );
-    
+
 // delete
-peopleCollection.delete(Filters.eq("id", 1));
+peopleCollection.delete(Filters.eq("id",1));
 ```
 
 ----
@@ -49,6 +54,7 @@ as output. It also ensures the schema compatibility for `git` managed projects.
 # Configuration
 
 ```xml
+
 <build>
     <plugins>
         ...

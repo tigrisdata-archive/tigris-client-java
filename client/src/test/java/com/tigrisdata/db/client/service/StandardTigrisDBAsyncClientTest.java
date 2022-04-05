@@ -35,8 +35,10 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
-public class StandardTigrisDBClientTest {
+public class StandardTigrisDBAsyncClientTest {
 
   private static String SERVER_NAME;
   private static TestUserService TEST_USER_SERVICE;
@@ -62,47 +64,53 @@ public class StandardTigrisDBClientTest {
 
   @Test
   public void testGetDatabase() {
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("db1");
+    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
     Assert.assertEquals("db1", db1.name());
   }
 
   @Test
-  public void testListDatabases() throws TigrisDBException {
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    List<TigrisDatabase> databases = client.listDatabases(new DatabaseOptions());
-
+  public void testListDatabases()
+      throws TigrisDBException, InterruptedException, ExecutionException {
+    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    CompletableFuture<List<TigrisAsyncDatabase>> listDatabasesResponse =
+        asyncClient.listDatabases(new DatabaseOptions());
+    List<TigrisAsyncDatabase> databases = listDatabasesResponse.get();
     Assert.assertEquals(3, databases.size());
     // note: equals ignores stub and channel so avoid passing them
     MatcherAssert.assertThat(
         databases,
         Matchers.containsInAnyOrder(
-            new StandardTigrisDatabase("db1", null, null),
-            new StandardTigrisDatabase("db2", null, null),
-            new StandardTigrisDatabase("db3", null, null)));
+            new StandardTigrisAsyncDatabase("db1", null, null),
+            new StandardTigrisAsyncDatabase("db2", null, null),
+            new StandardTigrisAsyncDatabase("db3", null, null)));
   }
 
   @Test
-  public void testCreateDatabase() throws TigrisDBException {
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDBResponse response = client.createDatabase("db4", new DatabaseOptions());
-    Assert.assertEquals("db4 created", response.getMessage());
+  public void testCreateDatabase()
+      throws TigrisDBException, InterruptedException, ExecutionException {
+    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    CompletableFuture<TigrisDBResponse> response =
+        asyncClient.createDatabase("db4", new DatabaseOptions());
+    Assert.assertEquals("db4 created", response.get().getMessage());
     // 4th db created
-    Assert.assertEquals(4, client.listDatabases(new DatabaseOptions()).size());
+    Assert.assertEquals(4, asyncClient.listDatabases(new DatabaseOptions()).get().size());
   }
 
   @Test
-  public void testDropDatabase() throws TigrisDBException {
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDBResponse response = client.dropDatabase("db2", new DatabaseOptions());
-    Assert.assertEquals("db2 dropped", response.getMessage());
+  public void testDropDatabase()
+      throws TigrisDBException, InterruptedException, ExecutionException {
+    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    CompletableFuture<TigrisDBResponse> response =
+        asyncClient.dropDatabase("db2", new DatabaseOptions());
+    Assert.assertEquals("db2 dropped", response.get().getMessage());
     // 4th db created
-    Assert.assertEquals(2, client.listDatabases(new DatabaseOptions()).size());
+    Assert.assertEquals(2, asyncClient.listDatabases(new DatabaseOptions()).get().size());
     MatcherAssert.assertThat(
-        client.listDatabases(new DatabaseOptions()),
+        asyncClient.listDatabases(new DatabaseOptions()).get(),
         Matchers.containsInAnyOrder(
-            new StandardTigrisDatabase("db1", null, null),
-            new StandardTigrisDatabase("db3", null, null)));
+            new StandardTigrisAsyncDatabase("db1", null, null),
+            new StandardTigrisAsyncDatabase("db3", null, null)));
   }
 
   @Test
@@ -113,12 +121,12 @@ public class StandardTigrisDBClientTest {
     ManagedChannel mockedChannel = Mockito.mock(ManagedChannel.class);
     Mockito.when(mockedChannelBuilder.build()).thenReturn(mockedChannel);
 
-    TigrisDBClient client =
-        new StandardTigrisDBClient(
+    TigrisDBAsyncClient asyncClient =
+        new StandardTigrisDBAsyncClient(
             new TigrisAuthorizationToken("some.test.token"),
             TigrisDBConfiguration.newBuilder("some-url").build(),
             mockedChannelBuilder);
-    client.close();
+    asyncClient.close();
     Mockito.verify(mockedChannel, Mockito.times(1)).shutdown();
   }
 }

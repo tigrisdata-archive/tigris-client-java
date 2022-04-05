@@ -30,9 +30,8 @@ public interface TigrisAsyncDatabase {
    * Return list of collection names
    *
    * @return a future to the {@link List} of {@link String} representing collection names
-   * @throws TigrisDBException in case of an error.
    */
-  CompletableFuture<List<String>> listCollections() throws TigrisDBException;
+  CompletableFuture<List<String>> listCollections();
 
   /**
    * Creates a collection under current database.
@@ -54,8 +53,7 @@ public interface TigrisAsyncDatabase {
    * @return the future to the {@link DropCollectionResponse}
    * @throws TigrisDBException in case of an error.
    */
-  CompletableFuture<DropCollectionResponse> dropCollection(String collectionName)
-      throws TigrisDBException;
+  CompletableFuture<DropCollectionResponse> dropCollection(String collectionName);
 
   /**
    * Return an instance of {@link TigrisCollection}
@@ -74,8 +72,8 @@ public interface TigrisAsyncDatabase {
    * @return the future to the {@link TransactionAsyncSession}
    * @throws TigrisDBException in case of an error
    */
-  CompletableFuture<TransactionAsyncSession> beginTransaction(TransactionOptions transactionOptions)
-      throws TigrisDBException;
+  CompletableFuture<TransactionAsyncSession> beginTransaction(
+      TransactionOptions transactionOptions);
 
   /** @return name of the current database */
   String name();

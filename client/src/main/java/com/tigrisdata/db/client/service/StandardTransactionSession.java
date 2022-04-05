@@ -88,9 +88,4 @@ public class StandardTransactionSession implements TransactionSession {
       throw new TigrisDBException("Failed to rollback transaction", statusRuntimeException);
     }
   }
-
-  // visible for testing
-  Api.TransactionCtx getTransactionCtx() {
-    return transactionCtx;
-  }
 }

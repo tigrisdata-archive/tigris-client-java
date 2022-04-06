@@ -85,7 +85,10 @@ public class SourceCodeGeneratorMojo extends AbstractMojo {
         getLog().error("Failed to validate schema", ex);
         return;
       } catch (IOException e) {
-        getLog().warn("We were unable to validate the schema compatibility due to ", e);
+        getLog()
+            .warn(
+                "We were unable to validate the schema compatibility due to, reason= "
+                    + e.getMessage());
       }
     }
     generateModels(schemaFiles);

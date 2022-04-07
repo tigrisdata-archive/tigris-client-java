@@ -27,4 +27,13 @@ public class TigrisDBException extends Exception {
   public TigrisDBException(Throwable cause) {
     super(cause);
   }
+
+  @Override
+  public String getMessage() {
+    String message = super.getMessage();
+    if (getCause() != null && getCause().getMessage() != null) {
+      message += " Cause: " + getCause().getMessage();
+    }
+    return message;
+  }
 }

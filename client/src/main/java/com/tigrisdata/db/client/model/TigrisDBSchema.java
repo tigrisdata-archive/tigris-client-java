@@ -17,4 +17,6 @@ import java.io.IOException;
 
 public interface TigrisDBSchema {
   String getSchemaContent() throws IOException;
+
+  String getName() throws IOException;
 }

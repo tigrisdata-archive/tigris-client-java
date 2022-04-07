@@ -30,6 +30,8 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 
 public class StandardTigrisDatabaseTest {
@@ -66,13 +68,13 @@ public class StandardTigrisDatabaseTest {
   }
 
   @Test
-  public void testCreateCollection() throws TigrisDBException {
+  public void testCreateCollection() throws TigrisDBException, IOException {
     TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
     CreateCollectionResponse response =
         db1.createCollection(
             "db1_c5",
-            new TigrisDBJSONSchema("src/test/resources/test-schema.json"),
+            new TigrisDBJSONSchema(new URL("file:src/test/resources/test-schema.json")),
             new CollectionOptions());
     Assert.assertEquals("db1_c5 created", response.getTigrisDBResponse().getMessage());
     MatcherAssert.assertThat(

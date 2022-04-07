@@ -29,6 +29,8 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -69,13 +71,13 @@ public class StandardTigrisAsyncDatabaseTest {
 
   @Test
   public void testCreateCollection()
-      throws TigrisDBException, InterruptedException, ExecutionException {
+      throws TigrisDBException, InterruptedException, ExecutionException, IOException {
     TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
     CompletableFuture<CreateCollectionResponse> response =
         db1.createCollection(
             "db1_c5",
-            new TigrisDBJSONSchema("src/test/resources/test-schema.json"),
+            new TigrisDBJSONSchema(new URL("file:src/test/resources/test-schema.json")),
             new CollectionOptions());
     Assert.assertEquals("db1_c5 created", response.get().getTigrisDBResponse().getMessage());
     MatcherAssert.assertThat(

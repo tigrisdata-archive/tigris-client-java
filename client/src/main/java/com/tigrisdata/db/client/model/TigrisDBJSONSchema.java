@@ -13,56 +13,40 @@
  */
 package com.tigrisdata.db.client.model;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.tigrisdata.db.client.utils.Utilities;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class TigrisDBJSONSchema implements TigrisDBSchema {
 
-  private final String jsonSchemaFile;
-  private final InputStream jsonSchemaInputStream;
-  private static final Logger log = LoggerFactory.getLogger(TigrisDBJSONSchema.class);
+  private final URL schemaURL;
+  private String schemaName;
 
-  public TigrisDBJSONSchema(String jsonSchemaFile) {
-    this.jsonSchemaFile = jsonSchemaFile;
-    this.jsonSchemaInputStream = null;
-  }
-
-  public TigrisDBJSONSchema(InputStream jsonSchemaInputStream) {
-    this.jsonSchemaFile = null;
-    this.jsonSchemaInputStream = jsonSchemaInputStream;
+  public TigrisDBJSONSchema(URL schemaURL) {
+    this.schemaURL = schemaURL;
   }
 
   @Override
   public String getSchemaContent() throws IOException {
-    if (jsonSchemaFile == null && jsonSchemaInputStream == null) {
-      throw new IllegalStateException("jsonSchemaFile and jsonSchemaInputStream both are null");
-    }
-    if (jsonSchemaInputStream != null) {
-      try (BufferedReader bufferedReader =
-          new BufferedReader(
-              new InputStreamReader(jsonSchemaInputStream, StandardCharsets.UTF_8))) {
-        log.info("reading schema from jsonSchemaInputStream");
-        return bufferedReader.lines().collect(Collectors.joining("\n"));
-      }
-    } else {
-      log.info("reading schema from jsonSchemaFile");
-      return String.join("\n", Files.readAllLines(new File(jsonSchemaFile).toPath()));
+    try (BufferedReader bufferedReader =
+        new BufferedReader(new InputStreamReader(schemaURL.openStream(), StandardCharsets.UTF_8))) {
+      return bufferedReader.lines().collect(Collectors.joining("\n"));
     }
   }
 
   @Override
-  public String toString() {
-    return "TigrisDBJSONSchema{" + "jsonSchemaFile='" + jsonSchemaFile + '\'' + '}';
+  public String getName() throws IOException {
+    if (schemaName != null) {
+      return schemaName;
+    }
+    this.schemaName = Utilities.OBJECT_MAPPER.readTree(getSchemaContent()).get("name").asText();
+    return schemaName;
   }
 
   @Override
@@ -72,11 +56,14 @@ public class TigrisDBJSONSchema implements TigrisDBSchema {
 
     TigrisDBJSONSchema that = (TigrisDBJSONSchema) o;
 
-    return Objects.equals(jsonSchemaFile, that.jsonSchemaFile);
+    if (!Objects.equals(schemaURL, that.schemaURL)) return false;
+    return Objects.equals(schemaName, that.schemaName);
   }
 
   @Override
   public int hashCode() {
-    return jsonSchemaFile != null ? jsonSchemaFile.hashCode() : 0;
+    int result = schemaURL != null ? schemaURL.hashCode() : 0;
+    result = 31 * result + (schemaName != null ? schemaName.hashCode() : 0);
+    return result;
   }
 }

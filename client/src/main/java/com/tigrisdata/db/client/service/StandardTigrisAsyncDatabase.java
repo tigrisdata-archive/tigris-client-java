@@ -60,12 +60,10 @@ public class StandardTigrisAsyncDatabase implements TigrisAsyncDatabase {
 
   @Override
   public CompletableFuture<CreateCollectionResponse> createCollection(
-      String collectionName, TigrisDBSchema schema, CollectionOptions collectionOptions)
-      throws TigrisDBException {
+      TigrisDBSchema schema, CollectionOptions collectionOptions) throws TigrisDBException {
     ListenableFuture<Api.CreateCollectionResponse> createCollectionResponseListenableFuture =
         stub.createCollection(
-            toCreateCollectionRequest(
-                databaseName, collectionName, schema, collectionOptions, Optional.empty()));
+            toCreateCollectionRequest(databaseName, schema, collectionOptions, Optional.empty()));
     return Utilities.transformFuture(
         createCollectionResponseListenableFuture,
         (input) -> new CreateCollectionResponse(new TigrisDBResponse(input.getMsg())),

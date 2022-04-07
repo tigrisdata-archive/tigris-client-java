@@ -76,8 +76,7 @@ public class StandardTigrisAsyncDatabaseTest {
     TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
     CompletableFuture<CreateCollectionResponse> response =
         db1.createCollection(
-            "db1_c5",
-            new TigrisDBJSONSchema(new URL("file:src/test/resources/test-schema.json")),
+            new TigrisDBJSONSchema(new URL("file:src/test/resources/db1_c5.json")),
             new CollectionOptions());
     Assert.assertEquals("db1_c5 created", response.get().getTigrisDBResponse().getMessage());
     MatcherAssert.assertThat(

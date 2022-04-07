@@ -46,7 +46,6 @@ public final class TypeConverter {
 
   public static Api.CreateCollectionRequest toCreateCollectionRequest(
       String databaseName,
-      String collectionName,
       TigrisDBSchema schema,
       CollectionOptions collectionOptions,
       Optional<Api.TransactionCtx> transactionCtx)
@@ -54,7 +53,7 @@ public final class TypeConverter {
     try {
       return Api.CreateCollectionRequest.newBuilder()
           .setDb(databaseName)
-          .setCollection(collectionName)
+          .setCollection(schema.getName())
           .setSchema(ByteString.copyFrom(schema.getSchemaContent(), StandardCharsets.UTF_8))
           .setOptions(toCollectionOptions(collectionOptions, transactionCtx))
           .build();

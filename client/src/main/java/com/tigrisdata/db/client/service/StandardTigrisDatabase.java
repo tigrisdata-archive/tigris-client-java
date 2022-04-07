@@ -13,22 +13,22 @@
  */
 package com.tigrisdata.db.client.service;
 
-import com.google.protobuf.ByteString;
 import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
 import com.tigrisdata.db.client.error.TigrisDBException;
 import com.tigrisdata.db.client.model.CollectionOptions;
-import com.tigrisdata.db.client.model.CreateCollectionResponse;
 import com.tigrisdata.db.client.model.DropCollectionResponse;
 import com.tigrisdata.db.client.model.TigrisCollectionType;
+import com.tigrisdata.db.client.model.TigrisDBJSONSchema;
 import com.tigrisdata.db.client.model.TigrisDBResponse;
 import com.tigrisdata.db.client.model.TigrisDBSchema;
 import com.tigrisdata.db.client.model.TransactionOptions;
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -60,22 +60,37 @@ public class StandardTigrisDatabase implements TigrisDatabase {
   }
 
   @Override
-  public CreateCollectionResponse createCollection(
-      String collectionName, TigrisDBSchema schema, CollectionOptions collectionOptions)
+  public TigrisDBResponse createCollectionsInTransaction(List<URL> collectionsSchemas)
       throws TigrisDBException {
+    TransactionSession transactionSession = null;
     try {
-      Api.CreateCollectionRequest createCollectionRequest =
-          Api.CreateCollectionRequest.newBuilder()
-              .setDb(dbName)
-              .setCollection(collectionName)
-              .setSchema(ByteString.copyFrom(schema.getSchemaContent(), StandardCharsets.UTF_8))
-              .build();
-      return new CreateCollectionResponse(
-          new TigrisDBResponse(stub.createCollection(createCollectionRequest).getMsg()));
-    } catch (IOException ioException) {
-      throw new TigrisDBException("Failed to read schema content", ioException);
-    } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisDBException("Failed to create collection", statusRuntimeException);
+      transactionSession = beginTransaction(new TransactionOptions());
+      for (URL collectionsSchema : collectionsSchemas) {
+        TigrisDBSchema schema = new TigrisDBJSONSchema(collectionsSchema);
+        transactionSession.createCollection(schema, new CollectionOptions());
+      }
+      transactionSession.commit();
+      return new TigrisDBResponse("Collections creates successfully");
+    } catch (Exception exception) {
+      if (transactionSession != null) {
+        transactionSession.rollback();
+      }
+      throw new TigrisDBException("Failed to create collections in transaction", exception);
+    }
+  }
+
+  @Override
+  public TigrisDBResponse createCollectionsInTransaction(File schemaDirectory)
+      throws TigrisDBException {
+    List<URL> schemaURLs = new ArrayList<>();
+    try {
+      for (File file :
+          schemaDirectory.listFiles(file -> file.getName().toLowerCase().endsWith(".json"))) {
+        schemaURLs.add(file.toURI().toURL());
+      }
+      return createCollectionsInTransaction(schemaURLs);
+    } catch (NullPointerException | MalformedURLException ex) {
+      throw new TigrisDBException("Failed to process schemaDirectory", ex);
     }
   }
 

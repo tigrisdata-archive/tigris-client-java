@@ -36,15 +36,13 @@ public interface TigrisAsyncDatabase {
   /**
    * Creates a collection under current database.
    *
-   * @param collectionName name of the collection
    * @param schema schema of the collection
    * @param collectionOptions collection option
    * @return the future to the {@link CreateCollectionResponse}
    * @throws TigrisDBException in case of an error.
    */
   CompletableFuture<CreateCollectionResponse> createCollection(
-      String collectionName, TigrisDBSchema schema, CollectionOptions collectionOptions)
-      throws TigrisDBException;
+      TigrisDBSchema schema, CollectionOptions collectionOptions) throws TigrisDBException;
 
   /**
    * Drops the collection.

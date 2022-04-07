@@ -15,10 +15,8 @@ package com.tigrisdata.db.client.service;
 
 import com.tigrisdata.db.client.error.TigrisDBException;
 import com.tigrisdata.db.client.grpc.TestUserService;
-import com.tigrisdata.db.client.model.CollectionOptions;
-import com.tigrisdata.db.client.model.CreateCollectionResponse;
 import com.tigrisdata.db.client.model.DropCollectionResponse;
-import com.tigrisdata.db.client.model.TigrisDBJSONSchema;
+import com.tigrisdata.db.client.model.TigrisDBResponse;
 import com.tigrisdata.db.client.model.TransactionOptions;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.testing.GrpcCleanupRule;
@@ -32,6 +30,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.List;
 
 public class StandardTigrisDatabaseTest {
@@ -71,12 +70,10 @@ public class StandardTigrisDatabaseTest {
   public void testCreateCollection() throws TigrisDBException, IOException {
     TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
-    CreateCollectionResponse response =
-        db1.createCollection(
-            "db1_c5",
-            new TigrisDBJSONSchema(new URL("file:src/test/resources/test-schema.json")),
-            new CollectionOptions());
-    Assert.assertEquals("db1_c5 created", response.getTigrisDBResponse().getMessage());
+    TigrisDBResponse response =
+        db1.createCollectionsInTransaction(
+            Collections.singletonList(new URL("file:src/test/resources/db1_c5.json")));
+    Assert.assertEquals("Collections creates successfully", response.getMessage());
     MatcherAssert.assertThat(
         db1.listCollections(),
         Matchers.containsInAnyOrder("db1_c0", "db1_c1", "db1_c2", "db1_c3", "db1_c4", "db1_c5"));

@@ -14,13 +14,13 @@
 package com.tigrisdata.db.client.service;
 
 import com.tigrisdata.db.client.error.TigrisDBException;
-import com.tigrisdata.db.client.model.CollectionOptions;
-import com.tigrisdata.db.client.model.CreateCollectionResponse;
 import com.tigrisdata.db.client.model.DropCollectionResponse;
 import com.tigrisdata.db.client.model.TigrisCollectionType;
-import com.tigrisdata.db.client.model.TigrisDBSchema;
+import com.tigrisdata.db.client.model.TigrisDBResponse;
 import com.tigrisdata.db.client.model.TransactionOptions;
 
+import java.io.File;
+import java.net.URL;
 import java.util.List;
 
 public interface TigrisDatabase {
@@ -32,20 +32,24 @@ public interface TigrisDatabase {
    * @throws TigrisDBException in case of an error.
    */
   List<String> listCollections() throws TigrisDBException;
-
   /**
-   * Creates a collection under current database.
+   * Creates the collection in a transaction
    *
-   * @param collectionName name of the collection
-   * @param schema schema of the collection
-   * @param collectionOptions collection option
-   * @return the instance of {@link CreateCollectionResponse} from server
+   * @param collectionsSchemas list of URL pointing to schema files
+   * @return response
    * @throws TigrisDBException in case of an error.
    */
-  CreateCollectionResponse createCollection(
-      String collectionName, TigrisDBSchema schema, CollectionOptions collectionOptions)
+  TigrisDBResponse createCollectionsInTransaction(List<URL> collectionsSchemas)
       throws TigrisDBException;
 
+  /**
+   * Reads schema files from a directory and creates the collection in a transaction
+   *
+   * @param schemaDirectory directory containing schema files
+   * @return response
+   * @throws TigrisDBException in case of an error.
+   */
+  TigrisDBResponse createCollectionsInTransaction(File schemaDirectory) throws TigrisDBException;
   /**
    * Drops the collection.
    *

@@ -16,12 +16,18 @@ package com.tigrisdata.db.client.service;
 import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
 import com.tigrisdata.db.client.error.TigrisDBException;
+import com.tigrisdata.db.client.model.CollectionOptions;
+import com.tigrisdata.db.client.model.CreateCollectionResponse;
 import com.tigrisdata.db.client.model.TigrisCollectionType;
 import com.tigrisdata.db.client.model.TigrisDBResponse;
+import com.tigrisdata.db.client.model.TigrisDBSchema;
+import static com.tigrisdata.db.client.model.TypeConverter.toCreateCollectionRequest;
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.MetadataUtils;
+
+import java.util.Optional;
 
 public class StandardTransactionSession implements TransactionSession {
   private final Api.TransactionCtx transactionCtx;
@@ -55,6 +61,20 @@ public class StandardTransactionSession implements TransactionSession {
       Class<C> collectionTypeClass) throws TigrisDBException {
     return new TransactionalTigrisCollection<>(
         databaseName, collectionTypeClass, stub, transactionCtx);
+  }
+
+  @Override
+  public CreateCollectionResponse createCollection(
+      TigrisDBSchema schema, CollectionOptions collectionOptions) throws TigrisDBException {
+    try {
+      Api.CreateCollectionResponse createCollectionResponse =
+          stub.createCollection(
+              toCreateCollectionRequest(
+                  databaseName, schema, collectionOptions, Optional.of(transactionCtx)));
+      return new CreateCollectionResponse(new TigrisDBResponse(createCollectionResponse.getMsg()));
+    } catch (StatusRuntimeException ex) {
+      throw new TigrisDBException("Failed to create collection in transactional session", ex);
+    }
   }
 
   @Override

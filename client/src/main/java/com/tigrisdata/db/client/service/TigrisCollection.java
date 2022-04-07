@@ -30,6 +30,7 @@ import com.tigrisdata.db.client.model.UpdateResponse;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 public interface TigrisCollection<T extends TigrisCollectionType> {
 
@@ -58,10 +59,10 @@ public interface TigrisCollection<T extends TigrisCollectionType> {
    * non-point lookup any arbitrary matching document will be returned.
    *
    * @param filter
-   * @return
+   * @return Optional of document.
    * @throws TigrisDBException
    */
-  T readOne(TigrisFilter filter) throws TigrisDBException;
+  Optional<T> readOne(TigrisFilter filter) throws TigrisDBException;
 
   /**
    * @param documents list of documents to insert

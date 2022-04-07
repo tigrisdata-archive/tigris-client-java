@@ -13,9 +13,11 @@
  */
 package com.tigrisdata.db.client.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
 import com.tigrisdata.db.client.error.TigrisDBException;
+import com.tigrisdata.db.client.model.CollectionInfo;
 import com.tigrisdata.db.client.model.CollectionOptions;
 import com.tigrisdata.db.client.model.DropCollectionResponse;
 import com.tigrisdata.db.client.model.TigrisCollectionType;
@@ -23,6 +25,7 @@ import com.tigrisdata.db.client.model.TigrisDBJSONSchema;
 import com.tigrisdata.db.client.model.TigrisDBResponse;
 import com.tigrisdata.db.client.model.TigrisDBSchema;
 import com.tigrisdata.db.client.model.TransactionOptions;
+import com.tigrisdata.db.client.model.TypeConverter;
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
 
@@ -32,28 +35,36 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class StandardTigrisDatabase implements TigrisDatabase {
 
   private final String dbName;
   private final TigrisDBGrpc.TigrisDBBlockingStub stub;
   private final ManagedChannel managedChannel;
+  private final ObjectMapper objectMapper;
 
   StandardTigrisDatabase(
-      String dbName, TigrisDBGrpc.TigrisDBBlockingStub stub, ManagedChannel managedChannel) {
+      String dbName,
+      TigrisDBGrpc.TigrisDBBlockingStub stub,
+      ManagedChannel managedChannel,
+      ObjectMapper objectMapper) {
     this.dbName = dbName;
     this.stub = stub;
     this.managedChannel = managedChannel;
+    this.objectMapper = objectMapper;
   }
 
   @Override
-  public List<String> listCollections() throws TigrisDBException {
+  public List<CollectionInfo> listCollections() throws TigrisDBException {
     try {
       Api.ListCollectionsRequest listCollectionsRequest =
           Api.ListCollectionsRequest.newBuilder().setDb(dbName).build();
       Api.ListCollectionsResponse listCollectionsResponse =
           stub.listCollections(listCollectionsRequest);
-      return new ArrayList<>(listCollectionsResponse.getCollectionsList());
+      return listCollectionsResponse.getCollectionsList().stream()
+          .map(TypeConverter::toCollectionInfo)
+          .collect(Collectors.toList());
     } catch (StatusRuntimeException statusRuntimeException) {
       throw new TigrisDBException("Failed to list collections", statusRuntimeException);
     }
@@ -67,7 +78,7 @@ public class StandardTigrisDatabase implements TigrisDatabase {
       transactionSession = beginTransaction(new TransactionOptions());
       for (URL collectionsSchema : collectionsSchemas) {
         TigrisDBSchema schema = new TigrisDBJSONSchema(collectionsSchema);
-        transactionSession.createCollection(schema, new CollectionOptions());
+        transactionSession.createOrUpdateCollection(schema, new CollectionOptions());
       }
       transactionSession.commit();
       return new TigrisDBResponse("Collections creates successfully");
@@ -112,7 +123,7 @@ public class StandardTigrisDatabase implements TigrisDatabase {
   @Override
   public <C extends TigrisCollectionType> TigrisCollection<C> getCollection(
       Class<C> collectionTypeClass) {
-    return new StandardTigrisCollection<>(dbName, collectionTypeClass, stub);
+    return new StandardTigrisCollection<>(dbName, collectionTypeClass, stub, objectMapper);
   }
 
   @Override
@@ -127,7 +138,7 @@ public class StandardTigrisDatabase implements TigrisDatabase {
       Api.BeginTransactionResponse beginTransactionResponse =
           stub.beginTransaction(beginTransactionRequest);
       Api.TransactionCtx transactionCtx = beginTransactionResponse.getTxCtx();
-      return new StandardTransactionSession(dbName, transactionCtx, managedChannel);
+      return new StandardTransactionSession(dbName, transactionCtx, managedChannel, objectMapper);
     } catch (StatusRuntimeException statusRuntimeException) {
       throw new TigrisDBException("Failed to begin transaction", statusRuntimeException);
     }

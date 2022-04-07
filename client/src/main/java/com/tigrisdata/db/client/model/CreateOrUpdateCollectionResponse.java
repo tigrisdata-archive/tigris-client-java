@@ -13,10 +13,10 @@
  */
 package com.tigrisdata.db.client.model;
 
-public class CreateCollectionResponse {
+public class CreateOrUpdateCollectionResponse {
   private final TigrisDBResponse tigrisDBResponse;
 
-  public CreateCollectionResponse(TigrisDBResponse tigrisDBResponse) {
+  public CreateOrUpdateCollectionResponse(TigrisDBResponse tigrisDBResponse) {
     this.tigrisDBResponse = tigrisDBResponse;
   }
 

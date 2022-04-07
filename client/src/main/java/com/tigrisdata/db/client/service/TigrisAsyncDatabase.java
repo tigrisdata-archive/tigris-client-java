@@ -14,8 +14,9 @@
 package com.tigrisdata.db.client.service;
 
 import com.tigrisdata.db.client.error.TigrisDBException;
+import com.tigrisdata.db.client.model.CollectionInfo;
 import com.tigrisdata.db.client.model.CollectionOptions;
-import com.tigrisdata.db.client.model.CreateCollectionResponse;
+import com.tigrisdata.db.client.model.CreateOrUpdateCollectionResponse;
 import com.tigrisdata.db.client.model.DropCollectionResponse;
 import com.tigrisdata.db.client.model.TigrisCollectionType;
 import com.tigrisdata.db.client.model.TigrisDBSchema;
@@ -27,21 +28,21 @@ import java.util.concurrent.CompletableFuture;
 public interface TigrisAsyncDatabase {
 
   /**
-   * Return list of collection names
+   * Return list of {@link CollectionInfo}
    *
-   * @return a future to the {@link List} of {@link String} representing collection names
+   * @return a future to the {@link List} of {@link CollectionInfo} representing collection
    */
-  CompletableFuture<List<String>> listCollections();
+  CompletableFuture<List<CollectionInfo>> listCollections();
 
   /**
    * Creates a collection under current database.
    *
    * @param schema schema of the collection
    * @param collectionOptions collection option
-   * @return the future to the {@link CreateCollectionResponse}
+   * @return the future to the {@link CreateOrUpdateCollectionResponse}
    * @throws TigrisDBException in case of an error.
    */
-  CompletableFuture<CreateCollectionResponse> createCollection(
+  CompletableFuture<CreateOrUpdateCollectionResponse> createOrUpdateCollection(
       TigrisDBSchema schema, CollectionOptions collectionOptions) throws TigrisDBException;
 
   /**
@@ -67,11 +68,10 @@ public interface TigrisAsyncDatabase {
    * Begins the transaction on current database
    *
    * @param transactionOptions options
-   * @return the future to the {@link TransactionAsyncSession}
+   * @return the future to the {@link TransactionSession}
    * @throws TigrisDBException in case of an error
    */
-  CompletableFuture<TransactionAsyncSession> beginTransaction(
-      TransactionOptions transactionOptions);
+  CompletableFuture<TransactionSession> beginTransaction(TransactionOptions transactionOptions);
 
   /** @return name of the current database */
   String name();

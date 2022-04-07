@@ -15,20 +15,31 @@ package com.tigrisdata.db.client.service;
 
 import com.tigrisdata.db.client.model.TigrisCollectionType;
 
-public class C1 implements TigrisCollectionType {
-  private String msg;
+/** Test collection type */
+public class DB1_C1 implements TigrisCollectionType {
+  private long id;
+  private String name;
 
-  public C1() {}
+  public DB1_C1() {}
 
-  public C1(String msg) {
-    this.msg = msg;
+  public DB1_C1(long id, String name) {
+    this.id = id;
+    this.name = name;
   }
 
-  public String getMsg() {
-    return msg;
+  public long getId() {
+    return id;
   }
 
-  public void setMsg(String msg) {
-    this.msg = msg;
+  public void setId(long id) {
+    this.id = id;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
   }
 }

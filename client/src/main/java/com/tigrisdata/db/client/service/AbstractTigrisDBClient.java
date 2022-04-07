@@ -1,5 +1,6 @@
 package com.tigrisdata.db.client.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tigrisdata.db.client.auth.AuthorizationToken;
 import com.tigrisdata.db.client.config.TigrisDBConfiguration;
 import com.tigrisdata.db.client.interceptors.AuthHeaderInterceptor;
@@ -10,9 +11,9 @@ import io.grpc.stub.MetadataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractTigrisDBClient {
+abstract class AbstractTigrisDBClient {
   protected final ManagedChannel channel;
-
+  protected final ObjectMapper objectMapper;
   private static final Metadata.Key<String> USER_AGENT_KEY =
       Metadata.Key.of("user-agent", Metadata.ASCII_STRING_MARSHALLER);
   private static final Metadata.Key<String> CLIENT_VERSION_KEY =
@@ -24,19 +25,19 @@ public abstract class AbstractTigrisDBClient {
   private static final Logger log = LoggerFactory.getLogger(AbstractTigrisDBClient.class);
 
   protected AbstractTigrisDBClient(
-      TigrisDBConfiguration clientConfiguration, AuthorizationToken authorizationToken) {
+      TigrisDBConfiguration configuration, AuthorizationToken authorizationToken) {
 
     ManagedChannelBuilder channelBuilder =
-        ManagedChannelBuilder.forTarget(clientConfiguration.getBaseURL())
+        ManagedChannelBuilder.forTarget(configuration.getBaseURL())
             .intercept(new AuthHeaderInterceptor(authorizationToken))
-            .intercept(
-                MetadataUtils.newAttachHeadersInterceptor(getDefaultHeaders(clientConfiguration)));
-    if (clientConfiguration.getNetwork().isUsePlainText()) {
+            .intercept(MetadataUtils.newAttachHeadersInterceptor(getDefaultHeaders(configuration)));
+    if (configuration.getNetwork().isUsePlainText()) {
       log.warn(
           "Client is configured to use plaintext communication. It is advised to not use plaintext communication");
       channelBuilder.usePlaintext();
     }
     this.channel = channelBuilder.build();
+    this.objectMapper = configuration.getObjectMapper();
   }
 
   protected AbstractTigrisDBClient(
@@ -48,6 +49,7 @@ public abstract class AbstractTigrisDBClient {
             .intercept(new AuthHeaderInterceptor(authorizationToken))
             .intercept(MetadataUtils.newAttachHeadersInterceptor(getDefaultHeaders(configuration)))
             .build();
+    this.objectMapper = configuration.getObjectMapper();
   }
 
   private static Metadata getDefaultHeaders(TigrisDBConfiguration configuration) {

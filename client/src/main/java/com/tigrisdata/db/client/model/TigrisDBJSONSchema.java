@@ -13,7 +13,7 @@
  */
 package com.tigrisdata.db.client.model;
 
-import com.tigrisdata.db.client.utils.Utilities;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -26,10 +26,16 @@ import java.util.stream.Collectors;
 public class TigrisDBJSONSchema implements TigrisDBSchema {
 
   private final URL schemaURL;
+  private final ObjectMapper objectMapper;
   private String schemaName;
 
   public TigrisDBJSONSchema(URL schemaURL) {
+    this(schemaURL, new ObjectMapper());
+  }
+
+  public TigrisDBJSONSchema(URL schemaURL, ObjectMapper objectMapper) {
     this.schemaURL = schemaURL;
+    this.objectMapper = objectMapper;
   }
 
   @Override
@@ -45,7 +51,7 @@ public class TigrisDBJSONSchema implements TigrisDBSchema {
     if (schemaName != null) {
       return schemaName;
     }
-    this.schemaName = Utilities.OBJECT_MAPPER.readTree(getSchemaContent()).get("name").asText();
+    this.schemaName = objectMapper.readTree(getSchemaContent()).get("name").asText();
     return schemaName;
   }
 

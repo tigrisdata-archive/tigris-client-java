@@ -1,5 +1,5 @@
 {
-  "name": "user",
+  "name": "db1_c6",
   "description": "This document records the details of user for tigris store",
   "properties": {
     "id": {
@@ -9,6 +9,10 @@
     "name": {
       "description": "Name of the user",
       "type": "string"
+    },
+    "balance": {
+      "description": "user balance in USD",
+      "type": "double"
     }
   },
   "primary_key": [

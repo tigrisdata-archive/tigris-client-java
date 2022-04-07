@@ -16,6 +16,7 @@ package com.tigrisdata.db.client.service;
 import com.tigrisdata.db.client.error.TigrisDBException;
 import com.tigrisdata.db.client.grpc.ContextSettingServerInterceptor;
 import com.tigrisdata.db.client.grpc.TransactionTestUserService;
+import com.tigrisdata.db.client.model.Filters;
 import com.tigrisdata.db.client.model.TransactionOptions;
 import com.tigrisdata.db.client.model.UpdateFields;
 import io.grpc.inprocess.InProcessServerBuilder;
@@ -88,18 +89,18 @@ public class TransactionSessionTest {
     TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
     TransactionSession transactionSession = db1.beginTransaction(new TransactionOptions());
-    TigrisCollection<C1> c1TigrisCollection = transactionSession.getCollection(C1.class);
+    TigrisCollection<DB1_C1> c1TigrisCollection = transactionSession.getCollection(DB1_C1.class);
 
-    c1TigrisCollection.insert(Collections.singletonList(new C1("hello")));
+    c1TigrisCollection.insert(Collections.singletonList(new DB1_C1(1, "hello")));
 
-    c1TigrisCollection.delete(() -> "testHeadersOnServer");
+    c1TigrisCollection.delete(Filters.eq("id", 0L));
 
-    c1TigrisCollection.insert(Collections.singletonList(new C1("foo")));
+    c1TigrisCollection.insert(Collections.singletonList(new DB1_C1(5, "foo")));
 
     c1TigrisCollection.update(
-        () -> "testHeadersOnServer",
+        Filters.eq("id", 5),
         UpdateFields.newBuilder()
-            .set(UpdateFields.SetFields.newBuilder().set("age", 100).build())
+            .set(UpdateFields.SetFields.newBuilder().set("name", "new name").build())
             .build());
 
     transactionSession.commit();

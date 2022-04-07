@@ -13,15 +13,19 @@
  */
 package com.tigrisdata.db.client.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.time.Duration;
 
 public class TigrisDBConfiguration {
   private final String baseURL;
   private final TigrisDBConfiguration.NetworkConfig network;
+  private final ObjectMapper objectMapper;
 
   private TigrisDBConfiguration(TigrisDBConfiguration.TigrisDBClientConfigurationBuilder builder) {
     this.baseURL = builder.baseURL;
     this.network = builder.network;
+    this.objectMapper = builder.objectMapper;
   }
 
   public static TigrisDBConfiguration.TigrisDBClientConfigurationBuilder newBuilder(
@@ -37,19 +41,38 @@ public class TigrisDBConfiguration {
     return this.network;
   }
 
+  public ObjectMapper getObjectMapper() {
+    return objectMapper;
+  }
+
   public static final class TigrisDBClientConfigurationBuilder {
 
     private final String baseURL;
     private TigrisDBConfiguration.NetworkConfig network;
+    private ObjectMapper objectMapper;
 
     private TigrisDBClientConfigurationBuilder(String baseURL) {
       this.baseURL = baseURL;
       this.network = NetworkConfig.newBuilder().build();
+      this.objectMapper = new ObjectMapper();
     }
 
     public TigrisDBConfiguration.TigrisDBClientConfigurationBuilder withNetwork(
         TigrisDBConfiguration.NetworkConfig network) {
       this.network = network;
+      return this;
+    }
+
+    /**
+     * This will customize {@link ObjectMapper} instance used internally. It is highly recommended
+     * to customize this instance with extra care
+     *
+     * @param objectMapper
+     * @return builder
+     */
+    public TigrisDBConfiguration.TigrisDBClientConfigurationBuilder withObjectMapper(
+        ObjectMapper objectMapper) {
+      this.objectMapper = objectMapper;
       return this;
     }
 

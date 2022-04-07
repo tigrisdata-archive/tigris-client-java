@@ -13,11 +13,12 @@
  */
 package com.tigrisdata.db.client.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
 import com.tigrisdata.db.client.error.TigrisDBException;
 import com.tigrisdata.db.client.model.CollectionOptions;
-import com.tigrisdata.db.client.model.CreateCollectionResponse;
+import com.tigrisdata.db.client.model.CreateOrUpdateCollectionResponse;
 import com.tigrisdata.db.client.model.TigrisCollectionType;
 import com.tigrisdata.db.client.model.TigrisDBResponse;
 import com.tigrisdata.db.client.model.TigrisDBSchema;
@@ -33,14 +34,19 @@ public class StandardTransactionSession implements TransactionSession {
   private final Api.TransactionCtx transactionCtx;
   private final String databaseName;
   private final TigrisDBGrpc.TigrisDBBlockingStub stub;
+  private final ObjectMapper objectMapper;
 
   private static final String TRANSACTION_HEADER_ORIGIN_KEY = "tx-origin";
   private static final String TRANSACTION_HEADER_ID_KEY = "tx-id";
 
   StandardTransactionSession(
-      String databaseName, Api.TransactionCtx transactionCtx, ManagedChannel managedChannel) {
+      String databaseName,
+      Api.TransactionCtx transactionCtx,
+      ManagedChannel managedChannel,
+      ObjectMapper objectMapper) {
     this.databaseName = databaseName;
     this.transactionCtx = transactionCtx;
+    this.objectMapper = objectMapper;
 
     // prepare headers
     Metadata transactionHeaders = new Metadata();
@@ -60,18 +66,19 @@ public class StandardTransactionSession implements TransactionSession {
   public <C extends TigrisCollectionType> TransactionTigrisCollection<C> getCollection(
       Class<C> collectionTypeClass) throws TigrisDBException {
     return new TransactionalTigrisCollection<>(
-        databaseName, collectionTypeClass, stub, transactionCtx);
+        databaseName, collectionTypeClass, stub, transactionCtx, objectMapper);
   }
 
   @Override
-  public CreateCollectionResponse createCollection(
+  public CreateOrUpdateCollectionResponse createOrUpdateCollection(
       TigrisDBSchema schema, CollectionOptions collectionOptions) throws TigrisDBException {
     try {
-      Api.CreateCollectionResponse createCollectionResponse =
-          stub.createCollection(
+      Api.CreateOrUpdateCollectionResponse createOrUpdateCollectionResponse =
+          stub.createOrUpdateCollection(
               toCreateCollectionRequest(
                   databaseName, schema, collectionOptions, Optional.of(transactionCtx)));
-      return new CreateCollectionResponse(new TigrisDBResponse(createCollectionResponse.getMsg()));
+      return new CreateOrUpdateCollectionResponse(
+          new TigrisDBResponse(createOrUpdateCollectionResponse.getMsg()));
     } catch (StatusRuntimeException ex) {
       throw new TigrisDBException("Failed to create collection in transactional session", ex);
     }

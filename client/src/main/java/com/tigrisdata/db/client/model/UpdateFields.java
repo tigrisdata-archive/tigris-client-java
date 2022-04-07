@@ -1,7 +1,7 @@
 package com.tigrisdata.db.client.model;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.tigrisdata.db.client.utils.Utilities;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -15,8 +15,15 @@ public final class UpdateFields {
     this.internalMap = builder.map;
   }
 
-  public String toJSON() throws JsonProcessingException {
-    return Utilities.OBJECT_MAPPER.writeValueAsString(internalMap);
+  public String toJSON(ObjectMapper objectMapper) {
+    try {
+      return objectMapper.writeValueAsString(internalMap);
+    } catch (JsonProcessingException jsonProcessingException) {
+      // this is never expected when UpdateFields is constructed using the API.
+      throw new IllegalStateException(
+          "This is raised because the JSON serialization of UpdateFields failed",
+          jsonProcessingException);
+    }
   }
 
   public static UpdateFieldsBuilder newBuilder() {

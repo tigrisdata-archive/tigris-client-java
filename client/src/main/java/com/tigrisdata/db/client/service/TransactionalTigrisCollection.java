@@ -13,6 +13,7 @@
  */
 package com.tigrisdata.db.client.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
 import com.tigrisdata.db.client.error.TigrisDBException;
@@ -32,6 +33,7 @@ import com.tigrisdata.db.client.model.WriteOptions;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 public class TransactionalTigrisCollection<T extends TigrisCollectionType>
     extends StandardTigrisCollection<T> implements TransactionTigrisCollection<T> {
@@ -41,8 +43,9 @@ public class TransactionalTigrisCollection<T extends TigrisCollectionType>
       String databaseName,
       Class<T> collectionTypeClass,
       TigrisDBGrpc.TigrisDBBlockingStub stub,
-      Api.TransactionCtx transactionCtx) {
-    super(databaseName, collectionTypeClass, stub);
+      Api.TransactionCtx transactionCtx,
+      ObjectMapper objectMapper) {
+    super(databaseName, collectionTypeClass, stub, objectMapper);
     this.transactionCtx = transactionCtx;
   }
 
@@ -103,12 +106,12 @@ public class TransactionalTigrisCollection<T extends TigrisCollectionType>
   }
 
   @Override
-  public T readOne(TigrisFilter filter) throws TigrisDBException {
+  public Optional<T> readOne(TigrisFilter filter) throws TigrisDBException {
     Iterator<T> iterator = this.read(filter, ReadFields.empty());
     if (iterator.hasNext()) {
-      return iterator.next();
+      return Optional.of(iterator.next());
     }
-    return null;
+    return Optional.empty();
   }
 
   @Override

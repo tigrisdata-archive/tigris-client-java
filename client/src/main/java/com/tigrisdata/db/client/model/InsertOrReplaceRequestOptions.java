@@ -16,7 +16,9 @@ package com.tigrisdata.db.client.model;
 public class InsertOrReplaceRequestOptions {
   private WriteOptions writeOptions;
 
-  public InsertOrReplaceRequestOptions() {}
+  public InsertOrReplaceRequestOptions() {
+    this.writeOptions = new WriteOptions();
+  }
 
   public InsertOrReplaceRequestOptions(WriteOptions writeOptions) {
     this.writeOptions = writeOptions;

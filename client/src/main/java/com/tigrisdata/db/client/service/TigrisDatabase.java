@@ -14,6 +14,7 @@
 package com.tigrisdata.db.client.service;
 
 import com.tigrisdata.db.client.error.TigrisDBException;
+import com.tigrisdata.db.client.model.CollectionInfo;
 import com.tigrisdata.db.client.model.DropCollectionResponse;
 import com.tigrisdata.db.client.model.TigrisCollectionType;
 import com.tigrisdata.db.client.model.TigrisDBResponse;
@@ -26,12 +27,12 @@ import java.util.List;
 public interface TigrisDatabase {
 
   /**
-   * Return list of collection names
+   * Return list of collection info
    *
-   * @return list of collection names (TODO: order specification)
+   * @return list of {@link CollectionInfo}
    * @throws TigrisDBException in case of an error.
    */
-  List<String> listCollections() throws TigrisDBException;
+  List<CollectionInfo> listCollections() throws TigrisDBException;
   /**
    * Creates the collection in a transaction
    *

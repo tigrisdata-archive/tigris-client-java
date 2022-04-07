@@ -22,7 +22,9 @@ import com.tigrisdata.db.client.config.TigrisDBConfiguration;
 import com.tigrisdata.db.client.error.TigrisDBException;
 import com.tigrisdata.db.client.model.DatabaseOptions;
 import com.tigrisdata.db.client.model.TigrisDBResponse;
-import static com.tigrisdata.db.client.model.TypeConverter.*;
+import static com.tigrisdata.db.client.model.TypeConverter.toCreateDatabaseRequest;
+import static com.tigrisdata.db.client.model.TypeConverter.toDropDatabaseRequest;
+import static com.tigrisdata.db.client.model.TypeConverter.toListDatabasesRequest;
 import com.tigrisdata.db.client.utils.Utilities;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -45,7 +47,7 @@ public class StandardTigrisDBAsyncClient extends AbstractTigrisDBClient
     this(clientConfiguration, authorizationToken, Executors.newCachedThreadPool());
   }
 
-  public StandardTigrisDBAsyncClient(
+  StandardTigrisDBAsyncClient(
       TigrisDBConfiguration clientConfiguration,
       AuthorizationToken authorizationToken,
       Executor executor) {
@@ -93,7 +95,7 @@ public class StandardTigrisDBAsyncClient extends AbstractTigrisDBClient
 
   @Override
   public TigrisAsyncDatabase getDatabase(String databaseName) {
-    return new StandardTigrisAsyncDatabase(databaseName, stub, executor);
+    return new StandardTigrisAsyncDatabase(databaseName, stub, channel, executor, objectMapper);
   }
 
   @Override
@@ -106,8 +108,10 @@ public class StandardTigrisDBAsyncClient extends AbstractTigrisDBClient
         listenableFuture,
         listDatabasesResponse -> {
           List<TigrisAsyncDatabase> tigrisAsyncDatabases = new ArrayList<>();
-          for (String dbName : listDatabasesResponse.getDbsList()) {
-            tigrisAsyncDatabases.add(new StandardTigrisAsyncDatabase(dbName, stub, executor));
+          for (Api.DatabaseInfo databaseInfo : listDatabasesResponse.getDatabasesList()) {
+            tigrisAsyncDatabases.add(
+                new StandardTigrisAsyncDatabase(
+                    databaseInfo.getName(), stub, channel, executor, objectMapper));
           }
           return tigrisAsyncDatabases;
         },

@@ -13,17 +13,22 @@
  */
 package com.tigrisdata.db.client.model;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tigrisdata.db.client.config.TigrisDBConfiguration;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class FiltersTest {
+  private static ObjectMapper DEFAULT_OBJECT_MAPPER =
+      TigrisDBConfiguration.newBuilder("test").build().getObjectMapper();
 
   @Test
   public void equalFilterTest() {
-    Assert.assertEquals("{\"k1\":123}", Filters.eq("k1", 123).toJSON());
-    Assert.assertEquals("{\"k2\":false}", Filters.eq("k2", false).toJSON());
-    Assert.assertEquals("{\"k3\":true}", Filters.eq("k3", true).toJSON());
-    Assert.assertEquals("{\"k4\":\"val1\"}", Filters.eq("k4", "val1").toJSON());
+    Assert.assertEquals("{\"k1\":123}", Filters.eq("k1", 123).toJSON(DEFAULT_OBJECT_MAPPER));
+    Assert.assertEquals("{\"k2\":false}", Filters.eq("k2", false).toJSON(DEFAULT_OBJECT_MAPPER));
+    Assert.assertEquals("{\"k3\":true}", Filters.eq("k3", true).toJSON(DEFAULT_OBJECT_MAPPER));
+    Assert.assertEquals(
+        "{\"k4\":\"val1\"}", Filters.eq("k4", "val1").toJSON(DEFAULT_OBJECT_MAPPER));
   }
 
   @Test
@@ -31,7 +36,7 @@ public class FiltersTest {
     Assert.assertEquals(
         "{\"$or\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}]",
         Filters.or(Filters.eq("k1", 123), Filters.eq("k2", false), Filters.eq("k3", "val3"))
-            .toJSON());
+            .toJSON(DEFAULT_OBJECT_MAPPER));
   }
 
   @Test
@@ -39,7 +44,7 @@ public class FiltersTest {
     Assert.assertEquals(
         "{\"$and\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}]",
         Filters.and(Filters.eq("k1", 123), Filters.eq("k2", false), Filters.eq("k3", "val3"))
-            .toJSON());
+            .toJSON(DEFAULT_OBJECT_MAPPER));
   }
 
   @Test
@@ -52,7 +57,7 @@ public class FiltersTest {
     Assert.assertEquals(
         "{\"$or\":[{\"$and\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}],"
             + "{\"$and\":[{\"k1\":456},{\"k2\":false},{\"k3\":\"val4\"}]]",
-        Filters.or(filter1, filter2).toJSON());
+        Filters.or(filter1, filter2).toJSON(DEFAULT_OBJECT_MAPPER));
   }
 
   @Test
@@ -65,7 +70,7 @@ public class FiltersTest {
     Assert.assertEquals(
         "{\"$and\":[{\"$and\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}],"
             + "{\"$and\":[{\"k4\":456},{\"k5\":false},{\"k6\":\"val4\"}]]",
-        Filters.and(filter1, filter2).toJSON());
+        Filters.and(filter1, filter2).toJSON(DEFAULT_OBJECT_MAPPER));
   }
 
   @Test
@@ -78,7 +83,7 @@ public class FiltersTest {
     Assert.assertEquals(
         "{\"$and\":[{\"$or\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}],"
             + "{\"$or\":[{\"k1\":456},{\"k2\":false},{\"k3\":\"val4\"}]]",
-        Filters.and(filter1, filter2).toJSON());
+        Filters.and(filter1, filter2).toJSON(DEFAULT_OBJECT_MAPPER));
   }
 
   @Test
@@ -91,7 +96,7 @@ public class FiltersTest {
     Assert.assertEquals(
         "{\"$and\":[{\"$or\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}],"
             + "{\"$or\":[{\"k4\":456},{\"k5\":false},{\"k6\":\"val4\"}]]",
-        Filters.and(filter1, filter2).toJSON());
+        Filters.and(filter1, filter2).toJSON(DEFAULT_OBJECT_MAPPER));
   }
 
   @Test(expected = IllegalArgumentException.class)

@@ -16,7 +16,9 @@ package com.tigrisdata.db.client.model;
 public class DeleteRequestOptions {
   private WriteOptions writeOptions;
 
-  public DeleteRequestOptions() {}
+  public DeleteRequestOptions() {
+    this.writeOptions = new WriteOptions();
+  }
 
   public DeleteRequestOptions(WriteOptions writeOptions) {
     this.writeOptions = writeOptions;

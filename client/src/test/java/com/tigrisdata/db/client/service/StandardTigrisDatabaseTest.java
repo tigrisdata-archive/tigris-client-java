@@ -15,6 +15,7 @@ package com.tigrisdata.db.client.service;
 
 import com.tigrisdata.db.client.error.TigrisDBException;
 import com.tigrisdata.db.client.grpc.TestUserService;
+import com.tigrisdata.db.client.model.CollectionInfo;
 import com.tigrisdata.db.client.model.DropCollectionResponse;
 import com.tigrisdata.db.client.model.TigrisDBResponse;
 import com.tigrisdata.db.client.model.TransactionOptions;
@@ -28,6 +29,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collections;
@@ -60,14 +62,20 @@ public class StandardTigrisDatabaseTest {
   public void testListCollections() throws TigrisDBException {
     TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
-    List<String> collections = db1.listCollections();
+    List<CollectionInfo> collections = db1.listCollections();
     Assert.assertEquals(5, collections.size());
     MatcherAssert.assertThat(
-        collections, Matchers.containsInAnyOrder("db1_c0", "db1_c1", "db1_c2", "db1_c3", "db1_c4"));
+        collections,
+        Matchers.containsInAnyOrder(
+            new CollectionInfo("db1_c0"),
+            new CollectionInfo("db1_c1"),
+            new CollectionInfo("db1_c2"),
+            new CollectionInfo("db1_c3"),
+            new CollectionInfo("db1_c4")));
   }
 
   @Test
-  public void testCreateCollection() throws TigrisDBException, IOException {
+  public void testCreateCollectionFromURLs() throws TigrisDBException, IOException {
     TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
     TigrisDBResponse response =
@@ -76,7 +84,32 @@ public class StandardTigrisDatabaseTest {
     Assert.assertEquals("Collections creates successfully", response.getMessage());
     MatcherAssert.assertThat(
         db1.listCollections(),
-        Matchers.containsInAnyOrder("db1_c0", "db1_c1", "db1_c2", "db1_c3", "db1_c4", "db1_c5"));
+        Matchers.containsInAnyOrder(
+            new CollectionInfo("db1_c0"),
+            new CollectionInfo("db1_c1"),
+            new CollectionInfo("db1_c2"),
+            new CollectionInfo("db1_c3"),
+            new CollectionInfo("db1_c4"),
+            new CollectionInfo("db1_c5")));
+  }
+
+  @Test
+  public void testCreateCollectionFromDir() throws TigrisDBException {
+    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+    TigrisDatabase db1 = client.getDatabase("db1");
+    TigrisDBResponse response =
+        db1.createCollectionsInTransaction(new File("src/test/resources/test-dir"));
+    Assert.assertEquals("Collections creates successfully", response.getMessage());
+    MatcherAssert.assertThat(
+        db1.listCollections(),
+        Matchers.containsInAnyOrder(
+            new CollectionInfo("db1_c0"),
+            new CollectionInfo("db1_c1"),
+            new CollectionInfo("db1_c2"),
+            new CollectionInfo("db1_c3"),
+            new CollectionInfo("db1_c4"),
+            new CollectionInfo("db1_c5"),
+            new CollectionInfo("db1_c6")));
   }
 
   @Test
@@ -86,15 +119,20 @@ public class StandardTigrisDatabaseTest {
     DropCollectionResponse response = db1.dropCollection("db1_c3");
     Assert.assertEquals("db1_c3 dropped", response.getTigrisDBResponse().getMessage());
     MatcherAssert.assertThat(
-        db1.listCollections(), Matchers.containsInAnyOrder("db1_c0", "db1_c1", "db1_c2", "db1_c4"));
+        db1.listCollections(),
+        Matchers.containsInAnyOrder(
+            new CollectionInfo("db1_c0"),
+            new CollectionInfo("db1_c1"),
+            new CollectionInfo("db1_c2"),
+            new CollectionInfo("db1_c4")));
   }
 
   @Test
   public void testGetCollection() {
     TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
-    TigrisCollection<C1> c1TigrisCollection = db1.getCollection(C1.class);
-    Assert.assertEquals("c1", c1TigrisCollection.name());
+    TigrisCollection<DB1_C1> c1TigrisCollection = db1.getCollection(DB1_C1.class);
+    Assert.assertEquals("db1_c1", c1TigrisCollection.name());
   }
 
   @Test

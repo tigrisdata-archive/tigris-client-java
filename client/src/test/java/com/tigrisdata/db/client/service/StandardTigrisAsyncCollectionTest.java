@@ -35,11 +35,16 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class StandardTigrisCollectionTest {
+public class StandardTigrisAsyncCollectionTest {
 
   private static String SERVER_NAME;
   private static final TestUserService TEST_USER_SERVICE = new TestUserService();
@@ -65,8 +70,8 @@ public class StandardTigrisCollectionTest {
 
   @Test
   public void testRead() throws TigrisDBException {
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("db1");
+    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
     inspectDocs(
         db1,
         new DB1_C1(0L, "db1_c1_d0"),
@@ -78,24 +83,25 @@ public class StandardTigrisCollectionTest {
 
   @Test
   public void testReadOne() throws TigrisDBException {
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("db1");
-    Optional<DB1_C1> result = db1.getCollection(DB1_C1.class).readOne(Filters.eq("id", 0));
-    Assert.assertTrue(result.isPresent());
-    Assert.assertEquals(0L, result.get().getId());
-    Assert.assertEquals("db1_c1_d0", result.get().getName());
+    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
+    CompletableFuture<Optional<DB1_C1>> result =
+        db1.getCollection(DB1_C1.class).readOne(Filters.eq("id", 1L));
+    Optional<DB1_C1> db1_c1 = result.join();
+    Assert.assertEquals(1L, db1_c1.get().getId());
+    Assert.assertEquals("db1_c1_d1", db1_c1.get().getName());
   }
 
   @Test
-  public void testInsert() throws TigrisDBException {
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("db1");
-    InsertResponse response =
+  public void testInsert() throws TigrisDBException, ExecutionException, InterruptedException {
+    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
+    CompletableFuture<InsertResponse> response =
         db1.getCollection(DB1_C1.class)
             .insert(
                 Collections.singletonList(new DB1_C1(5L, "db1_c1_test-inserted")),
                 new InsertRequestOptions());
-    Assert.assertNotNull(response);
+    response.get();
     inspectDocs(
         db1,
         new DB1_C1(0L, "db1_c1_d0"),
@@ -107,16 +113,17 @@ public class StandardTigrisCollectionTest {
   }
 
   @Test
-  public void testReplace() throws TigrisDBException {
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("db1");
+  public void testReplace() throws TigrisDBException, ExecutionException, InterruptedException {
+    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
     List<DB1_C1> replacePayload = new ArrayList<>();
     replacePayload.add(new DB1_C1(1L, "testReplace1"));
     replacePayload.add(new DB1_C1(3L, "testReplace3"));
     replacePayload.add(new DB1_C1(4L, "testReplace4"));
-    InsertOrReplaceResponse response =
+    CompletableFuture<InsertOrReplaceResponse> response =
         db1.getCollection(DB1_C1.class)
             .insertOrReplace(replacePayload, new InsertOrReplaceRequestOptions());
+    response.get();
     inspectDocs(
         db1,
         new DB1_C1(0L, "db1_c1_d0"),
@@ -128,12 +135,12 @@ public class StandardTigrisCollectionTest {
   }
 
   @Test
-  public void testDelete() throws TigrisDBException {
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("db1");
-    DeleteResponse response =
+  public void testDelete() throws TigrisDBException, ExecutionException, InterruptedException {
+    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
+    CompletableFuture<DeleteResponse> response =
         db1.getCollection(DB1_C1.class).delete(Filters.eq("id", 3), new DeleteRequestOptions());
-    Assert.assertNotNull(response);
+    response.get();
     inspectDocs(
         db1,
         new DB1_C1(0L, "db1_c1_d0"),
@@ -143,24 +150,23 @@ public class StandardTigrisCollectionTest {
 
     response =
         db1.getCollection(DB1_C1.class).delete(Filters.eq("id", 1), new DeleteRequestOptions());
-    Assert.assertNotNull(response);
+    response.get();
     inspectDocs(
         db1, new DB1_C1(0L, "db1_c1_d0"), new DB1_C1(2L, "db1_c1_d2"), new DB1_C1(4L, "db1_c1_d4"));
   }
 
   @Test
-  public void testUpdate() throws TigrisDBException {
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("db1");
-    UpdateResponse response =
+  public void testUpdate() throws TigrisDBException, ExecutionException, InterruptedException {
+    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
+    CompletableFuture<UpdateResponse> response =
         db1.getCollection(DB1_C1.class)
             .update(
                 Filters.eq("id", 1),
                 UpdateFields.newBuilder()
                     .set(UpdateFields.SetFields.newBuilder().set("name", "new name 1").build())
                     .build());
-    Assert.assertNotNull(response);
-
+    response.get();
     inspectDocs(
         db1,
         new DB1_C1(0L, "db1_c1_d0"),
@@ -172,22 +178,63 @@ public class StandardTigrisCollectionTest {
 
   @Test
   public void testName() {
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("db1");
-    TigrisCollection<DB1_C1> collection = db1.getCollection(DB1_C1.class);
+    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
+    TigrisAsyncCollection<DB1_C1> collection = db1.getCollection(DB1_C1.class);
     Assert.assertEquals("db1_c1", collection.name());
   }
 
-  private static void inspectDocs(TigrisDatabase db1, DB1_C1... expectedDocs)
+  private static void inspectDocs(TigrisAsyncDatabase db1, DB1_C1... expectedDocs)
       throws TigrisDBException {
-    Iterator<DB1_C1> c1Iterator =
-        db1.getCollection(DB1_C1.class).read(Filters.eq("ignore", "ignore"), ReadFields.empty());
-    Assert.assertTrue(c1Iterator.hasNext());
+    Map<Long, DB1_C1> expectedDocsMap = new HashMap<>();
+    Map<Long, Boolean> seenDocsMap = new HashMap<>();
+
+    AtomicInteger errorCount = new AtomicInteger(0);
+    AtomicBoolean completed = new AtomicBoolean(false);
     for (DB1_C1 expectedDoc : expectedDocs) {
-      DB1_C1 db1_c1 = c1Iterator.next();
-      Assert.assertEquals(expectedDoc.getId(), db1_c1.getId());
-      Assert.assertEquals(expectedDoc.getName(), db1_c1.getName());
+      expectedDocsMap.put(expectedDoc.getId(), expectedDoc);
+      seenDocsMap.put(expectedDoc.getId(), false);
     }
-    Assert.assertFalse(c1Iterator.hasNext());
+
+    db1.getCollection(DB1_C1.class)
+        .read(
+            Filters.eq("ignore", "ignore"),
+            ReadFields.empty(),
+            new TigrisDBAsyncReader<DB1_C1>() {
+              @Override
+              public void onNext(DB1_C1 document) {
+                if (expectedDocsMap.get(document.getId()).getName().equals(document.getName())) {
+                  seenDocsMap.put(document.getId(), true);
+                }
+              }
+
+              @Override
+              public void onError(Throwable t) {
+                errorCount.incrementAndGet();
+              }
+
+              @Override
+              public void onCompleted() {
+                completed.set(true);
+              }
+            });
+    int timeout = 0;
+    while (!completed.get() && timeout < 20) {
+      timeout++;
+      try {
+        //noinspection BusyWait
+        Thread.sleep(100);
+      } catch (InterruptedException ignore) {
+      }
+    }
+    // all must be seen
+    boolean result = true;
+    for (Boolean value : seenDocsMap.values()) {
+      result &= value;
+    }
+    Assert.assertTrue(result);
+
+    // there must not be any errors
+    Assert.assertEquals(0, errorCount.get());
   }
 }

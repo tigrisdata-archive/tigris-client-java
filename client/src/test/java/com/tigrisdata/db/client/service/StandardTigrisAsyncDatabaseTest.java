@@ -15,10 +15,12 @@ package com.tigrisdata.db.client.service;
 
 import com.tigrisdata.db.client.error.TigrisDBException;
 import com.tigrisdata.db.client.grpc.TestUserService;
+import com.tigrisdata.db.client.model.CollectionInfo;
 import com.tigrisdata.db.client.model.CollectionOptions;
-import com.tigrisdata.db.client.model.CreateCollectionResponse;
+import com.tigrisdata.db.client.model.CreateOrUpdateCollectionResponse;
 import com.tigrisdata.db.client.model.DropCollectionResponse;
 import com.tigrisdata.db.client.model.TigrisDBJSONSchema;
+import com.tigrisdata.db.client.model.TransactionOptions;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.testing.GrpcCleanupRule;
 import org.hamcrest.MatcherAssert;
@@ -62,11 +64,16 @@ public class StandardTigrisAsyncDatabaseTest {
   public void testListCollections() throws InterruptedException, ExecutionException {
     TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
-    CompletableFuture<List<String>> collections = db1.listCollections();
+    CompletableFuture<List<CollectionInfo>> collections = db1.listCollections();
     Assert.assertEquals(5, collections.get().size());
     MatcherAssert.assertThat(
         collections.get(),
-        Matchers.containsInAnyOrder("db1_c0", "db1_c1", "db1_c2", "db1_c3", "db1_c4"));
+        Matchers.containsInAnyOrder(
+            new CollectionInfo("db1_c0"),
+            new CollectionInfo("db1_c1"),
+            new CollectionInfo("db1_c2"),
+            new CollectionInfo("db1_c3"),
+            new CollectionInfo("db1_c4")));
   }
 
   @Test
@@ -74,14 +81,20 @@ public class StandardTigrisAsyncDatabaseTest {
       throws TigrisDBException, InterruptedException, ExecutionException, IOException {
     TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
-    CompletableFuture<CreateCollectionResponse> response =
-        db1.createCollection(
+    CompletableFuture<CreateOrUpdateCollectionResponse> response =
+        db1.createOrUpdateCollection(
             new TigrisDBJSONSchema(new URL("file:src/test/resources/db1_c5.json")),
             new CollectionOptions());
     Assert.assertEquals("db1_c5 created", response.get().getTigrisDBResponse().getMessage());
     MatcherAssert.assertThat(
         db1.listCollections().get(),
-        Matchers.containsInAnyOrder("db1_c0", "db1_c1", "db1_c2", "db1_c3", "db1_c4", "db1_c5"));
+        Matchers.containsInAnyOrder(
+            new CollectionInfo("db1_c0"),
+            new CollectionInfo("db1_c1"),
+            new CollectionInfo("db1_c2"),
+            new CollectionInfo("db1_c3"),
+            new CollectionInfo("db1_c4"),
+            new CollectionInfo("db1_c5")));
   }
 
   @Test
@@ -92,15 +105,29 @@ public class StandardTigrisAsyncDatabaseTest {
     Assert.assertEquals("db1_c3 dropped", response.get().getTigrisDBResponse().getMessage());
     MatcherAssert.assertThat(
         db1.listCollections().get(),
-        Matchers.containsInAnyOrder("db1_c0", "db1_c1", "db1_c2", "db1_c4"));
+        Matchers.containsInAnyOrder(
+            new CollectionInfo("db1_c0"),
+            new CollectionInfo("db1_c1"),
+            new CollectionInfo("db1_c2"),
+            new CollectionInfo("db1_c4")));
+  }
+
+  @Test
+  public void testTransaction() {
+    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
+    CompletableFuture<TransactionSession> response = db1.beginTransaction(new TransactionOptions());
+    response.join();
+    Assert.assertTrue(response.isDone());
+    Assert.assertFalse(response.isCompletedExceptionally());
   }
 
   @Test
   public void testGetCollection() {
     TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
-    TigrisAsyncCollection<C1> c1TigrisCollection = db1.getCollection(C1.class);
-    Assert.assertEquals("c1", c1TigrisCollection.name());
+    TigrisAsyncCollection<DB1_C1> c1TigrisCollection = db1.getCollection(DB1_C1.class);
+    Assert.assertEquals("db1_c1", c1TigrisCollection.name());
   }
 
   @Test

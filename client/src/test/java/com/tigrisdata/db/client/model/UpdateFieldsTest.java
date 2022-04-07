@@ -1,12 +1,15 @@
 package com.tigrisdata.db.client.model;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tigrisdata.db.client.config.TigrisDBConfiguration;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;
 
 public class UpdateFieldsTest {
+  private static ObjectMapper DEFAULT_OBJECT_MAPPER =
+      TigrisDBConfiguration.newBuilder("test").build().getObjectMapper();
 
   @Test(expected = IllegalStateException.class)
   public void testEmptySet() {
@@ -14,7 +17,7 @@ public class UpdateFieldsTest {
   }
 
   @Test
-  public void setFields() throws JsonProcessingException {
+  public void setFields() {
     UpdateFields withSetFields =
         UpdateFields.newBuilder()
             .set(
@@ -29,6 +32,6 @@ public class UpdateFieldsTest {
     Assert.assertEquals(
         "{\"$set\":{\"name\":\"new_name\",\"active\":true,\"total_int_score\":100,\"total_long_score\":200,"
             + "\"byte_arr\":\"dGVzdCBpbnB1dA==\"}}",
-        withSetFields.toJSON());
+        withSetFields.toJSON(DEFAULT_OBJECT_MAPPER));
   }
 }

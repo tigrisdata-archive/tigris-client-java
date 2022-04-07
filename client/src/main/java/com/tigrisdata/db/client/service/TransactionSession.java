@@ -15,7 +15,7 @@ package com.tigrisdata.db.client.service;
 
 import com.tigrisdata.db.client.error.TigrisDBException;
 import com.tigrisdata.db.client.model.CollectionOptions;
-import com.tigrisdata.db.client.model.CreateCollectionResponse;
+import com.tigrisdata.db.client.model.CreateOrUpdateCollectionResponse;
 import com.tigrisdata.db.client.model.TigrisCollectionType;
 import com.tigrisdata.db.client.model.TigrisDBResponse;
 import com.tigrisdata.db.client.model.TigrisDBSchema;
@@ -38,10 +38,10 @@ public interface TransactionSession {
    *
    * @param schema schema of the collection
    * @param collectionOptions collection option
-   * @return the instance of {@link CreateCollectionResponse} from server
+   * @return the instance of {@link CreateOrUpdateCollectionResponse} from server
    * @throws TigrisDBException in case of an error.
    */
-  CreateCollectionResponse createCollection(
+  CreateOrUpdateCollectionResponse createOrUpdateCollection(
       TigrisDBSchema schema, CollectionOptions collectionOptions) throws TigrisDBException;
 
   /**

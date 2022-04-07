@@ -13,7 +13,6 @@
  */
 package com.tigrisdata.db.client.utils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -26,7 +25,9 @@ import java.util.function.Function;
 public final class Utilities {
   private Utilities() {}
 
-  public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+  // TODO update this once server sends the message back
+  public static final String INSERT_SUCCESS_RESPONSE = "inserted";
+  public static final String DELETE_SUCCESS_RESPONSE = "deleted";
 
   /**
    * Converts from {@link Iterator<F>} to {@link Iterator<T>}

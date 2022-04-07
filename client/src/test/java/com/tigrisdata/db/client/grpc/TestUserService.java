@@ -13,6 +13,8 @@
  */
 package com.tigrisdata.db.client.grpc;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.protobuf.ByteString;
 import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
@@ -28,7 +30,7 @@ public class TestUserService extends TigrisDBGrpc.TigrisDBImplBase {
 
   private List<String> dbs;
   private Map<String, List<String>> dbToCollectionsMap;
-
+  private Map<String, List<JsonObject>> collectionToDocumentsMap;
   private String txId;
   private String txOrigin;
 
@@ -48,12 +50,26 @@ public class TestUserService extends TigrisDBGrpc.TigrisDBImplBase {
         };
 
     this.dbToCollectionsMap = new HashMap<>();
+    this.collectionToDocumentsMap = new HashMap<>();
     for (String db : dbs) {
       List<String> collections = new ArrayList<>();
       for (int i = 0; i < 5; i++) {
         collections.add(db + "_c" + i);
       }
       dbToCollectionsMap.put(db, collections);
+    }
+
+    for (String db : dbs) {
+      for (String collection : dbToCollectionsMap.get(db)) {
+        List<JsonObject> documents = collectionToDocumentsMap.get(collection);
+        if (documents == null) {
+          documents = new ArrayList<>();
+          collectionToDocumentsMap.put(collection, documents);
+        }
+        for (int i = 0; i < 5; i++) {
+          documents.add(getDocument(i, collection));
+        }
+      }
     }
   }
 
@@ -101,6 +117,13 @@ public class TestUserService extends TigrisDBGrpc.TigrisDBImplBase {
   @Override
   public void insert(
       Api.InsertRequest request, StreamObserver<Api.InsertResponse> responseObserver) {
+    if (dbToCollectionsMap.get(request.getDb()).contains(request.getCollection())) {
+      for (ByteString bytes : request.getDocumentsList()) {
+        collectionToDocumentsMap
+            .get(request.getCollection())
+            .add(JsonParser.parseString(bytes.toStringUtf8()).getAsJsonObject());
+      }
+    }
     responseObserver.onNext(Api.InsertResponse.newBuilder().build());
     responseObserver.onCompleted();
   }
@@ -108,6 +131,25 @@ public class TestUserService extends TigrisDBGrpc.TigrisDBImplBase {
   @Override
   public void replace(
       Api.ReplaceRequest request, StreamObserver<Api.ReplaceResponse> responseObserver) {
+    if (dbToCollectionsMap.get(request.getDb()).contains(request.getCollection())) {
+      for (ByteString docBytes : request.getDocumentsList()) {
+        JsonObject doc = JsonParser.parseString(docBytes.toStringUtf8()).getAsJsonObject();
+        boolean matched = false;
+        for (JsonObject jsonObject : collectionToDocumentsMap.get(request.getCollection())) {
+          if (jsonObject.get("id").getAsLong() == doc.get("id").getAsLong()) {
+            // update name
+            matched = true;
+            jsonObject.remove("name");
+            jsonObject.addProperty("name", doc.get("name").getAsString());
+            break;
+          }
+        }
+        if (!matched) {
+          // if not exist add it
+          collectionToDocumentsMap.get(request.getCollection()).add(doc);
+        }
+      }
+    }
     responseObserver.onNext(Api.ReplaceResponse.newBuilder().build());
     responseObserver.onCompleted();
   }
@@ -115,6 +157,22 @@ public class TestUserService extends TigrisDBGrpc.TigrisDBImplBase {
   @Override
   public void delete(
       Api.DeleteRequest request, StreamObserver<Api.DeleteResponse> responseObserver) {
+    JsonObject filterJsonObject =
+        JsonParser.parseString(request.getFilter().toStringUtf8()).getAsJsonObject();
+    /*
+     Filter shape
+     {"id":1}
+    */
+    if (dbToCollectionsMap.get(request.getDb()).contains(request.getCollection())) {
+      List<JsonObject> newDocs = new ArrayList<>();
+      for (JsonObject document : collectionToDocumentsMap.get(request.getCollection())) {
+        // delete doc matching the ID, by adding all but the matching
+        if (document.get("id").getAsLong() != filterJsonObject.get("id").getAsLong()) {
+          newDocs.add(document);
+        }
+      }
+      collectionToDocumentsMap.put(request.getCollection(), newDocs);
+    }
     responseObserver.onNext(Api.DeleteResponse.newBuilder().build());
     responseObserver.onCompleted();
   }
@@ -122,38 +180,80 @@ public class TestUserService extends TigrisDBGrpc.TigrisDBImplBase {
   @Override
   public void update(
       Api.UpdateRequest request, StreamObserver<Api.UpdateResponse> responseObserver) {
-    responseObserver.onNext(Api.UpdateResponse.newBuilder().setRc(123).build());
+    /*
+     Filter shape
+     {"id":1}
+    */
+
+    JsonObject filterJsonObject =
+        JsonParser.parseString(request.getFilter().toStringUtf8()).getAsJsonObject();
+    /*
+    Field shape
+    {
+      "$set":{
+        "name":"new_name"
+       }
+     }
+     */
+    JsonObject fieldJsonObject =
+        JsonParser.parseString(request.getFields().toStringUtf8()).getAsJsonObject();
+
+    if (dbToCollectionsMap.get(request.getDb()).contains(request.getCollection())) {
+      for (JsonObject document : collectionToDocumentsMap.get(request.getCollection())) {
+        // delete doc matching the ID, by adding all but the matching
+        if (document.get("id").getAsLong() == filterJsonObject.get("id").getAsLong()) {
+          document.remove("name");
+          document.addProperty(
+              "name",
+              fieldJsonObject.getAsJsonObject("$set").getAsJsonPrimitive("name").getAsString());
+        }
+      }
+    }
+    responseObserver.onNext(Api.UpdateResponse.newBuilder().build());
     responseObserver.onCompleted();
   }
 
   @Override
   public void read(Api.ReadRequest request, StreamObserver<Api.ReadResponse> responseObserver) {
+    /*
+     Filter shape
+     {"id":1}
+    */
 
-    final String responseString = "{ \"msg\": \"" + request.getFilter().toStringUtf8() + "\"}";
-    responseObserver.onNext(
-        Api.ReadResponse.newBuilder().setDoc(ByteString.copyFromUtf8(responseString)).build());
+    JsonObject filterJsonObject =
+        JsonParser.parseString(request.getFilter().toStringUtf8()).getAsJsonObject();
+    // for test assume there is only one key
+    String filterKey = filterJsonObject.keySet().stream().findAny().get();
+    if (dbToCollectionsMap.get(request.getDb()).contains(request.getCollection())) {
+      for (JsonObject jsonObject : collectionToDocumentsMap.get(request.getCollection())) {
+        // if field exists in the doc, then filter
+        if (jsonObject.keySet().contains(filterKey)) {
+          if (filterJsonObject.get(filterKey).equals(jsonObject.get(filterKey))) {
+            responseObserver.onNext(
+                Api.ReadResponse.newBuilder()
+                    .setDoc(ByteString.copyFromUtf8(jsonObject.toString()))
+                    .build());
+          }
+        } else {
+          // if the key is not present then allow for "test" purpose.
+          responseObserver.onNext(
+              Api.ReadResponse.newBuilder()
+                  .setDoc(ByteString.copyFromUtf8(jsonObject.toString()))
+                  .build());
+        }
+      }
+    }
     responseObserver.onCompleted();
   }
 
   @Override
-  public void createCollection(
-      Api.CreateCollectionRequest request,
-      StreamObserver<Api.CreateCollectionResponse> responseObserver) {
+  public void createOrUpdateCollection(
+      Api.CreateOrUpdateCollectionRequest request,
+      StreamObserver<Api.CreateOrUpdateCollectionResponse> responseObserver) {
     dbToCollectionsMap.get(request.getDb()).add(request.getCollection());
     responseObserver.onNext(
-        Api.CreateCollectionResponse.newBuilder()
+        Api.CreateOrUpdateCollectionResponse.newBuilder()
             .setMsg(request.getCollection() + " created")
-            .build());
-    responseObserver.onCompleted();
-  }
-
-  @Override
-  public void alterCollection(
-      Api.AlterCollectionRequest request,
-      StreamObserver<Api.AlterCollectionResponse> responseObserver) {
-    responseObserver.onNext(
-        Api.AlterCollectionResponse.newBuilder()
-            .setMsg(request.getCollection() + " altered")
             .build());
     responseObserver.onCompleted();
   }
@@ -174,9 +274,12 @@ public class TestUserService extends TigrisDBGrpc.TigrisDBImplBase {
   public void listDatabases(
       Api.ListDatabasesRequest request,
       StreamObserver<Api.ListDatabasesResponse> responseObserver) {
-    Api.ListDatabasesResponse listDatabasesResponse =
-        Api.ListDatabasesResponse.newBuilder().addAllDbs(dbs).build();
-    responseObserver.onNext(listDatabasesResponse);
+    Api.ListDatabasesResponse.Builder listDatabasesResponseBuilder =
+        Api.ListDatabasesResponse.newBuilder();
+    for (String db : dbs) {
+      listDatabasesResponseBuilder.addDatabases(Api.DatabaseInfo.newBuilder().setName(db).build());
+    }
+    responseObserver.onNext(listDatabasesResponseBuilder.build());
     responseObserver.onCompleted();
   }
 
@@ -186,7 +289,7 @@ public class TestUserService extends TigrisDBGrpc.TigrisDBImplBase {
       StreamObserver<Api.ListCollectionsResponse> responseObserver) {
     Api.ListCollectionsResponse.Builder builder = Api.ListCollectionsResponse.newBuilder();
     for (String collectionName : dbToCollectionsMap.get(request.getDb())) {
-      builder.addCollections(collectionName);
+      builder.addCollections(Api.CollectionInfo.newBuilder().setName(collectionName).build());
     }
     responseObserver.onNext(builder.build());
     responseObserver.onCompleted();
@@ -214,5 +317,12 @@ public class TestUserService extends TigrisDBGrpc.TigrisDBImplBase {
   private void resetTx() {
     this.txOrigin = "";
     this.txId = "";
+  }
+
+  private static JsonObject getDocument(int index, String collectionName) {
+    JsonObject jsonObject = new JsonObject();
+    jsonObject.addProperty("id", index);
+    jsonObject.addProperty("name", collectionName + "_d" + index);
+    return jsonObject;
   }
 }

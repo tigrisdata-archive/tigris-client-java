@@ -77,9 +77,9 @@ public class StandardTigrisDBClientTest {
     MatcherAssert.assertThat(
         databases,
         Matchers.containsInAnyOrder(
-            new StandardTigrisDatabase("db1", null, null),
-            new StandardTigrisDatabase("db2", null, null),
-            new StandardTigrisDatabase("db3", null, null)));
+            new StandardTigrisDatabase("db1", null, null, null),
+            new StandardTigrisDatabase("db2", null, null, null),
+            new StandardTigrisDatabase("db3", null, null, null)));
   }
 
   @Test
@@ -101,8 +101,8 @@ public class StandardTigrisDBClientTest {
     MatcherAssert.assertThat(
         client.listDatabases(new DatabaseOptions()),
         Matchers.containsInAnyOrder(
-            new StandardTigrisDatabase("db1", null, null),
-            new StandardTigrisDatabase("db3", null, null)));
+            new StandardTigrisDatabase("db1", null, null, null),
+            new StandardTigrisDatabase("db3", null, null, null)));
   }
 
   @Test

@@ -63,7 +63,7 @@ public class StandardTigrisDBClient extends AbstractTigrisDBClient implements Ti
 
   @Override
   public TigrisDatabase getDatabase(String databaseName) {
-    return new StandardTigrisDatabase(databaseName, stub, channel);
+    return new StandardTigrisDatabase(databaseName, stub, channel, objectMapper);
   }
 
   @Override
@@ -73,8 +73,8 @@ public class StandardTigrisDBClient extends AbstractTigrisDBClient implements Ti
       Api.ListDatabasesRequest listDatabasesRequest = Api.ListDatabasesRequest.newBuilder().build();
       Api.ListDatabasesResponse listDatabasesResponse = stub.listDatabases(listDatabasesRequest);
       List<TigrisDatabase> dbs = new ArrayList<>();
-      for (String s : listDatabasesResponse.getDbsList()) {
-        dbs.add(new StandardTigrisDatabase(s, stub, channel));
+      for (Api.DatabaseInfo databaseInfo : listDatabasesResponse.getDatabasesList()) {
+        dbs.add(new StandardTigrisDatabase(databaseInfo.getName(), stub, channel, objectMapper));
       }
       return dbs;
     } catch (StatusRuntimeException statusRuntimeException) {

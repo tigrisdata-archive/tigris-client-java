@@ -14,7 +14,7 @@
 package com.tigrisdata.db.client.model;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.tigrisdata.db.client.utils.Utilities;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -33,13 +33,14 @@ public class SelectorFilter<T> implements TigrisFilter {
   }
 
   @Override
-  public String toJSON() {
+  public String toJSON(ObjectMapper objectMapper) {
     Map<String, Object> map = new LinkedHashMap<>();
     map.put(key, val);
     try {
-      return Utilities.OBJECT_MAPPER.writeValueAsString(map);
+      return objectMapper.writeValueAsString(map);
     } catch (JsonProcessingException e) {
-      throw new IllegalStateException(e);
+      throw new IllegalStateException(
+          "This was caused because the SelectorFilter's JSON serialization raised errors", e);
     }
   }
 

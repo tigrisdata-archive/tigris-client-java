@@ -13,6 +13,8 @@
  */
 package com.tigrisdata.db.client.model;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -31,11 +33,13 @@ public class LogicalFilter implements TigrisFilter {
   }
 
   @Override
-  public String toJSON() {
+  public String toJSON(ObjectMapper objectMapper) {
     return "{\""
         + logicalFilterOperator.getOperator()
         + "\":["
-        + Arrays.stream(tigrisFilters).map(TigrisFilter::toJSON).collect(Collectors.joining(","))
+        + Arrays.stream(tigrisFilters)
+            .map(filter -> filter.toJSON(objectMapper))
+            .collect(Collectors.joining(","))
         + "]";
   }
 }

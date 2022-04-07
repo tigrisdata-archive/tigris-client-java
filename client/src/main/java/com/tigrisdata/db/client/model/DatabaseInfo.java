@@ -13,22 +13,31 @@
  */
 package com.tigrisdata.db.client.model;
 
-public class InsertRequestOptions {
-  private WriteOptions writeOptions;
+public class DatabaseInfo {
+  private final String databaseName;
 
-  public InsertRequestOptions() {
-    this.writeOptions = new WriteOptions();
+  public DatabaseInfo(String databaseName) {
+    this.databaseName = databaseName;
   }
 
-  public InsertRequestOptions(WriteOptions writeOptions) {
-    this.writeOptions = writeOptions;
+  public String getDatabaseName() {
+    return databaseName;
   }
 
-  public WriteOptions getWriteOptions() {
-    return writeOptions;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    DatabaseInfo that = (DatabaseInfo) o;
+
+    return databaseName != null
+        ? databaseName.equals(that.databaseName)
+        : that.databaseName == null;
   }
 
-  public void setWriteOptions(WriteOptions writeOptions) {
-    this.writeOptions = writeOptions;
+  @Override
+  public int hashCode() {
+    return databaseName != null ? databaseName.hashCode() : 0;
   }
 }

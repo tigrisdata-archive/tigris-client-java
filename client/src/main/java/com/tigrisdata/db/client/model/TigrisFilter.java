@@ -13,6 +13,8 @@
  */
 package com.tigrisdata.db.client.model;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public interface TigrisFilter {
-  String toJSON();
+  String toJSON(ObjectMapper objectMapper);
 }

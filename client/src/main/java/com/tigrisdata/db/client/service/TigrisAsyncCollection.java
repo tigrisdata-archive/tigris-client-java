@@ -29,6 +29,7 @@ import com.tigrisdata.db.client.model.UpdateRequestOptions;
 import com.tigrisdata.db.client.model.UpdateResponse;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public interface TigrisAsyncCollection<T extends TigrisCollectionType> {
@@ -38,14 +39,12 @@ public interface TigrisAsyncCollection<T extends TigrisCollectionType> {
    * @param fields optionally specify fields you want to be returned from server
    * @param readRequestOptions read options
    * @param reader reader callback
-   * @throws TigrisDBException
    */
   void read(
       TigrisFilter filter,
       ReadFields fields,
       ReadRequestOptions readRequestOptions,
-      TigrisDBAsyncReader<T> reader)
-      throws TigrisDBException;
+      TigrisDBAsyncReader<T> reader);
 
   /**
    * Reads matching documents
@@ -53,10 +52,8 @@ public interface TigrisAsyncCollection<T extends TigrisCollectionType> {
    * @param filter filter to narrow down read
    * @param fields optionally specify fields you want to be returned from server
    * @param reader reader callback
-   * @throws TigrisDBException in case of an error
    */
-  void read(TigrisFilter filter, ReadFields fields, TigrisDBAsyncReader<T> reader)
-      throws TigrisDBException;
+  void read(TigrisFilter filter, ReadFields fields, TigrisDBAsyncReader<T> reader);
 
   /**
    * Reads a single document. This method is generally recommended for point lookup, if used for
@@ -66,7 +63,7 @@ public interface TigrisAsyncCollection<T extends TigrisCollectionType> {
    * @return a future to the document
    * @throws TigrisDBException
    */
-  CompletableFuture<T> readOne(TigrisFilter filter) throws TigrisDBException;
+  CompletableFuture<Optional<T>> readOne(TigrisFilter filter);
 
   /**
    * @param documents list of documents to insert
@@ -141,19 +138,17 @@ public interface TigrisAsyncCollection<T extends TigrisCollectionType> {
    * @param filter filter to narrow down the documents to delete
    * @param deleteRequestOptions delete option
    * @return a future to the {@link DeleteResponse}
-   * @throws TigrisDBException in case of an error
    */
   CompletableFuture<DeleteResponse> delete(
-      TigrisFilter filter, DeleteRequestOptions deleteRequestOptions) throws TigrisDBException;
+      TigrisFilter filter, DeleteRequestOptions deleteRequestOptions);
 
   /**
    * Deletes the matching documents in the collection.
    *
    * @param filter filter to narrow down the documents to delete
    * @return a future to the {@link DeleteResponse}
-   * @throws TigrisDBException in case of an error
    */
-  CompletableFuture<DeleteResponse> delete(TigrisFilter filter) throws TigrisDBException;
+  CompletableFuture<DeleteResponse> delete(TigrisFilter filter);
 
   /** @return Name of the collection */
   String name();

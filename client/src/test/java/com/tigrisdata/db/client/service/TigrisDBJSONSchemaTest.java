@@ -18,12 +18,13 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.net.URL;
 
 public class TigrisDBJSONSchemaTest {
 
   private static final String EXPECTED_SCHEMA =
       "{\n"
-          + "  \"name\": \"User\",\n"
+          + "  \"name\": \"user\",\n"
           + "  \"description\": \"This document records the details of user for tigris store\",\n"
           + "  \"properties\": {\n"
           + "    \"id\": {\n"
@@ -47,14 +48,16 @@ public class TigrisDBJSONSchemaTest {
   @Test
   public void loadFromFileTest() throws IOException {
     TigrisDBJSONSchema tigrisDBJSONSchema =
-        new TigrisDBJSONSchema("src/test/resources/test-schema.json");
+        new TigrisDBJSONSchema(new URL("file:src/test/resources/test-schema.json"));
     Assert.assertEquals(EXPECTED_SCHEMA, tigrisDBJSONSchema.getSchemaContent());
+    Assert.assertEquals("user", tigrisDBJSONSchema.getName());
   }
 
   @Test
-  public void loadFromInputstreamTest() throws IOException {
+  public void loadFromClasspathTest() throws IOException {
     TigrisDBJSONSchema tigrisDBJSONSchema =
-        new TigrisDBJSONSchema(TigrisDBJSONSchema.class.getResourceAsStream("/test-schema.json"));
+        new TigrisDBJSONSchema(TigrisDBJSONSchemaTest.class.getResource("/test-schema.json"));
     Assert.assertEquals(EXPECTED_SCHEMA, tigrisDBJSONSchema.getSchemaContent());
+    Assert.assertEquals("user", tigrisDBJSONSchema.getName());
   }
 }

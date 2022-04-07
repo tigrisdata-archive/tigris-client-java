@@ -25,6 +25,10 @@ public final class Filters {
     return new SelectorFilter<>(ComparisonOperator.EQUALS, key, value);
   }
 
+  public static SelectorFilter<Long> eq(String key, long value) {
+    return new SelectorFilter<>(ComparisonOperator.EQUALS, key, value);
+  }
+
   public static SelectorFilter<String> eq(String key, String value) {
     return new SelectorFilter<>(ComparisonOperator.EQUALS, key, value);
   }

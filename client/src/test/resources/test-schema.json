@@ -1,5 +1,5 @@
 {
-  "name": "User",
+  "name": "user",
   "description": "This document records the details of user for tigris store",
   "properties": {
     "id": {

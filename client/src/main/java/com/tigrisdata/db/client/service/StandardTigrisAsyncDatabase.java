@@ -30,6 +30,10 @@ import com.tigrisdata.db.client.model.TypeConverter;
 import static com.tigrisdata.db.client.model.TypeConverter.toBeginTransactionRequest;
 import static com.tigrisdata.db.client.model.TypeConverter.toCreateCollectionRequest;
 import static com.tigrisdata.db.client.model.TypeConverter.toDropCollectionRequest;
+import static com.tigrisdata.db.client.utils.ErrorMessages.BEGIN_TRANSACTION_FAILED;
+import static com.tigrisdata.db.client.utils.ErrorMessages.CREATE_OR_UPDATE_COLLECTION_FAILED;
+import static com.tigrisdata.db.client.utils.ErrorMessages.DROP_COLLECTION_FAILED;
+import static com.tigrisdata.db.client.utils.ErrorMessages.LIST_COLLECTION_FAILED;
 import com.tigrisdata.db.client.utils.Utilities;
 import io.grpc.ManagedChannel;
 
@@ -71,7 +75,8 @@ public class StandardTigrisAsyncDatabase implements TigrisAsyncDatabase {
             listCollectionsResponse.getCollectionsList().stream()
                 .map(TypeConverter::toCollectionInfo)
                 .collect(Collectors.toList()),
-        executor);
+        executor,
+        LIST_COLLECTION_FAILED);
   }
 
   @Override
@@ -85,7 +90,8 @@ public class StandardTigrisAsyncDatabase implements TigrisAsyncDatabase {
     return Utilities.transformFuture(
         createCollectionResponseListenableFuture,
         (input) -> new CreateOrUpdateCollectionResponse(new TigrisDBResponse(input.getMsg())),
-        executor);
+        executor,
+        CREATE_OR_UPDATE_COLLECTION_FAILED);
   }
 
   @Override
@@ -94,11 +100,15 @@ public class StandardTigrisAsyncDatabase implements TigrisAsyncDatabase {
     ListenableFuture<Api.DropCollectionResponse> dropCollectionResponseListenableFuture =
         stub.dropCollection(
             toDropCollectionRequest(
-                databaseName, collectionName, new CollectionOptions(), Optional.empty()));
+                databaseName,
+                collectionName,
+                CollectionOptions.DEFAULT_INSTANCE,
+                Optional.empty()));
     return Utilities.transformFuture(
         dropCollectionResponseListenableFuture,
         input -> new DropCollectionResponse(new TigrisDBResponse(input.getMsg())),
-        executor);
+        executor,
+        DROP_COLLECTION_FAILED);
   }
 
   @Override
@@ -117,7 +127,8 @@ public class StandardTigrisAsyncDatabase implements TigrisAsyncDatabase {
         beginTransactionResponseListenableFuture,
         input ->
             new StandardTransactionSession(databaseName, input.getTxCtx(), channel, objectMapper),
-        executor);
+        executor,
+        BEGIN_TRANSACTION_FAILED);
   }
 
   @Override
@@ -138,5 +149,10 @@ public class StandardTigrisAsyncDatabase implements TigrisAsyncDatabase {
   @Override
   public int hashCode() {
     return databaseName != null ? databaseName.hashCode() : 0;
+  }
+
+  @Override
+  public String toString() {
+    return "StandardTigrisAsyncDatabase{" + "databaseName='" + databaseName + '\'' + '}';
   }
 }

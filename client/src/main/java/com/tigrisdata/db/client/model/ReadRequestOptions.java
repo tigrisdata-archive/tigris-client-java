@@ -13,8 +13,10 @@
  */
 package com.tigrisdata.db.client.model;
 
+import java.util.Objects;
+
 public class ReadRequestOptions {
-  // TODO: add offset
+  // TODO: add offset and make this class immutable
   private ReadOptions readOptions;
   private long skip;
   private long limit;
@@ -23,6 +25,12 @@ public class ReadRequestOptions {
 
   public ReadRequestOptions(ReadOptions readOptions) {
     this.readOptions = readOptions;
+  }
+
+  public ReadRequestOptions(ReadOptions readOptions, long skip, long limit) {
+    this.readOptions = readOptions;
+    this.skip = skip;
+    this.limit = limit;
   }
 
   public ReadOptions getReadOptions() {
@@ -47,5 +55,25 @@ public class ReadRequestOptions {
 
   public void setLimit(long limit) {
     this.limit = limit;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    ReadRequestOptions that = (ReadRequestOptions) o;
+
+    if (skip != that.skip) return false;
+    if (limit != that.limit) return false;
+    return Objects.equals(readOptions, that.readOptions);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = readOptions != null ? readOptions.hashCode() : 0;
+    result = 31 * result + (int) (skip ^ (skip >>> 32));
+    result = 31 * result + (int) (limit ^ (limit >>> 32));
+    return result;
   }
 }

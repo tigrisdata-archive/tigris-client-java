@@ -26,6 +26,10 @@ import com.tigrisdata.db.client.model.TigrisDBResponse;
 import com.tigrisdata.db.client.model.TigrisDBSchema;
 import com.tigrisdata.db.client.model.TransactionOptions;
 import com.tigrisdata.db.client.model.TypeConverter;
+import static com.tigrisdata.db.client.utils.ErrorMessages.BEGIN_TRANSACTION_FAILED;
+import static com.tigrisdata.db.client.utils.ErrorMessages.CREATE_OR_UPDATE_COLLECTION_FAILED;
+import static com.tigrisdata.db.client.utils.ErrorMessages.DROP_COLLECTION_FAILED;
+import static com.tigrisdata.db.client.utils.ErrorMessages.LIST_COLLECTION_FAILED;
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
 
@@ -66,7 +70,7 @@ public class StandardTigrisDatabase implements TigrisDatabase {
           .map(TypeConverter::toCollectionInfo)
           .collect(Collectors.toList());
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisDBException("Failed to list collections", statusRuntimeException);
+      throw new TigrisDBException(LIST_COLLECTION_FAILED, statusRuntimeException);
     }
   }
 
@@ -78,7 +82,7 @@ public class StandardTigrisDatabase implements TigrisDatabase {
       transactionSession = beginTransaction(new TransactionOptions());
       for (URL collectionsSchema : collectionsSchemas) {
         TigrisDBSchema schema = new TigrisDBJSONSchema(collectionsSchema);
-        transactionSession.createOrUpdateCollection(schema, new CollectionOptions());
+        transactionSession.createOrUpdateCollection(schema, CollectionOptions.DEFAULT_INSTANCE);
       }
       transactionSession.commit();
       return new TigrisDBResponse("Collections creates successfully");
@@ -86,7 +90,7 @@ public class StandardTigrisDatabase implements TigrisDatabase {
       if (transactionSession != null) {
         transactionSession.rollback();
       }
-      throw new TigrisDBException("Failed to create collections in transaction", exception);
+      throw new TigrisDBException(CREATE_OR_UPDATE_COLLECTION_FAILED, exception);
     }
   }
 
@@ -116,7 +120,7 @@ public class StandardTigrisDatabase implements TigrisDatabase {
       return new DropCollectionResponse(
           new TigrisDBResponse(stub.dropCollection(dropCollectionRequest).getMsg()));
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisDBException("Failed to drop collection", statusRuntimeException);
+      throw new TigrisDBException(DROP_COLLECTION_FAILED, statusRuntimeException);
     }
   }
 
@@ -140,7 +144,7 @@ public class StandardTigrisDatabase implements TigrisDatabase {
       Api.TransactionCtx transactionCtx = beginTransactionResponse.getTxCtx();
       return new StandardTransactionSession(dbName, transactionCtx, managedChannel, objectMapper);
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisDBException("Failed to begin transaction", statusRuntimeException);
+      throw new TigrisDBException(BEGIN_TRANSACTION_FAILED, statusRuntimeException);
     }
   }
 

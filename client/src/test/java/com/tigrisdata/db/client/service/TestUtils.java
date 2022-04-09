@@ -13,7 +13,7 @@
  */
 package com.tigrisdata.db.client.service;
 
-import com.tigrisdata.db.client.auth.TigrisAuthorizationToken;
+import com.tigrisdata.db.client.model.TigrisAuthorizationToken;
 import com.tigrisdata.db.client.config.TigrisDBConfiguration;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.inprocess.InProcessChannelBuilder;

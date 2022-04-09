@@ -11,8 +11,21 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tigrisdata.db.client.auth;
+package com.tigrisdata.db.client.model;
 
-public interface AuthorizationToken extends Authorization {
-  String getAuthorizationToken();
+public class TigrisAuthorizationToken implements AuthorizationToken {
+  private final String authorizationToken;
+
+  public TigrisAuthorizationToken(String tigrisDbApiToken) {
+    // shallow checks
+    if (tigrisDbApiToken == null || tigrisDbApiToken.isEmpty()) {
+      throw new IllegalArgumentException("Token is invalid");
+    }
+    this.authorizationToken = tigrisDbApiToken;
+  }
+
+  @Override
+  public String getAuthorizationToken() {
+    return authorizationToken;
+  }
 }

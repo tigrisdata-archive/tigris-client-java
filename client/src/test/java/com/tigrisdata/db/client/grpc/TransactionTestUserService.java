@@ -91,6 +91,88 @@ public class TransactionTestUserService extends TestUserService {
     super.update(request, responseObserver);
   }
 
+  @Override
+  public void replace(
+      Api.ReplaceRequest request, StreamObserver<Api.ReplaceResponse> responseObserver) {
+    if (isValidTransactionState()) {
+      responseObserver.onError(new IllegalStateException("Transaction is not active"));
+    }
+    super.replace(request, responseObserver);
+  }
+
+  @Override
+  public void read(Api.ReadRequest request, StreamObserver<Api.ReadResponse> responseObserver) {
+    if (isValidTransactionState()) {
+      responseObserver.onError(new IllegalStateException("Transaction is not active"));
+    }
+    super.read(request, responseObserver);
+  }
+
+  @Override
+  public void createOrUpdateCollection(
+      Api.CreateOrUpdateCollectionRequest request,
+      StreamObserver<Api.CreateOrUpdateCollectionResponse> responseObserver) {
+    if (isValidTransactionState()) {
+      responseObserver.onError(new IllegalStateException("Transaction is not active"));
+    }
+    super.createOrUpdateCollection(request, responseObserver);
+  }
+
+  @Override
+  public void dropCollection(
+      Api.DropCollectionRequest request,
+      StreamObserver<Api.DropCollectionResponse> responseObserver) {
+    if (isValidTransactionState()) {
+      responseObserver.onError(new IllegalStateException("Transaction is not active"));
+    }
+    super.dropCollection(request, responseObserver);
+  }
+
+  @Override
+  public void listDatabases(
+      Api.ListDatabasesRequest request,
+      StreamObserver<Api.ListDatabasesResponse> responseObserver) {
+    if (isValidTransactionState()) {
+      responseObserver.onError(new IllegalStateException("Transaction is not active"));
+    }
+    super.listDatabases(request, responseObserver);
+  }
+
+  @Override
+  public void listCollections(
+      Api.ListCollectionsRequest request,
+      StreamObserver<Api.ListCollectionsResponse> responseObserver) {
+    if (isValidTransactionState()) {
+      responseObserver.onError(new IllegalStateException("Transaction is not active"));
+    }
+    super.listCollections(request, responseObserver);
+  }
+
+  @Override
+  public void createDatabase(
+      Api.CreateDatabaseRequest request,
+      StreamObserver<Api.CreateDatabaseResponse> responseObserver) {
+    if (isValidTransactionState()) {
+      responseObserver.onError(new IllegalStateException("Transaction is not active"));
+    }
+    super.createDatabase(request, responseObserver);
+  }
+
+  @Override
+  public void dropDatabase(
+      Api.DropDatabaseRequest request, StreamObserver<Api.DropDatabaseResponse> responseObserver) {
+    if (isValidTransactionState()) {
+      responseObserver.onError(new IllegalStateException("Transaction is not active"));
+    }
+    super.dropDatabase(request, responseObserver);
+  }
+
+  @Override
+  public void reset() {
+    super.reset();
+    resetTx();
+  }
+
   private void resetTx() {
     txId = "";
     txOrigin = "";

@@ -76,6 +76,26 @@ public class StandardTigrisCollectionTest {
         new DB1_C1(4L, "db1_c1_d4"));
   }
 
+  /*
+   * Test exercises the flow of reading specific fields. The test gRPC service doesn't implement
+   * full logic of filtering out fields. So the response is not inspected.
+   *
+   * <p>TODO: add inspection that request makes to server in right form
+   */
+  @Test
+  public void testReadSpecificFields() throws TigrisDBException {
+
+    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+    TigrisDatabase db1 = client.getDatabase("db1");
+    Iterator<DB1_C1> c1Iterator =
+        db1.getCollection(DB1_C1.class)
+            .read(Filters.eq("id", 0L), ReadFields.newBuilder().includeField("name").build());
+
+    Assert.assertTrue(c1Iterator.hasNext());
+    Assert.assertEquals(new DB1_C1(0, "db1_c1_d0"), c1Iterator.next());
+    Assert.assertFalse(c1Iterator.hasNext());
+  }
+
   @Test
   public void testReadOne() throws TigrisDBException {
     TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
@@ -84,6 +104,14 @@ public class StandardTigrisCollectionTest {
     Assert.assertTrue(result.isPresent());
     Assert.assertEquals(0L, result.get().getId());
     Assert.assertEquals("db1_c1_d0", result.get().getName());
+  }
+
+  @Test
+  public void testReadOneEmpty() throws TigrisDBException {
+    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+    TigrisDatabase db1 = client.getDatabase("db1");
+    Optional<DB1_C1> result = db1.getCollection(DB1_C1.class).readOne(Filters.eq("id", 100));
+    Assert.assertFalse(result.isPresent());
   }
 
   @Test
@@ -107,7 +135,24 @@ public class StandardTigrisCollectionTest {
   }
 
   @Test
-  public void testReplace() throws TigrisDBException {
+  public void testInsertOne() throws TigrisDBException {
+    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+    TigrisDatabase db1 = client.getDatabase("db1");
+    InsertResponse response =
+        db1.getCollection(DB1_C1.class).insert(new DB1_C1(5L, "db1_c1_test-inserted"));
+    Assert.assertNotNull(response);
+    inspectDocs(
+        db1,
+        new DB1_C1(0L, "db1_c1_d0"),
+        new DB1_C1(1L, "db1_c1_d1"),
+        new DB1_C1(2L, "db1_c1_d2"),
+        new DB1_C1(3L, "db1_c1_d3"),
+        new DB1_C1(4L, "db1_c1_d4"),
+        new DB1_C1(5L, "db1_c1_test-inserted"));
+  }
+
+  @Test
+  public void testInsertOrReplace() throws TigrisDBException {
     TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
     List<DB1_C1> replacePayload = new ArrayList<>();
@@ -117,6 +162,26 @@ public class StandardTigrisCollectionTest {
     InsertOrReplaceResponse response =
         db1.getCollection(DB1_C1.class)
             .insertOrReplace(replacePayload, new InsertOrReplaceRequestOptions());
+    inspectDocs(
+        db1,
+        new DB1_C1(0L, "db1_c1_d0"),
+        new DB1_C1(1L, "testReplace1"),
+        new DB1_C1(2L, "db1_c1_d2"),
+        new DB1_C1(3L, "testReplace3"),
+        new DB1_C1(4L, "testReplace4"));
+    Assert.assertNotNull(response);
+  }
+
+  @Test
+  public void testInsertOrReplaceOverloaded() throws TigrisDBException {
+    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+    TigrisDatabase db1 = client.getDatabase("db1");
+    List<DB1_C1> replacePayload = new ArrayList<>();
+    replacePayload.add(new DB1_C1(1L, "testReplace1"));
+    replacePayload.add(new DB1_C1(3L, "testReplace3"));
+    replacePayload.add(new DB1_C1(4L, "testReplace4"));
+    InsertOrReplaceResponse response =
+        db1.getCollection(DB1_C1.class).insertOrReplace(replacePayload);
     inspectDocs(
         db1,
         new DB1_C1(0L, "db1_c1_d0"),
@@ -143,6 +208,26 @@ public class StandardTigrisCollectionTest {
 
     response =
         db1.getCollection(DB1_C1.class).delete(Filters.eq("id", 1), new DeleteRequestOptions());
+    Assert.assertNotNull(response);
+    inspectDocs(
+        db1, new DB1_C1(0L, "db1_c1_d0"), new DB1_C1(2L, "db1_c1_d2"), new DB1_C1(4L, "db1_c1_d4"));
+  }
+
+  @Test
+  public void testDeleteOverloaded() throws TigrisDBException {
+    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+    TigrisDatabase db1 = client.getDatabase("db1");
+    DeleteResponse response =
+        db1.getCollection(DB1_C1.class).delete(Filters.eq("id", 3), new DeleteRequestOptions());
+    Assert.assertNotNull(response);
+    inspectDocs(
+        db1,
+        new DB1_C1(0L, "db1_c1_d0"),
+        new DB1_C1(1L, "db1_c1_d1"),
+        new DB1_C1(2L, "db1_c1_d2"),
+        new DB1_C1(4L, "db1_c1_d4"));
+
+    response = db1.getCollection(DB1_C1.class).delete(Filters.eq("id", 1));
     Assert.assertNotNull(response);
     inspectDocs(
         db1, new DB1_C1(0L, "db1_c1_d0"), new DB1_C1(2L, "db1_c1_d2"), new DB1_C1(4L, "db1_c1_d4"));

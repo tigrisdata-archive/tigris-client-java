@@ -13,6 +13,8 @@
  */
 package com.tigrisdata.db.client.model;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tigrisdata.db.client.config.TigrisDBConfiguration;
 import org.junit.Assert;
@@ -109,5 +111,65 @@ public class FiltersTest {
   public void invalidCompositeFilterTest2() {
     //noinspection ResultOfMethodCallIgnored
     Filters.and(Filters.eq("k1", 123));
+  }
+
+  // this is never expected to be the case in normal scenario
+  // this test verifies the error message
+  @Test
+  public void selectorFailureJsonSerializationFailure() {
+    ObjectMapper objectMapper =
+        new ObjectMapper() {
+          @Override
+          public String writeValueAsString(Object value) throws JsonProcessingException {
+            throw new JsonEOFException(null, null, null);
+          }
+        };
+    SelectorFilter<Long> filter = Filters.eq("id", 0L);
+
+    try {
+      filter.toJSON(objectMapper);
+      Assert.fail("This must fail");
+    } catch (IllegalStateException illegalStateException) {
+      Assert.assertEquals(
+          "This was caused because the SelectorFilter's JSON serialization raised errors",
+          illegalStateException.getMessage());
+    }
+  }
+
+  @Test
+  public void equalsTest() {
+    SelectorFilter<String> filter1 = Filters.eq("id", "val1");
+    SelectorFilter<String> filter2 = Filters.eq("id", "val1");
+    Assert.assertEquals(filter1, filter1);
+    Assert.assertEquals(filter1, filter2);
+    Assert.assertFalse(filter1.equals(null));
+    Assert.assertFalse(filter1.equals("some-string"));
+
+    SelectorFilter<String> filter3 = Filters.eq("id3", "val3");
+    SelectorFilter<String> filter4 = Filters.eq("id4", "val4");
+    Assert.assertFalse(filter3.equals(filter4));
+
+    SelectorFilter<String> filter5 = new SelectorFilter<>(null, "id5", "Val5");
+    SelectorFilter<String> filter6 = new SelectorFilter<>(ComparisonOperator.EQUALS, "id6", "Val6");
+    Assert.assertFalse(filter5.equals(filter6));
+  }
+
+  @Test
+  public void hashCodeTest() {
+    SelectorFilter<String> filter1 = Filters.eq("id", "val1");
+    SelectorFilter<String> filter2 = Filters.eq("id", "val1");
+    Assert.assertEquals(filter1.hashCode(), filter2.hashCode());
+
+    SelectorFilter<String> filter31 = new SelectorFilter<>(null, "id3", "val3");
+    SelectorFilter<String> filter32 = new SelectorFilter<>(null, "id3", "val3");
+    Assert.assertEquals(filter31.hashCode(), filter32.hashCode());
+
+    SelectorFilter<String> filter41 = new SelectorFilter<>(ComparisonOperator.EQUALS, null, "val4");
+    SelectorFilter<String> filter42 = new SelectorFilter<>(ComparisonOperator.EQUALS, null, "val4");
+    Assert.assertEquals(filter41.hashCode(), filter42.hashCode());
+
+    SelectorFilter<String> filter51 = new SelectorFilter<>(ComparisonOperator.EQUALS, "id5", null);
+    SelectorFilter<String> filter52 = new SelectorFilter<>(ComparisonOperator.EQUALS, "id5", null);
+    Assert.assertEquals(filter51.hashCode(), filter52.hashCode());
   }
 }

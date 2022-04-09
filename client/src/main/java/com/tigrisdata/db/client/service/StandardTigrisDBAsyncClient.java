@@ -17,18 +17,19 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
-import com.tigrisdata.db.client.auth.AuthorizationToken;
+import com.tigrisdata.db.client.model.AuthorizationToken;
 import com.tigrisdata.db.client.config.TigrisDBConfiguration;
-import com.tigrisdata.db.client.error.TigrisDBException;
 import com.tigrisdata.db.client.model.DatabaseOptions;
 import com.tigrisdata.db.client.model.TigrisDBResponse;
 import static com.tigrisdata.db.client.model.TypeConverter.toCreateDatabaseRequest;
 import static com.tigrisdata.db.client.model.TypeConverter.toDropDatabaseRequest;
 import static com.tigrisdata.db.client.model.TypeConverter.toListDatabasesRequest;
+import static com.tigrisdata.db.client.utils.ErrorMessages.CREATE_DB_FAILED;
+import static com.tigrisdata.db.client.utils.ErrorMessages.DROP_DB_FAILED;
+import static com.tigrisdata.db.client.utils.ErrorMessages.LIST_DBS_FAILED;
 import com.tigrisdata.db.client.utils.Utilities;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import io.grpc.StatusRuntimeException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -100,7 +101,7 @@ public class StandardTigrisDBAsyncClient extends AbstractTigrisDBClient
 
   @Override
   public CompletableFuture<List<TigrisAsyncDatabase>> listDatabases(
-      DatabaseOptions listDatabaseOptions) throws TigrisDBException {
+      DatabaseOptions listDatabaseOptions) {
 
     ListenableFuture<Api.ListDatabasesResponse> listenableFuture =
         stub.listDatabases(toListDatabasesRequest(listDatabaseOptions));
@@ -115,38 +116,32 @@ public class StandardTigrisDBAsyncClient extends AbstractTigrisDBClient
           }
           return tigrisAsyncDatabases;
         },
-        executor);
+        executor,
+        LIST_DBS_FAILED);
   }
 
   @Override
   public CompletableFuture<TigrisDBResponse> createDatabase(
-      String databaseName, DatabaseOptions databaseOptions) throws TigrisDBException {
-    try {
-
-      ListenableFuture<Api.CreateDatabaseResponse> createDatabaseResponse =
-          stub.createDatabase(toCreateDatabaseRequest(databaseName, databaseOptions));
-      return Utilities.transformFuture(
-          createDatabaseResponse,
-          apiResponse -> new TigrisDBResponse(apiResponse.getMsg()),
-          executor);
-    } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisDBException("Failed to create database", statusRuntimeException);
-    }
+      String databaseName, DatabaseOptions databaseOptions) {
+    ListenableFuture<Api.CreateDatabaseResponse> createDatabaseResponse =
+        stub.createDatabase(toCreateDatabaseRequest(databaseName, databaseOptions));
+    return Utilities.transformFuture(
+        createDatabaseResponse,
+        apiResponse -> new TigrisDBResponse(apiResponse.getMsg()),
+        executor,
+        CREATE_DB_FAILED);
   }
 
   @Override
   public CompletableFuture<TigrisDBResponse> dropDatabase(
-      String databaseName, DatabaseOptions databaseOptions) throws TigrisDBException {
-    try {
-      ListenableFuture<Api.DropDatabaseResponse> dropDatabaseResponse =
-          stub.dropDatabase(toDropDatabaseRequest(databaseName, databaseOptions));
-      return Utilities.transformFuture(
-          dropDatabaseResponse,
-          apiResponse -> new TigrisDBResponse(apiResponse.getMsg()),
-          executor);
-    } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisDBException("Failed to drop database", statusRuntimeException);
-    }
+      String databaseName, DatabaseOptions databaseOptions) {
+    ListenableFuture<Api.DropDatabaseResponse> dropDatabaseResponse =
+        stub.dropDatabase(toDropDatabaseRequest(databaseName, databaseOptions));
+    return Utilities.transformFuture(
+        dropDatabaseResponse,
+        apiResponse -> new TigrisDBResponse(apiResponse.getMsg()),
+        executor,
+        DROP_DB_FAILED);
   }
 
   @Override

@@ -39,6 +39,11 @@ import static com.tigrisdata.db.client.model.TypeConverter.toUpdateRequest;
 import com.tigrisdata.db.client.model.UpdateFields;
 import com.tigrisdata.db.client.model.UpdateRequestOptions;
 import com.tigrisdata.db.client.model.UpdateResponse;
+import static com.tigrisdata.db.client.utils.ErrorMessages.DELETE_FAILED;
+import static com.tigrisdata.db.client.utils.ErrorMessages.INSERT_FAILED;
+import static com.tigrisdata.db.client.utils.ErrorMessages.INSERT_OR_REPLACE_FAILED;
+import static com.tigrisdata.db.client.utils.ErrorMessages.READ_FAILED;
+import static com.tigrisdata.db.client.utils.ErrorMessages.UPDATE_FAILED;
 import com.tigrisdata.db.client.utils.Utilities;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
@@ -85,7 +90,8 @@ public class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
             databaseName, collectionName, filter, fields, readRequestOptions, objectMapper);
     stub.read(
         readRequest,
-        new ReadManyResponseObserverAdapter<>(reader, collectionTypeClass, objectMapper));
+        new ReadManyResponseObserverAdapter<>(
+            reader, collectionTypeClass, objectMapper, READ_FAILED));
   }
 
   @Override
@@ -107,7 +113,7 @@ public class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
     stub.read(
         readRequest,
         new ReadSingleResponseObserverAdapter<>(
-            completableFuture, collectionTypeClass, objectMapper));
+            completableFuture, collectionTypeClass, objectMapper, READ_FAILED));
     return completableFuture;
   }
 
@@ -123,7 +129,8 @@ public class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
       return Utilities.transformFuture(
           insertResponseListenableFuture,
           input -> new InsertResponse(new TigrisDBResponse(Utilities.INSERT_SUCCESS_RESPONSE)),
-          executor);
+          executor,
+          INSERT_FAILED);
     } catch (JsonProcessingException jsonProcessingException) {
       throw new TigrisDBException(
           "Failed to serialize documents to JSON, This should never happen on generated Java "
@@ -156,7 +163,8 @@ public class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
           replaceResponseListenableFuture,
           input ->
               new InsertOrReplaceResponse(new TigrisDBResponse(Utilities.INSERT_SUCCESS_RESPONSE)),
-          executor);
+          executor,
+          INSERT_OR_REPLACE_FAILED);
     } catch (JsonProcessingException jsonProcessingException) {
       throw new TigrisDBException(
           "Failed to serialize documents to JSON, This should never happen on generated Java "
@@ -181,7 +189,10 @@ public class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
     ListenableFuture<Api.UpdateResponse> updateResponseListenableFuture =
         futureStub.update(updateRequest);
     return Utilities.transformFuture(
-        updateResponseListenableFuture, input -> new UpdateResponse(input.getRc()), executor);
+        updateResponseListenableFuture,
+        input -> new UpdateResponse(input.getRc()),
+        executor,
+        UPDATE_FAILED);
   }
 
   @Override
@@ -200,7 +211,8 @@ public class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
     return Utilities.transformFuture(
         deleteResponseListenableFuture,
         input -> new DeleteResponse(new TigrisDBResponse(Utilities.DELETE_SUCCESS_RESPONSE)),
-        executor);
+        executor,
+        DELETE_FAILED);
   }
 
   @Override
@@ -218,12 +230,17 @@ public class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
     private final TigrisDBAsyncReader<T> reader;
     private final Class<T> collectionTypeClass;
     private final ObjectMapper objectMapper;
+    private final String errorMessage;
 
     public ReadManyResponseObserverAdapter(
-        TigrisDBAsyncReader<T> reader, Class<T> collectionTypeClass, ObjectMapper objectMapper) {
+        TigrisDBAsyncReader<T> reader,
+        Class<T> collectionTypeClass,
+        ObjectMapper objectMapper,
+        String errorMessage) {
       this.reader = reader;
       this.collectionTypeClass = collectionTypeClass;
       this.objectMapper = objectMapper;
+      this.errorMessage = errorMessage;
     }
 
     @Override
@@ -243,7 +260,7 @@ public class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
 
     @Override
     public void onError(Throwable throwable) {
-      reader.onError(throwable);
+      reader.onError(new TigrisDBException(errorMessage, throwable));
     }
 
     @Override
@@ -257,14 +274,17 @@ public class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
     private final CompletableFuture<Optional<T>> completableFuture;
     private final Class<T> collectionTypeClass;
     private final ObjectMapper objectMapper;
+    private final String errorMessage;
 
     public ReadSingleResponseObserverAdapter(
         CompletableFuture<Optional<T>> completableFuture,
         Class<T> collectionTypeClass,
-        ObjectMapper objectMapper) {
+        ObjectMapper objectMapper,
+        String errorMessage) {
       this.completableFuture = completableFuture;
       this.collectionTypeClass = collectionTypeClass;
       this.objectMapper = objectMapper;
+      this.errorMessage = errorMessage;
     }
 
     @Override
@@ -284,7 +304,7 @@ public class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
 
     @Override
     public void onError(Throwable throwable) {
-      completableFuture.completeExceptionally(throwable);
+      completableFuture.completeExceptionally(new TigrisDBException(errorMessage, throwable));
     }
 
     @Override

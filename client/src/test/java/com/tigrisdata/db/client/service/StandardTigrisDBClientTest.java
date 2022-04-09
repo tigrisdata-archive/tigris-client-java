@@ -13,11 +13,11 @@
  */
 package com.tigrisdata.db.client.service;
 
-import com.tigrisdata.db.client.auth.TigrisAuthorizationToken;
 import com.tigrisdata.db.client.config.TigrisDBConfiguration;
 import com.tigrisdata.db.client.error.TigrisDBException;
 import com.tigrisdata.db.client.grpc.TestUserService;
 import com.tigrisdata.db.client.model.DatabaseOptions;
+import com.tigrisdata.db.client.model.TigrisAuthorizationToken;
 import com.tigrisdata.db.client.model.TigrisDBResponse;
 import io.grpc.ClientInterceptor;
 import io.grpc.ManagedChannel;
@@ -70,7 +70,7 @@ public class StandardTigrisDBClientTest {
   @Test
   public void testListDatabases() throws TigrisDBException {
     TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    List<TigrisDatabase> databases = client.listDatabases(new DatabaseOptions());
+    List<TigrisDatabase> databases = client.listDatabases(DatabaseOptions.DEFAULT_INSTANCE);
 
     Assert.assertEquals(3, databases.size());
     // note: equals ignores stub and channel so avoid passing them
@@ -85,21 +85,21 @@ public class StandardTigrisDBClientTest {
   @Test
   public void testCreateDatabase() throws TigrisDBException {
     TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDBResponse response = client.createDatabase("db4", new DatabaseOptions());
+    TigrisDBResponse response = client.createDatabase("db4", DatabaseOptions.DEFAULT_INSTANCE);
     Assert.assertEquals("db4 created", response.getMessage());
     // 4th db created
-    Assert.assertEquals(4, client.listDatabases(new DatabaseOptions()).size());
+    Assert.assertEquals(4, client.listDatabases(DatabaseOptions.DEFAULT_INSTANCE).size());
   }
 
   @Test
   public void testDropDatabase() throws TigrisDBException {
     TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDBResponse response = client.dropDatabase("db2", new DatabaseOptions());
+    TigrisDBResponse response = client.dropDatabase("db2", DatabaseOptions.DEFAULT_INSTANCE);
     Assert.assertEquals("db2 dropped", response.getMessage());
     // 4th db created
-    Assert.assertEquals(2, client.listDatabases(new DatabaseOptions()).size());
+    Assert.assertEquals(2, client.listDatabases(DatabaseOptions.DEFAULT_INSTANCE).size());
     MatcherAssert.assertThat(
-        client.listDatabases(new DatabaseOptions()),
+        client.listDatabases(DatabaseOptions.DEFAULT_INSTANCE),
         Matchers.containsInAnyOrder(
             new StandardTigrisDatabase("db1", null, null, null),
             new StandardTigrisDatabase("db3", null, null, null)));

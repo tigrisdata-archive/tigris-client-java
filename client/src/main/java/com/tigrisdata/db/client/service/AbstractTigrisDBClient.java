@@ -1,7 +1,7 @@
 package com.tigrisdata.db.client.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tigrisdata.db.client.auth.AuthorizationToken;
+import com.tigrisdata.db.client.model.AuthorizationToken;
 import com.tigrisdata.db.client.config.TigrisDBConfiguration;
 import com.tigrisdata.db.client.interceptors.AuthHeaderInterceptor;
 import io.grpc.ManagedChannel;

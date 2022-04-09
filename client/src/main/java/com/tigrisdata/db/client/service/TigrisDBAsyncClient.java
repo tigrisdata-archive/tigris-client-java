@@ -13,7 +13,6 @@
  */
 package com.tigrisdata.db.client.service;
 
-import com.tigrisdata.db.client.error.TigrisDBException;
 import com.tigrisdata.db.client.model.DatabaseOptions;
 import com.tigrisdata.db.client.model.TigrisDBResponse;
 
@@ -36,10 +35,8 @@ public interface TigrisDBAsyncClient extends Closeable {
    *
    * @param listDatabaseOptions options
    * @return a future to the list of @{@link TigrisAsyncDatabase}
-   * @throws TigrisDBException authentication failure or any other error
    */
-  CompletableFuture<List<TigrisAsyncDatabase>> listDatabases(DatabaseOptions listDatabaseOptions)
-      throws TigrisDBException;
+  CompletableFuture<List<TigrisAsyncDatabase>> listDatabases(DatabaseOptions listDatabaseOptions);
 
   /**
    * Creates the database
@@ -47,10 +44,9 @@ public interface TigrisDBAsyncClient extends Closeable {
    * @param databaseName name of the database
    * @param databaseOptions options
    * @return a future to the {@link TigrisDBResponse}
-   * @throws TigrisDBException in case of auth error or any other failure.
    */
   CompletableFuture<TigrisDBResponse> createDatabase(
-      String databaseName, DatabaseOptions databaseOptions) throws TigrisDBException;
+      String databaseName, DatabaseOptions databaseOptions);
 
   /**
    * Drops the database
@@ -58,8 +54,7 @@ public interface TigrisDBAsyncClient extends Closeable {
    * @param databaseName name of the database
    * @param databaseOptions options
    * @return a future to the {@link TigrisDBResponse}
-   * @throws TigrisDBException in case of auth error or any other failure.
    */
   CompletableFuture<TigrisDBResponse> dropDatabase(
-      String databaseName, DatabaseOptions databaseOptions) throws TigrisDBException;
+      String databaseName, DatabaseOptions databaseOptions);
 }

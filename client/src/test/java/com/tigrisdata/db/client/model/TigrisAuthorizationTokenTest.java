@@ -13,14 +13,24 @@
  */
 package com.tigrisdata.db.client.model;
 
-public class TruncateCollectionResponse {
-  private final TigrisDBResponse tigrisDBResponse;
+import org.junit.Assert;
+import org.junit.Test;
 
-  public TruncateCollectionResponse(TigrisDBResponse tigrisDBResponse) {
-    this.tigrisDBResponse = tigrisDBResponse;
-  }
+public class TigrisAuthorizationTokenTest {
+  @Test
+  public void testInvalidToken() {
+    try {
+      new TigrisAuthorizationToken("");
+      Assert.fail("This must fail");
+    } catch (IllegalArgumentException illegalArgumentException) {
+      Assert.assertEquals("Token is invalid", illegalArgumentException.getMessage());
+    }
 
-  public TigrisDBResponse getTigrisDBResponse() {
-    return tigrisDBResponse;
+    try {
+      new TigrisAuthorizationToken(null);
+      Assert.fail("This must fail");
+    } catch (IllegalArgumentException illegalArgumentException) {
+      Assert.assertEquals("Token is invalid", illegalArgumentException.getMessage());
+    }
   }
 }

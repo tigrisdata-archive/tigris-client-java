@@ -26,7 +26,7 @@ public class SelectorFilter<T> implements TigrisFilter {
   private final String key;
   private final T val;
 
-  public SelectorFilter(ComparisonOperator comparisonOperator, String key, T val) {
+  SelectorFilter(ComparisonOperator comparisonOperator, String key, T val) {
     this.comparisonOperator = comparisonOperator;
     this.key = key;
     this.val = val;

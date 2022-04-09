@@ -13,6 +13,8 @@
  */
 package com.tigrisdata.db.client.model;
 
+import java.util.Objects;
+
 public class DatabaseInfo {
   private final String databaseName;
 
@@ -31,9 +33,7 @@ public class DatabaseInfo {
 
     DatabaseInfo that = (DatabaseInfo) o;
 
-    return databaseName != null
-        ? databaseName.equals(that.databaseName)
-        : that.databaseName == null;
+    return Objects.equals(databaseName, that.databaseName);
   }
 
   @Override

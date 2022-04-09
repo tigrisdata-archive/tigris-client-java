@@ -207,6 +207,17 @@ public final class TypeConverter {
         .build();
   }
 
+  public static TransactionCtx toTransactionCtx(Api.TransactionCtx transactionCtx) {
+    return new TransactionCtx(transactionCtx.getId(), transactionCtx.getOrigin());
+  }
+
+  public static Api.TransactionCtx toTransactionCtx(TransactionCtx transactionCtx) {
+    return Api.TransactionCtx.newBuilder()
+        .setId(transactionCtx.getId())
+        .setOrigin(transactionCtx.getOrigin())
+        .build();
+  }
+
   private static Api.CollectionOptions toCollectionOptions(
       CollectionOptions collectionOptions, Optional<Api.TransactionCtx> transactionCtx) {
     Api.CollectionOptions.Builder collectionsOptionBuilder = Api.CollectionOptions.newBuilder();
@@ -217,7 +228,7 @@ public final class TypeConverter {
   private static Api.WriteOptions toWriteOptions(WriteOptions writeOptions) {
     Api.WriteOptions.Builder writeOptionsBuilder = Api.WriteOptions.newBuilder();
     if (writeOptions.getTransactionCtx() != null) {
-      writeOptionsBuilder.setTxCtx(writeOptions.getTransactionCtx());
+      writeOptionsBuilder.setTxCtx(toTransactionCtx(writeOptions.getTransactionCtx()));
     }
     return writeOptionsBuilder.build();
   }

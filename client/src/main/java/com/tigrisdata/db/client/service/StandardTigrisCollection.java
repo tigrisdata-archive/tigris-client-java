@@ -39,6 +39,11 @@ import com.tigrisdata.db.client.model.UpdateFields;
 import com.tigrisdata.db.client.model.UpdateRequestOptions;
 import com.tigrisdata.db.client.model.UpdateResponse;
 import com.tigrisdata.db.client.model.WriteOptions;
+import static com.tigrisdata.db.client.utils.ErrorMessages.DELETE_FAILED;
+import static com.tigrisdata.db.client.utils.ErrorMessages.INSERT_FAILED;
+import static com.tigrisdata.db.client.utils.ErrorMessages.INSERT_OR_REPLACE_FAILED;
+import static com.tigrisdata.db.client.utils.ErrorMessages.READ_FAILED;
+import static com.tigrisdata.db.client.utils.ErrorMessages.UPDATE_FAILED;
 import com.tigrisdata.db.client.utils.Utilities;
 import io.grpc.StatusRuntimeException;
 
@@ -90,7 +95,7 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
           };
       return Utilities.transformIterator(readResponseIterator, converter);
     } catch (StatusRuntimeException exception) {
-      throw new TigrisDBException("Failed to read", exception);
+      throw new TigrisDBException(READ_FAILED, exception);
     }
   }
 
@@ -103,8 +108,12 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
   public Optional<T> readOne(TigrisFilter filter) throws TigrisDBException {
     Iterator<T> iterator =
         this.read(filter, ReadFields.empty(), readOneDefaultReadRequestOptions());
-    if (iterator.hasNext()) {
-      return Optional.of(iterator.next());
+    try {
+      if (iterator.hasNext()) {
+        return Optional.of(iterator.next());
+      }
+    } catch (StatusRuntimeException statusRuntimeException) {
+      throw new TigrisDBException(READ_FAILED, statusRuntimeException);
     }
     return Optional.empty();
   }
@@ -122,7 +131,7 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
     } catch (JsonProcessingException ex) {
       throw new TigrisDBException("Failed to serialize documents to JSON", ex);
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisDBException("Failed to insert ", statusRuntimeException);
+      throw new TigrisDBException(INSERT_FAILED, statusRuntimeException);
     }
   }
 
@@ -150,7 +159,7 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
     } catch (JsonProcessingException ex) {
       throw new TigrisDBException("Failed to serialize to JSON", ex);
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisDBException("Failed to insert ", statusRuntimeException);
+      throw new TigrisDBException(INSERT_OR_REPLACE_FAILED, statusRuntimeException);
     }
   }
 
@@ -175,7 +184,7 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
       Api.UpdateResponse updateResponse = stub.update(updateRequest);
       return new UpdateResponse(updateResponse.getRc());
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisDBException("Failed to update", statusRuntimeException);
+      throw new TigrisDBException(UPDATE_FAILED, statusRuntimeException);
     }
   }
 
@@ -195,7 +204,7 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
       // TODO actual status back
       return new DeleteResponse(new TigrisDBResponse(Utilities.DELETE_SUCCESS_RESPONSE));
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisDBException("Failed to delete", statusRuntimeException);
+      throw new TigrisDBException(DELETE_FAILED, statusRuntimeException);
     }
   }
 

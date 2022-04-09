@@ -13,6 +13,8 @@
  */
 package com.tigrisdata.db.client.model;
 
+import java.util.Objects;
+
 public class InsertRequestOptions {
   private WriteOptions writeOptions;
 
@@ -30,5 +32,20 @@ public class InsertRequestOptions {
 
   public void setWriteOptions(WriteOptions writeOptions) {
     this.writeOptions = writeOptions;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    InsertRequestOptions that = (InsertRequestOptions) o;
+
+    return Objects.equals(writeOptions, that.writeOptions);
+  }
+
+  @Override
+  public int hashCode() {
+    return writeOptions != null ? writeOptions.hashCode() : 0;
   }
 }

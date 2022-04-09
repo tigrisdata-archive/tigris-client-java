@@ -62,14 +62,11 @@ public class TigrisDBJSONSchema implements TigrisDBSchema {
 
     TigrisDBJSONSchema that = (TigrisDBJSONSchema) o;
 
-    if (!Objects.equals(schemaURL, that.schemaURL)) return false;
-    return Objects.equals(schemaName, that.schemaName);
+    return Objects.equals(schemaURL, that.schemaURL);
   }
 
   @Override
   public int hashCode() {
-    int result = schemaURL != null ? schemaURL.hashCode() : 0;
-    result = 31 * result + (schemaName != null ? schemaName.hashCode() : 0);
-    return result;
+    return schemaURL != null ? schemaURL.hashCode() : 0;
   }
 }

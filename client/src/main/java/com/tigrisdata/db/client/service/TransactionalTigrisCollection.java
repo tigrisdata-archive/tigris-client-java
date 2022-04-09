@@ -28,6 +28,7 @@ import com.tigrisdata.db.client.model.ReadOptions;
 import com.tigrisdata.db.client.model.ReadRequestOptions;
 import com.tigrisdata.db.client.model.TigrisCollectionType;
 import com.tigrisdata.db.client.model.TigrisFilter;
+import com.tigrisdata.db.client.model.TypeConverter;
 import com.tigrisdata.db.client.model.WriteOptions;
 
 import java.util.Collections;
@@ -54,9 +55,12 @@ public class TransactionalTigrisCollection<T extends TigrisCollectionType>
       TigrisFilter filter, ReadFields fields, ReadRequestOptions readRequestOptions)
       throws TigrisDBException {
     if (readRequestOptions.getReadOptions() != null) {
-      readRequestOptions.getReadOptions().setTransactionCtx(transactionCtx);
+      readRequestOptions
+          .getReadOptions()
+          .setTransactionCtx(TypeConverter.toTransactionCtx(transactionCtx));
     } else {
-      readRequestOptions.setReadOptions(new ReadOptions(transactionCtx));
+      readRequestOptions.setReadOptions(
+          new ReadOptions(TypeConverter.toTransactionCtx(transactionCtx)));
     }
     return super.read(filter, ReadFields.empty(), readRequestOptions);
   }
@@ -65,9 +69,12 @@ public class TransactionalTigrisCollection<T extends TigrisCollectionType>
   public InsertResponse insert(List<T> documents, InsertRequestOptions insertRequestOptions)
       throws TigrisDBException {
     if (insertRequestOptions.getWriteOptions() != null) {
-      insertRequestOptions.getWriteOptions().setTransactionCtx(transactionCtx);
+      insertRequestOptions
+          .getWriteOptions()
+          .setTransactionCtx(TypeConverter.toTransactionCtx(transactionCtx));
     } else {
-      insertRequestOptions.setWriteOptions(new WriteOptions(transactionCtx));
+      insertRequestOptions.setWriteOptions(
+          new WriteOptions(TypeConverter.toTransactionCtx(transactionCtx)));
     }
     return super.insert(documents, insertRequestOptions);
   }
@@ -77,9 +84,12 @@ public class TransactionalTigrisCollection<T extends TigrisCollectionType>
       List<T> documents, InsertOrReplaceRequestOptions insertOrReplaceRequestOptions)
       throws TigrisDBException {
     if (insertOrReplaceRequestOptions.getWriteOptions() != null) {
-      insertOrReplaceRequestOptions.getWriteOptions().setTransactionCtx(transactionCtx);
+      insertOrReplaceRequestOptions
+          .getWriteOptions()
+          .setTransactionCtx(TypeConverter.toTransactionCtx(transactionCtx));
     } else {
-      insertOrReplaceRequestOptions.setWriteOptions(new WriteOptions(transactionCtx));
+      insertOrReplaceRequestOptions.setWriteOptions(
+          new WriteOptions(TypeConverter.toTransactionCtx(transactionCtx)));
     }
     return super.insertOrReplace(documents, insertOrReplaceRequestOptions);
   }
@@ -93,16 +103,22 @@ public class TransactionalTigrisCollection<T extends TigrisCollectionType>
   public DeleteResponse delete(TigrisFilter filter, DeleteRequestOptions deleteRequestOptions)
       throws TigrisDBException {
     if (deleteRequestOptions.getWriteOptions() != null) {
-      deleteRequestOptions.getWriteOptions().setTransactionCtx(transactionCtx);
+      deleteRequestOptions
+          .getWriteOptions()
+          .setTransactionCtx(TypeConverter.toTransactionCtx(transactionCtx));
     } else {
-      deleteRequestOptions.setWriteOptions(new WriteOptions(transactionCtx));
+      deleteRequestOptions.setWriteOptions(
+          new WriteOptions(TypeConverter.toTransactionCtx(transactionCtx)));
     }
     return super.delete(filter, deleteRequestOptions);
   }
 
   @Override
   public Iterator<T> read(TigrisFilter filter, ReadFields fields) throws TigrisDBException {
-    return read(filter, fields, new ReadRequestOptions(new ReadOptions(transactionCtx)));
+    return read(
+        filter,
+        fields,
+        new ReadRequestOptions(new ReadOptions(TypeConverter.toTransactionCtx(transactionCtx))));
   }
 
   @Override
@@ -116,7 +132,9 @@ public class TransactionalTigrisCollection<T extends TigrisCollectionType>
 
   @Override
   public InsertResponse insert(List<T> documents) throws TigrisDBException {
-    return insert(documents, new InsertRequestOptions(new WriteOptions(transactionCtx)));
+    return insert(
+        documents,
+        new InsertRequestOptions(new WriteOptions(TypeConverter.toTransactionCtx(transactionCtx))));
   }
 
   @Override
@@ -126,6 +144,8 @@ public class TransactionalTigrisCollection<T extends TigrisCollectionType>
 
   @Override
   public DeleteResponse delete(TigrisFilter filter) throws TigrisDBException {
-    return delete(filter, new DeleteRequestOptions(new WriteOptions(transactionCtx)));
+    return delete(
+        filter,
+        new DeleteRequestOptions(new WriteOptions(TypeConverter.toTransactionCtx(transactionCtx))));
   }
 }

@@ -42,4 +42,22 @@ public class DB1_C1 implements TigrisCollectionType {
   public void setName(String name) {
     this.name = name;
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    DB1_C1 db1_c1 = (DB1_C1) o;
+
+    if (id != db1_c1.id) return false;
+    return name != null ? name.equals(db1_c1.name) : db1_c1.name == null;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = (int) (id ^ (id >>> 32));
+    result = 31 * result + (name != null ? name.hashCode() : 0);
+    return result;
+  }
 }

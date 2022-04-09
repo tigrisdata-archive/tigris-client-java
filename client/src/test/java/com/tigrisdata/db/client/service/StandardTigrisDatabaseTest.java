@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 public class StandardTigrisDatabaseTest {
   private static String SERVER_NAME;
@@ -113,6 +114,21 @@ public class StandardTigrisDatabaseTest {
   }
 
   @Test
+  public void testCreateCollectionFromNonExistingDir() {
+    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+    TigrisDatabase db1 = client.getDatabase("db1");
+    try {
+      db1.createCollectionsInTransaction(
+          new File("/" + UUID.randomUUID() + "/" + UUID.randomUUID()));
+      Assert.fail("This must fail");
+    } catch (TigrisDBException tigrisDBException) {
+      System.out.println(tigrisDBException.getMessage());
+      Assert.assertTrue(
+          tigrisDBException.getMessage().startsWith("Failed to process schemaDirectory"));
+    }
+  }
+
+  @Test
   public void testDropCollection() throws TigrisDBException {
     TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
@@ -164,5 +180,34 @@ public class StandardTigrisDatabaseTest {
     TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
     Assert.assertEquals("db1", db1.name());
+  }
+
+  @Test
+  public void testToString() {
+    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+    TigrisDatabase db1 = client.getDatabase("db1");
+    Assert.assertEquals("StandardTigrisDatabase{dbName='db1'}", db1.toString());
+  }
+
+  @Test
+  public void testHashcode() {
+    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+    TigrisDatabase db11 = client.getDatabase("db1");
+    TigrisDatabase db12 = client.getDatabase("db1");
+    Assert.assertEquals(db11.hashCode(), db12.hashCode());
+
+    // null dbName resolves to 0 hashcode
+    Assert.assertEquals(0, new StandardTigrisDatabase(null, null, null, null).hashCode());
+  }
+
+  @Test
+  public void testEquals() {
+    TigrisDatabase db1 = new StandardTigrisDatabase("db1", null, null, null);
+    TigrisDatabase db2 = new StandardTigrisDatabase("db1", null, null, null);
+    Assert.assertTrue(db1.equals(db2));
+    Assert.assertTrue(db1.equals(db1));
+
+    Assert.assertFalse(db1.equals(null));
+    Assert.assertFalse(db1.equals("string-obj"));
   }
 }

@@ -13,22 +13,37 @@
  */
 package com.tigrisdata.db.client.model;
 
-import com.tigrisdata.db.api.v1.grpc.Api;
+import java.util.Objects;
 
 public class ReadOptions {
-  private Api.TransactionCtx transactionCtx;
+  private TransactionCtx transactionCtx;
 
   public ReadOptions() {}
 
-  public ReadOptions(Api.TransactionCtx transactionCtx) {
+  public ReadOptions(TransactionCtx transactionCtx) {
     this.transactionCtx = transactionCtx;
   }
 
-  public Api.TransactionCtx getTransactionCtx() {
+  public TransactionCtx getTransactionCtx() {
     return transactionCtx;
   }
 
-  public void setTransactionCtx(Api.TransactionCtx transactionCtx) {
+  public void setTransactionCtx(TransactionCtx transactionCtx) {
     this.transactionCtx = transactionCtx;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    ReadOptions that = (ReadOptions) o;
+
+    return Objects.equals(transactionCtx, that.transactionCtx);
+  }
+
+  @Override
+  public int hashCode() {
+    return transactionCtx != null ? transactionCtx.hashCode() : 0;
   }
 }

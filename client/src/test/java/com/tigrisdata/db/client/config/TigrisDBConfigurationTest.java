@@ -13,7 +13,9 @@
  */
 package com.tigrisdata.db.client.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
@@ -25,12 +27,14 @@ public class TigrisDBConfigurationTest {
     TigrisDBConfiguration defaultConfiguration =
         TigrisDBConfiguration.newBuilder("some-host:443").build();
     assertEquals("some-host:443", defaultConfiguration.getBaseURL());
+    assertNotNull(defaultConfiguration.getObjectMapper());
 
     assertEquals(Duration.ofSeconds(5), defaultConfiguration.getNetwork().getDeadline());
   }
 
   @Test
   public void testCustomization() {
+    ObjectMapper objectMapper = new ObjectMapper();
     TigrisDBConfiguration customConfiguration =
         TigrisDBConfiguration.newBuilder("some-host:443")
             .withNetwork(
@@ -38,9 +42,12 @@ public class TigrisDBConfigurationTest {
                     .usePlainText()
                     .withDeadline(Duration.ofSeconds(50))
                     .build())
+            .withObjectMapper(objectMapper)
             .build();
 
     assertEquals("some-host:443", customConfiguration.getBaseURL());
+    assertTrue(objectMapper == customConfiguration.getObjectMapper());
+
     assertTrue(customConfiguration.getNetwork().isUsePlainText());
 
     assertEquals(Duration.ofSeconds(50), customConfiguration.getNetwork().getDeadline());

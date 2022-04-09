@@ -16,13 +16,16 @@ package com.tigrisdata.db.client.service;
 import com.google.common.annotations.VisibleForTesting;
 import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
-import com.tigrisdata.db.client.auth.AuthorizationToken;
+import com.tigrisdata.db.client.model.AuthorizationToken;
 import com.tigrisdata.db.client.config.TigrisDBConfiguration;
 import com.tigrisdata.db.client.error.TigrisDBException;
 import com.tigrisdata.db.client.model.DatabaseOptions;
 import com.tigrisdata.db.client.model.TigrisDBResponse;
 import static com.tigrisdata.db.client.model.TypeConverter.toCreateDatabaseRequest;
 import static com.tigrisdata.db.client.model.TypeConverter.toDropDatabaseRequest;
+import static com.tigrisdata.db.client.utils.ErrorMessages.CREATE_DB_FAILED;
+import static com.tigrisdata.db.client.utils.ErrorMessages.DROP_DB_FAILED;
+import static com.tigrisdata.db.client.utils.ErrorMessages.LIST_DBS_FAILED;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
@@ -78,7 +81,7 @@ public class StandardTigrisDBClient extends AbstractTigrisDBClient implements Ti
       }
       return dbs;
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisDBException("Failed to list databases", statusRuntimeException);
+      throw new TigrisDBException(LIST_DBS_FAILED, statusRuntimeException);
     }
   }
 
@@ -90,7 +93,7 @@ public class StandardTigrisDBClient extends AbstractTigrisDBClient implements Ti
           stub.createDatabase(toCreateDatabaseRequest(databaseName, databaseOptions));
       return new TigrisDBResponse(createDatabaseResponse.getMsg());
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisDBException("Failed to create database", statusRuntimeException);
+      throw new TigrisDBException(CREATE_DB_FAILED, statusRuntimeException);
     }
   }
 
@@ -102,7 +105,7 @@ public class StandardTigrisDBClient extends AbstractTigrisDBClient implements Ti
           stub.dropDatabase(toDropDatabaseRequest(databaseName, databaseOptions));
       return new TigrisDBResponse(dropDatabaseResponse.getMsg());
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisDBException("Failed to drop database", statusRuntimeException);
+      throw new TigrisDBException(DROP_DB_FAILED, statusRuntimeException);
     }
   }
 

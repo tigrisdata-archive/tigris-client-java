@@ -84,7 +84,7 @@ public class StandardTigrisAsyncDatabaseTest {
     CompletableFuture<CreateOrUpdateCollectionResponse> response =
         db1.createOrUpdateCollection(
             new TigrisDBJSONSchema(new URL("file:src/test/resources/db1_c5.json")),
-            new CollectionOptions());
+            CollectionOptions.DEFAULT_INSTANCE);
     Assert.assertEquals("db1_c5 created", response.get().getTigrisDBResponse().getMessage());
     MatcherAssert.assertThat(
         db1.listCollections().get(),
@@ -135,5 +135,35 @@ public class StandardTigrisAsyncDatabaseTest {
     TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
     Assert.assertEquals("db1", db1.name());
+  }
+
+  @Test
+  public void testToString() {
+    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
+    Assert.assertEquals("StandardTigrisAsyncDatabase{databaseName='db1'}", db1.toString());
+  }
+
+  @Test
+  public void testHashcode() {
+    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncDatabase db11 = asyncClient.getDatabase("db1");
+    TigrisAsyncDatabase db12 = asyncClient.getDatabase("db1");
+    Assert.assertEquals(db11.hashCode(), db12.hashCode());
+
+    // null dbName resolves to 0 hashcode
+    Assert.assertEquals(
+        0, new StandardTigrisAsyncDatabase(null, null, null, null, null).hashCode());
+  }
+
+  @Test
+  public void testEquals() {
+    TigrisAsyncDatabase db1 = new StandardTigrisAsyncDatabase("db1", null, null, null, null);
+    TigrisAsyncDatabase db2 = new StandardTigrisAsyncDatabase("db1", null, null, null, null);
+    Assert.assertTrue(db1.equals(db2));
+    Assert.assertTrue(db1.equals(db1));
+
+    Assert.assertFalse(db1.equals(null));
+    Assert.assertFalse(db1.equals("string-obj"));
   }
 }

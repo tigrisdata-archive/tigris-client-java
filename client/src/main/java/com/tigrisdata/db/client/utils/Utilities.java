@@ -16,6 +16,7 @@ package com.tigrisdata.db.client.utils;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.tigrisdata.db.client.error.TigrisDBException;
 
 import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
@@ -54,7 +55,10 @@ public final class Utilities {
    * @return an instance of {@link CompletableFuture<T>}
    */
   public static <F, T> CompletableFuture<T> transformFuture(
-      ListenableFuture<F> listenableFuture, Function<F, T> converter, Executor executor) {
+      ListenableFuture<F> listenableFuture,
+      Function<F, T> converter,
+      Executor executor,
+      String errorMessage) {
     CompletableFuture<T> result = new CompletableFuture<>();
     Futures.addCallback(
         listenableFuture,
@@ -66,7 +70,7 @@ public final class Utilities {
 
           @Override
           public void onFailure(Throwable throwable) {
-            result.completeExceptionally(throwable);
+            result.completeExceptionally(new TigrisDBException(errorMessage, throwable));
           }
         },
         executor);

@@ -11,6 +11,8 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tigrisdata.db.client.auth;
+package com.tigrisdata.db.client.model;
 
-public interface Authorization {}
+public interface AuthorizationToken extends Authorization {
+  String getAuthorizationToken();
+}

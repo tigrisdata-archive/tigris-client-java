@@ -13,6 +13,8 @@
  */
 package com.tigrisdata.db.client.model;
 
+import java.util.Objects;
+
 public class InsertResponse {
   private final TigrisDBResponse tigrisDBResponse;
 
@@ -22,5 +24,20 @@ public class InsertResponse {
 
   public TigrisDBResponse getTigrisDBResponse() {
     return tigrisDBResponse;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    InsertResponse that = (InsertResponse) o;
+
+    return Objects.equals(tigrisDBResponse, that.tigrisDBResponse);
+  }
+
+  @Override
+  public int hashCode() {
+    return tigrisDBResponse != null ? tigrisDBResponse.hashCode() : 0;
   }
 }

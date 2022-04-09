@@ -13,7 +13,7 @@
  */
 package com.tigrisdata.db.client.interceptors;
 
-import com.tigrisdata.db.client.auth.AuthorizationToken;
+import com.tigrisdata.db.client.model.AuthorizationToken;
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.ClientCall;

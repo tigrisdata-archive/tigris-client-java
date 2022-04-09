@@ -73,7 +73,7 @@ public class UtilitiesTest {
     SettableFuture<String> listenableFuture = SettableFuture.create();
     CompletableFuture<Integer> completableFuture =
         Utilities.transformFuture(
-            listenableFuture, Integer::parseInt, MoreExecutors.directExecutor());
+            listenableFuture, Integer::parseInt, MoreExecutors.directExecutor(), "no-error");
 
     AtomicBoolean completed = new AtomicBoolean();
     completableFuture.whenComplete(
@@ -92,12 +92,13 @@ public class UtilitiesTest {
     SettableFuture<String> listenableFuture = SettableFuture.create();
     CompletableFuture<Integer> completableFuture =
         Utilities.transformFuture(
-            listenableFuture, Integer::parseInt, MoreExecutors.directExecutor());
+            listenableFuture, Integer::parseInt, MoreExecutors.directExecutor(), "test-failure");
 
     AtomicBoolean completed = new AtomicBoolean();
     completableFuture.whenComplete(
         (val, ex) -> {
-          Assert.assertEquals(testException, ex);
+          Assert.assertEquals("test-failure Cause: " + testException.getMessage(), ex.getMessage());
+          Assert.assertEquals(testException, ex.getCause());
           Assert.assertNull(val);
           completed.set(true);
         });

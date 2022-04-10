@@ -2,13 +2,11 @@
 
 Java driver for TigrisDB
 
-__CI__  
 [![java-ci](https://github.com/tigrisdata/tigrisdb-client-java/actions/workflows/java-ci.yml/badge.svg?branch=main)](https://github.com/tigrisdata/tigrisdb-client-java/actions/workflows/java-ci.yml)
-
-__Client module JaCoCo__  
 [![coverage](.github/badges/jacoco.svg)](https://github.com/tigrisdata/tigrisdb-client-java/blob/main/.github/workflows/java-ci.yml) [![branches coverage](.github/badges/branches.svg)](https://github.com/tigrisdata/tigrisdb-client-java/blob/main/.github/workflows/java-ci.yml)
-
-__License__  
+![LGTM Grade](https://img.shields.io/lgtm/grade/java/github/tigrisdata/tigrisdb-client-java)
+![Snyk Vulnerabilities for GitHub Repo](https://img.shields.io/snyk/vulnerabilities/github/tigrisdata/tigrisdb-client-java)
+[![slack](https://img.shields.io/badge/Slack-4A154B?style=for-the-badge&logo=slack&logoColor=white)](https://join.slack.com/t/tigrisdatacommunity/shared_invite/zt-16fn5ogio-OjxJlgttJIV0ZDywcBItJQ) 
 [![GitHub](https://img.shields.io/github/license/tigrisdata/tigrisdb-client-java)](https://github.com/tigrisdata/tigrisdb-client-java/blob/main/LICENSE) 
 # Usage
 ```java

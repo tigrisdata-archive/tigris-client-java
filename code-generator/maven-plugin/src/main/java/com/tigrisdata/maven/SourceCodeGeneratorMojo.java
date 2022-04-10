@@ -101,16 +101,18 @@ public class SourceCodeGeneratorMojo extends AbstractMojo {
       String filePathFromRoot =
           schemaFile.getAbsolutePath().replaceAll(repoRoot + File.separator, "");
       getLog().info("Validating " + filePathFromRoot);
-      String previousContent = "";
+      String previousContent;
       try {
         previousContent = GitUtils.getHeadContent(repoRoot, filePathFromRoot);
       } catch (IllegalArgumentException illegalArgumentException) {
         getLog().info("No HEAD copy of " + filePathFromRoot + " found, skipping validation");
         continue;
       }
-      validator.validate(
-          JsonParser.parseReader(new StringReader(previousContent)).getAsJsonObject(),
-          JsonParser.parseReader(new FileReader(schemaFile)).getAsJsonObject());
+      try (FileReader fileReader = new FileReader(schemaFile)) {
+        validator.validate(
+            JsonParser.parseReader(new StringReader(previousContent)).getAsJsonObject(),
+            JsonParser.parseReader(fileReader).getAsJsonObject());
+      }
       getLog().info("No issues found");
     }
   }

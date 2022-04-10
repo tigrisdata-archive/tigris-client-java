@@ -2,10 +2,15 @@
 
 Java driver for TigrisDB
 
+__CI__  
 [![java-ci](https://github.com/tigrisdata/tigrisdb-client-java/actions/workflows/java-ci.yml/badge.svg?branch=main)](https://github.com/tigrisdata/tigrisdb-client-java/actions/workflows/java-ci.yml)
 
-# Usage
+__Client module JaCoCo__  
+[![coverage](.github/badges/jacoco.svg)](https://github.com/tigrisdata/tigrisdb-client-java/blob/main/.github/workflows/java-ci.yml) [![branches coverage](.github/badges/branches.svg)](https://github.com/tigrisdata/tigrisdb-client-java/blob/main/.github/workflows/java-ci.yml)
 
+__License__  
+[![GitHub](https://img.shields.io/github/license/tigrisdata/tigrisdb-client-java)](https://github.com/tigrisdata/tigrisdb-client-java/blob/main/LICENSE) 
+# Usage
 ```java
 // prepare config
 TigrisDBConfiguration tigrisDBConfiguration=

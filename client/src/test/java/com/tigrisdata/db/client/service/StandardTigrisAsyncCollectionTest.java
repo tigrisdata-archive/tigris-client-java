@@ -69,7 +69,7 @@ public class StandardTigrisAsyncCollectionTest {
   }
 
   @Test
-  public void testRead() throws TigrisDBException {
+  public void testRead() {
     TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
     inspectDocs(
@@ -82,18 +82,19 @@ public class StandardTigrisAsyncCollectionTest {
   }
 
   @Test
-  public void testReadOne() throws TigrisDBException {
+  public void testReadOne() {
     TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
     CompletableFuture<Optional<DB1_C1>> result =
         db1.getCollection(DB1_C1.class).readOne(Filters.eq("id", 1L));
     Optional<DB1_C1> db1_c1 = result.join();
+    //noinspection OptionalGetWithoutIsPresent
     Assert.assertEquals(1L, db1_c1.get().getId());
     Assert.assertEquals("db1_c1_d1", db1_c1.get().getName());
   }
 
   @Test
-  public void testInsert() throws TigrisDBException, ExecutionException, InterruptedException {
+  public void testInsert1() throws TigrisDBException, ExecutionException, InterruptedException {
     TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
     CompletableFuture<InsertResponse> response =
@@ -101,6 +102,41 @@ public class StandardTigrisAsyncCollectionTest {
             .insert(
                 Collections.singletonList(new DB1_C1(5L, "db1_c1_test-inserted")),
                 new InsertRequestOptions());
+    response.get();
+    inspectDocs(
+        db1,
+        new DB1_C1(0L, "db1_c1_d0"),
+        new DB1_C1(1L, "db1_c1_d1"),
+        new DB1_C1(2L, "db1_c1_d2"),
+        new DB1_C1(3L, "db1_c1_d3"),
+        new DB1_C1(4L, "db1_c1_d4"),
+        new DB1_C1(5L, "db1_c1_test-inserted"));
+  }
+
+  @Test
+  public void testInsert2() throws TigrisDBException, ExecutionException, InterruptedException {
+    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
+    CompletableFuture<InsertResponse> response =
+        db1.getCollection(DB1_C1.class).insert(new DB1_C1(5L, "db1_c1_test-inserted"));
+    response.get();
+    inspectDocs(
+        db1,
+        new DB1_C1(0L, "db1_c1_d0"),
+        new DB1_C1(1L, "db1_c1_d1"),
+        new DB1_C1(2L, "db1_c1_d2"),
+        new DB1_C1(3L, "db1_c1_d3"),
+        new DB1_C1(4L, "db1_c1_d4"),
+        new DB1_C1(5L, "db1_c1_test-inserted"));
+  }
+
+  @Test
+  public void testInsert3() throws TigrisDBException, ExecutionException, InterruptedException {
+    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
+    CompletableFuture<InsertResponse> response =
+        db1.getCollection(DB1_C1.class)
+            .insert(Collections.singletonList(new DB1_C1(5L, "db1_c1_test-inserted")));
     response.get();
     inspectDocs(
         db1,
@@ -135,7 +171,7 @@ public class StandardTigrisAsyncCollectionTest {
   }
 
   @Test
-  public void testDelete() throws TigrisDBException, ExecutionException, InterruptedException {
+  public void testDelete1() throws ExecutionException, InterruptedException {
     TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
     CompletableFuture<DeleteResponse> response =
@@ -150,6 +186,26 @@ public class StandardTigrisAsyncCollectionTest {
 
     response =
         db1.getCollection(DB1_C1.class).delete(Filters.eq("id", 1), new DeleteRequestOptions());
+    response.get();
+    inspectDocs(
+        db1, new DB1_C1(0L, "db1_c1_d0"), new DB1_C1(2L, "db1_c1_d2"), new DB1_C1(4L, "db1_c1_d4"));
+  }
+
+  @Test
+  public void testDelete2() throws ExecutionException, InterruptedException {
+    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
+    CompletableFuture<DeleteResponse> response =
+        db1.getCollection(DB1_C1.class).delete(Filters.eq("id", 3), new DeleteRequestOptions());
+    response.get();
+    inspectDocs(
+        db1,
+        new DB1_C1(0L, "db1_c1_d0"),
+        new DB1_C1(1L, "db1_c1_d1"),
+        new DB1_C1(2L, "db1_c1_d2"),
+        new DB1_C1(4L, "db1_c1_d4"));
+
+    response = db1.getCollection(DB1_C1.class).delete(Filters.eq("id", 1));
     response.get();
     inspectDocs(
         db1, new DB1_C1(0L, "db1_c1_d0"), new DB1_C1(2L, "db1_c1_d2"), new DB1_C1(4L, "db1_c1_d4"));
@@ -184,8 +240,7 @@ public class StandardTigrisAsyncCollectionTest {
     Assert.assertEquals("db1_c1", collection.name());
   }
 
-  private static void inspectDocs(TigrisAsyncDatabase db1, DB1_C1... expectedDocs)
-      throws TigrisDBException {
+  private static void inspectDocs(TigrisAsyncDatabase db1, DB1_C1... expectedDocs) {
     Map<Long, DB1_C1> expectedDocsMap = new HashMap<>();
     Map<Long, Boolean> seenDocsMap = new HashMap<>();
 

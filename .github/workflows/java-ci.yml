@@ -24,9 +24,16 @@ jobs:
         run: mvn --batch-mode --update-snapshots verify
       - name: Generate JaCoCo Badge
         uses: cicirello/jacoco-badge-generator@v2.5.0
+        id: jacoco
         with:
           generate-branches-badge: true
           jacoco-csv-file: client/target/site/jacoco/jacoco.csv
+          on-missing-report: fail
+          generate-summary: true
+      - name: Log coverage percentage
+        run: |
+          echo "coverage = ${{ steps.jacoco.outputs.coverage }}"
+          echo "branch coverage = ${{ steps.jacoco.outputs.branches }}"
       - name: Commit the badge (if it changed)
         run: |
           if [[ `git status --porcelain` ]]; then

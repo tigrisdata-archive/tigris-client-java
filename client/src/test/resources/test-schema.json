@@ -1,0 +1,17 @@
+{
+  "name": "user",
+  "description": "This document records the details of user for tigris store",
+  "properties": {
+    "id": {
+      "description": "A unique identifier for the user",
+      "type": "int"
+    },
+    "name": {
+      "description": "Name of the user",
+      "type": "string"
+    }
+  },
+  "primary_key": [
+    "id"
+  ]
+}

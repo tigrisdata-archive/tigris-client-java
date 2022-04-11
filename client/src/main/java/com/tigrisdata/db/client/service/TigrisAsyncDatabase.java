@@ -50,7 +50,6 @@ public interface TigrisAsyncDatabase {
    *
    * @param collectionName name of the collection
    * @return the future to the {@link DropCollectionResponse}
-   * @throws TigrisDBException in case of an error.
    */
   CompletableFuture<DropCollectionResponse> dropCollection(String collectionName);
 
@@ -69,7 +68,6 @@ public interface TigrisAsyncDatabase {
    *
    * @param transactionOptions options
    * @return the future to the {@link TransactionSession}
-   * @throws TigrisDBException in case of an error
    */
   CompletableFuture<TransactionSession> beginTransaction(TransactionOptions transactionOptions);
 

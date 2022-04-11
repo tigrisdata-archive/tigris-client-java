@@ -31,13 +31,13 @@ public final class Utilities {
   public static final String DELETE_SUCCESS_RESPONSE = "deleted";
 
   /**
-   * Converts from {@link Iterator<F>} to {@link Iterator<T>}
+   * Converts from {@link Iterator} of Type F to {@link Iterator} of type T
    *
    * @param iterator source iterator
    * @param converter function that converts F to T type
    * @param <F> source type
    * @param <T> destination type
-   * @return an instance of {@link Iterator<T>}
+   * @return an instance of {@link Iterator} of type T
    */
   public static <F, T> Iterator<T> transformIterator(
       Iterator<F> iterator, Function<F, T> converter) {
@@ -45,14 +45,14 @@ public final class Utilities {
   }
 
   /**
-   * Converts {@link ListenableFuture<F>} to {@link CompletableFuture<T>}
+   * Converts {@link ListenableFuture} of type F to {@link CompletableFuture} of type T
    *
    * @param listenableFuture source listenable future
    * @param converter function that converts type F to type T
    * @param executor executor to run callback that transforms Future when source Future is complete
    * @param <F> from type
    * @param <T> to type
-   * @return an instance of {@link CompletableFuture<T>}
+   * @return an instance of {@link CompletableFuture}
    */
   public static <F, T> CompletableFuture<T> transformFuture(
       ListenableFuture<F> listenableFuture,

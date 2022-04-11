@@ -61,7 +61,6 @@ public interface TigrisAsyncCollection<T extends TigrisCollectionType> {
    *
    * @param filter
    * @return a future to the document
-   * @throws TigrisDBException
    */
   CompletableFuture<Optional<T>> readOne(TigrisFilter filter);
 

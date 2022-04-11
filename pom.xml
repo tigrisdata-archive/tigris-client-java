@@ -18,6 +18,29 @@
             <id>publish</id>
             <build>
                 <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>3.0.0</version>
+                        <executions>
+                            <execution>
+                                <id>git submodule update</id>
+                                <phase>initialize</phase>
+                                <configuration>
+                                    <executable>git</executable>
+                                    <arguments>
+                                        <argument>submodule</argument>
+                                        <argument>update</argument>
+                                        <argument>--init</argument>
+                                        <argument>--recursive</argument>
+                                    </arguments>
+                                </configuration>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
                     <!-- Attach source jars-->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -123,20 +146,18 @@
     <properties>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
-
-        <gpg.keyname>0xD8439B2C</gpg.keyname>
-
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8
         </project.reporting.outputEncoding>
     </properties>
     <scm>
-        <connection>https://github.com/tigrisdata/tigrisdb-client-java.git
+        <connection>scm:git:git@github.com:tigrisdata/tigrisdb-client-java.git
         </connection>
         <developerConnection>
-            https://github.com/tigrisdata/tigrisdb-client-java.git
+            scm:git:git@github.com:tigrisdata/tigrisdb-client-java.git
         </developerConnection>
-        <url>https://github.com/tigrisdata/tigrisdb-client-java.git</url>
+        <url>git@github.com:tigrisdata/tigrisdb-client-java.git</url>
+        <tag>HEAD</tag>
     </scm>
     <licenses>
         <license>

@@ -40,14 +40,14 @@ public interface TigrisDBClient extends Closeable {
   List<TigrisDatabase> listDatabases(DatabaseOptions listDatabaseOptions) throws TigrisDBException;
 
   /**
-   * Creates the database
+   * Creates the database if the database is not already present
    *
    * @param databaseName name of the database
    * @param databaseOptions options
    * @return an instance of {@link TigrisDBResponse} from server
    * @throws TigrisDBException in case of auth error or any other failure.
    */
-  TigrisDBResponse createDatabase(String databaseName, DatabaseOptions databaseOptions)
+  TigrisDBResponse createDatabaseIfNotExists(String databaseName, DatabaseOptions databaseOptions)
       throws TigrisDBException;
 
   /**

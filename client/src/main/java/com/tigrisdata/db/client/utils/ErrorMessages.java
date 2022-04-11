@@ -20,6 +20,7 @@ public final class ErrorMessages {
   public static final String LIST_DBS_FAILED = "Failed to list database(s)";
   public static final String CREATE_DB_FAILED = "Failed to create database";
   public static final String DROP_DB_FAILED = "Failed to drop database";
+  public static final String DB_ALREADY_EXISTS = "Database already exists";
 
   // database
   public static final String LIST_COLLECTION_FAILED = "Failed to list collection(s)";

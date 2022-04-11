@@ -16,18 +16,20 @@ package com.tigrisdata.db.client.service;
 import com.google.common.annotations.VisibleForTesting;
 import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
-import com.tigrisdata.db.client.model.AuthorizationToken;
 import com.tigrisdata.db.client.config.TigrisDBConfiguration;
 import com.tigrisdata.db.client.error.TigrisDBException;
+import com.tigrisdata.db.client.model.AuthorizationToken;
 import com.tigrisdata.db.client.model.DatabaseOptions;
 import com.tigrisdata.db.client.model.TigrisDBResponse;
 import static com.tigrisdata.db.client.model.TypeConverter.toCreateDatabaseRequest;
 import static com.tigrisdata.db.client.model.TypeConverter.toDropDatabaseRequest;
 import static com.tigrisdata.db.client.utils.ErrorMessages.CREATE_DB_FAILED;
+import static com.tigrisdata.db.client.utils.ErrorMessages.DB_ALREADY_EXISTS;
 import static com.tigrisdata.db.client.utils.ErrorMessages.DROP_DB_FAILED;
 import static com.tigrisdata.db.client.utils.ErrorMessages.LIST_DBS_FAILED;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 
 import java.util.ArrayList;
@@ -86,14 +88,19 @@ public class StandardTigrisDBClient extends AbstractTigrisDBClient implements Ti
   }
 
   @Override
-  public TigrisDBResponse createDatabase(String databaseName, DatabaseOptions databaseOptions)
-      throws TigrisDBException {
+  public TigrisDBResponse createDatabaseIfNotExists(
+      String databaseName, DatabaseOptions databaseOptions) throws TigrisDBException {
+    Api.CreateDatabaseResponse createDatabaseResponse = null;
     try {
-      Api.CreateDatabaseResponse createDatabaseResponse =
+      createDatabaseResponse =
           stub.createDatabase(toCreateDatabaseRequest(databaseName, databaseOptions));
       return new TigrisDBResponse(createDatabaseResponse.getMsg());
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisDBException(CREATE_DB_FAILED, statusRuntimeException);
+      // ignore the error if the database is already exists
+      if (statusRuntimeException.getStatus().getCode() != Status.ALREADY_EXISTS.getCode()) {
+        throw new TigrisDBException(CREATE_DB_FAILED, statusRuntimeException);
+      }
+      return new TigrisDBResponse(DB_ALREADY_EXISTS);
     }
   }
 

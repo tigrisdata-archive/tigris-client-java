@@ -3,7 +3,7 @@
     <parent>
         <groupId>com.tigrisdata.tools</groupId>
         <artifactId>code-generator</artifactId>
-        <version>1.0.0-alpha.3-SNAPSHOT</version>
+        <version>1.0-SNAPSHOT</version>
     </parent>
     <groupId>com.tigrisdata.tools.code-generator</groupId>
     <artifactId>maven-plugin</artifactId>

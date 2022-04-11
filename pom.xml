@@ -15,7 +15,12 @@
     </modules>
     <profiles>
         <profile>
-            <id>publish</id>
+            <!-- this is where the submodules are not cloned during mvn
+            release -->
+            <id>repo_setup</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <build>
                 <plugins>
                     <plugin>
@@ -41,6 +46,13 @@
                             </execution>
                         </executions>
                     </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>publish</id>
+            <build>
+                <plugins>
                     <!-- Attach source jars-->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>

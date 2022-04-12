@@ -32,6 +32,7 @@ import com.sun.codemodel.JOp;
 import com.sun.codemodel.JPackage;
 import com.sun.codemodel.JType;
 import com.sun.codemodel.JVar;
+import org.apache.commons.lang3.StringUtils;
 import static org.apache.commons.lang3.StringUtils.substringAfter;
 import static org.apache.commons.lang3.StringUtils.substringBefore;
 import org.jsonschema2pojo.Annotator;
@@ -42,6 +43,7 @@ import static org.jsonschema2pojo.rules.PrimitiveTypes.isPrimitive;
 import static org.jsonschema2pojo.rules.PrimitiveTypes.primitiveType;
 import org.jsonschema2pojo.rules.Rule;
 import org.jsonschema2pojo.rules.RuleFactory;
+import org.jsonschema2pojo.util.Inflector;
 import org.jsonschema2pojo.util.ParcelableHelper;
 import org.jsonschema2pojo.util.ReflectionHelper;
 import org.jsonschema2pojo.util.SerializableHelper;
@@ -272,9 +274,10 @@ public class TigrisDBObjectRule implements Rule<JPackage, JType> {
                   ruleFactory.getNameHelper().getUniqueClassName(nodeName, node, _package),
                   ClassType.CLASS);
         } else {
-          newType =
-              _package._class(
-                  ruleFactory.getNameHelper().getUniqueClassName(nodeName, node, _package));
+          String collectionName = node.get("name").asText();
+          String javaTypeName =
+              Inflector.getInstance().singularize(StringUtils.capitalize(collectionName));
+          newType = _package._class(javaTypeName);
         }
       }
     } catch (JClassAlreadyExistsException e) {

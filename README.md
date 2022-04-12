@@ -6,6 +6,7 @@ Java driver for TigrisDB
 [![coverage](.github/badges/jacoco.svg)](https://github.com/tigrisdata/tigrisdb-client-java/blob/main/.github/workflows/java-ci.yml) [![branches coverage](.github/badges/branches.svg)](https://github.com/tigrisdata/tigrisdb-client-java/blob/main/.github/workflows/java-ci.yml)
 [![Language grade: Java](https://img.shields.io/lgtm/grade/java/g/tigrisdata/tigrisdb-client-java.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/tigrisdata/tigrisdb-client-java/context:java)
 ![Snyk Vulnerabilities for GitHub Repo](https://img.shields.io/snyk/vulnerabilities/github/tigrisdata/tigrisdb-client-java)
+![Maven Central](https://img.shields.io/maven-central/v/com.tigrisdata/tigrisdb-client-java)
 [![slack](https://img.shields.io/badge/Slack-4A154B?style=for-the-badge&logo=slack&logoColor=white)](https://join.slack.com/t/tigrisdatacommunity/shared_invite/zt-16fn5ogio-OjxJlgttJIV0ZDywcBItJQ) 
 [![GitHub](https://img.shields.io/github/license/tigrisdata/tigrisdb-client-java)](https://github.com/tigrisdata/tigrisdb-client-java/blob/main/LICENSE) 
 # Usage

@@ -103,13 +103,11 @@ public class TigrisDBTypeRule implements Rule<JClassContainer, JType> {
     } else if (propertyTypeName.equals("number")) {
 
       type = getNumberType(jClassContainer.owner(), ruleFactory.getGenerationConfig());
-    } else if (propertyTypeName.equals("bigint")) {
-      type = jClassContainer.owner().ref(Long.class);
-    } else if (propertyTypeName.equals("integer") || propertyTypeName.equals("int")) {
+    } else if (propertyTypeName.equals("integer")) {
+
       type = getIntegerType(jClassContainer.owner(), node, ruleFactory.getGenerationConfig());
-    } else if (propertyTypeName.equals("double")) {
-      type = jClassContainer.owner().ref(Double.class);
     } else if (propertyTypeName.equals("boolean")) {
+
       type =
           unboxIfNecessary(
               jClassContainer.owner().ref(Boolean.class), ruleFactory.getGenerationConfig());

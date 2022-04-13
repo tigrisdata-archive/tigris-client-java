@@ -34,6 +34,8 @@ import java.math.BigInteger;
 public class TigrisDBTypeRule implements Rule<JClassContainer, JType> {
 
   private static final String DEFAULT_TYPE_NAME = "any";
+  private static final String CONTENT_ENCODING = "contentEncoding";
+  private static final String BASE64 = "base64";
 
   private final RuleFactory ruleFactory;
 
@@ -84,7 +86,6 @@ public class TigrisDBTypeRule implements Rule<JClassContainer, JType> {
 
     if (propertyTypeName.equals("object")
         || node.has("properties") && node.path("properties").size() > 0) {
-
       type =
           ruleFactory
               .getObjectRule()
@@ -98,8 +99,11 @@ public class TigrisDBTypeRule implements Rule<JClassContainer, JType> {
         type = TypeUtil.resolveType(jClassContainer, typeName);
       }
     } else if (propertyTypeName.equals("string")) {
-
-      type = jClassContainer.owner().ref(String.class);
+      if (node.has(CONTENT_ENCODING) && BASE64.equals(node.get(CONTENT_ENCODING).asText())) {
+        type = jClassContainer.owner().ref(byte[].class);
+      } else {
+        type = jClassContainer.owner().ref(String.class);
+      }
     } else if (propertyTypeName.equals("number")) {
 
       type = getNumberType(jClassContainer.owner(), ruleFactory.getGenerationConfig());

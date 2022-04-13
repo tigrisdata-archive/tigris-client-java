@@ -62,6 +62,10 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <version>3.3.2</version>
+                        <configuration>
+                            <!-- grpc generated classes -->
+                            <excludePackageNames>com.google.*:com.tigrisdata.db.api.v1.*</excludePackageNames>
+                        </configuration>
                         <executions>
                             <execution>
                                 <id>attach-javadocs</id>

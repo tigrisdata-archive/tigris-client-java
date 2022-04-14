@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.time.Duration;
 
+/** TigrisDB client configuration */
 public class TigrisDBConfiguration {
   private final String baseURL;
   private final TigrisDBConfiguration.NetworkConfig network;
@@ -28,6 +29,12 @@ public class TigrisDBConfiguration {
     this.objectMapper = builder.objectMapper;
   }
 
+  /**
+   * Get the builder
+   *
+   * @param baseURL server base URL
+   * @return an instance of {@link TigrisDBClientConfigurationBuilder}
+   */
   public static TigrisDBConfiguration.TigrisDBClientConfigurationBuilder newBuilder(
       final String baseURL) {
     return new TigrisDBConfiguration.TigrisDBClientConfigurationBuilder(baseURL);
@@ -45,6 +52,7 @@ public class TigrisDBConfiguration {
     return objectMapper;
   }
 
+  /** Builder class for {@link TigrisDBConfiguration} */
   public static final class TigrisDBClientConfigurationBuilder {
 
     private final String baseURL;
@@ -57,6 +65,12 @@ public class TigrisDBConfiguration {
       this.objectMapper = new ObjectMapper();
     }
 
+    /**
+     * This will customize {@link NetworkConfig}
+     *
+     * @param network network config
+     * @return ongoing builder
+     */
     public TigrisDBConfiguration.TigrisDBClientConfigurationBuilder withNetwork(
         TigrisDBConfiguration.NetworkConfig network) {
       this.network = network;
@@ -67,8 +81,8 @@ public class TigrisDBConfiguration {
      * This will customize {@link ObjectMapper} instance used internally. It is highly recommended
      * to customize this instance with extra care
      *
-     * @param objectMapper
-     * @return builder
+     * @param objectMapper customized object mapper
+     * @return ongoing builder
      */
     public TigrisDBConfiguration.TigrisDBClientConfigurationBuilder withObjectMapper(
         ObjectMapper objectMapper) {
@@ -81,6 +95,7 @@ public class TigrisDBConfiguration {
     }
   }
 
+  /** TigrisDB network related configuration */
   public static class NetworkConfig {
     private final Duration deadline;
     private final boolean usePlainText;
@@ -102,6 +117,7 @@ public class TigrisDBConfiguration {
       return usePlainText;
     }
 
+    /** Builder class for {@link NetworkConfig} */
     public static class NetworkConfigBuilder {
       public static final Duration DEFAULT_DEADLINE = Duration.ofSeconds(5);
 
@@ -113,11 +129,23 @@ public class TigrisDBConfiguration {
         this.usePlainText = false;
       }
 
+      /**
+       * Specifies deadline for server calls
+       *
+       * @param deadline duration of time
+       * @return ongoing builder
+       */
       public NetworkConfigBuilder withDeadline(Duration deadline) {
         this.deadline = deadline;
         return this;
       }
 
+      /**
+       * Enables the plain text communication. It is highly recommended not to use this in
+       * production.
+       *
+       * @return ongoing builder
+       */
       public NetworkConfigBuilder usePlainText() {
         this.usePlainText = true;
         return this;

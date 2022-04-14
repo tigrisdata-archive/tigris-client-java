@@ -18,6 +18,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
 import static com.tigrisdata.db.client.ErrorMessages.CREATE_DB_FAILED;
+import static com.tigrisdata.db.client.ErrorMessages.DB_ALREADY_EXISTS;
 import static com.tigrisdata.db.client.ErrorMessages.DROP_DB_FAILED;
 import static com.tigrisdata.db.client.ErrorMessages.LIST_DBS_FAILED;
 import static com.tigrisdata.db.client.TypeConverter.toCreateDatabaseRequest;
@@ -25,14 +26,19 @@ import static com.tigrisdata.db.client.TypeConverter.toDropDatabaseRequest;
 import static com.tigrisdata.db.client.TypeConverter.toListDatabasesRequest;
 import com.tigrisdata.db.client.auth.AuthorizationToken;
 import com.tigrisdata.db.client.config.TigrisDBConfiguration;
+import com.tigrisdata.db.client.error.TigrisDBException;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.function.BiConsumer;
 
 /** Async client for TigrisDB */
 public class StandardTigrisDBAsyncClient extends AbstractTigrisDBClient
@@ -119,22 +125,22 @@ public class StandardTigrisDBAsyncClient extends AbstractTigrisDBClient
   }
 
   @Override
-  public CompletableFuture<TigrisDBResponse> createDatabase(
-      String databaseName, DatabaseOptions databaseOptions) {
+  public CompletableFuture<TigrisDBResponse> createDatabaseIfNotExists(String databaseName) {
     ListenableFuture<Api.CreateDatabaseResponse> createDatabaseResponse =
-        stub.createDatabase(toCreateDatabaseRequest(databaseName, databaseOptions));
+        stub.createDatabase(
+            toCreateDatabaseRequest(databaseName, DatabaseOptions.DEFAULT_INSTANCE));
     return Utilities.transformFuture(
         createDatabaseResponse,
         apiResponse -> new TigrisDBResponse(apiResponse.getMsg()),
         executor,
-        CREATE_DB_FAILED);
+        CREATE_DB_FAILED,
+        Optional.of(CreateDatabaseExceptionHandler.DEFAULT_INSTANCE));
   }
 
   @Override
-  public CompletableFuture<TigrisDBResponse> dropDatabase(
-      String databaseName, DatabaseOptions databaseOptions) {
+  public CompletableFuture<TigrisDBResponse> dropDatabase(String databaseName) {
     ListenableFuture<Api.DropDatabaseResponse> dropDatabaseResponse =
-        stub.dropDatabase(toDropDatabaseRequest(databaseName, databaseOptions));
+        stub.dropDatabase(toDropDatabaseRequest(databaseName, DatabaseOptions.DEFAULT_INSTANCE));
     return Utilities.transformFuture(
         dropDatabaseResponse,
         apiResponse -> new TigrisDBResponse(apiResponse.getMsg()),
@@ -150,5 +156,29 @@ public class StandardTigrisDBAsyncClient extends AbstractTigrisDBClient
   @VisibleForTesting
   ManagedChannel getChannel() {
     return channel;
+  }
+
+  /**
+   * This is the exception handler for CreateDatabase operation, here it will swallow the exception
+   * if the server says database already exists, it will pass the exception further otherwise.
+   */
+  static class CreateDatabaseExceptionHandler
+      implements BiConsumer<CompletableFuture<TigrisDBResponse>, Throwable> {
+    static final CreateDatabaseExceptionHandler DEFAULT_INSTANCE =
+        new CreateDatabaseExceptionHandler();
+
+    @Override
+    public void accept(CompletableFuture<TigrisDBResponse> completableFuture, Throwable throwable) {
+      if (throwable instanceof StatusRuntimeException) {
+        if (((StatusRuntimeException) throwable).getStatus().getCode()
+            == Status.ALREADY_EXISTS.getCode()) {
+          // swallow the already exists exception
+          completableFuture.complete(new TigrisDBResponse(DB_ALREADY_EXISTS));
+          return;
+        }
+      }
+      // pass on the error otherwise
+      completableFuture.completeExceptionally(new TigrisDBException(CREATE_DB_FAILED, throwable));
+    }
   }
 }

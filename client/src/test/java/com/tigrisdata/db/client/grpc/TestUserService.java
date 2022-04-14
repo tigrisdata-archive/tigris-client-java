@@ -18,6 +18,8 @@ import com.google.gson.JsonParser;
 import com.google.protobuf.ByteString;
 import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 
 import java.util.ArrayList;
@@ -299,6 +301,11 @@ public class TestUserService extends TigrisDBGrpc.TigrisDBImplBase {
   public void createDatabase(
       Api.CreateDatabaseRequest request,
       StreamObserver<Api.CreateDatabaseResponse> responseObserver) {
+    // to test already exists
+    if (request.getDb().equals("pre-existing-db-name")) {
+      responseObserver.onError(new StatusRuntimeException(Status.ALREADY_EXISTS));
+      return;
+    }
     this.dbs.add(request.getDb());
     responseObserver.onNext(
         Api.CreateDatabaseResponse.newBuilder().setMsg(request.getDb() + " created").build());

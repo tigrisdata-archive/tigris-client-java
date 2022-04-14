@@ -76,9 +76,8 @@ public class StandardTigrisDatabaseTest {
     TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
     TigrisDBResponse response =
-        db1.createCollectionsInTransaction(
-            Collections.singletonList(new URL("file:src/test/resources/db1_c5.json")));
-    Assert.assertEquals("Collections creates successfully", response.getMessage());
+        db1.applySchemas(Collections.singletonList(new URL("file:src/test/resources/db1_c5.json")));
+    Assert.assertEquals("Collections created successfully", response.getMessage());
     MatcherAssert.assertThat(
         db1.listCollections(),
         Matchers.containsInAnyOrder(
@@ -94,9 +93,8 @@ public class StandardTigrisDatabaseTest {
   public void testCreateCollectionFromDir() throws TigrisDBException {
     TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
-    TigrisDBResponse response =
-        db1.createCollectionsInTransaction(new File("src/test/resources/test-dir"));
-    Assert.assertEquals("Collections creates successfully", response.getMessage());
+    TigrisDBResponse response = db1.applySchemas(new File("src/test/resources/test-dir"));
+    Assert.assertEquals("Collections created successfully", response.getMessage());
     MatcherAssert.assertThat(
         db1.listCollections(),
         Matchers.containsInAnyOrder(
@@ -114,8 +112,7 @@ public class StandardTigrisDatabaseTest {
     TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
     try {
-      db1.createCollectionsInTransaction(
-          new File("/" + UUID.randomUUID() + "/" + UUID.randomUUID()));
+      db1.applySchemas(new File("/" + UUID.randomUUID() + "/" + UUID.randomUUID()));
       Assert.fail("This must fail");
     } catch (TigrisDBException tigrisDBException) {
       System.out.println(tigrisDBException.getMessage());
@@ -151,7 +148,8 @@ public class StandardTigrisDatabaseTest {
   public void testBeginTransaction() throws TigrisDBException {
     TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
-    TransactionSession transactionSession = db1.beginTransaction(new TransactionOptions());
+    TransactionSession transactionSession =
+        db1.beginTransaction(TransactionOptions.DEFAULT_INSTANCE);
     transactionSession.commit();
   }
 
@@ -159,7 +157,8 @@ public class StandardTigrisDatabaseTest {
   public void testCommitTransaction() throws TigrisDBException {
     TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
-    TransactionSession transactionSession = db1.beginTransaction(new TransactionOptions());
+    TransactionSession transactionSession =
+        db1.beginTransaction(TransactionOptions.DEFAULT_INSTANCE);
     transactionSession.commit();
   }
 
@@ -167,7 +166,8 @@ public class StandardTigrisDatabaseTest {
   public void testRollbackTransaction() throws TigrisDBException {
     TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
-    TransactionSession transactionSession = db1.beginTransaction(new TransactionOptions());
+    TransactionSession transactionSession =
+        db1.beginTransaction(TransactionOptions.DEFAULT_INSTANCE);
     transactionSession.rollback();
   }
 
@@ -200,8 +200,8 @@ public class StandardTigrisDatabaseTest {
   public void testEquals() {
     TigrisDatabase db1 = new StandardTigrisDatabase("db1", null, null, null);
     TigrisDatabase db2 = new StandardTigrisDatabase("db1", null, null, null);
-    Assert.assertTrue(db1.equals(db2));
-    Assert.assertTrue(db1.equals(db1));
+    Assert.assertEquals(db1, db2);
+    Assert.assertEquals(db1, db1);
 
     Assert.assertFalse(db1.equals(null));
     Assert.assertFalse(db1.equals("string-obj"));

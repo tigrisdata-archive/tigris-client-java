@@ -66,8 +66,7 @@ public class StandardTigrisDatabase implements TigrisDatabase {
   }
 
   @Override
-  public TigrisDBResponse createCollectionsInTransaction(List<URL> collectionsSchemas)
-      throws TigrisDBException {
+  public TigrisDBResponse applySchemas(List<URL> collectionsSchemas) throws TigrisDBException {
     TransactionSession transactionSession = null;
     try {
       transactionSession = beginTransaction(new TransactionOptions());
@@ -76,7 +75,7 @@ public class StandardTigrisDatabase implements TigrisDatabase {
         transactionSession.createOrUpdateCollection(schema, CollectionOptions.DEFAULT_INSTANCE);
       }
       transactionSession.commit();
-      return new TigrisDBResponse("Collections creates successfully");
+      return new TigrisDBResponse("Collections created successfully");
     } catch (Exception exception) {
       if (transactionSession != null) {
         transactionSession.rollback();
@@ -86,15 +85,14 @@ public class StandardTigrisDatabase implements TigrisDatabase {
   }
 
   @Override
-  public TigrisDBResponse createCollectionsInTransaction(File schemaDirectory)
-      throws TigrisDBException {
+  public TigrisDBResponse applySchemas(File schemaDirectory) throws TigrisDBException {
     List<URL> schemaURLs = new ArrayList<>();
     try {
       for (File file :
           schemaDirectory.listFiles(file -> file.getName().toLowerCase().endsWith(".json"))) {
         schemaURLs.add(file.toURI().toURL());
       }
-      return createCollectionsInTransaction(schemaURLs);
+      return applySchemas(schemaURLs);
     } catch (NullPointerException | MalformedURLException ex) {
       throw new TigrisDBException("Failed to process schemaDirectory", ex);
     }

@@ -59,7 +59,7 @@ public class StandardTigrisDBClientFailureTest {
     String dbName = UUID.randomUUID().toString();
     TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     try {
-      client.createDatabaseIfNotExists(dbName, DatabaseOptions.DEFAULT_INSTANCE);
+      client.createDatabaseIfNotExists(dbName);
       Assert.fail("This must fail");
     } catch (TigrisDBException tigrisDBException) {
       Assert.assertEquals(
@@ -73,7 +73,7 @@ public class StandardTigrisDBClientFailureTest {
     String dbName = UUID.randomUUID().toString();
     TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     try {
-      client.dropDatabase(dbName, DatabaseOptions.DEFAULT_INSTANCE);
+      client.dropDatabase(dbName);
       Assert.fail("This must fail");
     } catch (TigrisDBException tigrisDBException) {
       Assert.assertEquals(

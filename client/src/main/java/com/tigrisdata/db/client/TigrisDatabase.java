@@ -30,23 +30,23 @@ public interface TigrisDatabase {
    */
   List<CollectionInfo> listCollections() throws TigrisDBException;
   /**
-   * Creates the collection in a transaction
+   * Creates or updates the collection schemas on the current database/
    *
    * @param collectionsSchemas list of URL pointing to schema files
    * @return response
    * @throws TigrisDBException in case of an error.
    */
-  TigrisDBResponse createCollectionsInTransaction(List<URL> collectionsSchemas)
-      throws TigrisDBException;
+  TigrisDBResponse applySchemas(List<URL> collectionsSchemas) throws TigrisDBException;
 
   /**
-   * Reads schema files from a directory and creates the collection in a transaction
+   * Reads schema files from a directory and Creates or updates the collection schemas on the
+   * current database.
    *
    * @param schemaDirectory directory containing schema files
    * @return response
    * @throws TigrisDBException in case of an error.
    */
-  TigrisDBResponse createCollectionsInTransaction(File schemaDirectory) throws TigrisDBException;
+  TigrisDBResponse applySchemas(File schemaDirectory) throws TigrisDBException;
   /**
    * Drops the collection.
    *

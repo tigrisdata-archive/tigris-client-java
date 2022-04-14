@@ -68,8 +68,7 @@ public class StandardTigrisDatabaseFailureTest {
     String dbName = UUID.randomUUID().toString();
     TigrisDatabase db1 = client.getDatabase(dbName);
     try {
-      db1.createCollectionsInTransaction(
-          Collections.singletonList(new URL("file:src/test/resources/db1_c5.json")));
+      db1.applySchemas(Collections.singletonList(new URL("file:src/test/resources/db1_c5.json")));
       Assert.fail("This must fail");
     } catch (TigrisDBException tigrisDBException) {
       Assert.assertEquals(
@@ -82,10 +81,9 @@ public class StandardTigrisDatabaseFailureTest {
     }
   }
 
-  /**
+  /*
    * pass begin transaction, fail during createOrUpdateCollection, then rollback the transaction
    *
-   * @throws IOException
    */
   @Test
   public void testCreateCollectionFromURLsFailAndRollback() throws IOException {
@@ -96,8 +94,7 @@ public class StandardTigrisDatabaseFailureTest {
             + FailingTestUserService.ALLOW_ROLLBACK_TRANSACTION_DB_NAME;
     TigrisDatabase db1 = client.getDatabase(dbName);
     try {
-      db1.createCollectionsInTransaction(
-          Collections.singletonList(new URL("file:src/test/resources/db1_c5.json")));
+      db1.applySchemas(Collections.singletonList(new URL("file:src/test/resources/db1_c5.json")));
       Assert.fail("This must fail");
     } catch (TigrisDBException tigrisDBException) {
       Assert.assertEquals(
@@ -135,7 +132,7 @@ public class StandardTigrisDatabaseFailureTest {
     TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db = client.getDatabase(dbName);
     try {
-      db.beginTransaction(new TransactionOptions());
+      db.beginTransaction(TransactionOptions.DEFAULT_INSTANCE);
       Assert.fail("This must fail");
     } catch (TigrisDBException tigrisDBException) {
       Assert.assertEquals(
@@ -153,7 +150,8 @@ public class StandardTigrisDatabaseFailureTest {
     TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db = client.getDatabase(dbName);
     try {
-      TransactionSession transactionSession = db.beginTransaction(new TransactionOptions());
+      TransactionSession transactionSession =
+          db.beginTransaction(TransactionOptions.DEFAULT_INSTANCE);
       Assert.assertNotNull(transactionSession);
       transactionSession.commit();
       Assert.fail("commit() must fail");
@@ -173,7 +171,8 @@ public class StandardTigrisDatabaseFailureTest {
     TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db = client.getDatabase(dbName);
     try {
-      TransactionSession transactionSession = db.beginTransaction(new TransactionOptions());
+      TransactionSession transactionSession =
+          db.beginTransaction(TransactionOptions.DEFAULT_INSTANCE);
       Assert.assertNotNull(transactionSession);
       transactionSession.rollback();
       Assert.fail("rollback() must fail");

@@ -19,16 +19,18 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.tigrisdata.db.client.error.TigrisDBException;
 
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 final class Utilities {
   private Utilities() {}
 
   // TODO update this once server sends the message back
-  public static final String INSERT_SUCCESS_RESPONSE = "inserted";
-  public static final String DELETE_SUCCESS_RESPONSE = "deleted";
+  static final String INSERT_SUCCESS_RESPONSE = "inserted";
+  static final String DELETE_SUCCESS_RESPONSE = "deleted";
 
   /**
    * Converts from {@link Iterator} of Type F to {@link Iterator} of type T
@@ -39,8 +41,7 @@ final class Utilities {
    * @param <T> destination type
    * @return an instance of {@link Iterator} of type T
    */
-  public static <F, T> Iterator<T> transformIterator(
-      Iterator<F> iterator, Function<F, T> converter) {
+  static <F, T> Iterator<T> transformIterator(Iterator<F> iterator, Function<F, T> converter) {
     return new ConvertedIterator<>(iterator, converter);
   }
 
@@ -54,11 +55,30 @@ final class Utilities {
    * @param <T> to type
    * @return an instance of {@link CompletableFuture}
    */
-  public static <F, T> CompletableFuture<T> transformFuture(
+  static <F, T> CompletableFuture<T> transformFuture(
       ListenableFuture<F> listenableFuture,
       Function<F, T> converter,
       Executor executor,
       String errorMessage) {
+    return transformFuture(listenableFuture, converter, executor, errorMessage, Optional.empty());
+  }
+  /**
+   * Converts {@link ListenableFuture} of type F to {@link CompletableFuture} of type T
+   *
+   * @param listenableFuture source listenable future
+   * @param converter function that converts type F to type T
+   * @param executor executor to run callback that transforms Future when source Future is complete
+   * @param exceptionHandler handles exception
+   * @param <F> from type
+   * @param <T> to type
+   * @return an instance of {@link CompletableFuture}
+   */
+  static <F, T> CompletableFuture<T> transformFuture(
+      ListenableFuture<F> listenableFuture,
+      Function<F, T> converter,
+      Executor executor,
+      String errorMessage,
+      Optional<BiConsumer<CompletableFuture<T>, Throwable>> exceptionHandler) {
     CompletableFuture<T> result = new CompletableFuture<>();
     Futures.addCallback(
         listenableFuture,
@@ -70,7 +90,11 @@ final class Utilities {
 
           @Override
           public void onFailure(Throwable throwable) {
-            result.completeExceptionally(new TigrisDBException(errorMessage, throwable));
+            if (exceptionHandler.isPresent()) {
+              exceptionHandler.get().accept(result, throwable);
+            } else {
+              result.completeExceptionally(new TigrisDBException(errorMessage, throwable));
+            }
           }
         },
         executor);

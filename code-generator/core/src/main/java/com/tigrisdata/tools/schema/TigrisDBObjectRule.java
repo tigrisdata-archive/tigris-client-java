@@ -32,6 +32,7 @@ import com.sun.codemodel.JOp;
 import com.sun.codemodel.JPackage;
 import com.sun.codemodel.JType;
 import com.sun.codemodel.JVar;
+import com.tigrisdata.db.client.TigrisCollectionType;
 import org.apache.commons.lang3.StringUtils;
 import static org.apache.commons.lang3.StringUtils.substringAfter;
 import static org.apache.commons.lang3.StringUtils.substringBefore;
@@ -171,7 +172,7 @@ public class TigrisDBObjectRule implements Rule<JPackage, JType> {
     }
 
     // implement custom marker interface
-    jclass._implements(com.tigrisdata.db.client.model.TigrisCollectionType.class);
+    jclass._implements(TigrisCollectionType.class);
 
     return jclass;
   }

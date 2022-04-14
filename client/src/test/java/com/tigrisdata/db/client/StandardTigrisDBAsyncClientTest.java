@@ -85,8 +85,7 @@ public class StandardTigrisDBAsyncClientTest {
   @Test
   public void testCreateDatabase() throws InterruptedException, ExecutionException {
     TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
-    CompletableFuture<TigrisDBResponse> response =
-        asyncClient.createDatabase("db4", DatabaseOptions.DEFAULT_INSTANCE);
+    CompletableFuture<TigrisDBResponse> response = asyncClient.createDatabaseIfNotExists("db4");
     Assert.assertEquals("db4 created", response.get().getMessage());
     // 4th db created
     Assert.assertEquals(
@@ -94,10 +93,18 @@ public class StandardTigrisDBAsyncClientTest {
   }
 
   @Test
-  public void testDropDatabase() throws InterruptedException, ExecutionException {
+  public void testAlreadyExisingDatabaseCreation() throws InterruptedException, ExecutionException {
     TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     CompletableFuture<TigrisDBResponse> response =
-        asyncClient.dropDatabase("db2", DatabaseOptions.DEFAULT_INSTANCE);
+        asyncClient.createDatabaseIfNotExists("pre-existing-db-name");
+    // no exception is thrown, response with message is served
+    Assert.assertEquals("Database already exists", response.get().getMessage());
+  }
+
+  @Test
+  public void testDropDatabase() throws InterruptedException, ExecutionException {
+    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    CompletableFuture<TigrisDBResponse> response = asyncClient.dropDatabase("db2");
     Assert.assertEquals("db2 dropped", response.get().getMessage());
     // 4th db created
     Assert.assertEquals(

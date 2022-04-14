@@ -87,12 +87,12 @@ public class StandardTigrisDBClient extends AbstractTigrisDBClient implements Ti
   }
 
   @Override
-  public TigrisDBResponse createDatabaseIfNotExists(
-      String databaseName, DatabaseOptions databaseOptions) throws TigrisDBException {
+  public TigrisDBResponse createDatabaseIfNotExists(String databaseName) throws TigrisDBException {
     Api.CreateDatabaseResponse createDatabaseResponse = null;
     try {
       createDatabaseResponse =
-          stub.createDatabase(toCreateDatabaseRequest(databaseName, databaseOptions));
+          stub.createDatabase(
+              toCreateDatabaseRequest(databaseName, DatabaseOptions.DEFAULT_INSTANCE));
       return new TigrisDBResponse(createDatabaseResponse.getMsg());
     } catch (StatusRuntimeException statusRuntimeException) {
       // ignore the error if the database is already exists
@@ -104,11 +104,10 @@ public class StandardTigrisDBClient extends AbstractTigrisDBClient implements Ti
   }
 
   @Override
-  public TigrisDBResponse dropDatabase(String databaseName, DatabaseOptions databaseOptions)
-      throws TigrisDBException {
+  public TigrisDBResponse dropDatabase(String databaseName) throws TigrisDBException {
     try {
       Api.DropDatabaseResponse dropDatabaseResponse =
-          stub.dropDatabase(toDropDatabaseRequest(databaseName, databaseOptions));
+          stub.dropDatabase(toDropDatabaseRequest(databaseName, DatabaseOptions.DEFAULT_INSTANCE));
       return new TigrisDBResponse(dropDatabaseResponse.getMsg());
     } catch (StatusRuntimeException statusRuntimeException) {
       throw new TigrisDBException(DROP_DB_FAILED, statusRuntimeException);

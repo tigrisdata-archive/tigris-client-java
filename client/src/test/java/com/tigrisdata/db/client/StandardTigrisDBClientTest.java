@@ -83,8 +83,7 @@ public class StandardTigrisDBClientTest {
   @Test
   public void testCreateDatabase() throws TigrisDBException {
     TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDBResponse response =
-        client.createDatabaseIfNotExists("db4", DatabaseOptions.DEFAULT_INSTANCE);
+    TigrisDBResponse response = client.createDatabaseIfNotExists("db4");
     Assert.assertEquals("db4 created", response.getMessage());
     // 4th db created
     Assert.assertEquals(4, client.listDatabases(DatabaseOptions.DEFAULT_INSTANCE).size());
@@ -93,7 +92,7 @@ public class StandardTigrisDBClientTest {
   @Test
   public void testDropDatabase() throws TigrisDBException {
     TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDBResponse response = client.dropDatabase("db2", DatabaseOptions.DEFAULT_INSTANCE);
+    TigrisDBResponse response = client.dropDatabase("db2");
     Assert.assertEquals("db2 dropped", response.getMessage());
     // 4th db created
     Assert.assertEquals(2, client.listDatabases(DatabaseOptions.DEFAULT_INSTANCE).size());

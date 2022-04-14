@@ -37,22 +37,18 @@ public interface TigrisDBAsyncClient extends Closeable {
   CompletableFuture<List<TigrisAsyncDatabase>> listDatabases(DatabaseOptions listDatabaseOptions);
 
   /**
-   * Creates the database
+   * Creates the database if not already present
    *
    * @param databaseName name of the database
-   * @param databaseOptions options
    * @return a future to the {@link TigrisDBResponse}
    */
-  CompletableFuture<TigrisDBResponse> createDatabase(
-      String databaseName, DatabaseOptions databaseOptions);
+  CompletableFuture<TigrisDBResponse> createDatabaseIfNotExists(String databaseName);
 
   /**
    * Drops the database
    *
    * @param databaseName name of the database
-   * @param databaseOptions options
    * @return a future to the {@link TigrisDBResponse}
    */
-  CompletableFuture<TigrisDBResponse> dropDatabase(
-      String databaseName, DatabaseOptions databaseOptions);
+  CompletableFuture<TigrisDBResponse> dropDatabase(String databaseName);
 }

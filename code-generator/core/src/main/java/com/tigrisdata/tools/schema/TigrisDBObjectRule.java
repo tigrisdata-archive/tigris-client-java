@@ -15,6 +15,7 @@
 package com.tigrisdata.tools.schema;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.base.CaseFormat;
 import com.sun.codemodel.ClassType;
 import com.sun.codemodel.JAnnotationUse;
 import com.sun.codemodel.JBlock;
@@ -33,7 +34,8 @@ import com.sun.codemodel.JPackage;
 import com.sun.codemodel.JType;
 import com.sun.codemodel.JVar;
 import com.tigrisdata.db.client.TigrisCollectionType;
-import org.apache.commons.lang3.StringUtils;
+import com.tigrisdata.db.client.TigrisDBCollection;
+import org.apache.commons.lang.StringUtils;
 import static org.apache.commons.lang3.StringUtils.substringAfter;
 import static org.apache.commons.lang3.StringUtils.substringBefore;
 import org.jsonschema2pojo.Annotator;
@@ -275,10 +277,27 @@ public class TigrisDBObjectRule implements Rule<JPackage, JType> {
                   ruleFactory.getNameHelper().getUniqueClassName(nodeName, node, _package),
                   ClassType.CLASS);
         } else {
-          String collectionName = node.get("name").asText();
-          String javaTypeName =
-              Inflector.getInstance().singularize(StringUtils.capitalize(collectionName));
+          String className = StringUtils.capitalize(nodeName);
+          String collectionName = null;
+          // if it is the sub object
+
+          if (node.has("name")) {
+            className =
+                Inflector.getInstance()
+                    .singularize(StringUtils.capitalize(node.get("name").asText()));
+            collectionName = node.get("name").asText();
+          } else if (node.has("primary_key")) {
+            throw new IllegalArgumentException("The schema must have name attribute");
+          }
+          // for json type such as product_type, we want model name to be ProductType
+          if (className.contains("_")) {
+            className = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, className);
+          }
+          String javaTypeName = Inflector.getInstance().singularize(className);
           newType = _package._class(javaTypeName);
+          if (collectionName != null) {
+            addTigrisDBCollectionAnnotation(newType, collectionName);
+          }
         }
       }
     } catch (JClassAlreadyExistsException e) {
@@ -620,5 +639,11 @@ public class TigrisDBObjectRule implements Rule<JPackage, JType> {
     JClass annotationClass = jclass.owner().ref(Generated.class);
     JAnnotationUse generated = jclass.annotate(annotationClass);
     generated.param("value", "tigrisdb-model-generator");
+  }
+
+  private static void addTigrisDBCollectionAnnotation(JDefinedClass jclass, String collectionName) {
+    JClass annotationClass = jclass.owner().ref(TigrisDBCollection.class);
+    JAnnotationUse generated = jclass.annotate(annotationClass);
+    generated.param("value", collectionName);
   }
 }

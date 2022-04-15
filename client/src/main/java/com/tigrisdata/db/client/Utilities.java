@@ -32,6 +32,14 @@ final class Utilities {
   static final String INSERT_SUCCESS_RESPONSE = "inserted";
   static final String DELETE_SUCCESS_RESPONSE = "deleted";
 
+  static String extractTigrisDBCollectionName(Class<? extends TigrisCollectionType> clazz) {
+    TigrisDBCollection annotation = clazz.getAnnotation(TigrisDBCollection.class);
+    if (annotation != null) {
+      return annotation.value();
+    }
+    throw new IllegalArgumentException("No TigrisDBCollection name found");
+  }
+
   /**
    * Converts from {@link Iterator} of Type F to {@link Iterator} of type T
    *

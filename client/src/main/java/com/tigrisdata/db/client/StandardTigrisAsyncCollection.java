@@ -61,7 +61,7 @@ public class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
       Executor executor,
       ObjectMapper objectMapper) {
     this.databaseName = databaseName;
-    this.collectionName = collectionTypeClass.getSimpleName().toLowerCase();
+    this.collectionName = Utilities.extractTigrisDBCollectionName(collectionTypeClass);
     this.collectionTypeClass = collectionTypeClass;
     this.executor = executor;
     this.stub = TigrisDBGrpc.newStub(channel);

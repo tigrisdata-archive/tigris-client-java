@@ -51,7 +51,7 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
       TigrisDBGrpc.TigrisDBBlockingStub stub,
       ObjectMapper objectMapper) {
     this.databaseName = databaseName;
-    this.collectionName = collectionTypeClass.getSimpleName().toLowerCase();
+    this.collectionName = Utilities.extractTigrisDBCollectionName(collectionTypeClass);
     this.collectionTypeClass = collectionTypeClass;
     this.stub = stub;
     this.objectMapper = objectMapper;

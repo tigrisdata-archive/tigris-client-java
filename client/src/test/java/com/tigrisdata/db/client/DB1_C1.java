@@ -14,6 +14,7 @@
 package com.tigrisdata.db.client;
 
 /** Test collection type */
+@TigrisDBCollection("db1_c1")
 public class DB1_C1 implements TigrisCollectionType {
   private long id;
   private String name;

@@ -17,16 +17,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
-import static com.tigrisdata.db.client.ErrorMessages.BEGIN_TRANSACTION_FAILED;
-import static com.tigrisdata.db.client.ErrorMessages.CREATE_OR_UPDATE_COLLECTION_FAILED;
-import static com.tigrisdata.db.client.ErrorMessages.DROP_COLLECTION_FAILED;
-import static com.tigrisdata.db.client.ErrorMessages.LIST_COLLECTION_FAILED;
+import static com.tigrisdata.db.client.Messages.BEGIN_TRANSACTION_FAILED;
+import static com.tigrisdata.db.client.Messages.COLLECTIONS_APPLIED;
+import static com.tigrisdata.db.client.Messages.DROP_COLLECTION_FAILED;
+import static com.tigrisdata.db.client.Messages.LIST_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.TypeConverter.toBeginTransactionRequest;
-import static com.tigrisdata.db.client.TypeConverter.toCreateCollectionRequest;
 import static com.tigrisdata.db.client.TypeConverter.toDropCollectionRequest;
 import com.tigrisdata.db.client.error.TigrisDBException;
 import io.grpc.ManagedChannel;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -71,18 +74,45 @@ public class StandardTigrisAsyncDatabase implements TigrisAsyncDatabase {
   }
 
   @Override
-  public CompletableFuture<CreateOrUpdateCollectionResponse> createOrUpdateCollection(
-      TigrisDBSchema schema, CollectionOptions collectionOptions) throws TigrisDBException {
-    ListenableFuture<Api.CreateOrUpdateCollectionResponse>
-        createCollectionResponseListenableFuture =
-            stub.createOrUpdateCollection(
-                toCreateCollectionRequest(
-                    databaseName, schema, collectionOptions, Optional.empty()));
-    return Utilities.transformFuture(
-        createCollectionResponseListenableFuture,
-        (input) -> new CreateOrUpdateCollectionResponse(new TigrisDBResponse(input.getMsg())),
-        executor,
-        CREATE_OR_UPDATE_COLLECTION_FAILED);
+  public CompletableFuture<ApplySchemasResponse> applySchemas(File schemaDirectory) {
+    List<URL> schemaURLs = new ArrayList<>();
+    try {
+      for (File file :
+          schemaDirectory.listFiles(file -> file.getName().toLowerCase().endsWith(".json"))) {
+        schemaURLs.add(file.toURI().toURL());
+      }
+      return applySchemas(schemaURLs);
+    } catch (NullPointerException | MalformedURLException ex) {
+      CompletableFuture completableFuture = new CompletableFuture();
+      completableFuture.completeExceptionally(ex);
+      return completableFuture;
+    }
+  }
+
+  @Override
+  public CompletableFuture<ApplySchemasResponse> applySchemas(List<URL> collectionsSchemas) {
+    CompletableFuture<ApplySchemasResponse> result = new CompletableFuture<>();
+
+    CompletableFuture<TransactionSession> transactionResponseCompletableFuture =
+        beginTransaction(TransactionOptions.DEFAULT_INSTANCE);
+
+    transactionResponseCompletableFuture.whenComplete(
+        ((transactionSession, throwable) -> {
+          // pass on the error
+          if (throwable != null) {
+            result.completeExceptionally(throwable);
+          }
+          for (URL collectionsSchema : collectionsSchemas) {
+            try {
+              transactionSession.applySchema(
+                  new TigrisDBJSONSchema(collectionsSchema), CollectionOptions.DEFAULT_INSTANCE);
+            } catch (TigrisDBException ex) {
+              result.completeExceptionally(ex);
+            }
+          }
+          result.complete(new ApplySchemasResponse(new TigrisDBResponse(COLLECTIONS_APPLIED)));
+        }));
+    return result;
   }
 
   @Override

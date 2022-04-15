@@ -15,11 +15,11 @@ package com.tigrisdata.db.client;
 
 import java.util.Objects;
 
-/** Represents Server response for CreateOrUpdateCollection operation */
-public class CreateOrUpdateCollectionResponse {
+/** Represents Server response for ApplySchemas operation */
+public class ApplySchemasResponse {
   private final TigrisDBResponse tigrisDBResponse;
 
-  public CreateOrUpdateCollectionResponse(TigrisDBResponse tigrisDBResponse) {
+  public ApplySchemasResponse(TigrisDBResponse tigrisDBResponse) {
     this.tigrisDBResponse = tigrisDBResponse;
   }
 
@@ -32,7 +32,7 @@ public class CreateOrUpdateCollectionResponse {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    CreateOrUpdateCollectionResponse that = (CreateOrUpdateCollectionResponse) o;
+    ApplySchemasResponse that = (ApplySchemasResponse) o;
 
     return Objects.equals(tigrisDBResponse, that.tigrisDBResponse);
   }

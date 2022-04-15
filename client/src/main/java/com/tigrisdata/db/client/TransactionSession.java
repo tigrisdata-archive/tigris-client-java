@@ -34,11 +34,11 @@ public interface TransactionSession {
    *
    * @param schema schema of the collection
    * @param collectionOptions collection option
-   * @return the instance of {@link CreateOrUpdateCollectionResponse} from server
+   * @return the instance of {@link ApplySchemasResponse} from server
    * @throws TigrisDBException in case of an error.
    */
-  CreateOrUpdateCollectionResponse createOrUpdateCollection(
-      TigrisDBSchema schema, CollectionOptions collectionOptions) throws TigrisDBException;
+  ApplySchemasResponse applySchema(TigrisDBSchema schema, CollectionOptions collectionOptions)
+      throws TigrisDBException;
 
   /**
    * Commits the current ongoing transaction

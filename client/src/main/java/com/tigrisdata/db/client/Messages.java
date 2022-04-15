@@ -13,9 +13,10 @@
  */
 package com.tigrisdata.db.client;
 
-final class ErrorMessages {
+final class Messages {
 
-  private ErrorMessages() {}
+  private Messages() {}
+  // error
   // client
   public static final String LIST_DBS_FAILED = "Failed to list database(s)";
   public static final String CREATE_DB_FAILED = "Failed to create database";
@@ -35,4 +36,7 @@ final class ErrorMessages {
   public static final String UPDATE_FAILED = "Failed to update";
   public static final String DELETE_FAILED = "Failed to delete";
   public static final String READ_FAILED = "Failed to read";
+
+  // success
+  public static final String COLLECTIONS_APPLIED = "Collections created or changes applied";
 }

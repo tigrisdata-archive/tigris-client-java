@@ -13,7 +13,6 @@
  */
 package com.tigrisdata.db.client;
 
-import com.tigrisdata.db.client.error.TigrisDBException;
 import com.tigrisdata.db.client.grpc.TestUserService;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.testing.GrpcCleanupRule;
@@ -25,8 +24,10 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -71,15 +72,14 @@ public class StandardTigrisAsyncDatabaseTest {
   }
 
   @Test
-  public void testCreateCollection()
-      throws TigrisDBException, InterruptedException, ExecutionException, IOException {
+  public void testApplySchemas() throws InterruptedException, ExecutionException, IOException {
     TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
-    CompletableFuture<CreateOrUpdateCollectionResponse> response =
-        db1.createOrUpdateCollection(
-            new TigrisDBJSONSchema(new URL("file:src/test/resources/db1_c5.json")),
-            CollectionOptions.DEFAULT_INSTANCE);
-    Assert.assertEquals("db1_c5 created", response.get().getTigrisDBResponse().getMessage());
+    CompletableFuture<ApplySchemasResponse> response =
+        db1.applySchemas(Collections.singletonList(new URL("file:src/test/resources/db1_c5.json")));
+    Assert.assertEquals(
+        "Collections created or changes applied",
+        response.get().getTigrisDBResponse().getMessage());
     MatcherAssert.assertThat(
         db1.listCollections().get(),
         Matchers.containsInAnyOrder(
@@ -89,6 +89,27 @@ public class StandardTigrisAsyncDatabaseTest {
             new CollectionInfo("db1_c3"),
             new CollectionInfo("db1_c4"),
             new CollectionInfo("db1_c5")));
+  }
+
+  @Test
+  public void testApplySchemasFromDirectory() throws InterruptedException, ExecutionException {
+    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
+    CompletableFuture<ApplySchemasResponse> response =
+        db1.applySchemas(new File("src/test/resources/test-dir"));
+    Assert.assertEquals(
+        "Collections created or changes applied",
+        response.get().getTigrisDBResponse().getMessage());
+    MatcherAssert.assertThat(
+        db1.listCollections().get(),
+        Matchers.containsInAnyOrder(
+            new CollectionInfo("db1_c0"),
+            new CollectionInfo("db1_c1"),
+            new CollectionInfo("db1_c2"),
+            new CollectionInfo("db1_c3"),
+            new CollectionInfo("db1_c4"),
+            new CollectionInfo("db1_c5"),
+            new CollectionInfo("db1_c6")));
   }
 
   @Test

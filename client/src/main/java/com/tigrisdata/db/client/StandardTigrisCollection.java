@@ -23,11 +23,11 @@ import static com.tigrisdata.db.client.TypeConverter.toReadRequest;
 import static com.tigrisdata.db.client.TypeConverter.toReplaceRequest;
 import static com.tigrisdata.db.client.TypeConverter.toUpdateRequest;
 import com.tigrisdata.db.client.error.TigrisDBException;
-import static com.tigrisdata.db.client.ErrorMessages.DELETE_FAILED;
-import static com.tigrisdata.db.client.ErrorMessages.INSERT_FAILED;
-import static com.tigrisdata.db.client.ErrorMessages.INSERT_OR_REPLACE_FAILED;
-import static com.tigrisdata.db.client.ErrorMessages.READ_FAILED;
-import static com.tigrisdata.db.client.ErrorMessages.UPDATE_FAILED;
+import static com.tigrisdata.db.client.Messages.DELETE_FAILED;
+import static com.tigrisdata.db.client.Messages.INSERT_FAILED;
+import static com.tigrisdata.db.client.Messages.INSERT_OR_REPLACE_FAILED;
+import static com.tigrisdata.db.client.Messages.READ_FAILED;
+import static com.tigrisdata.db.client.Messages.UPDATE_FAILED;
 import io.grpc.StatusRuntimeException;
 
 import java.util.Collections;

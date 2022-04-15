@@ -13,8 +13,8 @@
  */
 package com.tigrisdata.db.client;
 
-import com.tigrisdata.db.client.error.TigrisDBException;
-
+import java.io.File;
+import java.net.URL;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -29,15 +29,20 @@ public interface TigrisAsyncDatabase {
   CompletableFuture<List<CollectionInfo>> listCollections();
 
   /**
-   * Creates a collection under current database.
+   * Creates or updates collection under current database.
    *
-   * @param schema schema of the collection
-   * @param collectionOptions collection option
-   * @return the future to the {@link CreateOrUpdateCollectionResponse}
-   * @throws TigrisDBException in case of an error.
+   * @param schemaDirectory directory with schema
+   * @return future to the {@link ApplySchemasResponse}
    */
-  CompletableFuture<CreateOrUpdateCollectionResponse> createOrUpdateCollection(
-      TigrisDBSchema schema, CollectionOptions collectionOptions) throws TigrisDBException;
+  CompletableFuture<ApplySchemasResponse> applySchemas(File schemaDirectory);
+
+  /**
+   * Creates or updates collection under current database.
+   *
+   * @param collectionsSchemas list of {@link URL}
+   * @return future to the {@link ApplySchemasResponse}
+   */
+  CompletableFuture<ApplySchemasResponse> applySchemas(List<URL> collectionsSchemas);
 
   /**
    * Drops the collection.

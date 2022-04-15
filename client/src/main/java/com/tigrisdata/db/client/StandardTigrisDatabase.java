@@ -17,10 +17,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
 import com.tigrisdata.db.client.error.TigrisDBException;
-import static com.tigrisdata.db.client.ErrorMessages.BEGIN_TRANSACTION_FAILED;
-import static com.tigrisdata.db.client.ErrorMessages.CREATE_OR_UPDATE_COLLECTION_FAILED;
-import static com.tigrisdata.db.client.ErrorMessages.DROP_COLLECTION_FAILED;
-import static com.tigrisdata.db.client.ErrorMessages.LIST_COLLECTION_FAILED;
+import static com.tigrisdata.db.client.Messages.BEGIN_TRANSACTION_FAILED;
+import static com.tigrisdata.db.client.Messages.CREATE_OR_UPDATE_COLLECTION_FAILED;
+import static com.tigrisdata.db.client.Messages.DROP_COLLECTION_FAILED;
+import static com.tigrisdata.db.client.Messages.LIST_COLLECTION_FAILED;
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
 
@@ -72,7 +72,7 @@ public class StandardTigrisDatabase implements TigrisDatabase {
       transactionSession = beginTransaction(new TransactionOptions());
       for (URL collectionsSchema : collectionsSchemas) {
         TigrisDBSchema schema = new TigrisDBJSONSchema(collectionsSchema);
-        transactionSession.createOrUpdateCollection(schema, CollectionOptions.DEFAULT_INSTANCE);
+        transactionSession.applySchema(schema, CollectionOptions.DEFAULT_INSTANCE);
       }
       transactionSession.commit();
       return new TigrisDBResponse("Collections created successfully");

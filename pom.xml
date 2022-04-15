@@ -4,7 +4,7 @@
 
     <groupId>com.tigrisdata</groupId>
     <artifactId>tigrisdb-client-java</artifactId>
-    <version>1.0.0-alpha.3</version>
+    <version>1.0.0-alpha.4-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>TigrisDB-Client-Java</name>
     <description>A Java client for TigrisDB</description>
@@ -162,7 +162,7 @@
             scm:git:git@github.com:tigrisdata/tigrisdb-client-java.git
         </developerConnection>
         <url>git@github.com:tigrisdata/tigrisdb-client-java.git</url>
-        <tag>tigrisdb-client-java-1.0.0-alpha.3</tag>
+        <tag>HEAD</tag>
     </scm>
     <licenses>
         <license>

@@ -60,7 +60,7 @@ public class StandardTransactionSession implements TransactionSession {
 
   @Override
   public <C extends TigrisCollectionType> TransactionTigrisCollection<C> getCollection(
-      Class<C> collectionTypeClass) throws TigrisDBException {
+      Class<C> collectionTypeClass) {
     return new TransactionalTigrisCollection<>(
         databaseName, collectionTypeClass, stub, transactionCtx, objectMapper);
   }

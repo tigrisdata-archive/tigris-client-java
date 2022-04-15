@@ -23,11 +23,9 @@ public interface TransactionSession {
    * @param collectionTypeClass Class type of the collection
    * @param <C> type of the collection that is of type {@link TigrisCollectionType}
    * @return an instance of {@link TransactionTigrisCollection}
-   * @throws TigrisDBException if collection doesn't exist in the @{@link TigrisDatabase} or any
-   *     other error
    */
   <C extends TigrisCollectionType> TransactionTigrisCollection<C> getCollection(
-      Class<C> collectionTypeClass) throws TigrisDBException;
+      Class<C> collectionTypeClass);
 
   /**
    * Creates a collection under current database in transactional session.

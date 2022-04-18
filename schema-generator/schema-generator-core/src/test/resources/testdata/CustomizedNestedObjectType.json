@@ -1,0 +1,60 @@
+{
+  "title" : "CustomizedNestedObjectType",
+  "type" : "object",
+  "properties" : {
+    "products" : {
+      "type" : "array",
+      "items" : {
+        "type" : "object",
+        "properties" : {
+          "categories" : {
+            "type" : "array",
+            "items" : {
+              "type" : "object",
+              "properties" : {
+                "name" : {
+                  "type" : "string",
+                  "description" : "category name"
+                },
+                "previewImage" : {
+                  "type" : "string",
+                  "format" : "binary",
+                  "description" : "category image binary data"
+                },
+                "tags" : {
+                  "type" : "array",
+                  "items" : {
+                    "type" : "string"
+                  }
+                }
+              }
+            }
+          },
+          "id" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "name" : {
+            "type" : "string"
+          }
+        }
+      }
+    },
+    "sellers" : {
+      "type" : "array",
+      "items" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "name" : {
+            "type" : "string"
+          }
+        }
+      }
+    }
+  },
+  "primary_keys" : [ ]
+}

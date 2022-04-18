@@ -13,8 +13,8 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>core</module>
-        <module>cli</module>
-        <module>maven-plugin</module>
+        <module>code-generator-core</module>
+        <module>code-generator-cli</module>
+        <module>code-generator-maven-plugin</module>
     </modules>
 </project>

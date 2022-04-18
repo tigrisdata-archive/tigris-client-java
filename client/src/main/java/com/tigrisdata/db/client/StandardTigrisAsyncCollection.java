@@ -30,6 +30,7 @@ import static com.tigrisdata.db.client.TypeConverter.toReadRequest;
 import static com.tigrisdata.db.client.TypeConverter.toReplaceRequest;
 import static com.tigrisdata.db.client.TypeConverter.toUpdateRequest;
 import com.tigrisdata.db.client.error.TigrisDBException;
+import com.tigrisdata.db.type.TigrisCollectionType;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
 

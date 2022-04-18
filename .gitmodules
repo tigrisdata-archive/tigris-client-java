@@ -2,7 +2,7 @@
 	path = client/api
 	branch = main
 	url = git@github.com:tigrisdata/tigrisdb-api.git
-[submodule "code-generator/core/test-data"]
+[submodule "code-generator/code-generator-core/test-data"]
 	branch = main
-	path = code-generator/core/test-data
+	path = code-generator/code-generator-core/test-data
 	url = git@github.com:tigrisdata/tigrisdb-test-data.git

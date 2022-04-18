@@ -47,13 +47,12 @@
             <artifactId>slf4j-api</artifactId>
             <version>1.7.36</version>
         </dependency>
-        <!-- generated models uses jackson annotation -->
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>2.13.2</version>
+            <groupId>com.tigrisdata</groupId>
+            <artifactId>types</artifactId>
+            <version>${project.version}</version>
         </dependency>
-        <!-- generated models uses @Generated annotation-->
+        <!-- @Generated -->
         <dependency>
             <groupId>javax.annotation</groupId>
             <artifactId>javax.annotation-api</artifactId>

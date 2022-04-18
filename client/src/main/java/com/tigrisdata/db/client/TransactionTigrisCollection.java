@@ -13,6 +13,8 @@
  */
 package com.tigrisdata.db.client;
 
+import com.tigrisdata.db.type.TigrisCollectionType;
+
 /**
  * Transaction aware TigrisDB collection
  *

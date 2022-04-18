@@ -1,0 +1,15 @@
+{
+  "title" : "EnumTypes",
+  "type" : "object",
+  "properties" : {
+    "fruits" : {
+      "type" : "string",
+      "enum" : [ "APPLE", "ORANGE" ]
+    },
+    "vegetables" : {
+      "type" : "string",
+      "enum" : [ "TOMATO", "POTATO" ]
+    }
+  },
+  "primary_keys" : [ ]
+}

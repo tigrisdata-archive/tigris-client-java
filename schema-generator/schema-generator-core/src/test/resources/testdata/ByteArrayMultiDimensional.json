@@ -1,0 +1,57 @@
+{
+  "title" : "ByteArrayMultiDimensional",
+  "type" : "object",
+  "properties" : {
+    "byteArr1d" : {
+      "type" : "string",
+      "format" : "binary"
+    },
+    "byteArr2d" : {
+      "type" : "array",
+      "items" : {
+        "type" : "string",
+        "format" : "binary"
+      }
+    },
+    "byteArr3d" : {
+      "type" : "array",
+      "items" : {
+        "type" : "array",
+        "items" : {
+          "type" : "string",
+          "format" : "binary"
+        }
+      }
+    },
+    "byteArr4d" : {
+      "type" : "array",
+      "items" : {
+        "type" : "array",
+        "items" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string",
+            "format" : "binary"
+          }
+        }
+      }
+    },
+    "byteArr5d" : {
+      "type" : "array",
+      "items" : {
+        "type" : "array",
+        "items" : {
+          "type" : "array",
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string",
+              "format" : "binary"
+            }
+          }
+        }
+      }
+    }
+  },
+  "primary_keys" : [ ]
+}

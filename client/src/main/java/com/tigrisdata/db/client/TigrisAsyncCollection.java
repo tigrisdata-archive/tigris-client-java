@@ -14,6 +14,7 @@
 package com.tigrisdata.db.client;
 
 import com.tigrisdata.db.client.error.TigrisDBException;
+import com.tigrisdata.db.type.TigrisCollectionType;
 
 import java.util.List;
 import java.util.Optional;

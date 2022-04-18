@@ -1,0 +1,40 @@
+{
+  "title" : "BoxedTypes",
+  "description" : "Test description for boxed type",
+  "type" : "object",
+  "properties" : {
+    "aBoolean" : {
+      "type" : "boolean"
+    },
+    "aByte" : {
+      "type" : "string"
+    },
+    "aCharacter" : {
+      "type" : "string"
+    },
+    "aDouble" : {
+      "type" : "number",
+      "format" : "double"
+    },
+    "aFloat" : {
+      "type" : "number",
+      "format" : "float"
+    },
+    "aInteger" : {
+      "type" : "integer",
+      "format" : "int32"
+    },
+    "aLong" : {
+      "type" : "integer",
+      "format" : "int64"
+    },
+    "aShort" : {
+      "type" : "integer"
+    },
+    "date" : {
+      "type" : "string",
+      "format" : "date-time"
+    }
+  },
+  "primary_keys" : [ "aInteger" ]
+}

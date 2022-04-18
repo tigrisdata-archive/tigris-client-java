@@ -12,6 +12,8 @@
     <modules>
         <module>client</module>
         <module>code-generator</module>
+        <module>schema-generator</module>
+        <module>types</module>
     </modules>
     <profiles>
         <profile>

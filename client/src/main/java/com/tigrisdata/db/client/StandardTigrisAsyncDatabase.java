@@ -24,6 +24,7 @@ import static com.tigrisdata.db.client.Messages.LIST_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.TypeConverter.toBeginTransactionRequest;
 import static com.tigrisdata.db.client.TypeConverter.toDropCollectionRequest;
 import com.tigrisdata.db.client.error.TigrisDBException;
+import com.tigrisdata.db.type.TigrisCollectionType;
 import io.grpc.ManagedChannel;
 
 import java.io.File;

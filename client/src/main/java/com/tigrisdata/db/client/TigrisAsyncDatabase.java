@@ -13,6 +13,8 @@
  */
 package com.tigrisdata.db.client;
 
+import com.tigrisdata.db.type.TigrisCollectionType;
+
 import java.io.File;
 import java.net.URL;
 import java.util.List;

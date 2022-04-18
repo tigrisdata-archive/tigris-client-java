@@ -16,7 +16,9 @@ package com.tigrisdata.db.client;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.tigrisdata.db.annotation.TigrisDBCollection;
 import com.tigrisdata.db.client.error.TigrisDBException;
+import com.tigrisdata.db.type.TigrisCollectionType;
 
 import java.util.Iterator;
 import java.util.Optional;

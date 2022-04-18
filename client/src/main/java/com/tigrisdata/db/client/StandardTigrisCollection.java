@@ -28,6 +28,7 @@ import static com.tigrisdata.db.client.Messages.INSERT_FAILED;
 import static com.tigrisdata.db.client.Messages.INSERT_OR_REPLACE_FAILED;
 import static com.tigrisdata.db.client.Messages.READ_FAILED;
 import static com.tigrisdata.db.client.Messages.UPDATE_FAILED;
+import com.tigrisdata.db.type.TigrisCollectionType;
 import io.grpc.StatusRuntimeException;
 
 import java.util.Collections;

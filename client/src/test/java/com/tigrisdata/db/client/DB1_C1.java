@@ -13,6 +13,9 @@
  */
 package com.tigrisdata.db.client;
 
+import com.tigrisdata.db.annotation.TigrisDBCollection;
+import com.tigrisdata.db.type.TigrisCollectionType;
+
 /** Test collection type */
 @TigrisDBCollection("db1_c1")
 public class DB1_C1 implements TigrisCollectionType {

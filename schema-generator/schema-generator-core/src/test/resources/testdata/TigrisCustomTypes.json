@@ -1,0 +1,19 @@
+{
+  "title" : "TigrisCustomTypeCollection",
+  "description" : "Test description for TigrisCustomTypes",
+  "type" : "object",
+  "properties" : {
+    "byteArr" : {
+      "type" : "array",
+      "items" : {
+        "type" : "string",
+        "format" : "binary"
+      }
+    },
+    "id" : {
+      "type" : "string",
+      "format" : "uuid"
+    }
+  },
+  "primary_keys" : [ "id" ]
+}

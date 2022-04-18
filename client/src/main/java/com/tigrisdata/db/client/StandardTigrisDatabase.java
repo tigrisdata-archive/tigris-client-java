@@ -21,6 +21,7 @@ import static com.tigrisdata.db.client.Messages.BEGIN_TRANSACTION_FAILED;
 import static com.tigrisdata.db.client.Messages.CREATE_OR_UPDATE_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.Messages.DROP_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.Messages.LIST_COLLECTION_FAILED;
+import com.tigrisdata.db.type.TigrisCollectionType;
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
 

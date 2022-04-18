@@ -1,0 +1,39 @@
+{
+  "title" : "PrimitiveTypesCollection",
+  "type" : "object",
+  "properties" : {
+    "aBoolean" : {
+      "type" : "boolean"
+    },
+    "aChar" : {
+      "type" : "string"
+    },
+    "byteNum" : {
+      "type" : "string"
+    },
+    "doubleNum" : {
+      "type" : "number",
+      "format" : "double"
+    },
+    "floatNum" : {
+      "type" : "number",
+      "format" : "float"
+    },
+    "id" : {
+      "type" : "integer",
+      "format" : "int32",
+      "description" : "This is the id field"
+    },
+    "longNum" : {
+      "type" : "integer",
+      "format" : "int64"
+    },
+    "name" : {
+      "type" : "string"
+    },
+    "shortNum" : {
+      "type" : "integer"
+    }
+  },
+  "primary_keys" : [ "id" ]
+}

@@ -57,6 +57,13 @@
             <artifactId>schema-generator-core</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- @Generated annotation for gRPC generated sources for Java8
+        onwards -->
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+            <version>1.3.2</version>
+        </dependency>
         <!-- test libraries -->
         <dependency>
             <groupId>junit</groupId>

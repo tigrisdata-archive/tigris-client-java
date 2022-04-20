@@ -13,6 +13,7 @@
  */
 package com.tigrisdata.db.client;
 
+import com.tigrisdata.db.client.collection.DB1_C1;
 import com.tigrisdata.db.client.error.TigrisDBException;
 import com.tigrisdata.db.client.grpc.TestUserService;
 import io.grpc.inprocess.InProcessServerBuilder;

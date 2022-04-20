@@ -33,6 +33,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /** Async implementation of TigrisDB */
@@ -101,6 +102,13 @@ public class StandardTigrisAsyncDatabase implements TigrisAsyncDatabase {
               new CreateOrUpdateCollectionsResponse(new TigrisDBResponse(COLLECTIONS_APPLIED)));
         }));
     return result;
+  }
+
+  @Override
+  public CompletableFuture<CreateOrUpdateCollectionsResponse> createOrUpdateCollections(
+      String[] packagesToScan, Optional<Predicate<Class<? extends TigrisCollectionType>>> filter) {
+    return this.createOrUpdateCollections(
+        Utilities.scanTigrisDBCollectionModels(packagesToScan, filter));
   }
 
   @Override

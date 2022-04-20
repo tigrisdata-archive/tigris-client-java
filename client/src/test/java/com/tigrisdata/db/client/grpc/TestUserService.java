@@ -24,14 +24,16 @@ import io.grpc.stub.StreamObserver;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public class TestUserService extends TigrisDBGrpc.TigrisDBImplBase {
 
-  private List<String> dbs;
-  private Map<String, List<String>> dbToCollectionsMap;
+  private Set<String> dbs;
+  private Map<String, Set<String>> dbToCollectionsMap;
   private Map<String, List<JsonObject>> collectionToDocumentsMap;
   private String txId;
   private String txOrigin;
@@ -43,7 +45,7 @@ public class TestUserService extends TigrisDBGrpc.TigrisDBImplBase {
   public void reset() {
     // default dbs
     this.dbs =
-        new ArrayList<String>() {
+        new LinkedHashSet<String>() {
           {
             add("db1");
             add("db2");
@@ -54,7 +56,7 @@ public class TestUserService extends TigrisDBGrpc.TigrisDBImplBase {
     this.dbToCollectionsMap = new HashMap<>();
     this.collectionToDocumentsMap = new HashMap<>();
     for (String db : dbs) {
-      List<String> collections = new ArrayList<>();
+      Set<String> collections = new LinkedHashSet<>();
       for (int i = 0; i < 5; i++) {
         collections.add(db + "_c" + i);
       }

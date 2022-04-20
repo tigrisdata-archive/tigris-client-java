@@ -14,6 +14,7 @@
 package com.tigrisdata.db.client;
 
 import com.google.common.base.CaseFormat;
+import com.google.common.reflect.ClassPath;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -21,13 +22,20 @@ import com.tigrisdata.db.annotation.TigrisDBCollection;
 import com.tigrisdata.db.client.error.TigrisDBException;
 import com.tigrisdata.db.type.TigrisCollectionType;
 import org.atteo.evo.inflector.English;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 final class Utilities {
   private Utilities() {}
@@ -35,6 +43,48 @@ final class Utilities {
   // TODO update this once server sends the message back
   static final String INSERT_SUCCESS_RESPONSE = "inserted";
   static final String DELETE_SUCCESS_RESPONSE = "deleted";
+
+  private static final Logger log = LoggerFactory.getLogger(Utilities.class);
+
+  /**
+   * Scans the classpath for the given packages and searches for all the top level classes that are
+   * of type {@link TigrisCollectionType} and optionally filters them using user supplied filter.
+   *
+   * @param packagesToScan packages to scan
+   * @param filter filter to select classes from scanned classes
+   * @return tigris db collection model classes
+   */
+  static Class<? extends TigrisCollectionType>[] scanTigrisDBCollectionModels(
+      String[] packagesToScan, Optional<Predicate<Class<? extends TigrisCollectionType>>> filter) {
+    Set<Class<? extends TigrisCollectionType>> scannedClasses = new HashSet<>();
+    for (String packageToScan : packagesToScan) {
+      log.debug("scanning package {}", packageToScan);
+      try {
+        Set<Class<? extends TigrisCollectionType>> scannedClassesFromThisPackage =
+            ClassPath.from(ClassLoader.getSystemClassLoader())
+                .getTopLevelClassesRecursive(packageToScan).stream()
+                .map(ClassPath.ClassInfo::load)
+                .filter(clazz -> TigrisCollectionType.class.isAssignableFrom(clazz))
+                .map(clazz -> (Class<? extends TigrisCollectionType>) clazz)
+                .filter(
+                    clazz -> filter.map(classPredicate -> classPredicate.test(clazz)).orElse(true))
+                .collect(Collectors.toSet());
+        log.debug("found {}", scannedClasses);
+        scannedClasses.addAll(scannedClassesFromThisPackage);
+      } catch (Exception ex) {
+        log.warn("failed to scan " + packageToScan, ex);
+      }
+    }
+
+    Class<? extends TigrisCollectionType> result[] = new Class[scannedClasses.size()];
+    int i = 0;
+    for (Class<? extends TigrisCollectionType> scannedClass : scannedClasses) {
+      result[i] = scannedClass;
+      i++;
+    }
+    log.debug("Total classes found={}, all classes = {}", result.length, Arrays.toString(result));
+    return result;
+  }
 
   static String getCollectionName(Class<? extends TigrisCollectionType> clazz) {
     TigrisDBCollection tigrisDBCollection = clazz.getAnnotation(TigrisDBCollection.class);

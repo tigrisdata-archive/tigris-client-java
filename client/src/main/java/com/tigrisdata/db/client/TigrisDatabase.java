@@ -17,6 +17,8 @@ import com.tigrisdata.db.client.error.TigrisDBException;
 import com.tigrisdata.db.type.TigrisCollectionType;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
 
 /** TigrisDB Database */
 public interface TigrisDatabase {
@@ -38,6 +40,18 @@ public interface TigrisDatabase {
    */
   CreateOrUpdateCollectionsResponse createOrUpdateCollections(
       Class<? extends TigrisCollectionType>... collectionModelTypes) throws TigrisDBException;
+
+  /**
+   * Creates or updates collections
+   *
+   * @param packagesToScan an array of Java packages to scan for collection model.
+   * @param filter optional filter to filter out classes from scanned set of classes
+   * @return response
+   * @throws TigrisDBException in case of an error.
+   */
+  CreateOrUpdateCollectionsResponse createOrUpdateCollections(
+      String[] packagesToScan, Optional<Predicate<Class<? extends TigrisCollectionType>>> filter)
+      throws TigrisDBException;
 
   /**
    * Drops the collection.

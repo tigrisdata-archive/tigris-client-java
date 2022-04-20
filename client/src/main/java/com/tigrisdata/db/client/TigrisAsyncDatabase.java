@@ -16,7 +16,9 @@ package com.tigrisdata.db.client;
 import com.tigrisdata.db.type.TigrisCollectionType;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Predicate;
 
 /** TigrisDB async database */
 public interface TigrisAsyncDatabase {
@@ -37,6 +39,15 @@ public interface TigrisAsyncDatabase {
   CompletableFuture<CreateOrUpdateCollectionsResponse> createOrUpdateCollections(
       Class<? extends TigrisCollectionType>... collectionModelTypes);
 
+  /**
+   * Creates or updates collections
+   *
+   * @param packagesToScan an array of Java packages to scan for collection model.
+   * @param filter optional filter to filter out classes from scanned set of classes
+   * @return future to the {@link CreateOrUpdateCollectionsResponse}
+   */
+  CompletableFuture<CreateOrUpdateCollectionsResponse> createOrUpdateCollections(
+      String[] packagesToScan, Optional<Predicate<Class<? extends TigrisCollectionType>>> filter);
   /**
    * Drops the collection.
    *

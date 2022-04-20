@@ -11,7 +11,7 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tigrisdata.db.client;
+package com.tigrisdata.db.client.collection;
 
 import com.tigrisdata.db.type.TigrisCollectionType;
 

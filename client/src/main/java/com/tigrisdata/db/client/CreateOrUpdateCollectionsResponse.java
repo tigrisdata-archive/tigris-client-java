@@ -15,7 +15,7 @@ package com.tigrisdata.db.client;
 
 import java.util.Objects;
 
-/** Represents Server response for ApplySchemas operation */
+/** Represents Server response for CreateOrUpdateCollections operation */
 public class CreateOrUpdateCollectionsResponse {
   private final TigrisDBResponse tigrisDBResponse;
 

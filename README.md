@@ -10,6 +10,7 @@ Java driver for TigrisDB
 [![Maven Central](https://img.shields.io/maven-central/v/com.tigrisdata/tigrisdb-client-java)](https://mvnrepository.com/artifact/com.tigrisdata/tigrisdb-client)
 [![slack](https://img.shields.io/badge/Slack-4A154B?style=for-the-badge&logo=slack&logoColor=white)](https://join.slack.com/t/tigrisdatacommunity/shared_invite/zt-16fn5ogio-OjxJlgttJIV0ZDywcBItJQ)
 [![GitHub](https://img.shields.io/github/license/tigrisdata/tigrisdb-client-java)](https://github.com/tigrisdata/tigrisdb-client-java/blob/main/LICENSE)
+
 #Maven
 
 ```xml

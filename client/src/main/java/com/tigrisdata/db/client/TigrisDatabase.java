@@ -42,7 +42,9 @@ public interface TigrisDatabase {
       Class<? extends TigrisCollectionType>... collectionModelTypes) throws TigrisDBException;
 
   /**
-   * Creates or updates collections
+   * Creates or updates collections by scanning classpath packages and applying user's filter
+   * (optionally) The alternate method {@link TigrisDatabase#createOrUpdateCollections(Class[])} is
+   * recommended where user specifies fixed list of classes to avoid classpath scan at runtime.
    *
    * @param packagesToScan an array of Java packages to scan for collection model.
    * @param filter optional filter to filter out classes from scanned set of classes

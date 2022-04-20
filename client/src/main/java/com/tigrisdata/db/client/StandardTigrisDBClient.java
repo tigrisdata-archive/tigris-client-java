@@ -56,8 +56,8 @@ public class StandardTigrisDBClient extends AbstractTigrisDBClient implements Ti
   /**
    * Creates a new instance of @{@link StandardTigrisDBClient} with the given inputs
    *
-   * @param authorizationToken
-   * @param tigrisDBConfiguration
+   * @param authorizationToken authorization token
+   * @param tigrisDBConfiguration configuration
    * @return a new instance of @{@link StandardTigrisDBClient}
    */
   public static StandardTigrisDBClient getInstance(

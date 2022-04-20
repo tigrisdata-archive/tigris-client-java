@@ -25,6 +25,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class UtilitiesTest {
+
   @Test
   public void testIteratorTransformation() {
     List<String> stringList = new ArrayList<>();

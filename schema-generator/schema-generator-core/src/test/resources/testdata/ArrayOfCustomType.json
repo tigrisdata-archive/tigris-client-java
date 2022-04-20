@@ -1,5 +1,6 @@
 {
   "title" : "ArrayOfCustomType",
+  "additionalProperties" : false,
   "type" : "object",
   "properties" : {
     "age" : {

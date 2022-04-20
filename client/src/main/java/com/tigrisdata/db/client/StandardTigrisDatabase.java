@@ -16,19 +16,17 @@ package com.tigrisdata.db.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
-import com.tigrisdata.db.client.error.TigrisDBException;
 import static com.tigrisdata.db.client.Messages.BEGIN_TRANSACTION_FAILED;
 import static com.tigrisdata.db.client.Messages.CREATE_OR_UPDATE_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.Messages.DROP_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.Messages.LIST_COLLECTION_FAILED;
+import com.tigrisdata.db.client.error.TigrisDBException;
 import com.tigrisdata.db.type.TigrisCollectionType;
+import com.tigrisdata.tools.schema.core.DefaultModelToTigrisDBJsonSchema;
+import com.tigrisdata.tools.schema.core.ModelToJsonSchema;
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -63,39 +61,6 @@ public class StandardTigrisDatabase implements TigrisDatabase {
           .collect(Collectors.toList());
     } catch (StatusRuntimeException statusRuntimeException) {
       throw new TigrisDBException(LIST_COLLECTION_FAILED, statusRuntimeException);
-    }
-  }
-
-  @Override
-  public TigrisDBResponse applySchemas(List<URL> collectionsSchemas) throws TigrisDBException {
-    TransactionSession transactionSession = null;
-    try {
-      transactionSession = beginTransaction(new TransactionOptions());
-      for (URL collectionsSchema : collectionsSchemas) {
-        TigrisDBSchema schema = new TigrisDBJSONSchema(collectionsSchema);
-        transactionSession.applySchema(schema, CollectionOptions.DEFAULT_INSTANCE);
-      }
-      transactionSession.commit();
-      return new TigrisDBResponse("Collections created successfully");
-    } catch (Exception exception) {
-      if (transactionSession != null) {
-        transactionSession.rollback();
-      }
-      throw new TigrisDBException(CREATE_OR_UPDATE_COLLECTION_FAILED, exception);
-    }
-  }
-
-  @Override
-  public TigrisDBResponse applySchemas(File schemaDirectory) throws TigrisDBException {
-    List<URL> schemaURLs = new ArrayList<>();
-    try {
-      for (File file :
-          schemaDirectory.listFiles(file -> file.getName().toLowerCase().endsWith(".json"))) {
-        schemaURLs.add(file.toURI().toURL());
-      }
-      return applySchemas(schemaURLs);
-    } catch (NullPointerException | MalformedURLException ex) {
-      throw new TigrisDBException("Failed to process schemaDirectory", ex);
     }
   }
 
@@ -135,6 +100,32 @@ public class StandardTigrisDatabase implements TigrisDatabase {
       return new StandardTransactionSession(dbName, transactionCtx, managedChannel, objectMapper);
     } catch (StatusRuntimeException statusRuntimeException) {
       throw new TigrisDBException(BEGIN_TRANSACTION_FAILED, statusRuntimeException);
+    }
+  }
+
+  @Override
+  public CreateOrUpdateCollectionsResponse createOrUpdateCollections(
+      Class<? extends TigrisCollectionType>... collectionModelTypes) throws TigrisDBException {
+    TransactionSession transactionSession = null;
+    ModelToJsonSchema modelToJsonSchema = new DefaultModelToTigrisDBJsonSchema();
+    try {
+      transactionSession = beginTransaction(TransactionOptions.DEFAULT_INSTANCE);
+      for (Class<? extends TigrisCollectionType> collectionModelType : collectionModelTypes) {
+
+        TigrisDBSchema schema =
+            new TigrisDBJSONSchema(
+                modelToJsonSchema.toJsonSchema(collectionModelType).toString(),
+                Utilities.getCollectionName(collectionModelType));
+        transactionSession.createOrUpdateCollections(schema, CollectionOptions.DEFAULT_INSTANCE);
+      }
+      transactionSession.commit();
+      return new CreateOrUpdateCollectionsResponse(
+          new TigrisDBResponse("Collections created successfully"));
+    } catch (Exception exception) {
+      if (transactionSession != null) {
+        transactionSession.rollback();
+      }
+      throw new TigrisDBException(CREATE_OR_UPDATE_COLLECTION_FAILED, exception);
     }
   }
 

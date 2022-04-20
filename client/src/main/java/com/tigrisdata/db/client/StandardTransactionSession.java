@@ -67,14 +67,14 @@ public class StandardTransactionSession implements TransactionSession {
   }
 
   @Override
-  public ApplySchemasResponse applySchema(
+  public CreateOrUpdateCollectionsResponse createOrUpdateCollections(
       TigrisDBSchema schema, CollectionOptions collectionOptions) throws TigrisDBException {
     try {
       Api.CreateOrUpdateCollectionResponse createOrUpdateCollectionResponse =
           stub.createOrUpdateCollection(
               toCreateCollectionRequest(
                   databaseName, schema, collectionOptions, Optional.of(transactionCtx)));
-      return new ApplySchemasResponse(
+      return new CreateOrUpdateCollectionsResponse(
           new TigrisDBResponse(createOrUpdateCollectionResponse.getMsg()));
     } catch (StatusRuntimeException ex) {
       throw new TigrisDBException("Failed to create collection in transactional session", ex);

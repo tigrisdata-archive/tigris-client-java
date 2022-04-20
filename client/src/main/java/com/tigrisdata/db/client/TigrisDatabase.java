@@ -16,8 +16,6 @@ package com.tigrisdata.db.client;
 import com.tigrisdata.db.client.error.TigrisDBException;
 import com.tigrisdata.db.type.TigrisCollectionType;
 
-import java.io.File;
-import java.net.URL;
 import java.util.List;
 
 /** TigrisDB Database */
@@ -30,24 +28,17 @@ public interface TigrisDatabase {
    * @throws TigrisDBException in case of an error.
    */
   List<CollectionInfo> listCollections() throws TigrisDBException;
-  /**
-   * Creates or updates the collection schemas on the current database/
-   *
-   * @param collectionsSchemas list of URL pointing to schema files
-   * @return response
-   * @throws TigrisDBException in case of an error.
-   */
-  TigrisDBResponse applySchemas(List<URL> collectionsSchemas) throws TigrisDBException;
 
   /**
-   * Reads schema files from a directory and Creates or updates the collection schemas on the
-   * current database.
+   * Creates or updates collections
    *
-   * @param schemaDirectory directory containing schema files
+   * @param collectionModelTypes an array of collection model classes
    * @return response
    * @throws TigrisDBException in case of an error.
    */
-  TigrisDBResponse applySchemas(File schemaDirectory) throws TigrisDBException;
+  CreateOrUpdateCollectionsResponse createOrUpdateCollections(
+      Class<? extends TigrisCollectionType>... collectionModelTypes) throws TigrisDBException;
+
   /**
    * Drops the collection.
    *

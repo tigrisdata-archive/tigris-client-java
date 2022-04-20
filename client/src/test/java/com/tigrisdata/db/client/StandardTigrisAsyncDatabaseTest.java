@@ -24,10 +24,6 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -72,31 +68,11 @@ public class StandardTigrisAsyncDatabaseTest {
   }
 
   @Test
-  public void testApplySchemas() throws InterruptedException, ExecutionException, IOException {
+  public void testApplySchemasFromModels() throws InterruptedException, ExecutionException {
     TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
-    CompletableFuture<ApplySchemasResponse> response =
-        db1.applySchemas(Collections.singletonList(new URL("file:src/test/resources/db1_c5.json")));
-    Assert.assertEquals(
-        "Collections created or changes applied",
-        response.get().getTigrisDBResponse().getMessage());
-    MatcherAssert.assertThat(
-        db1.listCollections().get(),
-        Matchers.containsInAnyOrder(
-            new CollectionInfo("db1_c0"),
-            new CollectionInfo("db1_c1"),
-            new CollectionInfo("db1_c2"),
-            new CollectionInfo("db1_c3"),
-            new CollectionInfo("db1_c4"),
-            new CollectionInfo("db1_c5")));
-  }
-
-  @Test
-  public void testApplySchemasFromDirectory() throws InterruptedException, ExecutionException {
-    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
-    TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
-    CompletableFuture<ApplySchemasResponse> response =
-        db1.applySchemas(new File("src/test/resources/test-dir"));
+    CompletableFuture<CreateOrUpdateCollectionsResponse> response =
+        db1.createOrUpdateCollections(DB1_C5.class, User.class);
     Assert.assertEquals(
         "Collections created or changes applied",
         response.get().getTigrisDBResponse().getMessage());
@@ -109,7 +85,7 @@ public class StandardTigrisAsyncDatabaseTest {
             new CollectionInfo("db1_c3"),
             new CollectionInfo("db1_c4"),
             new CollectionInfo("db1_c5"),
-            new CollectionInfo("db1_c6")));
+            new CollectionInfo("users")));
   }
 
   @Test

@@ -23,9 +23,6 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.Collections;
 import java.util.UUID;
 
 public class StandardTigrisDatabaseFailureTest {
@@ -55,50 +52,6 @@ public class StandardTigrisDatabaseFailureTest {
     } catch (TigrisDBException tigrisDBException) {
       Assert.assertEquals(
           "Failed to list collection(s) Cause: FAILED_PRECONDITION: Test failure " + dbName,
-          tigrisDBException.getMessage());
-      Assert.assertEquals(
-          Status.fromThrowable(tigrisDBException.getCause()).getCode(),
-          Status.FAILED_PRECONDITION.getCode());
-    }
-  }
-
-  @Test
-  public void testCreateCollectionFromURLs() throws IOException {
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    String dbName = UUID.randomUUID().toString();
-    TigrisDatabase db1 = client.getDatabase(dbName);
-    try {
-      db1.applySchemas(Collections.singletonList(new URL("file:src/test/resources/db1_c5.json")));
-      Assert.fail("This must fail");
-    } catch (TigrisDBException tigrisDBException) {
-      Assert.assertEquals(
-          "Failed to create collections in transaction Cause: Failed to begin transaction Cause: FAILED_PRECONDITION: Test failure "
-              + dbName,
-          tigrisDBException.getMessage());
-      Assert.assertEquals(
-          Status.fromThrowable(tigrisDBException.getCause()).getCode(),
-          Status.FAILED_PRECONDITION.getCode());
-    }
-  }
-
-  /*
-   * pass begin transaction, fail during createOrUpdateCollection, then rollback the transaction
-   *
-   */
-  @Test
-  public void testCreateCollectionFromURLsFailAndRollback() throws IOException {
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    String dbName =
-        FailingTestUserService.ALLOW_BEGIN_TRANSACTION_DB_NAME
-            + ","
-            + FailingTestUserService.ALLOW_ROLLBACK_TRANSACTION_DB_NAME;
-    TigrisDatabase db1 = client.getDatabase(dbName);
-    try {
-      db1.applySchemas(Collections.singletonList(new URL("file:src/test/resources/db1_c5.json")));
-      Assert.fail("This must fail");
-    } catch (TigrisDBException tigrisDBException) {
-      Assert.assertEquals(
-          "Failed to create collections in transaction Cause: Failed to create collection in transactional session Cause: FAILED_PRECONDITION: Test failure pass-begin,pass-rollback",
           tigrisDBException.getMessage());
       Assert.assertEquals(
           Status.fromThrowable(tigrisDBException.getCause()).getCode(),

@@ -23,14 +23,11 @@ import static com.tigrisdata.db.client.Messages.DROP_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.Messages.LIST_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.TypeConverter.toBeginTransactionRequest;
 import static com.tigrisdata.db.client.TypeConverter.toDropCollectionRequest;
-import com.tigrisdata.db.client.error.TigrisDBException;
 import com.tigrisdata.db.type.TigrisCollectionType;
+import com.tigrisdata.tools.schema.core.DefaultModelToTigrisDBJsonSchema;
+import com.tigrisdata.tools.schema.core.ModelToJsonSchema;
 import io.grpc.ManagedChannel;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -75,24 +72,9 @@ public class StandardTigrisAsyncDatabase implements TigrisAsyncDatabase {
   }
 
   @Override
-  public CompletableFuture<ApplySchemasResponse> applySchemas(File schemaDirectory) {
-    List<URL> schemaURLs = new ArrayList<>();
-    try {
-      for (File file :
-          schemaDirectory.listFiles(file -> file.getName().toLowerCase().endsWith(".json"))) {
-        schemaURLs.add(file.toURI().toURL());
-      }
-      return applySchemas(schemaURLs);
-    } catch (NullPointerException | MalformedURLException ex) {
-      CompletableFuture completableFuture = new CompletableFuture();
-      completableFuture.completeExceptionally(ex);
-      return completableFuture;
-    }
-  }
-
-  @Override
-  public CompletableFuture<ApplySchemasResponse> applySchemas(List<URL> collectionsSchemas) {
-    CompletableFuture<ApplySchemasResponse> result = new CompletableFuture<>();
+  public CompletableFuture<CreateOrUpdateCollectionsResponse> createOrUpdateCollections(
+      Class<? extends TigrisCollectionType>... collectionModelTypes) {
+    CompletableFuture<CreateOrUpdateCollectionsResponse> result = new CompletableFuture<>();
 
     CompletableFuture<TransactionSession> transactionResponseCompletableFuture =
         beginTransaction(TransactionOptions.DEFAULT_INSTANCE);
@@ -103,15 +85,20 @@ public class StandardTigrisAsyncDatabase implements TigrisAsyncDatabase {
           if (throwable != null) {
             result.completeExceptionally(throwable);
           }
-          for (URL collectionsSchema : collectionsSchemas) {
+          ModelToJsonSchema modelToJsonSchema = new DefaultModelToTigrisDBJsonSchema();
+          for (Class<? extends TigrisCollectionType> collectionModel : collectionModelTypes) {
             try {
-              transactionSession.applySchema(
-                  new TigrisDBJSONSchema(collectionsSchema), CollectionOptions.DEFAULT_INSTANCE);
-            } catch (TigrisDBException ex) {
+              String schemaContent = modelToJsonSchema.toJsonSchema(collectionModel).toString();
+              String schemaName = Utilities.getCollectionName(collectionModel);
+              transactionSession.createOrUpdateCollections(
+                  new TigrisDBJSONSchema(schemaContent, schemaName),
+                  CollectionOptions.DEFAULT_INSTANCE);
+            } catch (Exception ex) {
               result.completeExceptionally(ex);
             }
           }
-          result.complete(new ApplySchemasResponse(new TigrisDBResponse(COLLECTIONS_APPLIED)));
+          result.complete(
+              new CreateOrUpdateCollectionsResponse(new TigrisDBResponse(COLLECTIONS_APPLIED)));
         }));
     return result;
   }

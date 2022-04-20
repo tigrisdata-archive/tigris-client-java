@@ -13,12 +13,14 @@
  */
 package com.tigrisdata.db.client;
 
+import com.google.common.base.CaseFormat;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.tigrisdata.db.annotation.TigrisDBCollection;
 import com.tigrisdata.db.client.error.TigrisDBException;
 import com.tigrisdata.db.type.TigrisCollectionType;
+import org.atteo.evo.inflector.English;
 
 import java.util.Iterator;
 import java.util.Optional;
@@ -33,6 +35,15 @@ final class Utilities {
   // TODO update this once server sends the message back
   static final String INSERT_SUCCESS_RESPONSE = "inserted";
   static final String DELETE_SUCCESS_RESPONSE = "deleted";
+
+  static String getCollectionName(Class<? extends TigrisCollectionType> clazz) {
+    TigrisDBCollection tigrisDBCollection = clazz.getAnnotation(TigrisDBCollection.class);
+    if (tigrisDBCollection != null) {
+      return tigrisDBCollection.value();
+    }
+    return CaseFormat.UPPER_CAMEL.to(
+        CaseFormat.LOWER_UNDERSCORE, English.plural(clazz.getSimpleName()));
+  }
 
   static String extractTigrisDBCollectionName(Class<? extends TigrisCollectionType> clazz) {
     TigrisDBCollection annotation = clazz.getAnnotation(TigrisDBCollection.class);

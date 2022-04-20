@@ -29,15 +29,15 @@ public interface TransactionSession {
       Class<C> collectionTypeClass);
 
   /**
-   * Creates a collection under current database in transactional session.
+   * Creates or updates collections under current database in transactional session.
    *
    * @param schema schema of the collection
    * @param collectionOptions collection option
-   * @return the instance of {@link ApplySchemasResponse} from server
+   * @return the instance of {@link CreateOrUpdateCollectionsResponse} from server
    * @throws TigrisDBException in case of an error.
    */
-  ApplySchemasResponse applySchema(TigrisDBSchema schema, CollectionOptions collectionOptions)
-      throws TigrisDBException;
+  CreateOrUpdateCollectionsResponse createOrUpdateCollections(
+      TigrisDBSchema schema, CollectionOptions collectionOptions) throws TigrisDBException;
 
   /**
    * Commits the current ongoing transaction

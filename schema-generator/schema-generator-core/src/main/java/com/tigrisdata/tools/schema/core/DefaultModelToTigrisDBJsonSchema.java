@@ -28,6 +28,7 @@ import com.tigrisdata.db.annotation.TigrisDBCollection;
 import com.tigrisdata.db.annotation.TigrisDBCollectionField;
 import com.tigrisdata.db.annotation.TigrisDBCollectionPrimaryKey;
 import com.tigrisdata.db.type.TigrisCollectionType;
+import com.tigrisdata.db.util.TypeUtils;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -49,6 +50,7 @@ public class DefaultModelToTigrisDBJsonSchema implements ModelToJsonSchema {
 
   private static final String $SCHEMA = "$schema";
   private static final String PRIMARY_KEYS = "primary_keys";
+  private static final String ADDITIONAL_PROPERTIES = "additionalProperties";
 
   @Override
   public JsonNode toJsonSchema(Class<? extends TigrisCollectionType> clazz) {
@@ -127,8 +129,12 @@ public class DefaultModelToTigrisDBJsonSchema implements ModelToJsonSchema {
 
   private static JsonNode customizeSchema(
       JsonNode jsonSchema, Class<? extends TigrisCollectionType> clazz) {
-    String schemaName = clazz.getAnnotation(TigrisDBCollection.class).value();
-    String description = clazz.getAnnotation(TigrisDBCollection.class).description();
+    String schemaName = TypeUtils.getCollectionName(clazz);
+    TigrisDBCollection tigrisDBCollection = clazz.getAnnotation(TigrisDBCollection.class);
+    String description = null;
+    if (tigrisDBCollection != null) {
+      description = tigrisDBCollection.description();
+    }
 
     ObjectNode objectNode = new ObjectMapper().createObjectNode();
     objectNode.put(TITLE, schemaName);
@@ -136,6 +142,8 @@ public class DefaultModelToTigrisDBJsonSchema implements ModelToJsonSchema {
     if (description != null && !description.isEmpty()) {
       objectNode.put(DESCRIPTION, description);
     }
+
+    objectNode.put(ADDITIONAL_PROPERTIES, false);
 
     // copy over generated schema
     Iterator<String> fields = jsonSchema.fieldNames();

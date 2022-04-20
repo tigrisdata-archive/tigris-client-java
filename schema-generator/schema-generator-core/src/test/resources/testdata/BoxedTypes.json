@@ -1,6 +1,7 @@
 {
   "title" : "BoxedTypes",
   "description" : "Test description for boxed type",
+  "additionalProperties" : false,
   "type" : "object",
   "properties" : {
     "aBoolean" : {

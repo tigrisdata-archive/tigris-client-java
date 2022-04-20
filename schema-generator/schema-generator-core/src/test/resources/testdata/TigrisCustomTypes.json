@@ -1,6 +1,7 @@
 {
   "title" : "TigrisCustomTypeCollection",
   "description" : "Test description for TigrisCustomTypes",
+  "additionalProperties" : false,
   "type" : "object",
   "properties" : {
     "byteArr" : {

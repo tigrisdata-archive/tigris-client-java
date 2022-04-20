@@ -1,5 +1,6 @@
 {
   "title" : "ArrayFields",
+  "additionalProperties" : false,
   "type" : "object",
   "properties" : {
     "intArray1D" : {

@@ -1,5 +1,6 @@
 {
   "title" : "EnumTypes",
+  "additionalProperties" : false,
   "type" : "object",
   "properties" : {
     "fruits" : {

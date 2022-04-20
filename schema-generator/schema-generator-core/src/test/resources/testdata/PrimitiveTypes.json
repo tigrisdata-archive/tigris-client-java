@@ -1,5 +1,6 @@
 {
   "title" : "PrimitiveTypesCollection",
+  "additionalProperties" : false,
   "type" : "object",
   "properties" : {
     "aBoolean" : {

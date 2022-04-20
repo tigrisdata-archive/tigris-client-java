@@ -15,8 +15,6 @@ package com.tigrisdata.db.client;
 
 import com.tigrisdata.db.type.TigrisCollectionType;
 
-import java.io.File;
-import java.net.URL;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -31,20 +29,13 @@ public interface TigrisAsyncDatabase {
   CompletableFuture<List<CollectionInfo>> listCollections();
 
   /**
-   * Creates or updates collection under current database.
+   * Creates or updates collections
    *
-   * @param schemaDirectory directory with schema
-   * @return future to the {@link ApplySchemasResponse}
+   * @param collectionModelTypes an array of collection model classes
+   * @return future to the {@link CreateOrUpdateCollectionsResponse}
    */
-  CompletableFuture<ApplySchemasResponse> applySchemas(File schemaDirectory);
-
-  /**
-   * Creates or updates collection under current database.
-   *
-   * @param collectionsSchemas list of {@link URL}
-   * @return future to the {@link ApplySchemasResponse}
-   */
-  CompletableFuture<ApplySchemasResponse> applySchemas(List<URL> collectionsSchemas);
+  CompletableFuture<CreateOrUpdateCollectionsResponse> createOrUpdateCollections(
+      Class<? extends TigrisCollectionType>... collectionModelTypes);
 
   /**
    * Drops the collection.

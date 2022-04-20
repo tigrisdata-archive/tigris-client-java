@@ -1,5 +1,6 @@
 {
   "title" : "NestedObjectTypes",
+  "additionalProperties" : false,
   "type" : "object",
   "properties" : {
     "bestFriend" : {

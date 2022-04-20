@@ -13,8 +13,12 @@
  */
 package com.tigrisdata.db.client;
 
+import com.tigrisdata.db.client.collection.DB1_C1;
+import com.tigrisdata.db.client.collection.DB1_C5;
+import com.tigrisdata.db.client.collection.User;
 import com.tigrisdata.db.client.error.TigrisDBException;
 import com.tigrisdata.db.client.grpc.TestUserService;
+import com.tigrisdata.db.type.TigrisCollectionType;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.testing.GrpcCleanupRule;
 import org.hamcrest.MatcherAssert;
@@ -26,6 +30,8 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
 
 public class StandardTigrisDatabaseTest {
   private static String SERVER_NAME;
@@ -67,7 +73,7 @@ public class StandardTigrisDatabaseTest {
   }
 
   @Test
-  public void testApplySchemasFromCollectionModels() throws TigrisDBException {
+  public void testCreateOrCollectionsFromModel() throws TigrisDBException {
     TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
     CreateOrUpdateCollectionsResponse response =
@@ -84,6 +90,52 @@ public class StandardTigrisDatabaseTest {
             new CollectionInfo("db1_c4"),
             new CollectionInfo("db1_c5"),
             new CollectionInfo("users")));
+  }
+
+  @Test
+  public void testCreateOrCollectionsFromModelsUsingClasspathScan() throws TigrisDBException {
+    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+    TigrisDatabase db1 = client.getDatabase("db1");
+    CreateOrUpdateCollectionsResponse response =
+        db1.createOrUpdateCollections(
+            new String[] {"com.tigrisdata.db.client.collection"}, Optional.empty());
+    Assert.assertEquals(
+        "Collections created successfully", response.getTigrisDBResponse().getMessage());
+    MatcherAssert.assertThat(
+        db1.listCollections(),
+        Matchers.containsInAnyOrder(
+            new CollectionInfo("db1_c0"),
+            new CollectionInfo("db1_c1"),
+            new CollectionInfo("db1_c2"),
+            new CollectionInfo("db1_c3"),
+            new CollectionInfo("db1_c4"),
+            new CollectionInfo("db1_c5"),
+            new CollectionInfo("db1_c6"),
+            new CollectionInfo("users")));
+  }
+
+  @Test
+  public void testCreateOrCollectionsFromModelsUsingClasspathScanWithFilter()
+      throws TigrisDBException {
+    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+    TigrisDatabase db1 = client.getDatabase("db1");
+    Predicate<Class<? extends TigrisCollectionType>> filter =
+        clazz -> clazz.getSimpleName().startsWith("DB1");
+    CreateOrUpdateCollectionsResponse response =
+        db1.createOrUpdateCollections(
+            new String[] {"com.tigrisdata.db.client.collection"}, Optional.of(filter));
+    Assert.assertEquals(
+        "Collections created successfully", response.getTigrisDBResponse().getMessage());
+    MatcherAssert.assertThat(
+        db1.listCollections(),
+        Matchers.containsInAnyOrder(
+            new CollectionInfo("db1_c0"),
+            new CollectionInfo("db1_c1"),
+            new CollectionInfo("db1_c2"),
+            new CollectionInfo("db1_c3"),
+            new CollectionInfo("db1_c4"),
+            new CollectionInfo("db1_c5"),
+            new CollectionInfo("db1_c6")));
   }
 
   @Test

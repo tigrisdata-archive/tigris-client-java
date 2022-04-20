@@ -13,7 +13,11 @@
  */
 package com.tigrisdata.db.client;
 
+import com.tigrisdata.db.client.collection.DB1_C1;
+import com.tigrisdata.db.client.collection.DB1_C5;
+import com.tigrisdata.db.client.collection.User;
 import com.tigrisdata.db.client.grpc.TestUserService;
+import com.tigrisdata.db.type.TigrisCollectionType;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.testing.GrpcCleanupRule;
 import org.hamcrest.MatcherAssert;
@@ -25,8 +29,10 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Predicate;
 
 public class StandardTigrisAsyncDatabaseTest {
   private static String SERVER_NAME;
@@ -68,7 +74,7 @@ public class StandardTigrisAsyncDatabaseTest {
   }
 
   @Test
-  public void testApplySchemasFromModels() throws InterruptedException, ExecutionException {
+  public void testCreateOrUpdateCollections() throws InterruptedException, ExecutionException {
     TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
     CompletableFuture<CreateOrUpdateCollectionsResponse> response =
@@ -86,6 +92,56 @@ public class StandardTigrisAsyncDatabaseTest {
             new CollectionInfo("db1_c4"),
             new CollectionInfo("db1_c5"),
             new CollectionInfo("users")));
+  }
+
+  @Test
+  public void testCreateOrUpdateCollectionsUsingClasspathScan()
+      throws InterruptedException, ExecutionException {
+    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
+    CompletableFuture<CreateOrUpdateCollectionsResponse> response =
+        db1.createOrUpdateCollections(
+            new String[] {"com.tigrisdata.db.client.collection"}, Optional.empty());
+    Assert.assertEquals(
+        "Collections created or changes applied",
+        response.get().getTigrisDBResponse().getMessage());
+    MatcherAssert.assertThat(
+        db1.listCollections().get(),
+        Matchers.containsInAnyOrder(
+            new CollectionInfo("db1_c0"),
+            new CollectionInfo("db1_c1"),
+            new CollectionInfo("db1_c2"),
+            new CollectionInfo("db1_c3"),
+            new CollectionInfo("db1_c4"),
+            new CollectionInfo("db1_c5"),
+            new CollectionInfo("db1_c6"),
+            new CollectionInfo("users")));
+  }
+
+  @Test
+  public void testCreateOrUpdateCollectionsUsingClasspathScanWithFilter()
+      throws InterruptedException, ExecutionException {
+    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
+    Predicate<Class<? extends TigrisCollectionType>> filter =
+        clazz -> clazz.getSimpleName().startsWith("DB1");
+
+    CompletableFuture<CreateOrUpdateCollectionsResponse> response =
+        db1.createOrUpdateCollections(
+            new String[] {"com.tigrisdata.db.client.collection"}, Optional.of(filter));
+    Assert.assertEquals(
+        "Collections created or changes applied",
+        response.get().getTigrisDBResponse().getMessage());
+    MatcherAssert.assertThat(
+        db1.listCollections().get(),
+        Matchers.containsInAnyOrder(
+            new CollectionInfo("db1_c0"),
+            new CollectionInfo("db1_c1"),
+            new CollectionInfo("db1_c2"),
+            new CollectionInfo("db1_c3"),
+            new CollectionInfo("db1_c4"),
+            new CollectionInfo("db1_c5"),
+            new CollectionInfo("db1_c6")));
   }
 
   @Test

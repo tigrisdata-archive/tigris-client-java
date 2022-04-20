@@ -29,6 +29,8 @@ import io.grpc.StatusRuntimeException;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 /** TigrisDB Database implementation */
 public class StandardTigrisDatabase implements TigrisDatabase {
@@ -127,6 +129,14 @@ public class StandardTigrisDatabase implements TigrisDatabase {
       }
       throw new TigrisDBException(CREATE_OR_UPDATE_COLLECTION_FAILED, exception);
     }
+  }
+
+  @Override
+  public CreateOrUpdateCollectionsResponse createOrUpdateCollections(
+      String[] packagesToScan, Optional<Predicate<Class<? extends TigrisCollectionType>>> filter)
+      throws TigrisDBException {
+    return this.createOrUpdateCollections(
+        Utilities.scanTigrisDBCollectionModels(packagesToScan, filter));
   }
 
   @Override

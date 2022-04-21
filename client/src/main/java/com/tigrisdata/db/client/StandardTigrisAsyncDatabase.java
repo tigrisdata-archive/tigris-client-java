@@ -90,10 +90,8 @@ public class StandardTigrisAsyncDatabase implements TigrisAsyncDatabase {
           for (Class<? extends TigrisCollectionType> collectionModel : collectionModelTypes) {
             try {
               String schemaContent = modelToJsonSchema.toJsonSchema(collectionModel).toString();
-              String schemaName = Utilities.getCollectionName(collectionModel);
               transactionSession.createOrUpdateCollections(
-                  new TigrisDBJSONSchema(schemaContent, schemaName),
-                  CollectionOptions.DEFAULT_INSTANCE);
+                  new TigrisDBJSONSchema(schemaContent), CollectionOptions.DEFAULT_INSTANCE);
             } catch (Exception ex) {
               result.completeExceptionally(ex);
             }

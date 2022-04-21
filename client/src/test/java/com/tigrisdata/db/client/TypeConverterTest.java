@@ -18,10 +18,7 @@ import com.tigrisdata.db.client.error.TigrisDBException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Optional;
-import java.util.UUID;
 
 public class TypeConverterTest {
   @Test
@@ -41,16 +38,15 @@ public class TypeConverterTest {
   }
 
   @Test
-  public void unreadableSchemaCreateCollectionRequestConversionTest() throws MalformedURLException {
+  public void unreadableSchemaCreateCollectionRequestConversionTest() {
     try {
       TypeConverter.toCreateCollectionRequest(
           "db1",
-          new TigrisDBJSONSchema(new URL("https://" + UUID.randomUUID() + ".com")),
+          new TigrisDBJSONSchema("invalid-schema"),
           CollectionOptions.DEFAULT_INSTANCE,
           Optional.empty());
       Assert.fail("This must fail");
-    } catch (TigrisDBException exception) {
-      Assert.assertTrue(exception.getMessage().startsWith("Failed to read schema content Cause"));
+    } catch (TigrisDBException ignore) {
     }
   }
 }

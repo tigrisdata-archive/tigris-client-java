@@ -13,7 +13,9 @@
  */
 package com.tigrisdata.db.client.config;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 
 import java.time.Duration;
 
@@ -62,7 +64,9 @@ public class TigrisDBConfiguration {
     private TigrisDBClientConfigurationBuilder(String baseURL) {
       this.baseURL = baseURL;
       this.network = NetworkConfig.newBuilder().build();
-      this.objectMapper = new ObjectMapper();
+      // configure ObjectMapper to work with immutable objects
+      this.objectMapper =
+          new ObjectMapper().registerModule(new ParameterNamesModule(JsonCreator.Mode.PROPERTIES));
     }
 
     /**

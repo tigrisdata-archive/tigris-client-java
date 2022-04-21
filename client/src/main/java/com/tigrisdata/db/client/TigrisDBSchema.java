@@ -25,7 +25,7 @@ public interface TigrisDBSchema {
    */
   String getSchemaContent() throws IOException;
   /**
-   * Reads the schema name from "name" JSON attribute.
+   * Reads the schema name from "title" JSON attribute.
    *
    * @return name of the schema
    * @throws IOException if the reading of schema failed.

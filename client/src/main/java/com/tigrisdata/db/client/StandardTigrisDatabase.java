@@ -115,9 +115,7 @@ public class StandardTigrisDatabase implements TigrisDatabase {
       for (Class<? extends TigrisCollectionType> collectionModelType : collectionModelTypes) {
 
         TigrisDBSchema schema =
-            new TigrisDBJSONSchema(
-                modelToJsonSchema.toJsonSchema(collectionModelType).toString(),
-                Utilities.getCollectionName(collectionModelType));
+            new TigrisDBJSONSchema(modelToJsonSchema.toJsonSchema(collectionModelType).toString());
         transactionSession.createOrUpdateCollections(schema, CollectionOptions.DEFAULT_INSTANCE);
       }
       transactionSession.commit();

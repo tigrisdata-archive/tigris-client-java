@@ -13,53 +13,52 @@
  */
 package com.tigrisdata.db.client;
 
+import com.tigrisdata.db.client.error.TigrisDBException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-
 public class TigrisDBJSONSchemaTest {
 
+  private static final String USERS_SCHEMA =
+      "{\"title\":\"users\",\"description\":\"Collection of documents with "
+          + "details of users\",\"properties\":{\"id\":{\"description\":\"A unique identifier for the user\",\"type\":\"integer\"},\"name\":{\"description\":\"Name of the user\",\"type\":\"string\"},\"balance\":{\"description\":\"User account balance\",\"type\":\"number\"}},\"primary_key\":[\"id\"]}";
+
   @Test
-  public void testGetName() throws IOException {
-    TigrisDBJSONSchema schema1 =
-        new TigrisDBJSONSchema(new URL("file:src/test/resources/test-schema.json"));
-    Assert.assertEquals("user", schema1.getName());
-    // read cached
-    Assert.assertEquals("user", schema1.getName());
+  public void testGetName() throws TigrisDBException {
+    TigrisDBJSONSchema schema1 = new TigrisDBJSONSchema(USERS_SCHEMA);
+    Assert.assertEquals("users", schema1.getName());
   }
 
   @Test
-  public void testEquals() throws MalformedURLException {
-    TigrisDBJSONSchema schema1 =
-        new TigrisDBJSONSchema(new URL("file:src/test/resources/test-schema.json"));
+  public void testEquals() throws TigrisDBException {
+    TigrisDBJSONSchema schema1 = new TigrisDBJSONSchema(USERS_SCHEMA);
     TigrisDBJSONSchema schema2 =
-        new TigrisDBJSONSchema(new URL("file:src/test/resources/test-schema.json"));
+        new TigrisDBJSONSchema(
+            "{\"title\":\"users\",\"description\":\"Collection of documents with details of users\",\"properties\":{\"id\":{\"description\":\"A unique identifier for the user\",\"type\":\"integer\"},\"name\":{\"description\":\"Name of the user\",\"type\":\"string\"},\"balance\":{\"description\":\"User account balance\",\"type\":\"number\"}},\"primary_key\":[\"id\"]}");
     Assert.assertEquals(schema1, schema1);
     Assert.assertEquals(schema1, schema2);
 
     Assert.assertFalse(schema1.equals(null));
     Assert.assertFalse(schema1.equals("some-string"));
-
-    TigrisDBJSONSchema schema3 =
-        new TigrisDBJSONSchema(new URL("file:src/test/resources/test-schema.json"));
-    TigrisDBJSONSchema schema4 = new TigrisDBJSONSchema(null);
-    Assert.assertFalse(schema3.equals(schema4));
   }
 
   @Test
-  public void testHashCode() throws MalformedURLException {
-    TigrisDBJSONSchema schema1 =
-        new TigrisDBJSONSchema(new URL("file:src/test/resources/test-schema.json"));
+  public void testHashCode() throws TigrisDBException {
+    TigrisDBJSONSchema schema1 = new TigrisDBJSONSchema(USERS_SCHEMA);
     TigrisDBJSONSchema schema2 =
-        new TigrisDBJSONSchema(new URL("file:src/test/resources/test-schema.json"));
+        new TigrisDBJSONSchema(
+            "{\"title\":\"users\",\"description\":\"Collection of documents with details of users\",\"properties\":{\"id\":{\"description\":\"A unique identifier for the user\",\"type\":\"integer\"},\"name\":{\"description\":\"Name of the user\",\"type\":\"string\"},\"balance\":{\"description\":\"User account balance\",\"type\":\"number\"}},\"primary_key\":[\"id\"]}");
     Assert.assertEquals(schema1.hashCode(), schema1.hashCode());
     Assert.assertEquals(schema1.hashCode(), schema2.hashCode());
+  }
 
-    TigrisDBJSONSchema schema3 = new TigrisDBJSONSchema(null);
-    TigrisDBJSONSchema schema4 = new TigrisDBJSONSchema(null);
-    Assert.assertEquals(schema3.hashCode(), schema4.hashCode());
+  @Test
+  public void testNullSchema() throws TigrisDBException {
+    try {
+      new TigrisDBJSONSchema(null);
+      Assert.fail("This must fail");
+    } catch (IllegalArgumentException illegalArgumentException) {
+      Assert.assertEquals("argument \"content\" is null", illegalArgumentException.getMessage());
+    }
   }
 }

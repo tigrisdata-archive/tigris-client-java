@@ -13,15 +13,11 @@
  */
 package com.tigrisdata.db.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tigrisdata.db.client.error.TigrisDBException;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * Represents TigrisDB JSON collection schema. This is used to read / parse and register
@@ -29,62 +25,30 @@ import java.util.stream.Collectors;
  */
 public class TigrisDBJSONSchema implements TigrisDBSchema {
 
-  private URL schemaURL;
-  private ObjectMapper objectMapper;
   private String schemaName;
   private String schemaContent;
-  /**
-   * Constructs the {@link TigrisDBJSONSchema} from a File, Classpath resource (within JAR) using
-   * {@link URL}
-   *
-   * @param schemaURL URL to the schema
-   */
-  public TigrisDBJSONSchema(URL schemaURL) {
-    this(schemaURL, new ObjectMapper());
-  }
 
   /**
-   * Constructs the {@link TigrisDBJSONSchema} from a File, Classpath resource (within JAR) using
-   * {@link URL}
+   * Constructs the {@link TigrisDBJSONSchema} from schemaContent and schemaName
    *
    * @param schemaContent content of schema
-   * @param schemaName name of the schema
    */
-  public TigrisDBJSONSchema(String schemaContent, String schemaName) {
+  public TigrisDBJSONSchema(String schemaContent) throws TigrisDBException {
     this.schemaContent = schemaContent;
-    this.schemaName = schemaName;
-  }
-  /**
-   * Constructs the {@link TigrisDBJSONSchema} from a File, Classpath resource (within JAR) using
-   * {@link URL} with a custom {@link ObjectMapper}.
-   *
-   * <p>Note: It is highly recommended not to customize objectMapper. Use default constructor
-   *
-   * @param schemaURL URL to the schema
-   * @param objectMapper custom objectMapper
-   */
-  public TigrisDBJSONSchema(URL schemaURL, ObjectMapper objectMapper) {
-    this.schemaURL = schemaURL;
-    this.objectMapper = objectMapper;
-  }
-
-  @Override
-  public String getSchemaContent() throws IOException {
-    if (schemaContent != null) {
-      return schemaContent;
-    }
-    try (BufferedReader bufferedReader =
-        new BufferedReader(new InputStreamReader(schemaURL.openStream(), StandardCharsets.UTF_8))) {
-      return bufferedReader.lines().collect(Collectors.joining("\n"));
+    try {
+      this.schemaName = new ObjectMapper().readTree(schemaContent).get("title").asText();
+    } catch (JsonProcessingException ex) {
+      throw new TigrisDBException("Could not parse schema", ex);
     }
   }
 
   @Override
-  public String getName() throws IOException {
-    if (schemaName != null) {
-      return schemaName;
-    }
-    this.schemaName = objectMapper.readTree(getSchemaContent()).get("name").asText();
+  public String getSchemaContent() {
+    return schemaContent;
+  }
+
+  @Override
+  public String getName() {
     return schemaName;
   }
 
@@ -95,11 +59,14 @@ public class TigrisDBJSONSchema implements TigrisDBSchema {
 
     TigrisDBJSONSchema that = (TigrisDBJSONSchema) o;
 
-    return Objects.equals(schemaURL, that.schemaURL);
+    if (!Objects.equals(schemaName, that.schemaName)) return false;
+    return Objects.equals(schemaContent, that.schemaContent);
   }
 
   @Override
   public int hashCode() {
-    return schemaURL != null ? schemaURL.hashCode() : 0;
+    int result = schemaName != null ? schemaName.hashCode() : 0;
+    result = 31 * result + (schemaContent != null ? schemaContent.hashCode() : 0);
+    return result;
   }
 }

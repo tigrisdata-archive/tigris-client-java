@@ -16,5 +16,5 @@
       "format" : "uuid"
     }
   },
-  "primary_keys" : [ "id" ]
+  "primary_key" : [ "id" ]
 }

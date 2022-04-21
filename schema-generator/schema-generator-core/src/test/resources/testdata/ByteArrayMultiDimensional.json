@@ -54,5 +54,5 @@
       }
     }
   },
-  "primary_keys" : [ ]
+  "primary_key" : [ ]
 }

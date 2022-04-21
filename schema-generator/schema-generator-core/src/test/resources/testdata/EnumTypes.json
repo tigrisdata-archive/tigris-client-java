@@ -12,5 +12,5 @@
       "enum" : [ "TOMATO", "POTATO" ]
     }
   },
-  "primary_keys" : [ ]
+  "primary_key" : [ ]
 }

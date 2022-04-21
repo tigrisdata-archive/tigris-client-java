@@ -95,14 +95,6 @@ final class Utilities {
         CaseFormat.LOWER_UNDERSCORE, English.plural(clazz.getSimpleName()));
   }
 
-  static String extractTigrisDBCollectionName(Class<? extends TigrisCollectionType> clazz) {
-    TigrisDBCollection annotation = clazz.getAnnotation(TigrisDBCollection.class);
-    if (annotation != null) {
-      return annotation.value();
-    }
-    throw new IllegalArgumentException("No TigrisDBCollection name found");
-  }
-
   /**
    * Converts from {@link Iterator} of Type F to {@link Iterator} of type T
    *

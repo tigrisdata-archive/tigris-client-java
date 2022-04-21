@@ -49,7 +49,7 @@ public class DefaultModelToTigrisDBJsonSchema implements ModelToJsonSchema {
   private static final String ITEMS = "items";
 
   private static final String $SCHEMA = "$schema";
-  private static final String PRIMARY_KEYS = "primary_keys";
+  private static final String PRIMARY_KEYS = "primary_key";
   private static final String ADDITIONAL_PROPERTIES = "additionalProperties";
 
   @Override

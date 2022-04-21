@@ -16,13 +16,13 @@ package com.tigrisdata.db.client.collection;
 import com.tigrisdata.db.annotation.TigrisDBCollection;
 import com.tigrisdata.db.type.TigrisCollectionType;
 
+import java.util.Objects;
+
 /** Test collection type */
 @TigrisDBCollection("db1_c1")
 public class DB1_C1 implements TigrisCollectionType {
-  private long id;
-  private String name;
-
-  public DB1_C1() {}
+  private final long id;
+  private final String name;
 
   public DB1_C1(long id, String name) {
     this.id = id;
@@ -33,16 +33,8 @@ public class DB1_C1 implements TigrisCollectionType {
     return id;
   }
 
-  public void setId(long id) {
-    this.id = id;
-  }
-
   public String getName() {
     return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
   }
 
   @Override
@@ -53,7 +45,7 @@ public class DB1_C1 implements TigrisCollectionType {
     DB1_C1 db1_c1 = (DB1_C1) o;
 
     if (id != db1_c1.id) return false;
-    return name != null ? name.equals(db1_c1.name) : db1_c1.name == null;
+    return Objects.equals(name, db1_c1.name);
   }
 
   @Override

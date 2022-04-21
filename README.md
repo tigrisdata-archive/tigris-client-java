@@ -17,7 +17,7 @@ Java driver for TigrisDB
 <dependency>
     <groupId>com.tigrisdata</groupId>
     <artifactId>tigrisdb-client</artifactId>
-    <version>1.0.0-alpha.4</version>
+    <version>1.0.0-alpha.6</version>
 </dependency>
 ```
 

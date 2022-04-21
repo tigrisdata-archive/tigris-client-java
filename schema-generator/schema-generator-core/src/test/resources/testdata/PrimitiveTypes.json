@@ -36,5 +36,5 @@
       "type" : "integer"
     }
   },
-  "primary_keys" : [ "id" ]
+  "primary_key" : [ "id" ]
 }

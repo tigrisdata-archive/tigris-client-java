@@ -17,8 +17,8 @@ import java.io.Closeable;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-/** TigrisDB async client */
-public interface TigrisDBAsyncClient extends Closeable {
+/** Tigris async client */
+public interface TigrisAsyncClient extends Closeable {
 
   /**
    * Retrieves the database instance
@@ -40,15 +40,15 @@ public interface TigrisDBAsyncClient extends Closeable {
    * Creates the database if not already present
    *
    * @param databaseName name of the database
-   * @return a future to the {@link TigrisDBResponse}
+   * @return a future to the {@link TigrisAsyncDatabase}
    */
-  CompletableFuture<TigrisDBResponse> createDatabaseIfNotExists(String databaseName);
+  CompletableFuture<TigrisAsyncDatabase> createDatabaseIfNotExists(String databaseName);
 
   /**
    * Drops the database
    *
    * @param databaseName name of the database
-   * @return a future to the {@link TigrisDBResponse}
+   * @return a future to the {@link DropDatabaseResponse}
    */
-  CompletableFuture<TigrisDBResponse> dropDatabase(String databaseName);
+  CompletableFuture<DropDatabaseResponse> dropDatabase(String databaseName);
 }

@@ -13,7 +13,7 @@
  */
 package com.tigrisdata.db.client;
 
-import com.tigrisdata.db.client.error.TigrisDBException;
+import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.grpc.FailingTestUserService;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.testing.GrpcCleanupRule;
@@ -24,7 +24,7 @@ import org.junit.Test;
 
 import java.util.UUID;
 
-public class StandardTigrisDBClientFailureTest {
+public class StandardTigrisClientFailureTest {
 
   private static String SERVER_NAME;
   @ClassRule public static final GrpcCleanupRule grpcCleanup = new GrpcCleanupRule();
@@ -43,42 +43,42 @@ public class StandardTigrisDBClientFailureTest {
 
   @Test
   public void testListDatabases() {
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     try {
       client.listDatabases(DatabaseOptions.DEFAULT_INSTANCE);
       Assert.fail("This must fail");
-    } catch (TigrisDBException tigrisDBException) {
+    } catch (TigrisException tigrisException) {
       Assert.assertEquals(
           "Failed to list database(s) Cause: FAILED_PRECONDITION: Test failure listDatabases",
-          tigrisDBException.getMessage());
+          tigrisException.getMessage());
     }
   }
 
   @Test
   public void testCreateDatabase() {
     String dbName = UUID.randomUUID().toString();
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     try {
       client.createDatabaseIfNotExists(dbName);
       Assert.fail("This must fail");
-    } catch (TigrisDBException tigrisDBException) {
+    } catch (TigrisException tigrisException) {
       Assert.assertEquals(
           "Failed to create database Cause: FAILED_PRECONDITION: Test failure " + dbName,
-          tigrisDBException.getMessage());
+          tigrisException.getMessage());
     }
   }
 
   @Test
   public void testDropDatabase() {
     String dbName = UUID.randomUUID().toString();
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     try {
       client.dropDatabase(dbName);
       Assert.fail("This must fail");
-    } catch (TigrisDBException tigrisDBException) {
+    } catch (TigrisException tigrisException) {
       Assert.assertEquals(
           "Failed to drop database Cause: FAILED_PRECONDITION: Test failure " + dbName,
-          tigrisDBException.getMessage());
+          tigrisException.getMessage());
     }
   }
 }

@@ -14,7 +14,7 @@
 package com.tigrisdata.db.client;
 
 import com.tigrisdata.db.api.v1.grpc.Api;
-import com.tigrisdata.db.client.error.TigrisDBException;
+import com.tigrisdata.db.client.error.TigrisException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -24,7 +24,7 @@ public class TypeConverterTest {
   @Test
   public void apiDatabaseInfoToModelTest() {
     DatabaseInfo convertedDatabaseInfo1 =
-        TypeConverter.toDatabaseInfo(Api.DatabaseInfo.newBuilder().setName("db1").build());
+        TypeConverter.toDatabaseInfo(Api.DatabaseInfo.newBuilder().setDb("db1").build());
     DatabaseInfo databaseInfo1 = new DatabaseInfo("db1");
     Assert.assertEquals(convertedDatabaseInfo1, databaseInfo1);
   }
@@ -32,7 +32,7 @@ public class TypeConverterTest {
   @Test
   public void apiCollectionInfoToModelTest() {
     CollectionInfo convertedCollectionInfo1 =
-        TypeConverter.toCollectionInfo(Api.CollectionInfo.newBuilder().setName("c1").build());
+        TypeConverter.toCollectionInfo(Api.CollectionInfo.newBuilder().setCollection("c1").build());
     CollectionInfo collectionInfo1 = new CollectionInfo("c1");
     Assert.assertEquals(convertedCollectionInfo1, collectionInfo1);
   }
@@ -42,11 +42,11 @@ public class TypeConverterTest {
     try {
       TypeConverter.toCreateCollectionRequest(
           "db1",
-          new TigrisDBJSONSchema("invalid-schema"),
+          new TigrisJSONSchema("invalid-schema"),
           CollectionOptions.DEFAULT_INSTANCE,
           Optional.empty());
       Assert.fail("This must fail");
-    } catch (TigrisDBException ignore) {
+    } catch (TigrisException ignore) {
     }
   }
 }

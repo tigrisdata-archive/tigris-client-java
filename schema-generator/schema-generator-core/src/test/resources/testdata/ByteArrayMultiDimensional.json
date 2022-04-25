@@ -5,13 +5,13 @@
   "properties" : {
     "byteArr1d" : {
       "type" : "string",
-      "format" : "binary"
+      "format" : "byte"
     },
     "byteArr2d" : {
       "type" : "array",
       "items" : {
         "type" : "string",
-        "format" : "binary"
+        "format" : "byte"
       }
     },
     "byteArr3d" : {
@@ -20,7 +20,7 @@
         "type" : "array",
         "items" : {
           "type" : "string",
-          "format" : "binary"
+          "format" : "byte"
         }
       }
     },
@@ -32,7 +32,7 @@
           "type" : "array",
           "items" : {
             "type" : "string",
-            "format" : "binary"
+            "format" : "byte"
           }
         }
       }
@@ -47,7 +47,7 @@
             "type" : "array",
             "items" : {
               "type" : "string",
-              "format" : "binary"
+              "format" : "byte"
             }
           }
         }

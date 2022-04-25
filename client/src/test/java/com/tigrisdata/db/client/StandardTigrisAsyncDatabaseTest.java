@@ -59,7 +59,7 @@ public class StandardTigrisAsyncDatabaseTest {
 
   @Test
   public void testListCollections() throws InterruptedException, ExecutionException {
-    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
     CompletableFuture<List<CollectionInfo>> collections = db1.listCollections();
     Assert.assertEquals(5, collections.get().size());
@@ -75,13 +75,12 @@ public class StandardTigrisAsyncDatabaseTest {
 
   @Test
   public void testCreateOrUpdateCollections() throws InterruptedException, ExecutionException {
-    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
     CompletableFuture<CreateOrUpdateCollectionsResponse> response =
         db1.createOrUpdateCollections(DB1_C5.class, User.class);
-    Assert.assertEquals(
-        "Collections created or changes applied",
-        response.get().getTigrisDBResponse().getMessage());
+    Assert.assertEquals("created", response.get().getStatus());
+    Assert.assertEquals("Collections created or changes applied", response.get().getMessage());
     MatcherAssert.assertThat(
         db1.listCollections().get(),
         Matchers.containsInAnyOrder(
@@ -97,14 +96,12 @@ public class StandardTigrisAsyncDatabaseTest {
   @Test
   public void testCreateOrUpdateCollectionsUsingClasspathScan()
       throws InterruptedException, ExecutionException {
-    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
     CompletableFuture<CreateOrUpdateCollectionsResponse> response =
         db1.createOrUpdateCollections(
             new String[] {"com.tigrisdata.db.client.collection"}, Optional.empty());
-    Assert.assertEquals(
-        "Collections created or changes applied",
-        response.get().getTigrisDBResponse().getMessage());
+    Assert.assertEquals("created", response.get().getStatus());
     MatcherAssert.assertThat(
         db1.listCollections().get(),
         Matchers.containsInAnyOrder(
@@ -121,7 +118,7 @@ public class StandardTigrisAsyncDatabaseTest {
   @Test
   public void testCreateOrUpdateCollectionsUsingClasspathScanWithFilter()
       throws InterruptedException, ExecutionException {
-    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
     Predicate<Class<? extends TigrisCollectionType>> filter =
         clazz -> clazz.getSimpleName().startsWith("DB1");
@@ -129,9 +126,7 @@ public class StandardTigrisAsyncDatabaseTest {
     CompletableFuture<CreateOrUpdateCollectionsResponse> response =
         db1.createOrUpdateCollections(
             new String[] {"com.tigrisdata.db.client.collection"}, Optional.of(filter));
-    Assert.assertEquals(
-        "Collections created or changes applied",
-        response.get().getTigrisDBResponse().getMessage());
+    Assert.assertEquals("created", response.get().getStatus());
     MatcherAssert.assertThat(
         db1.listCollections().get(),
         Matchers.containsInAnyOrder(
@@ -146,10 +141,10 @@ public class StandardTigrisAsyncDatabaseTest {
 
   @Test
   public void testDropCollection() throws InterruptedException, ExecutionException {
-    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
     CompletableFuture<DropCollectionResponse> response = db1.dropCollection("db1_c3");
-    Assert.assertEquals("db1_c3 dropped", response.get().getTigrisDBResponse().getMessage());
+    Assert.assertEquals("db1_c3 dropped", response.get().getMessage());
     MatcherAssert.assertThat(
         db1.listCollections().get(),
         Matchers.containsInAnyOrder(
@@ -161,7 +156,7 @@ public class StandardTigrisAsyncDatabaseTest {
 
   @Test
   public void testTransaction() {
-    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
     CompletableFuture<TransactionSession> response = db1.beginTransaction(new TransactionOptions());
     response.join();
@@ -171,7 +166,7 @@ public class StandardTigrisAsyncDatabaseTest {
 
   @Test
   public void testGetCollection() {
-    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
     TigrisAsyncCollection<DB1_C1> c1TigrisCollection = db1.getCollection(DB1_C1.class);
     Assert.assertEquals("db1_c1", c1TigrisCollection.name());
@@ -179,34 +174,34 @@ public class StandardTigrisAsyncDatabaseTest {
 
   @Test
   public void testName() {
-    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
     Assert.assertEquals("db1", db1.name());
   }
 
   @Test
   public void testToString() {
-    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
     Assert.assertEquals("StandardTigrisAsyncDatabase{databaseName='db1'}", db1.toString());
   }
 
   @Test
   public void testHashcode() {
-    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     TigrisAsyncDatabase db11 = asyncClient.getDatabase("db1");
     TigrisAsyncDatabase db12 = asyncClient.getDatabase("db1");
     Assert.assertEquals(db11.hashCode(), db12.hashCode());
 
     // null dbName resolves to 0 hashcode
     Assert.assertEquals(
-        0, new StandardTigrisAsyncDatabase(null, null, null, null, null).hashCode());
+        0, new StandardTigrisAsyncDatabase(null, null, null, null, null, null).hashCode());
   }
 
   @Test
   public void testEquals() {
-    TigrisAsyncDatabase db1 = new StandardTigrisAsyncDatabase("db1", null, null, null, null);
-    TigrisAsyncDatabase db2 = new StandardTigrisAsyncDatabase("db1", null, null, null, null);
+    TigrisAsyncDatabase db1 = new StandardTigrisAsyncDatabase("db1", null, null, null, null, null);
+    TigrisAsyncDatabase db2 = new StandardTigrisAsyncDatabase("db1", null, null, null, null, null);
     Assert.assertTrue(db1.equals(db2));
     Assert.assertTrue(db1.equals(db1));
 

@@ -13,15 +13,15 @@
  */
 package com.tigrisdata.tools.schema.core.testdata;
 
-import com.tigrisdata.db.annotation.TigrisDBCollection;
-import com.tigrisdata.db.annotation.TigrisDBCollectionField;
-import com.tigrisdata.db.annotation.TigrisDBCollectionPrimaryKey;
+import com.tigrisdata.db.annotation.TigrisCollection;
+import com.tigrisdata.db.annotation.TigrisField;
+import com.tigrisdata.db.annotation.TigrisPrimaryKey;
 import com.tigrisdata.db.type.TigrisCollectionType;
 
-@TigrisDBCollection("PrimitiveTypesCollection")
+@TigrisCollection("PrimitiveTypesCollection")
 public class PrimitiveTypes implements TigrisCollectionType {
-  @TigrisDBCollectionField(description = "This is the id field")
-  @TigrisDBCollectionPrimaryKey(1)
+  @TigrisField(description = "This is the id field")
+  @TigrisPrimaryKey(1)
   private int id;
 
   private String name;

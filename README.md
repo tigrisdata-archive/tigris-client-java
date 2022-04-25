@@ -24,14 +24,12 @@ Java driver for TigrisDB
 # Usage
 ```java
 // prepare config
-TigrisDBConfiguration tigrisDBConfiguration=
+TigrisDBConfiguration tigrisConfiguration = 
         TigrisDBConfiguration.newBuilder("tigris-data-host:port").build();
 
 // initialize the client
-TigrisDBClient tigrisDBClient=StandardTigrisDBClient.getInstance(
-        new TigrisAuthorizationToken("your-api-token"),
-        tigrisDBConfiguration
-        );
+TigrisDBClient tigrisDBClient = StandardTigrisDBClient.getInstance
+        (tigrisConfiguration);
 
 // get access to your database
 TigrisDatabase myDB = tigrisDBClient.getDatabase("your-db-name");
@@ -49,11 +47,8 @@ Person alice = peopleCollection.readOne(Filters.eq("id", 1)).get();
 peopleCollection.update(
     Filters.eq("id", 1),
     UpdateFields.newBuilder()
-        .set(
-            UpdateFields.SetFields.newBuilder()
-                .set("name", "Dr. Alice")
-                .build()
-        ).build()
+        .set("name", "Dr. Alice")
+        .build()
 );
 
 // delete

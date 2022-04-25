@@ -11,14 +11,21 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tigrisdata.db.client;
+package com.tigrisdata.db.client.error;
 
-import com.google.protobuf.Timestamp;
+/** Base type of TigrisDB exceptions */
+public class TigrisException extends Exception {
 
-/** Represents Server response for InsertOrReplace operation */
-public class InsertOrReplaceResponse extends DMLResponse {
+  public TigrisException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-  public InsertOrReplaceResponse(String status, Timestamp createdAt, Timestamp updatedAt) {
-    super(status, createdAt, updatedAt);
+  @Override
+  public String getMessage() {
+    String message = super.getMessage();
+    if (getCause() != null && getCause().getMessage() != null) {
+      message += " Cause: " + getCause().getMessage();
+    }
+    return message;
   }
 }

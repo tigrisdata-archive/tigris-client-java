@@ -14,7 +14,7 @@
 package com.tigrisdata.db.client;
 
 import com.tigrisdata.db.client.collection.DB1_C1;
-import com.tigrisdata.db.client.error.TigrisDBException;
+import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.grpc.ContextSettingServerInterceptor;
 import com.tigrisdata.db.client.grpc.TransactionTestUserService;
 import io.grpc.inprocess.InProcessServerBuilder;
@@ -58,8 +58,8 @@ public class TransactionalTigrisCollectionTest {
   }
 
   @Test
-  public void testRead() throws TigrisDBException {
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+  public void testRead() throws TigrisException {
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
     TransactionSession transactionSession = db1.beginTransaction(new TransactionOptions());
     TransactionTigrisCollection<DB1_C1> transactionalTigrisCollection =
@@ -75,8 +75,8 @@ public class TransactionalTigrisCollectionTest {
   }
 
   @Test
-  public void testReadOne() throws TigrisDBException {
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+  public void testReadOne() throws TigrisException {
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
     TransactionSession transactionSession = db1.beginTransaction(new TransactionOptions());
 
@@ -91,8 +91,8 @@ public class TransactionalTigrisCollectionTest {
   }
 
   @Test
-  public void testReadOneEmpty() throws TigrisDBException {
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+  public void testReadOneEmpty() throws TigrisException {
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
     TransactionSession transactionSession = db1.beginTransaction(new TransactionOptions());
 
@@ -105,8 +105,8 @@ public class TransactionalTigrisCollectionTest {
   }
 
   @Test
-  public void testInsert() throws TigrisDBException {
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+  public void testInsert() throws TigrisException {
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
     TransactionSession transactionSession = db1.beginTransaction(new TransactionOptions());
 
@@ -129,8 +129,8 @@ public class TransactionalTigrisCollectionTest {
   }
 
   @Test
-  public void testInsertOne() throws TigrisDBException {
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+  public void testInsertOne() throws TigrisException {
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
     TransactionSession transactionSession = db1.beginTransaction(new TransactionOptions());
 
@@ -151,8 +151,8 @@ public class TransactionalTigrisCollectionTest {
   }
 
   @Test
-  public void testinsertOrReplace() throws TigrisDBException {
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+  public void testinsertOrReplace() throws TigrisException {
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
     TransactionSession transactionSession = db1.beginTransaction(new TransactionOptions());
 
@@ -177,8 +177,8 @@ public class TransactionalTigrisCollectionTest {
   }
 
   @Test
-  public void testinsertOrReplaceOverloaded() throws TigrisDBException {
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+  public void testinsertOrReplaceOverloaded() throws TigrisException {
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
     TransactionSession transactionSession = db1.beginTransaction(new TransactionOptions());
 
@@ -202,8 +202,8 @@ public class TransactionalTigrisCollectionTest {
   }
 
   @Test
-  public void testDelete() throws TigrisDBException {
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+  public void testDelete() throws TigrisException {
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
     TransactionSession transactionSession = db1.beginTransaction(new TransactionOptions());
 
@@ -231,8 +231,8 @@ public class TransactionalTigrisCollectionTest {
   }
 
   @Test
-  public void testDeleteOverloaded() throws TigrisDBException {
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+  public void testDeleteOverloaded() throws TigrisException {
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
     TransactionSession transactionSession = db1.beginTransaction(new TransactionOptions());
 
@@ -259,8 +259,8 @@ public class TransactionalTigrisCollectionTest {
   }
 
   @Test
-  public void testUpdate() throws TigrisDBException {
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+  public void testUpdate() throws TigrisException {
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
     TransactionSession transactionSession = db1.beginTransaction(new TransactionOptions());
 
@@ -268,10 +268,7 @@ public class TransactionalTigrisCollectionTest {
         transactionSession.getCollection(DB1_C1.class);
     UpdateResponse response =
         transactionalTigrisCollection.update(
-            Filters.eq("id", 1),
-            UpdateFields.newBuilder()
-                .set(UpdateFields.SetFields.newBuilder().set("name", "new name 1").build())
-                .build());
+            Filters.eq("id", 1), UpdateFields.newBuilder().set("name", "new name 1").build());
     Assert.assertNotNull(response);
 
     inspectDocs(
@@ -285,8 +282,8 @@ public class TransactionalTigrisCollectionTest {
   }
 
   @Test
-  public void testName() throws TigrisDBException {
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+  public void testName() throws TigrisException {
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
     TransactionSession transactionSession = db1.beginTransaction(new TransactionOptions());
 
@@ -298,7 +295,7 @@ public class TransactionalTigrisCollectionTest {
 
   private static void inspectDocs(
       TransactionTigrisCollection<DB1_C1> transactionalTigrisCollection, DB1_C1... expectedDocs)
-      throws TigrisDBException {
+      throws TigrisException {
     Iterator<DB1_C1> c1Iterator =
         transactionalTigrisCollection.read(Filters.eq("ignore", "ignore"), ReadFields.empty());
     Assert.assertTrue(c1Iterator.hasNext());

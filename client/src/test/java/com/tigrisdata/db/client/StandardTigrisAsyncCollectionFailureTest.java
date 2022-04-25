@@ -14,7 +14,7 @@
 package com.tigrisdata.db.client;
 
 import com.tigrisdata.db.client.collection.DB1_C1;
-import com.tigrisdata.db.client.error.TigrisDBException;
+import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.grpc.FailingTestUserService;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.testing.GrpcCleanupRule;
@@ -50,7 +50,7 @@ public class StandardTigrisAsyncCollectionFailureTest {
 
   @Test
   public void testRead() {
-    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     readAndExpectError(asyncClient.getDatabase("db1"));
   }
 
@@ -58,7 +58,7 @@ public class StandardTigrisAsyncCollectionFailureTest {
   public void testReadOne() {
     String dbName = UUID.randomUUID().toString();
 
-    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     TigrisAsyncDatabase db1 = asyncClient.getDatabase(dbName);
     CompletableFuture<Optional<DB1_C1>> result =
         db1.getCollection(DB1_C1.class).readOne(Filters.eq("id", 1L));
@@ -67,7 +67,7 @@ public class StandardTigrisAsyncCollectionFailureTest {
       Assert.fail("This must fail");
     } catch (Exception ex) {
       Assert.assertEquals(
-          "com.tigrisdata.db.client.error.TigrisDBException: Failed to read Cause: FAILED_PRECONDITION: Test failure "
+          "com.tigrisdata.db.client.error.TigrisException: Failed to read Cause: FAILED_PRECONDITION: Test failure "
               + dbName,
           ex.getMessage());
     }
@@ -75,10 +75,10 @@ public class StandardTigrisAsyncCollectionFailureTest {
   }
 
   @Test
-  public void testInsert() throws TigrisDBException {
+  public void testInsert() throws TigrisException {
     String dbName = UUID.randomUUID().toString();
 
-    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     CompletableFuture<InsertResponse> result =
         asyncClient.getDatabase(dbName).getCollection(DB1_C1.class).insert(new DB1_C1(1, "msg"));
     try {
@@ -86,7 +86,7 @@ public class StandardTigrisAsyncCollectionFailureTest {
       Assert.fail("This must fail");
     } catch (Exception ex) {
       Assert.assertEquals(
-          "com.tigrisdata.db.client.error.TigrisDBException: Failed to insert Cause: FAILED_PRECONDITION: Test "
+          "com.tigrisdata.db.client.error.TigrisException: Failed to insert Cause: FAILED_PRECONDITION: Test "
               + "failure "
               + dbName,
           ex.getMessage());
@@ -95,9 +95,9 @@ public class StandardTigrisAsyncCollectionFailureTest {
   }
 
   @Test
-  public void testInsertAndReplace() throws TigrisDBException {
+  public void testInsertAndReplace() throws TigrisException {
     String dbName = UUID.randomUUID().toString();
-    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     CompletableFuture<InsertOrReplaceResponse> result =
         asyncClient
             .getDatabase(dbName)
@@ -108,7 +108,7 @@ public class StandardTigrisAsyncCollectionFailureTest {
       Assert.fail("This must fail");
     } catch (Exception ex) {
       Assert.assertEquals(
-          "com.tigrisdata.db.client.error.TigrisDBException: Failed to insertOrReplace Cause: FAILED_PRECONDITION: "
+          "com.tigrisdata.db.client.error.TigrisException: Failed to insertOrReplace Cause: FAILED_PRECONDITION: "
               + "Test failure "
               + dbName,
           ex.getMessage());
@@ -123,7 +123,7 @@ public class StandardTigrisAsyncCollectionFailureTest {
         .read(
             Filters.eq("ignore", "ignore"),
             ReadFields.empty(),
-            new TigrisDBAsyncReader<DB1_C1>() {
+            new TigrisAsyncReader<DB1_C1>() {
               @Override
               public void onNext(DB1_C1 document) {
                 Assert.fail("This must fail");

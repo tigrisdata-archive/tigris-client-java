@@ -13,31 +13,12 @@
  */
 package com.tigrisdata.db.client;
 
-import java.util.Objects;
+import com.google.protobuf.Timestamp;
+
 /** Represents Server response for Insert operation */
-public class InsertResponse {
-  private final TigrisDBResponse tigrisDBResponse;
+public class InsertResponse extends DMLResponse {
 
-  public InsertResponse(TigrisDBResponse tigrisDBResponse) {
-    this.tigrisDBResponse = tigrisDBResponse;
-  }
-
-  public TigrisDBResponse getTigrisDBResponse() {
-    return tigrisDBResponse;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-
-    InsertResponse that = (InsertResponse) o;
-
-    return Objects.equals(tigrisDBResponse, that.tigrisDBResponse);
-  }
-
-  @Override
-  public int hashCode() {
-    return tigrisDBResponse != null ? tigrisDBResponse.hashCode() : 0;
+  public InsertResponse(String status, Timestamp createdAt, Timestamp updatedAt) {
+    super(status, createdAt, updatedAt);
   }
 }

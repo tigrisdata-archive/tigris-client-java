@@ -13,7 +13,7 @@
  */
 package com.tigrisdata.db.util;
 
-import com.tigrisdata.db.annotation.TigrisDBCollection;
+import com.tigrisdata.db.annotation.TigrisCollection;
 import com.tigrisdata.db.type.TigrisCollectionType;
 import org.atteo.evo.inflector.English;
 
@@ -30,9 +30,9 @@ public final class TypeUtils {
    * @return name of the collection.
    */
   public static String getCollectionName(Class<? extends TigrisCollectionType> clazz) {
-    TigrisDBCollection tigrisDBCollection = clazz.getAnnotation(TigrisDBCollection.class);
-    if (tigrisDBCollection != null) {
-      return tigrisDBCollection.value();
+    TigrisCollection tigrisCollection = clazz.getAnnotation(TigrisCollection.class);
+    if (tigrisCollection != null) {
+      return tigrisCollection.value();
     }
     return toSnakeCase(English.plural(clazz.getSimpleName()));
   }

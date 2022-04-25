@@ -13,9 +13,9 @@
  */
 package com.tigrisdata.tools.schema.core.testdata;
 
-import com.tigrisdata.db.annotation.TigrisDBCollection;
+import com.tigrisdata.db.annotation.TigrisCollection;
 
-@TigrisDBCollection("ArrayOfCustomType")
+@TigrisCollection("ArrayOfCustomType")
 public class ArrayOfCustomType {
   private String name;
   private int age;

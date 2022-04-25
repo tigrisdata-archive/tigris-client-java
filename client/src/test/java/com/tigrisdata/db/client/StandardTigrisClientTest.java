@@ -14,8 +14,8 @@
 package com.tigrisdata.db.client;
 
 import com.tigrisdata.db.client.auth.TigrisAuthorizationToken;
-import com.tigrisdata.db.client.config.TigrisDBConfiguration;
-import com.tigrisdata.db.client.error.TigrisDBException;
+import com.tigrisdata.db.client.config.TigrisConfiguration;
+import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.grpc.TestUserService;
 import io.grpc.ClientInterceptor;
 import io.grpc.ManagedChannel;
@@ -34,7 +34,7 @@ import org.mockito.Mockito;
 
 import java.util.List;
 
-public class StandardTigrisDBClientTest {
+public class StandardTigrisClientTest {
 
   private static String SERVER_NAME;
   private static TestUserService TEST_USER_SERVICE;
@@ -60,14 +60,14 @@ public class StandardTigrisDBClientTest {
 
   @Test
   public void testGetDatabase() {
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
     Assert.assertEquals("db1", db1.name());
   }
 
   @Test
-  public void testListDatabases() throws TigrisDBException {
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+  public void testListDatabases() throws TigrisException {
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     List<TigrisDatabase> databases = client.listDatabases(DatabaseOptions.DEFAULT_INSTANCE);
 
     Assert.assertEquals(3, databases.size());
@@ -75,32 +75,34 @@ public class StandardTigrisDBClientTest {
     MatcherAssert.assertThat(
         databases,
         Matchers.containsInAnyOrder(
-            new StandardTigrisDatabase("db1", null, null, null),
-            new StandardTigrisDatabase("db2", null, null, null),
-            new StandardTigrisDatabase("db3", null, null, null)));
+            new StandardTigrisDatabase("db1", null, null, null, null),
+            new StandardTigrisDatabase("db2", null, null, null, null),
+            new StandardTigrisDatabase("db3", null, null, null, null)));
   }
 
   @Test
-  public void testCreateDatabase() throws TigrisDBException {
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDBResponse response = client.createDatabaseIfNotExists("db4");
-    Assert.assertEquals("db4 created", response.getMessage());
+  public void testCreateDatabase() throws TigrisException {
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+    TigrisDatabase db4 = client.createDatabaseIfNotExists("db4");
+    Assert.assertNotNull(db4);
     // 4th db created
     Assert.assertEquals(4, client.listDatabases(DatabaseOptions.DEFAULT_INSTANCE).size());
   }
 
   @Test
-  public void testDropDatabase() throws TigrisDBException {
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDBResponse response = client.dropDatabase("db2");
+  public void testDropDatabase() throws TigrisException {
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+    DropDatabaseResponse response = client.dropDatabase("db2");
     Assert.assertEquals("db2 dropped", response.getMessage());
+    Assert.assertEquals("dropped", response.getStatus());
+
     // 4th db created
     Assert.assertEquals(2, client.listDatabases(DatabaseOptions.DEFAULT_INSTANCE).size());
     MatcherAssert.assertThat(
         client.listDatabases(DatabaseOptions.DEFAULT_INSTANCE),
         Matchers.containsInAnyOrder(
-            new StandardTigrisDatabase("db1", null, null, null),
-            new StandardTigrisDatabase("db3", null, null, null)));
+            new StandardTigrisDatabase("db1", null, null, null, null),
+            new StandardTigrisDatabase("db3", null, null, null, null)));
   }
 
   @Test
@@ -111,10 +113,10 @@ public class StandardTigrisDBClientTest {
     ManagedChannel mockedChannel = Mockito.mock(ManagedChannel.class);
     Mockito.when(mockedChannelBuilder.build()).thenReturn(mockedChannel);
 
-    TigrisDBClient client =
-        new StandardTigrisDBClient(
+    TigrisClient client =
+        new StandardTigrisClient(
             new TigrisAuthorizationToken("some.test.token"),
-            TigrisDBConfiguration.newBuilder("some-url").build(),
+            TigrisConfiguration.newBuilder("some-url").build(),
             mockedChannelBuilder);
     client.close();
     Mockito.verify(mockedChannel, Mockito.times(1)).shutdown();

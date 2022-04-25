@@ -13,7 +13,7 @@
  */
 package com.tigrisdata.db.client;
 
-import com.tigrisdata.db.client.error.TigrisDBException;
+import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisCollectionType;
 
 import java.util.List;
@@ -27,19 +27,19 @@ public interface TigrisDatabase {
    * Return list of collection info
    *
    * @return list of {@link CollectionInfo}
-   * @throws TigrisDBException in case of an error.
+   * @throws TigrisException in case of an error.
    */
-  List<CollectionInfo> listCollections() throws TigrisDBException;
+  List<CollectionInfo> listCollections() throws TigrisException;
 
   /**
    * Creates or updates collections
    *
    * @param collectionModelTypes an array of collection model classes
    * @return response
-   * @throws TigrisDBException in case of an error.
+   * @throws TigrisException in case of an error.
    */
   CreateOrUpdateCollectionsResponse createOrUpdateCollections(
-      Class<? extends TigrisCollectionType>... collectionModelTypes) throws TigrisDBException;
+      Class<? extends TigrisCollectionType>... collectionModelTypes) throws TigrisException;
 
   /**
    * Creates or updates collections by scanning classpath packages and applying user's filter
@@ -49,20 +49,20 @@ public interface TigrisDatabase {
    * @param packagesToScan an array of Java packages to scan for collection model.
    * @param filter optional filter to filter out classes from scanned set of classes
    * @return response
-   * @throws TigrisDBException in case of an error.
+   * @throws TigrisException in case of an error.
    */
   CreateOrUpdateCollectionsResponse createOrUpdateCollections(
       String[] packagesToScan, Optional<Predicate<Class<? extends TigrisCollectionType>>> filter)
-      throws TigrisDBException;
+      throws TigrisException;
 
   /**
    * Drops the collection.
    *
    * @param collectionName name of the collection
    * @return the instance of {@link DropCollectionResponse} from server
-   * @throws TigrisDBException in case of an error.
+   * @throws TigrisException in case of an error.
    */
-  DropCollectionResponse dropCollection(String collectionName) throws TigrisDBException;
+  DropCollectionResponse dropCollection(String collectionName) throws TigrisException;
 
   /**
    * Return an instance of {@link TigrisCollection}
@@ -78,10 +78,9 @@ public interface TigrisDatabase {
    *
    * @param transactionOptions options
    * @return transaction aware instance of {@link TransactionSession}
-   * @throws TigrisDBException in case of an error
+   * @throws TigrisException in case of an error
    */
-  TransactionSession beginTransaction(TransactionOptions transactionOptions)
-      throws TigrisDBException;
+  TransactionSession beginTransaction(TransactionOptions transactionOptions) throws TigrisException;
 
   /** @return name of the current database */
   String name();

@@ -13,7 +13,7 @@
  */
 package com.tigrisdata.db.client;
 
-import com.tigrisdata.db.client.error.TigrisDBException;
+import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisCollectionType;
 
 import java.util.Iterator;
@@ -32,10 +32,10 @@ public interface TigrisCollection<T extends TigrisCollectionType> {
    * @param fields optionally specify fields you want to be returned from server
    * @param readRequestOptions read options
    * @return stream of documents
-   * @throws TigrisDBException in case of an error
+   * @throws TigrisException in case of an error
    */
   Iterator<T> read(TigrisFilter filter, ReadFields fields, ReadRequestOptions readRequestOptions)
-      throws TigrisDBException;
+      throws TigrisException;
 
   /**
    * Reads matching documents
@@ -43,9 +43,9 @@ public interface TigrisCollection<T extends TigrisCollectionType> {
    * @param filter filter to narrow down read
    * @param fields optionally specify fields you want to be returned from server
    * @return stream of documents
-   * @throws TigrisDBException in case of an error
+   * @throws TigrisException in case of an error
    */
-  Iterator<T> read(TigrisFilter filter, ReadFields fields) throws TigrisDBException;
+  Iterator<T> read(TigrisFilter filter, ReadFields fields) throws TigrisException;
 
   /**
    * Reads a single document. This method is generally recommended for point lookup, if used for
@@ -53,25 +53,25 @@ public interface TigrisCollection<T extends TigrisCollectionType> {
    *
    * @param filter filters documents to read
    * @return Optional of document.
-   * @throws TigrisDBException in case of an error
+   * @throws TigrisException in case of an error
    */
-  Optional<T> readOne(TigrisFilter filter) throws TigrisDBException;
+  Optional<T> readOne(TigrisFilter filter) throws TigrisException;
 
   /**
    * @param documents list of documents to insert
    * @param insertRequestOptions insert option
    * @return an instance of {@link InsertResponse} from server
-   * @throws TigrisDBException in case of an error
+   * @throws TigrisException in case of an error
    */
   InsertResponse insert(List<T> documents, InsertRequestOptions insertRequestOptions)
-      throws TigrisDBException;
+      throws TigrisException;
 
   /**
    * @param documents list of documents to insert
    * @return an instance of {@link InsertResponse} from server
-   * @throws TigrisDBException in case of an error
+   * @throws TigrisException in case of an error
    */
-  InsertResponse insert(List<T> documents) throws TigrisDBException;
+  InsertResponse insert(List<T> documents) throws TigrisException;
 
   /**
    * Inserts the documents if they don't exist already, replaces them otherwise.
@@ -79,48 +79,48 @@ public interface TigrisCollection<T extends TigrisCollectionType> {
    * @param documents list of documents to replace
    * @param insertOrReplaceRequestOptions option
    * @return an instance of {@link InsertOrReplaceResponse} from server
-   * @throws TigrisDBException in case of an error
+   * @throws TigrisException in case of an error
    */
   InsertOrReplaceResponse insertOrReplace(
       List<T> documents, InsertOrReplaceRequestOptions insertOrReplaceRequestOptions)
-      throws TigrisDBException;
+      throws TigrisException;
 
   /**
    * Inserts the documents if they don't exist already, replaces them otherwise.
    *
    * @param documents list of documents to replace
    * @return an instance of {@link InsertOrReplaceResponse} from server
-   * @throws TigrisDBException in case of an error
+   * @throws TigrisException in case of an error
    */
-  InsertOrReplaceResponse insertOrReplace(List<T> documents) throws TigrisDBException;
+  InsertOrReplaceResponse insertOrReplace(List<T> documents) throws TigrisException;
 
   /**
    * inserts a single document to the collection
    *
    * @param document document to insert
    * @return an instance of InsertResponse
-   * @throws TigrisDBException in case of an error
+   * @throws TigrisException in case of an error
    */
-  InsertResponse insert(T document) throws TigrisDBException;
+  InsertResponse insert(T document) throws TigrisException;
 
   /**
    * @param filter filters documents to update
    * @param updateFields specifies what and how to update the fields from filtered documents
    * @param updateRequestOptions options
    * @return an instance of UpdateResponse
-   * @throws TigrisDBException in case of an error
+   * @throws TigrisException in case of an error
    */
   UpdateResponse update(
       TigrisFilter filter, UpdateFields updateFields, UpdateRequestOptions updateRequestOptions)
-      throws TigrisDBException;
+      throws TigrisException;
 
   /**
    * @param filter filters documents to update
    * @param updateFields specifies what and how to update the fields from filtered documents
    * @return an instance of UpdateResponse
-   * @throws TigrisDBException in case of an error
+   * @throws TigrisException in case of an error
    */
-  UpdateResponse update(TigrisFilter filter, UpdateFields updateFields) throws TigrisDBException;
+  UpdateResponse update(TigrisFilter filter, UpdateFields updateFields) throws TigrisException;
 
   /**
    * Deletes the matching documents in the collection.
@@ -128,19 +128,19 @@ public interface TigrisCollection<T extends TigrisCollectionType> {
    * @param filter filter to narrow down the documents to delete
    * @param deleteRequestOptions delete option
    * @return an instance of {@link DeleteResponse} from server
-   * @throws TigrisDBException in case of an error
+   * @throws TigrisException in case of an error
    */
   DeleteResponse delete(TigrisFilter filter, DeleteRequestOptions deleteRequestOptions)
-      throws TigrisDBException;
+      throws TigrisException;
 
   /**
    * Deletes the matching documents in the collection.
    *
    * @param filter filter to narrow down the documents to delete
    * @return an instance of {@link DeleteResponse} from server
-   * @throws TigrisDBException in case of an error
+   * @throws TigrisException in case of an error
    */
-  DeleteResponse delete(TigrisFilter filter) throws TigrisDBException;
+  DeleteResponse delete(TigrisFilter filter) throws TigrisException;
 
   /** @return Name of the collection */
   String name();

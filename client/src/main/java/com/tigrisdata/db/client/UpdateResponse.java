@@ -12,30 +12,36 @@
  * limitations under the License.
  */
 package com.tigrisdata.db.client;
-/** represents response for Update operation */
-public class UpdateResponse {
-  private final int updatedRecordCount;
 
-  public UpdateResponse(int updatedRecordCount) {
-    this.updatedRecordCount = updatedRecordCount;
+import com.google.protobuf.Timestamp;
+
+import java.util.Objects;
+
+/** represents response for Update operation */
+public class UpdateResponse extends DMLResponse {
+  private final int modifiedCount;
+
+  UpdateResponse(String status, Timestamp createdAt, Timestamp updatedAt, int modifiedCount) {
+    super(status, createdAt, updatedAt);
+    this.modifiedCount = modifiedCount;
   }
 
-  public int getUpdatedRecordCount() {
-    return updatedRecordCount;
+  /** @return the number of documents modified */
+  public int getModifiedCount() {
+    return modifiedCount;
   }
 
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
-
+    if (!super.equals(o)) return false;
     UpdateResponse that = (UpdateResponse) o;
-
-    return updatedRecordCount == that.updatedRecordCount;
+    return modifiedCount == that.modifiedCount;
   }
 
   @Override
   public int hashCode() {
-    return updatedRecordCount;
+    return Objects.hash(super.hashCode(), modifiedCount);
   }
 }

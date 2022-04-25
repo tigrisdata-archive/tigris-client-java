@@ -3,7 +3,6 @@ package com.tigrisdata.db.client;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -37,81 +36,50 @@ public final class UpdateFields {
   /** Builder for {@link UpdateFields} */
   public static class UpdateFieldsBuilder {
     private final Map<String, Object> map;
+    private final Map<String, Object> setMap;
 
     private UpdateFieldsBuilder() {
       this.map = new LinkedHashMap<>();
+      this.setMap = new LinkedHashMap<>();
     }
 
-    public UpdateFieldsBuilder set(SetFields setFields) {
-      this.map.put(SET_OPERATOR, setFields.getInternalMap());
+    public UpdateFieldsBuilder set(String fieldName, int newValue) {
+      setMap.put(fieldName, newValue);
+      return this;
+    }
+
+    public UpdateFieldsBuilder set(String fieldName, long newValue) {
+      setMap.put(fieldName, newValue);
+      return this;
+    }
+
+    public UpdateFieldsBuilder set(String fieldName, String newValue) {
+      setMap.put(fieldName, newValue);
+      return this;
+    }
+
+    public UpdateFieldsBuilder set(String fieldName, boolean newValue) {
+      setMap.put(fieldName, newValue);
+      return this;
+    }
+
+    public UpdateFieldsBuilder set(String fieldName, byte[] newValue) {
+      setMap.put(fieldName, newValue);
+      return this;
+    }
+
+    public UpdateFieldsBuilder set(String fieldName, double newValue) {
+      setMap.put(fieldName, newValue);
       return this;
     }
 
     public UpdateFields build() {
-      return new UpdateFields(this);
-    }
-  }
-
-  /** Set fields represents the $set operation to apply on fields */
-  public static class SetFields {
-    private final Map<String, Object> internalMap;
-
-    private SetFields(SetFieldsBuilder builder) {
-      this.internalMap = builder.internalMap;
-    }
-
-    private Map<String, Object> getInternalMap() {
-      return Collections.unmodifiableMap(internalMap);
-    }
-
-    public static SetFieldsBuilder newBuilder() {
-      return new SetFieldsBuilder();
-    }
-  }
-
-  /** Builder for {@link SetFields} */
-  public static class SetFieldsBuilder {
-    private final Map<String, Object> internalMap;
-
-    private SetFieldsBuilder() {
-      this.internalMap = new LinkedHashMap<>();
-    }
-
-    public SetFieldsBuilder set(String fieldName, int newValue) {
-      internalMap.put(fieldName, newValue);
-      return this;
-    }
-
-    public SetFieldsBuilder set(String fieldName, long newValue) {
-      internalMap.put(fieldName, newValue);
-      return this;
-    }
-
-    public SetFieldsBuilder set(String fieldName, String newValue) {
-      internalMap.put(fieldName, newValue);
-      return this;
-    }
-
-    public SetFieldsBuilder set(String fieldName, boolean newValue) {
-      internalMap.put(fieldName, newValue);
-      return this;
-    }
-
-    public SetFieldsBuilder set(String fieldName, byte[] newValue) {
-      internalMap.put(fieldName, newValue);
-      return this;
-    }
-
-    public SetFieldsBuilder set(String fieldName, double newValue) {
-      internalMap.put(fieldName, newValue);
-      return this;
-    }
-
-    public SetFields build() {
-      if (internalMap.isEmpty()) {
-        throw new IllegalStateException("No fields are set");
+      if (!setMap.isEmpty()) {
+        this.map.put(SET_OPERATOR, setMap);
+      } else {
+        throw new IllegalStateException("empty update fields");
       }
-      return new SetFields(this);
+      return new UpdateFields(this);
     }
   }
 }

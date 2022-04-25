@@ -17,100 +17,109 @@ import com.google.common.annotations.VisibleForTesting;
 import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
 import static com.tigrisdata.db.client.Messages.CREATE_DB_FAILED;
-import static com.tigrisdata.db.client.Messages.DB_ALREADY_EXISTS;
 import static com.tigrisdata.db.client.Messages.DROP_DB_FAILED;
 import static com.tigrisdata.db.client.Messages.LIST_DBS_FAILED;
 import static com.tigrisdata.db.client.TypeConverter.toCreateDatabaseRequest;
 import static com.tigrisdata.db.client.TypeConverter.toDropDatabaseRequest;
 import com.tigrisdata.db.client.auth.AuthorizationToken;
-import com.tigrisdata.db.client.config.TigrisDBConfiguration;
-import com.tigrisdata.db.client.error.TigrisDBException;
+import com.tigrisdata.db.client.config.TigrisConfiguration;
+import com.tigrisdata.db.client.error.TigrisException;
+import com.tigrisdata.tools.schema.core.StandardModelToTigrisDBJsonSchema;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /** Client for TigrisDB */
-public class StandardTigrisDBClient extends AbstractTigrisDBClient implements TigrisDBClient {
+public class StandardTigrisClient extends AbstractTigrisDBClient implements TigrisClient {
 
   private final TigrisDBGrpc.TigrisDBBlockingStub stub;
+  private static final Logger log = LoggerFactory.getLogger(StandardTigrisClient.class);
 
-  private StandardTigrisDBClient(
-      TigrisDBConfiguration clientConfiguration, AuthorizationToken authorizationToken) {
-    super(clientConfiguration, authorizationToken);
+  private StandardTigrisClient(TigrisConfiguration clientConfiguration) {
+    super(clientConfiguration, Optional.empty(), new StandardModelToTigrisDBJsonSchema());
     this.stub = TigrisDBGrpc.newBlockingStub(channel);
   }
 
   @VisibleForTesting
-  StandardTigrisDBClient(
+  StandardTigrisClient(
       AuthorizationToken authorizationToken,
-      TigrisDBConfiguration configuration,
+      TigrisConfiguration configuration,
       ManagedChannelBuilder<? extends ManagedChannelBuilder> managedChannelBuilder) {
-    super(authorizationToken, configuration, managedChannelBuilder);
+    super(
+        authorizationToken,
+        configuration,
+        managedChannelBuilder,
+        new StandardModelToTigrisDBJsonSchema());
     this.stub = TigrisDBGrpc.newBlockingStub(channel);
   }
 
   /**
-   * Creates a new instance of @{@link StandardTigrisDBClient} with the given inputs
+   * Creates a new instance of @{@link StandardTigrisClient} with the given inputs
    *
-   * @param authorizationToken authorization token
-   * @param tigrisDBConfiguration configuration
-   * @return a new instance of @{@link StandardTigrisDBClient}
+   * @param tigrisConfiguration configuration
+   * @return a new instance of @{@link StandardTigrisClient}
    */
-  public static StandardTigrisDBClient getInstance(
-      AuthorizationToken authorizationToken, TigrisDBConfiguration tigrisDBConfiguration) {
-    return new StandardTigrisDBClient(tigrisDBConfiguration, authorizationToken);
+  public static StandardTigrisClient getInstance(TigrisConfiguration tigrisConfiguration) {
+    return new StandardTigrisClient(tigrisConfiguration);
   }
 
   @Override
   public TigrisDatabase getDatabase(String databaseName) {
-    return new StandardTigrisDatabase(databaseName, stub, channel, objectMapper);
+    return new StandardTigrisDatabase(databaseName, stub, channel, objectMapper, modelToJsonSchema);
   }
 
   @Override
   public List<TigrisDatabase> listDatabases(DatabaseOptions listDatabaseOptions)
-      throws TigrisDBException {
+      throws TigrisException {
     try {
       Api.ListDatabasesRequest listDatabasesRequest = Api.ListDatabasesRequest.newBuilder().build();
       Api.ListDatabasesResponse listDatabasesResponse = stub.listDatabases(listDatabasesRequest);
       List<TigrisDatabase> dbs = new ArrayList<>();
       for (Api.DatabaseInfo databaseInfo : listDatabasesResponse.getDatabasesList()) {
-        dbs.add(new StandardTigrisDatabase(databaseInfo.getName(), stub, channel, objectMapper));
+        dbs.add(
+            new StandardTigrisDatabase(
+                databaseInfo.getDb(), stub, channel, objectMapper, modelToJsonSchema));
       }
       return dbs;
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisDBException(LIST_DBS_FAILED, statusRuntimeException);
+      throw new TigrisException(LIST_DBS_FAILED, statusRuntimeException);
     }
   }
 
   @Override
-  public TigrisDBResponse createDatabaseIfNotExists(String databaseName) throws TigrisDBException {
-    Api.CreateDatabaseResponse createDatabaseResponse = null;
+  public TigrisDatabase createDatabaseIfNotExists(String databaseName) throws TigrisException {
     try {
-      createDatabaseResponse =
-          stub.createDatabase(
-              toCreateDatabaseRequest(databaseName, DatabaseOptions.DEFAULT_INSTANCE));
-      return new TigrisDBResponse(createDatabaseResponse.getMsg());
+      stub.createDatabase(toCreateDatabaseRequest(databaseName, DatabaseOptions.DEFAULT_INSTANCE));
+      log.info("database created: {}", databaseName);
+      return new StandardTigrisDatabase(
+          databaseName, stub, channel, objectMapper, modelToJsonSchema);
     } catch (StatusRuntimeException statusRuntimeException) {
       // ignore the error if the database is already exists
       if (statusRuntimeException.getStatus().getCode() != Status.ALREADY_EXISTS.getCode()) {
-        throw new TigrisDBException(CREATE_DB_FAILED, statusRuntimeException);
+        throw new TigrisException(CREATE_DB_FAILED, statusRuntimeException);
       }
-      return new TigrisDBResponse(DB_ALREADY_EXISTS);
+      log.info("database already exists: {}", databaseName);
+      return new StandardTigrisDatabase(
+          databaseName, stub, channel, objectMapper, modelToJsonSchema);
     }
   }
 
   @Override
-  public TigrisDBResponse dropDatabase(String databaseName) throws TigrisDBException {
+  public DropDatabaseResponse dropDatabase(String databaseName) throws TigrisException {
     try {
       Api.DropDatabaseResponse dropDatabaseResponse =
           stub.dropDatabase(toDropDatabaseRequest(databaseName, DatabaseOptions.DEFAULT_INSTANCE));
-      return new TigrisDBResponse(dropDatabaseResponse.getMsg());
+      return new DropDatabaseResponse(
+          dropDatabaseResponse.getStatus(), dropDatabaseResponse.getMessage());
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisDBException(DROP_DB_FAILED, statusRuntimeException);
+      throw new TigrisException(DROP_DB_FAILED, statusRuntimeException);
     }
   }
 

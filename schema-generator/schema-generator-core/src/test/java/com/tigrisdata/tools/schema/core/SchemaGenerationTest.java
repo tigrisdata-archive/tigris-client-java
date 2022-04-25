@@ -82,7 +82,7 @@ public class SchemaGenerationTest {
   }
 
   private static String getSchema(Class clazz) {
-    return new DefaultModelToTigrisDBJsonSchema().toJsonSchema(clazz).toPrettyString();
+    return new StandardModelToTigrisDBJsonSchema().toJsonSchema(clazz).toPrettyString();
   }
 
   private static String readExpectedSchema(Class testModel) throws Exception {

@@ -235,14 +235,14 @@ public class TestUserService extends TigrisDBGrpc.TigrisDBImplBase {
           if (filterJsonObject.get(filterKey).equals(jsonObject.get(filterKey))) {
             responseObserver.onNext(
                 Api.ReadResponse.newBuilder()
-                    .setDoc(ByteString.copyFromUtf8(jsonObject.toString()))
+                    .setData(ByteString.copyFromUtf8(jsonObject.toString()))
                     .build());
           }
         } else {
           // if the key is not present then allow for "test" purpose.
           responseObserver.onNext(
               Api.ReadResponse.newBuilder()
-                  .setDoc(ByteString.copyFromUtf8(jsonObject.toString()))
+                  .setData(ByteString.copyFromUtf8(jsonObject.toString()))
                   .build());
         }
       }
@@ -257,7 +257,8 @@ public class TestUserService extends TigrisDBGrpc.TigrisDBImplBase {
     dbToCollectionsMap.get(request.getDb()).add(request.getCollection());
     responseObserver.onNext(
         Api.CreateOrUpdateCollectionResponse.newBuilder()
-            .setMsg(request.getCollection() + " created")
+            .setStatus("created")
+            .setMessage("Collections created or changes applied")
             .build());
     responseObserver.onCompleted();
   }
@@ -269,7 +270,7 @@ public class TestUserService extends TigrisDBGrpc.TigrisDBImplBase {
     dbToCollectionsMap.get(request.getDb()).remove(request.getCollection());
     responseObserver.onNext(
         Api.DropCollectionResponse.newBuilder()
-            .setMsg(request.getCollection() + " dropped")
+            .setMessage(request.getCollection() + " dropped")
             .build());
     responseObserver.onCompleted();
   }
@@ -281,7 +282,7 @@ public class TestUserService extends TigrisDBGrpc.TigrisDBImplBase {
     Api.ListDatabasesResponse.Builder listDatabasesResponseBuilder =
         Api.ListDatabasesResponse.newBuilder();
     for (String db : dbs) {
-      listDatabasesResponseBuilder.addDatabases(Api.DatabaseInfo.newBuilder().setName(db).build());
+      listDatabasesResponseBuilder.addDatabases(Api.DatabaseInfo.newBuilder().setDb(db).build());
     }
     responseObserver.onNext(listDatabasesResponseBuilder.build());
     responseObserver.onCompleted();
@@ -293,7 +294,7 @@ public class TestUserService extends TigrisDBGrpc.TigrisDBImplBase {
       StreamObserver<Api.ListCollectionsResponse> responseObserver) {
     Api.ListCollectionsResponse.Builder builder = Api.ListCollectionsResponse.newBuilder();
     for (String collectionName : dbToCollectionsMap.get(request.getDb())) {
-      builder.addCollections(Api.CollectionInfo.newBuilder().setName(collectionName).build());
+      builder.addCollections(Api.CollectionInfo.newBuilder().setCollection(collectionName).build());
     }
     responseObserver.onNext(builder.build());
     responseObserver.onCompleted();
@@ -310,7 +311,7 @@ public class TestUserService extends TigrisDBGrpc.TigrisDBImplBase {
     }
     this.dbs.add(request.getDb());
     responseObserver.onNext(
-        Api.CreateDatabaseResponse.newBuilder().setMsg(request.getDb() + " created").build());
+        Api.CreateDatabaseResponse.newBuilder().setMessage(request.getDb() + " created").build());
     responseObserver.onCompleted();
   }
 
@@ -319,7 +320,10 @@ public class TestUserService extends TigrisDBGrpc.TigrisDBImplBase {
       Api.DropDatabaseRequest request, StreamObserver<Api.DropDatabaseResponse> responseObserver) {
     this.dbs.remove(request.getDb());
     responseObserver.onNext(
-        Api.DropDatabaseResponse.newBuilder().setMsg(request.getDb() + " dropped").build());
+        Api.DropDatabaseResponse.newBuilder()
+            .setStatus("dropped")
+            .setMessage(request.getDb() + " dropped")
+            .build());
     responseObserver.onCompleted();
   }
 

@@ -13,22 +13,21 @@
  */
 package com.tigrisdata.db.client;
 
-import java.io.IOException;
+import com.tigrisdata.db.type.TigrisCollectionType;
 
-/** represents the TigrisDBSchema */
-public interface TigrisDBSchema {
-  /**
-   * Reads the schema content
-   *
-   * @return string form of the JSON schema
-   * @throws IOException if the reading of schema failed.
-   */
-  String getSchemaContent() throws IOException;
-  /**
-   * Reads the schema name from "title" JSON attribute.
-   *
-   * @return name of the schema
-   * @throws IOException if the reading of schema failed.
-   */
-  String getName() throws IOException;
+/**
+ * A callback that reads the documents
+ *
+ * @param <T> Collection type
+ */
+public interface TigrisAsyncReader<T extends TigrisCollectionType> {
+
+  /** @param document next document */
+  void onNext(T document);
+
+  /** @param t captures the error */
+  void onError(Throwable t);
+
+  /** Gets invoked when read is completed */
+  void onCompleted();
 }

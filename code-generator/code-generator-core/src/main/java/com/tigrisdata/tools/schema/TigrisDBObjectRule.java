@@ -33,7 +33,7 @@ import com.sun.codemodel.JOp;
 import com.sun.codemodel.JPackage;
 import com.sun.codemodel.JType;
 import com.sun.codemodel.JVar;
-import com.tigrisdata.db.annotation.TigrisDBCollection;
+import com.tigrisdata.db.annotation.TigrisCollection;
 import com.tigrisdata.db.type.TigrisCollectionType;
 import org.apache.commons.lang.StringUtils;
 import static org.apache.commons.lang3.StringUtils.substringAfter;
@@ -642,7 +642,7 @@ public class TigrisDBObjectRule implements Rule<JPackage, JType> {
   }
 
   private static void addTigrisDBCollectionAnnotation(JDefinedClass jclass, String collectionName) {
-    JClass annotationClass = jclass.owner().ref(TigrisDBCollection.class);
+    JClass annotationClass = jclass.owner().ref(TigrisCollection.class);
     JAnnotationUse generated = jclass.annotate(annotationClass);
     generated.param("value", collectionName);
   }

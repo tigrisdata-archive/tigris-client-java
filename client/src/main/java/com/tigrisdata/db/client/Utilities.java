@@ -18,8 +18,8 @@ import com.google.common.reflect.ClassPath;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.tigrisdata.db.annotation.TigrisDBCollection;
-import com.tigrisdata.db.client.error.TigrisDBException;
+import com.tigrisdata.db.annotation.TigrisCollection;
+import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisCollectionType;
 import org.atteo.evo.inflector.English;
 import org.slf4j.Logger;
@@ -39,10 +39,6 @@ import java.util.stream.Collectors;
 
 final class Utilities {
   private Utilities() {}
-
-  // TODO update this once server sends the message back
-  static final String INSERT_SUCCESS_RESPONSE = "inserted";
-  static final String DELETE_SUCCESS_RESPONSE = "deleted";
 
   private static final Logger log = LoggerFactory.getLogger(Utilities.class);
 
@@ -87,9 +83,9 @@ final class Utilities {
   }
 
   static String getCollectionName(Class<? extends TigrisCollectionType> clazz) {
-    TigrisDBCollection tigrisDBCollection = clazz.getAnnotation(TigrisDBCollection.class);
-    if (tigrisDBCollection != null) {
-      return tigrisDBCollection.value();
+    TigrisCollection tigrisCollection = clazz.getAnnotation(TigrisCollection.class);
+    if (tigrisCollection != null) {
+      return tigrisCollection.value();
     }
     return CaseFormat.UPPER_CAMEL.to(
         CaseFormat.LOWER_UNDERSCORE, English.plural(clazz.getSimpleName()));
@@ -156,7 +152,7 @@ final class Utilities {
             if (exceptionHandler.isPresent()) {
               exceptionHandler.get().accept(result, throwable);
             } else {
-              result.completeExceptionally(new TigrisDBException(errorMessage, throwable));
+              result.completeExceptionally(new TigrisException(errorMessage, throwable));
             }
           }
         },

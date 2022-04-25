@@ -13,35 +13,56 @@
  */
 package com.tigrisdata.db.client;
 
+import com.google.protobuf.Timestamp;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.UUID;
 
 public class UpdateResponseTest {
   @Test
   public void equalsTest() {
-    UpdateResponse ob1 = new UpdateResponse(1);
-    UpdateResponse ob2 = new UpdateResponse(1);
+    final String ok = "ok";
+    Timestamp createdAt =
+        Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
+    Timestamp updatedAt =
+        Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
+    UpdateResponse ob1 = new UpdateResponse(ok, createdAt, updatedAt, 1);
+    UpdateResponse ob2 = new UpdateResponse(ok, createdAt, updatedAt, 1);
     Assert.assertEquals(ob1, ob1);
     Assert.assertEquals(ob1, ob2);
     Assert.assertNotEquals(ob1, null);
     Assert.assertNotEquals(ob1, "some-string");
 
-    UpdateResponse ob3 = new UpdateResponse(1);
-    UpdateResponse ob4 = new UpdateResponse(2);
+    UpdateResponse ob3 = new UpdateResponse(ok, createdAt, updatedAt, 1);
+    UpdateResponse ob4 = new UpdateResponse(ok, createdAt, updatedAt, 2);
     Assert.assertNotEquals(ob3, ob4);
   }
 
   @Test
   public void hashCodeTest() {
-    UpdateResponse ob1 = new UpdateResponse(1);
-    UpdateResponse ob2 = new UpdateResponse(1);
+    final String ok = "ok";
+    Timestamp createdAt =
+        Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
+    Timestamp updatedAt =
+        Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
+    UpdateResponse ob1 = new UpdateResponse(ok, createdAt, updatedAt, 1);
+    UpdateResponse ob2 = new UpdateResponse(ok, createdAt, updatedAt, 1);
     Assert.assertEquals(ob1.hashCode(), ob1.hashCode());
     Assert.assertEquals(ob1.hashCode(), ob2.hashCode());
   }
 
   @Test
   public void testAccessor() {
-    UpdateResponse ob1 = new UpdateResponse(1);
-    Assert.assertEquals(1L, ob1.getUpdatedRecordCount());
+    final String status = UUID.randomUUID().toString();
+    Timestamp createdAt =
+        Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
+    Timestamp updatedAt =
+        Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
+    UpdateResponse ob = new UpdateResponse(status, createdAt, updatedAt, 1);
+    Assert.assertEquals(1L, ob.getModifiedCount());
+    Assert.assertEquals(status, ob.getStatus());
+    Assert.assertEquals(createdAt, ob.getMetadata().getCreatedAt());
+    Assert.assertEquals(updatedAt, ob.getMetadata().getUpdatedAt());
   }
 }

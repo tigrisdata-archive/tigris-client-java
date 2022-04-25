@@ -13,10 +13,10 @@
  */
 package com.tigrisdata.tools.schema.core.testdata;
 
-import com.tigrisdata.db.annotation.TigrisDBCollection;
-import com.tigrisdata.db.annotation.TigrisDBCollectionField;
+import com.tigrisdata.db.annotation.TigrisCollection;
+import com.tigrisdata.db.annotation.TigrisField;
 
-@TigrisDBCollection("CustomizedNestedObjectType")
+@TigrisCollection("CustomizedNestedObjectType")
 public class CustomizedNestedObjectType {
   Product[] products;
   Seller[] sellers;
@@ -34,10 +34,10 @@ class Seller {
 }
 
 class Category {
-  @TigrisDBCollectionField(description = "category name")
+  @TigrisField(description = "category name")
   String name;
 
-  @TigrisDBCollectionField(description = "category image binary data")
+  @TigrisField(description = "category image binary data")
   byte[] previewImage;
 
   String[] tags;

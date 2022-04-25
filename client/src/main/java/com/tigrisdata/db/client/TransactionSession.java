@@ -13,7 +13,7 @@
  */
 package com.tigrisdata.db.client;
 
-import com.tigrisdata.db.client.error.TigrisDBException;
+import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisCollectionType;
 
 /** Transaction Session */
@@ -34,24 +34,24 @@ public interface TransactionSession {
    * @param schema schema of the collection
    * @param collectionOptions collection option
    * @return the instance of {@link CreateOrUpdateCollectionsResponse} from server
-   * @throws TigrisDBException in case of an error.
+   * @throws TigrisException in case of an error.
    */
   CreateOrUpdateCollectionsResponse createOrUpdateCollections(
-      TigrisDBSchema schema, CollectionOptions collectionOptions) throws TigrisDBException;
+      TigrisSchema schema, CollectionOptions collectionOptions) throws TigrisException;
 
   /**
    * Commits the current ongoing transaction
    *
-   * @return an instance of {@link TigrisDBResponse} from server
-   * @throws TigrisDBException in case of an error
+   * @return an instance of {@link CommitTransactionResponse} from server
+   * @throws TigrisException in case of an error
    */
-  TigrisDBResponse commit() throws TigrisDBException;
+  CommitTransactionResponse commit() throws TigrisException;
 
   /**
    * Rolls back the current ongoing transaction
    *
-   * @return an instance of {@link TigrisDBResponse} from server
-   * @throws TigrisDBException in case of an error
+   * @return an instance of {@link RollbackTransactionResponse} from server
+   * @throws TigrisException in case of an error
    */
-  TigrisDBResponse rollback() throws TigrisDBException;
+  RollbackTransactionResponse rollback() throws TigrisException;
 }

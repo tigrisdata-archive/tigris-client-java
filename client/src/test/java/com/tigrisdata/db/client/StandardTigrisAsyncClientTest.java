@@ -14,7 +14,7 @@
 package com.tigrisdata.db.client;
 
 import com.tigrisdata.db.client.auth.TigrisAuthorizationToken;
-import com.tigrisdata.db.client.config.TigrisDBConfiguration;
+import com.tigrisdata.db.client.config.TigrisConfiguration;
 import com.tigrisdata.db.client.grpc.TestUserService;
 import io.grpc.ClientInterceptor;
 import io.grpc.ManagedChannel;
@@ -35,10 +35,11 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-public class StandardTigrisDBAsyncClientTest {
+public class StandardTigrisAsyncClientTest {
 
   private static String SERVER_NAME;
   private static TestUserService TEST_USER_SERVICE;
+
   @ClassRule public static final GrpcCleanupRule grpcCleanup = new GrpcCleanupRule();
 
   @BeforeClass
@@ -61,14 +62,14 @@ public class StandardTigrisDBAsyncClientTest {
 
   @Test
   public void testGetDatabase() {
-    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
     Assert.assertEquals("db1", db1.name());
   }
 
   @Test
   public void testListDatabases() throws InterruptedException, ExecutionException {
-    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     CompletableFuture<List<TigrisAsyncDatabase>> listDatabasesResponse =
         asyncClient.listDatabases(DatabaseOptions.DEFAULT_INSTANCE);
     List<TigrisAsyncDatabase> databases = listDatabasesResponse.get();
@@ -77,16 +78,16 @@ public class StandardTigrisDBAsyncClientTest {
     MatcherAssert.assertThat(
         databases,
         Matchers.containsInAnyOrder(
-            new StandardTigrisAsyncDatabase("db1", null, null, null, null),
-            new StandardTigrisAsyncDatabase("db2", null, null, null, null),
-            new StandardTigrisAsyncDatabase("db3", null, null, null, null)));
+            new StandardTigrisAsyncDatabase("db1", null, null, null, null, null),
+            new StandardTigrisAsyncDatabase("db2", null, null, null, null, null),
+            new StandardTigrisAsyncDatabase("db3", null, null, null, null, null)));
   }
 
   @Test
   public void testCreateDatabase() throws InterruptedException, ExecutionException {
-    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
-    CompletableFuture<TigrisDBResponse> response = asyncClient.createDatabaseIfNotExists("db4");
-    Assert.assertEquals("db4 created", response.get().getMessage());
+    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    CompletableFuture<TigrisAsyncDatabase> response = asyncClient.createDatabaseIfNotExists("db4");
+    Assert.assertNotNull(response.get());
     // 4th db created
     Assert.assertEquals(
         4, asyncClient.listDatabases(DatabaseOptions.DEFAULT_INSTANCE).get().size());
@@ -94,17 +95,16 @@ public class StandardTigrisDBAsyncClientTest {
 
   @Test
   public void testAlreadyExisingDatabaseCreation() throws InterruptedException, ExecutionException {
-    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
-    CompletableFuture<TigrisDBResponse> response =
+    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    CompletableFuture<TigrisAsyncDatabase> response =
         asyncClient.createDatabaseIfNotExists("pre-existing-db-name");
-    // no exception is thrown, response with message is served
-    Assert.assertEquals("Database already exists", response.get().getMessage());
+    Assert.assertNotNull(response.get());
   }
 
   @Test
   public void testDropDatabase() throws InterruptedException, ExecutionException {
-    TigrisDBAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
-    CompletableFuture<TigrisDBResponse> response = asyncClient.dropDatabase("db2");
+    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    CompletableFuture<DropDatabaseResponse> response = asyncClient.dropDatabase("db2");
     Assert.assertEquals("db2 dropped", response.get().getMessage());
     // 4th db created
     Assert.assertEquals(
@@ -112,8 +112,8 @@ public class StandardTigrisDBAsyncClientTest {
     MatcherAssert.assertThat(
         asyncClient.listDatabases(DatabaseOptions.DEFAULT_INSTANCE).get(),
         Matchers.containsInAnyOrder(
-            new StandardTigrisAsyncDatabase("db1", null, null, null, null),
-            new StandardTigrisAsyncDatabase("db3", null, null, null, null)));
+            new StandardTigrisAsyncDatabase("db1", null, null, null, null, null),
+            new StandardTigrisAsyncDatabase("db3", null, null, null, null, null)));
   }
 
   @Test
@@ -124,10 +124,10 @@ public class StandardTigrisDBAsyncClientTest {
     ManagedChannel mockedChannel = Mockito.mock(ManagedChannel.class);
     Mockito.when(mockedChannelBuilder.build()).thenReturn(mockedChannel);
 
-    TigrisDBAsyncClient asyncClient =
-        new StandardTigrisDBAsyncClient(
+    TigrisAsyncClient asyncClient =
+        new StandardTigrisAsyncClient(
             new TigrisAuthorizationToken("some.test.token"),
-            TigrisDBConfiguration.newBuilder("some-url").build(),
+            TigrisConfiguration.newBuilder("some-url").build(),
             mockedChannelBuilder);
     asyncClient.close();
     Mockito.verify(mockedChannel, Mockito.times(1)).shutdown();

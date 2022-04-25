@@ -13,15 +13,22 @@
  */
 package com.tigrisdata.db.client;
 
+import com.google.protobuf.Timestamp;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.UUID;
 
 public class InsertResponseTest {
   @Test
   public void equalsTest() {
-    TigrisDBResponse tigrisDBResponse = new TigrisDBResponse("ok");
-    InsertResponse ob1 = new InsertResponse(tigrisDBResponse);
-    InsertResponse ob2 = new InsertResponse(tigrisDBResponse);
+    Timestamp createdAt =
+        Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
+    Timestamp updatedAt =
+        Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
+    String ok = "ok";
+    InsertResponse ob1 = new InsertResponse(ok, createdAt, updatedAt);
+    InsertResponse ob2 = new InsertResponse(ok, createdAt, updatedAt);
     Assert.assertEquals(ob1, ob1);
     Assert.assertEquals(ob1, ob2);
     Assert.assertNotEquals(ob1, null);
@@ -30,21 +37,32 @@ public class InsertResponseTest {
 
   @Test
   public void hashCodeTest() {
-    TigrisDBResponse tigrisDBResponse = new TigrisDBResponse("ok");
-    InsertResponse ob1 = new InsertResponse(tigrisDBResponse);
-    InsertResponse ob2 = new InsertResponse(tigrisDBResponse);
+    Timestamp createdAt =
+        Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
+    Timestamp updatedAt =
+        Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
+    String ok = "ok";
+    InsertResponse ob1 = new InsertResponse(ok, createdAt, updatedAt);
+    InsertResponse ob2 = new InsertResponse(ok, createdAt, updatedAt);
     Assert.assertEquals(ob1.hashCode(), ob1.hashCode());
     Assert.assertEquals(ob1.hashCode(), ob2.hashCode());
 
-    InsertResponse ob3 = new InsertResponse(null);
-    InsertResponse ob4 = new InsertResponse(null);
+    InsertResponse ob3 = new InsertResponse(null, createdAt, updatedAt);
+    InsertResponse ob4 = new InsertResponse(null, createdAt, updatedAt);
     Assert.assertEquals(ob3.hashCode(), ob4.hashCode());
   }
 
   @Test
   public void accessorTest() {
-    TigrisDBResponse tigrisDBResponse = new TigrisDBResponse("ok");
-    InsertResponse ob = new InsertResponse(tigrisDBResponse);
-    Assert.assertEquals(ob.getTigrisDBResponse(), tigrisDBResponse);
+    final String status = UUID.randomUUID().toString();
+
+    Timestamp createdAt =
+        Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
+    Timestamp updatedAt =
+        Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
+    InsertResponse ob = new InsertResponse(status, createdAt, updatedAt);
+    Assert.assertEquals(status, ob.getStatus());
+    Assert.assertEquals(ob.getMetadata().getCreatedAt(), createdAt);
+    Assert.assertEquals(ob.getMetadata().getCreatedAt(), updatedAt);
   }
 }

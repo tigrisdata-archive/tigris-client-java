@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
 import static com.tigrisdata.db.client.TypeConverter.toCreateCollectionRequest;
-import com.tigrisdata.db.client.error.TigrisDBException;
+import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisCollectionType;
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
@@ -68,21 +68,20 @@ public class StandardTransactionSession implements TransactionSession {
 
   @Override
   public CreateOrUpdateCollectionsResponse createOrUpdateCollections(
-      TigrisDBSchema schema, CollectionOptions collectionOptions) throws TigrisDBException {
+      TigrisSchema schema, CollectionOptions collectionOptions) throws TigrisException {
     try {
-      Api.CreateOrUpdateCollectionResponse createOrUpdateCollectionResponse =
+      Api.CreateOrUpdateCollectionResponse response =
           stub.createOrUpdateCollection(
               toCreateCollectionRequest(
                   databaseName, schema, collectionOptions, Optional.of(transactionCtx)));
-      return new CreateOrUpdateCollectionsResponse(
-          new TigrisDBResponse(createOrUpdateCollectionResponse.getMsg()));
+      return new CreateOrUpdateCollectionsResponse(response.getStatus(), response.getMessage());
     } catch (StatusRuntimeException ex) {
-      throw new TigrisDBException("Failed to create collection in transactional session", ex);
+      throw new TigrisException("Failed to create collection in transactional session", ex);
     }
   }
 
   @Override
-  public TigrisDBResponse commit() throws TigrisDBException {
+  public CommitTransactionResponse commit() throws TigrisException {
     try {
       Api.CommitTransactionRequest commitTransactionRequest =
           Api.CommitTransactionRequest.newBuilder()
@@ -91,14 +90,14 @@ public class StandardTransactionSession implements TransactionSession {
               .build();
       stub.commitTransaction(commitTransactionRequest);
       // TODO actual status back
-      return new TigrisDBResponse("committed");
+      return new CommitTransactionResponse("committed");
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisDBException("Failed to commit transaction", statusRuntimeException);
+      throw new TigrisException("Failed to commit transaction", statusRuntimeException);
     }
   }
 
   @Override
-  public TigrisDBResponse rollback() throws TigrisDBException {
+  public RollbackTransactionResponse rollback() throws TigrisException {
     try {
       Api.RollbackTransactionRequest rollbackTransactionRequest =
           Api.RollbackTransactionRequest.newBuilder()
@@ -107,9 +106,9 @@ public class StandardTransactionSession implements TransactionSession {
               .build();
       stub.rollbackTransaction(rollbackTransactionRequest);
       // TODO actual status back
-      return new TigrisDBResponse("rolled back");
+      return new RollbackTransactionResponse("rolled back");
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisDBException("Failed to rollback transaction", statusRuntimeException);
+      throw new TigrisException("Failed to rollback transaction", statusRuntimeException);
     }
   }
 }

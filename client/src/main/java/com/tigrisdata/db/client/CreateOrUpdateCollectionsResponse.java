@@ -16,29 +16,30 @@ package com.tigrisdata.db.client;
 import java.util.Objects;
 
 /** Represents Server response for CreateOrUpdateCollections operation */
-public class CreateOrUpdateCollectionsResponse {
-  private final TigrisDBResponse tigrisDBResponse;
+public class CreateOrUpdateCollectionsResponse extends TigrisResponse {
+  private final String message;
 
-  public CreateOrUpdateCollectionsResponse(TigrisDBResponse tigrisDBResponse) {
-    this.tigrisDBResponse = tigrisDBResponse;
+  CreateOrUpdateCollectionsResponse(String status, String message) {
+    super(status);
+    this.message = message;
   }
 
-  public TigrisDBResponse getTigrisDBResponse() {
-    return tigrisDBResponse;
+  /** @return the message from server */
+  public String getMessage() {
+    return message;
   }
 
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
-
+    if (!super.equals(o)) return false;
     CreateOrUpdateCollectionsResponse that = (CreateOrUpdateCollectionsResponse) o;
-
-    return Objects.equals(tigrisDBResponse, that.tigrisDBResponse);
+    return Objects.equals(message, that.message);
   }
 
   @Override
   public int hashCode() {
-    return tigrisDBResponse != null ? tigrisDBResponse.hashCode() : 0;
+    return Objects.hash(super.hashCode(), message);
   }
 }

@@ -13,13 +13,13 @@
  */
 package com.tigrisdata.db.client;
 
-import com.tigrisdata.db.client.error.TigrisDBException;
+import com.tigrisdata.db.client.error.TigrisException;
 
 import java.io.Closeable;
 import java.util.List;
 
 /** TigrisDB client */
-public interface TigrisDBClient extends Closeable {
+public interface TigrisClient extends Closeable {
 
   /**
    * Retrieves the database instance
@@ -34,25 +34,25 @@ public interface TigrisDBClient extends Closeable {
    *
    * @param listDatabaseOptions options
    * @return a list of @{@link TigrisDatabase}
-   * @throws TigrisDBException authentication failure or any other error
+   * @throws TigrisException authentication failure or any other error
    */
-  List<TigrisDatabase> listDatabases(DatabaseOptions listDatabaseOptions) throws TigrisDBException;
+  List<TigrisDatabase> listDatabases(DatabaseOptions listDatabaseOptions) throws TigrisException;
 
   /**
    * Creates the database if the database is not already present
    *
    * @param databaseName name of the database
-   * @return an instance of {@link TigrisDBResponse} from server
-   * @throws TigrisDBException in case of auth error or any other failure.
+   * @return an instance of {@link TigrisDatabase} from server
+   * @throws TigrisException in case of auth error or any other failure.
    */
-  TigrisDBResponse createDatabaseIfNotExists(String databaseName) throws TigrisDBException;
+  TigrisDatabase createDatabaseIfNotExists(String databaseName) throws TigrisException;
 
   /**
    * Drops the database
    *
    * @param databaseName name of the database
-   * @return an instance of {@link TigrisDBResponse} from server
-   * @throws TigrisDBException in case of auth error or any other failure.
+   * @return an instance of {@link DropDatabaseResponse} from server
+   * @throws TigrisException in case of auth error or any other failure.
    */
-  TigrisDBResponse dropDatabase(String databaseName) throws TigrisDBException;
+  DropDatabaseResponse dropDatabase(String databaseName) throws TigrisException;
 }

@@ -13,16 +13,16 @@
  */
 package com.tigrisdata.tools.schema.core.testdata;
 
-import com.tigrisdata.db.annotation.TigrisDBCollection;
-import com.tigrisdata.db.annotation.TigrisDBCollectionPrimaryKey;
+import com.tigrisdata.db.annotation.TigrisCollection;
+import com.tigrisdata.db.annotation.TigrisPrimaryKey;
 import com.tigrisdata.db.type.TigrisCollectionType;
 
 import java.util.Date;
 
-@TigrisDBCollection(value = "BoxedTypes", description = "Test description for boxed type")
+@TigrisCollection(value = "BoxedTypes", description = "Test description for boxed type")
 public class BoxedTypes implements TigrisCollectionType {
 
-  @TigrisDBCollectionPrimaryKey(1)
+  @TigrisPrimaryKey(1)
   private Integer aInteger;
 
   private Long aLong;

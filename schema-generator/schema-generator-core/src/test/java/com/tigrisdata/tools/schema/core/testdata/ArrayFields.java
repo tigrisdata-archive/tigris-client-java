@@ -13,9 +13,9 @@
  */
 package com.tigrisdata.tools.schema.core.testdata;
 
-import com.tigrisdata.db.annotation.TigrisDBCollection;
+import com.tigrisdata.db.annotation.TigrisCollection;
 
-@TigrisDBCollection("ArrayFields")
+@TigrisCollection("ArrayFields")
 public class ArrayFields {
   private int[] intArray1D;
   private int[][] intArray2D;

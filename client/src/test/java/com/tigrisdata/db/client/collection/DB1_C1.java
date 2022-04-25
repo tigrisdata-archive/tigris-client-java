@@ -13,13 +13,13 @@
  */
 package com.tigrisdata.db.client.collection;
 
-import com.tigrisdata.db.annotation.TigrisDBCollection;
+import com.tigrisdata.db.annotation.TigrisCollection;
 import com.tigrisdata.db.type.TigrisCollectionType;
 
 import java.util.Objects;
 
 /** Test collection type */
-@TigrisDBCollection("db1_c1")
+@TigrisCollection("db1_c1")
 public class DB1_C1 implements TigrisCollectionType {
   private final long id;
   private final String name;

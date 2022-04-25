@@ -17,7 +17,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.protobuf.ByteString;
 import com.tigrisdata.db.api.v1.grpc.Api;
-import com.tigrisdata.db.client.error.TigrisDBException;
+import com.tigrisdata.db.client.error.TigrisException;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -48,19 +48,19 @@ final class TypeConverter {
   }
 
   public static CollectionInfo toCollectionInfo(Api.CollectionInfo collectionInfo) {
-    return new CollectionInfo(collectionInfo.getName());
+    return new CollectionInfo(collectionInfo.getCollection());
   }
 
   public static DatabaseInfo toDatabaseInfo(Api.DatabaseInfo databaseInfo) {
-    return new DatabaseInfo(databaseInfo.getName());
+    return new DatabaseInfo(databaseInfo.getDb());
   }
 
   public static Api.CreateOrUpdateCollectionRequest toCreateCollectionRequest(
       String databaseName,
-      TigrisDBSchema schema,
+      TigrisSchema schema,
       CollectionOptions collectionOptions,
       Optional<Api.TransactionCtx> transactionCtx)
-      throws TigrisDBException {
+      throws TigrisException {
     try {
       return Api.CreateOrUpdateCollectionRequest.newBuilder()
           .setDb(databaseName)
@@ -69,7 +69,7 @@ final class TypeConverter {
           .setOptions(toCollectionOptions(collectionOptions, transactionCtx))
           .build();
     } catch (IOException ioException) {
-      throw new TigrisDBException("Failed to read schema content", ioException);
+      throw new TigrisException("Failed to read schema content", ioException);
     }
   }
 

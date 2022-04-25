@@ -16,23 +16,23 @@ package com.tigrisdata.db.client.error;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TigrisDBExceptionTest {
+public class TigrisExceptionTest {
 
   @Test
   public void messageWithoutCauseTest() {
-    TigrisDBException ex = new TigrisDBException("message1", null);
+    TigrisException ex = new TigrisException("message1", null);
     Assert.assertEquals("message1", ex.getMessage());
   }
 
   @Test
   public void messageWithCauseMessageTest() {
-    TigrisDBException ex = new TigrisDBException("message1", new Exception("message2"));
+    TigrisException ex = new TigrisException("message1", new Exception("message2"));
     Assert.assertEquals("message1 Cause: message2", ex.getMessage());
   }
 
   @Test
   public void messageWithCauseNullMessageTest() {
-    TigrisDBException ex = new TigrisDBException("message1", new Exception((String) null));
+    TigrisException ex = new TigrisException("message1", new Exception((String) null));
     Assert.assertEquals("message1", ex.getMessage());
   }
 }

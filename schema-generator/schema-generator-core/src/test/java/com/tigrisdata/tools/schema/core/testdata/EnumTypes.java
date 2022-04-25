@@ -13,9 +13,9 @@
  */
 package com.tigrisdata.tools.schema.core.testdata;
 
-import com.tigrisdata.db.annotation.TigrisDBCollection;
+import com.tigrisdata.db.annotation.TigrisCollection;
 
-@TigrisDBCollection("EnumTypes")
+@TigrisCollection("EnumTypes")
 public class EnumTypes {
   private Fruits fruits;
   private Vegetables vegetables;

@@ -19,7 +19,7 @@
                 },
                 "previewImage" : {
                   "type" : "string",
-                  "format" : "binary",
+                  "format" : "byte",
                   "description" : "category image binary data"
                 },
                 "tags" : {

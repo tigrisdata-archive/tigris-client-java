@@ -20,9 +20,8 @@ import static com.tigrisdata.db.client.Messages.BEGIN_TRANSACTION_FAILED;
 import static com.tigrisdata.db.client.Messages.CREATE_OR_UPDATE_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.Messages.DROP_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.Messages.LIST_COLLECTION_FAILED;
-import com.tigrisdata.db.client.error.TigrisDBException;
+import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisCollectionType;
-import com.tigrisdata.tools.schema.core.DefaultModelToTigrisDBJsonSchema;
 import com.tigrisdata.tools.schema.core.ModelToJsonSchema;
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
@@ -39,20 +38,23 @@ public class StandardTigrisDatabase implements TigrisDatabase {
   private final TigrisDBGrpc.TigrisDBBlockingStub stub;
   private final ManagedChannel managedChannel;
   private final ObjectMapper objectMapper;
+  private final ModelToJsonSchema modelToJsonSchema;
 
   StandardTigrisDatabase(
       String dbName,
       TigrisDBGrpc.TigrisDBBlockingStub stub,
       ManagedChannel managedChannel,
-      ObjectMapper objectMapper) {
+      ObjectMapper objectMapper,
+      ModelToJsonSchema modelToJsonSchema) {
     this.dbName = dbName;
     this.stub = stub;
     this.managedChannel = managedChannel;
     this.objectMapper = objectMapper;
+    this.modelToJsonSchema = modelToJsonSchema;
   }
 
   @Override
-  public List<CollectionInfo> listCollections() throws TigrisDBException {
+  public List<CollectionInfo> listCollections() throws TigrisException {
     try {
       Api.ListCollectionsRequest listCollectionsRequest =
           Api.ListCollectionsRequest.newBuilder().setDb(dbName).build();
@@ -62,22 +64,22 @@ public class StandardTigrisDatabase implements TigrisDatabase {
           .map(TypeConverter::toCollectionInfo)
           .collect(Collectors.toList());
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisDBException(LIST_COLLECTION_FAILED, statusRuntimeException);
+      throw new TigrisException(LIST_COLLECTION_FAILED, statusRuntimeException);
     }
   }
 
   @Override
-  public DropCollectionResponse dropCollection(String collectionName) throws TigrisDBException {
+  public DropCollectionResponse dropCollection(String collectionName) throws TigrisException {
     try {
       Api.DropCollectionRequest dropCollectionRequest =
           Api.DropCollectionRequest.newBuilder()
               .setDb(dbName)
               .setCollection(collectionName)
               .build();
-      return new DropCollectionResponse(
-          new TigrisDBResponse(stub.dropCollection(dropCollectionRequest).getMsg()));
+      Api.DropCollectionResponse response = stub.dropCollection(dropCollectionRequest);
+      return new DropCollectionResponse(response.getStatus(), response.getMessage());
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisDBException(DROP_COLLECTION_FAILED, statusRuntimeException);
+      throw new TigrisException(DROP_COLLECTION_FAILED, statusRuntimeException);
     }
   }
 
@@ -89,7 +91,7 @@ public class StandardTigrisDatabase implements TigrisDatabase {
 
   @Override
   public TransactionSession beginTransaction(TransactionOptions transactionOptions)
-      throws TigrisDBException {
+      throws TigrisException {
     try {
       Api.BeginTransactionRequest beginTransactionRequest =
           Api.BeginTransactionRequest.newBuilder()
@@ -101,38 +103,38 @@ public class StandardTigrisDatabase implements TigrisDatabase {
       Api.TransactionCtx transactionCtx = beginTransactionResponse.getTxCtx();
       return new StandardTransactionSession(dbName, transactionCtx, managedChannel, objectMapper);
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisDBException(BEGIN_TRANSACTION_FAILED, statusRuntimeException);
+      throw new TigrisException(BEGIN_TRANSACTION_FAILED, statusRuntimeException);
     }
   }
 
   @Override
   public CreateOrUpdateCollectionsResponse createOrUpdateCollections(
-      Class<? extends TigrisCollectionType>... collectionModelTypes) throws TigrisDBException {
+      Class<? extends TigrisCollectionType>... collectionModelTypes) throws TigrisException {
     TransactionSession transactionSession = null;
-    ModelToJsonSchema modelToJsonSchema = new DefaultModelToTigrisDBJsonSchema();
     try {
       transactionSession = beginTransaction(TransactionOptions.DEFAULT_INSTANCE);
       for (Class<? extends TigrisCollectionType> collectionModelType : collectionModelTypes) {
 
-        TigrisDBSchema schema =
-            new TigrisDBJSONSchema(modelToJsonSchema.toJsonSchema(collectionModelType).toString());
+        TigrisSchema schema =
+            new TigrisJSONSchema(modelToJsonSchema.toJsonSchema(collectionModelType).toString());
         transactionSession.createOrUpdateCollections(schema, CollectionOptions.DEFAULT_INSTANCE);
       }
       transactionSession.commit();
+      // TODO: revisit the response
       return new CreateOrUpdateCollectionsResponse(
-          new TigrisDBResponse("Collections created successfully"));
+          "Collections created successfully", "Collections created successfully");
     } catch (Exception exception) {
       if (transactionSession != null) {
         transactionSession.rollback();
       }
-      throw new TigrisDBException(CREATE_OR_UPDATE_COLLECTION_FAILED, exception);
+      throw new TigrisException(CREATE_OR_UPDATE_COLLECTION_FAILED, exception);
     }
   }
 
   @Override
   public CreateOrUpdateCollectionsResponse createOrUpdateCollections(
       String[] packagesToScan, Optional<Predicate<Class<? extends TigrisCollectionType>>> filter)
-      throws TigrisDBException {
+      throws TigrisException {
     return this.createOrUpdateCollections(
         Utilities.scanTigrisDBCollectionModels(packagesToScan, filter));
   }

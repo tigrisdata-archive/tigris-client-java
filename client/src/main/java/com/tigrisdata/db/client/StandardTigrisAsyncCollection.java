@@ -29,7 +29,7 @@ import static com.tigrisdata.db.client.TypeConverter.toInsertRequest;
 import static com.tigrisdata.db.client.TypeConverter.toReadRequest;
 import static com.tigrisdata.db.client.TypeConverter.toReplaceRequest;
 import static com.tigrisdata.db.client.TypeConverter.toUpdateRequest;
-import com.tigrisdata.db.client.error.TigrisDBException;
+import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisCollectionType;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
@@ -75,7 +75,7 @@ public class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
       TigrisFilter filter,
       ReadFields fields,
       ReadRequestOptions readRequestOptions,
-      TigrisDBAsyncReader<T> reader) {
+      TigrisAsyncReader<T> reader) {
     Api.ReadRequest readRequest =
         toReadRequest(
             databaseName, collectionName, filter, fields, readRequestOptions, objectMapper);
@@ -86,7 +86,7 @@ public class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
   }
 
   @Override
-  public void read(TigrisFilter filter, ReadFields fields, TigrisDBAsyncReader<T> reader) {
+  public void read(TigrisFilter filter, ReadFields fields, TigrisAsyncReader<T> reader) {
     this.read(filter, fields, new ReadRequestOptions(), reader);
   }
 
@@ -110,7 +110,7 @@ public class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
 
   @Override
   public CompletableFuture<InsertResponse> insert(
-      List<T> documents, InsertRequestOptions insertRequestOptions) throws TigrisDBException {
+      List<T> documents, InsertRequestOptions insertRequestOptions) throws TigrisException {
     try {
       Api.InsertRequest insertRequest =
           toInsertRequest(
@@ -119,11 +119,15 @@ public class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
           futureStub.insert(insertRequest);
       return Utilities.transformFuture(
           insertResponseListenableFuture,
-          input -> new InsertResponse(new TigrisDBResponse(Utilities.INSERT_SUCCESS_RESPONSE)),
+          input ->
+              new InsertResponse(
+                  input.getStatus(),
+                  input.getMetadata().getCreatedAt(),
+                  input.getMetadata().getUpdatedAt()),
           executor,
           INSERT_FAILED);
     } catch (JsonProcessingException jsonProcessingException) {
-      throw new TigrisDBException(
+      throw new TigrisException(
           "Failed to serialize documents to JSON, This should never happen on generated Java "
               + "models, if the Java models are not locally modified please report a bug",
           jsonProcessingException);
@@ -131,19 +135,19 @@ public class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
   }
 
   @Override
-  public CompletableFuture<InsertResponse> insert(List<T> documents) throws TigrisDBException {
+  public CompletableFuture<InsertResponse> insert(List<T> documents) throws TigrisException {
     return this.insert(documents, new InsertRequestOptions());
   }
 
   @Override
-  public CompletableFuture<InsertResponse> insert(T document) throws TigrisDBException {
+  public CompletableFuture<InsertResponse> insert(T document) throws TigrisException {
     return this.insert(Collections.singletonList(document));
   }
 
   @Override
   public CompletableFuture<InsertOrReplaceResponse> insertOrReplace(
       List<T> documents, InsertOrReplaceRequestOptions insertOrReplaceRequestOptions)
-      throws TigrisDBException {
+      throws TigrisException {
     try {
       Api.ReplaceRequest replaceRequest =
           toReplaceRequest(
@@ -153,11 +157,14 @@ public class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
       return Utilities.transformFuture(
           replaceResponseListenableFuture,
           input ->
-              new InsertOrReplaceResponse(new TigrisDBResponse(Utilities.INSERT_SUCCESS_RESPONSE)),
+              new InsertOrReplaceResponse(
+                  input.getStatus(),
+                  input.getMetadata().getCreatedAt(),
+                  input.getMetadata().getUpdatedAt()),
           executor,
           INSERT_OR_REPLACE_FAILED);
     } catch (JsonProcessingException jsonProcessingException) {
-      throw new TigrisDBException(
+      throw new TigrisException(
           "Failed to serialize documents to JSON, This should never happen on generated Java "
               + "models, if the Java models are not locally modified please report a bug",
           jsonProcessingException);
@@ -166,14 +173,14 @@ public class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
 
   @Override
   public CompletableFuture<InsertOrReplaceResponse> insertOrReplace(List<T> documents)
-      throws TigrisDBException {
+      throws TigrisException {
     return this.insertOrReplace(documents, new InsertOrReplaceRequestOptions());
   }
 
   @Override
   public CompletableFuture<UpdateResponse> update(
       TigrisFilter filter, UpdateFields fields, UpdateRequestOptions updateRequestOptions)
-      throws TigrisDBException {
+      throws TigrisException {
     Api.UpdateRequest updateRequest =
         toUpdateRequest(
             databaseName, collectionName, filter, fields, updateRequestOptions, objectMapper);
@@ -181,14 +188,19 @@ public class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
         futureStub.update(updateRequest);
     return Utilities.transformFuture(
         updateResponseListenableFuture,
-        input -> new UpdateResponse(input.getRc()),
+        input ->
+            new UpdateResponse(
+                input.getStatus(),
+                input.getMetadata().getCreatedAt(),
+                input.getMetadata().getUpdatedAt(),
+                input.getModifiedCount()),
         executor,
         UPDATE_FAILED);
   }
 
   @Override
   public CompletableFuture<UpdateResponse> update(TigrisFilter filter, UpdateFields fields)
-      throws TigrisDBException {
+      throws TigrisException {
     return this.update(filter, fields, new UpdateRequestOptions());
   }
 
@@ -201,7 +213,11 @@ public class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
         futureStub.delete(deleteRequest);
     return Utilities.transformFuture(
         deleteResponseListenableFuture,
-        input -> new DeleteResponse(new TigrisDBResponse(Utilities.DELETE_SUCCESS_RESPONSE)),
+        response ->
+            new DeleteResponse(
+                response.getStatus(),
+                response.getMetadata().getCreatedAt(),
+                response.getMetadata().getUpdatedAt()),
         executor,
         DELETE_FAILED);
   }
@@ -218,13 +234,13 @@ public class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
 
   static class ReadManyResponseObserverAdapter<T extends TigrisCollectionType>
       implements StreamObserver<Api.ReadResponse> {
-    private final TigrisDBAsyncReader<T> reader;
+    private final TigrisAsyncReader<T> reader;
     private final Class<T> collectionTypeClass;
     private final ObjectMapper objectMapper;
     private final String errorMessage;
 
     public ReadManyResponseObserverAdapter(
-        TigrisDBAsyncReader<T> reader,
+        TigrisAsyncReader<T> reader,
         Class<T> collectionTypeClass,
         ObjectMapper objectMapper,
         String errorMessage) {
@@ -237,11 +253,11 @@ public class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
     @Override
     public void onNext(Api.ReadResponse readResponse) {
       try {
-        T doc = objectMapper.readValue(readResponse.getDoc().toStringUtf8(), collectionTypeClass);
+        T doc = objectMapper.readValue(readResponse.getData().toStringUtf8(), collectionTypeClass);
         reader.onNext(doc);
       } catch (JsonProcessingException ex) {
         reader.onError(
-            new TigrisDBException(
+            new TigrisException(
                 "Failed to deserialize the read document to your model of type "
                     + collectionTypeClass.getName()
                     + ", please make sure your local schema generated models are in sync with server schema, please file a bug if your schemas are already in sync",
@@ -251,7 +267,7 @@ public class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
 
     @Override
     public void onError(Throwable throwable) {
-      reader.onError(new TigrisDBException(errorMessage, throwable));
+      reader.onError(new TigrisException(errorMessage, throwable));
     }
 
     @Override
@@ -281,11 +297,11 @@ public class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
     @Override
     public void onNext(Api.ReadResponse readResponse) {
       try {
-        T doc = objectMapper.readValue(readResponse.getDoc().toStringUtf8(), collectionTypeClass);
+        T doc = objectMapper.readValue(readResponse.getData().toStringUtf8(), collectionTypeClass);
         completableFuture.complete(Optional.of(doc));
       } catch (JsonProcessingException ex) {
         completableFuture.completeExceptionally(
-            new TigrisDBException(
+            new TigrisException(
                 "Failed to deserialize the read document to your model of type "
                     + collectionTypeClass.getName()
                     + ", please make sure your local schema generated models are in sync with server schema, please file a bug if your schemas are already in sync",
@@ -295,7 +311,7 @@ public class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
 
     @Override
     public void onError(Throwable throwable) {
-      completableFuture.completeExceptionally(new TigrisDBException(errorMessage, throwable));
+      completableFuture.completeExceptionally(new TigrisException(errorMessage, throwable));
     }
 
     @Override

@@ -11,21 +11,11 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tigrisdata.db.client.error;
+package com.tigrisdata.db.client;
 
-/** Base type of TigrisDB exceptions */
-public class TigrisDBException extends Exception {
-
-  public TigrisDBException(String message, Throwable cause) {
-    super(message, cause);
-  }
-
-  @Override
-  public String getMessage() {
-    String message = super.getMessage();
-    if (getCause() != null && getCause().getMessage() != null) {
-      message += " Cause: " + getCause().getMessage();
-    }
-    return message;
+/** Represents response of Transaction rollback operation */
+public class RollbackTransactionResponse extends TigrisResponse {
+  RollbackTransactionResponse(String status) {
+    super(status);
   }
 }

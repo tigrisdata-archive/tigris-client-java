@@ -14,7 +14,7 @@
 package com.tigrisdata.db.client;
 
 import com.tigrisdata.db.client.collection.DB1_C1;
-import com.tigrisdata.db.client.error.TigrisDBException;
+import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.grpc.ContextSettingServerInterceptor;
 import com.tigrisdata.db.client.grpc.TransactionTestUserService;
 import io.grpc.inprocess.InProcessServerBuilder;
@@ -44,8 +44,8 @@ public class TransactionSessionTest {
   }
 
   @Test
-  public void testValidSequences() throws TigrisDBException {
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+  public void testValidSequences() throws TigrisException {
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
     TransactionSession transactionSession = db1.beginTransaction(new TransactionOptions());
     transactionSession.commit();
@@ -55,36 +55,36 @@ public class TransactionSessionTest {
   }
 
   @Test
-  public void testInvalidSequences1() throws TigrisDBException {
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+  public void testInvalidSequences1() throws TigrisException {
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
     TransactionSession transactionSession = db1.beginTransaction(new TransactionOptions());
     transactionSession.commit();
     try {
       transactionSession.commit();
       Assert.fail("above is expected to fail");
-    } catch (TigrisDBException ignore) {
+    } catch (TigrisException ignore) {
 
     }
   }
 
   @Test
-  public void testInvalidSequences2() throws TigrisDBException {
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+  public void testInvalidSequences2() throws TigrisException {
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
     TransactionSession transactionSession = db1.beginTransaction(new TransactionOptions());
     transactionSession.rollback();
     try {
       transactionSession.rollback();
       Assert.fail("above is expected to fail");
-    } catch (TigrisDBException ignore) {
+    } catch (TigrisException ignore) {
 
     }
   }
 
   @Test
-  public void testHeadersOnServer() throws TigrisDBException {
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+  public void testHeadersOnServer() throws TigrisException {
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
     TransactionSession transactionSession = db1.beginTransaction(new TransactionOptions());
     TigrisCollection<DB1_C1> c1TigrisCollection = transactionSession.getCollection(DB1_C1.class);
@@ -96,10 +96,7 @@ public class TransactionSessionTest {
     c1TigrisCollection.insert(Collections.singletonList(new DB1_C1(5, "foo")));
 
     c1TigrisCollection.update(
-        Filters.eq("id", 5),
-        UpdateFields.newBuilder()
-            .set(UpdateFields.SetFields.newBuilder().set("name", "new name").build())
-            .build());
+        Filters.eq("id", 5), UpdateFields.newBuilder().set("name", "new name").build());
 
     transactionSession.commit();
   }

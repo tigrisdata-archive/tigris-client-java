@@ -13,12 +13,22 @@
  */
 package com.tigrisdata.db.client;
 
-import com.google.protobuf.Timestamp;
+import java.io.IOException;
 
-/** Represents Server response for InsertOrReplace operation */
-public class InsertOrReplaceResponse extends DMLResponse {
-
-  public InsertOrReplaceResponse(String status, Timestamp createdAt, Timestamp updatedAt) {
-    super(status, createdAt, updatedAt);
-  }
+/** represents the TigrisSchema */
+interface TigrisSchema {
+  /**
+   * Reads the schema content
+   *
+   * @return string form of the JSON schema
+   * @throws IOException if the reading of schema failed.
+   */
+  String getSchemaContent() throws IOException;
+  /**
+   * Reads the schema name from "title" JSON attribute.
+   *
+   * @return name of the schema
+   * @throws IOException if the reading of schema failed.
+   */
+  String getName() throws IOException;
 }

@@ -14,7 +14,7 @@
 package com.tigrisdata.db.client;
 
 import com.tigrisdata.db.client.auth.TigrisAuthorizationToken;
-import com.tigrisdata.db.client.config.TigrisDBConfiguration;
+import com.tigrisdata.db.client.config.TigrisConfiguration;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.testing.GrpcCleanupRule;
@@ -23,27 +23,27 @@ public final class TestUtils {
 
   private TestUtils() {}
 
-  public static StandardTigrisDBClient getTestClient(
+  public static StandardTigrisClient getTestClient(
       String grpcServerName, GrpcCleanupRule grpcCleanupRule) {
     ManagedChannelBuilder<InProcessChannelBuilder> channelBuilder =
         InProcessChannelBuilder.forName(grpcServerName);
-    StandardTigrisDBClient client =
-        new StandardTigrisDBClient(
+    StandardTigrisClient client =
+        new StandardTigrisClient(
             new TigrisAuthorizationToken("some.dummy.token"),
-            TigrisDBConfiguration.newBuilder("some-url").build(),
+            TigrisConfiguration.newBuilder("some-url").build(),
             channelBuilder);
     grpcCleanupRule.register(client.getChannel());
     return client;
   }
 
-  public static StandardTigrisDBAsyncClient getTestAsyncClient(
+  public static StandardTigrisAsyncClient getTestAsyncClient(
       String grpcServerName, GrpcCleanupRule grpcCleanupRule) {
     ManagedChannelBuilder<InProcessChannelBuilder> channelBuilder =
         InProcessChannelBuilder.forName(grpcServerName);
-    StandardTigrisDBAsyncClient client =
-        new StandardTigrisDBAsyncClient(
+    StandardTigrisAsyncClient client =
+        new StandardTigrisAsyncClient(
             new TigrisAuthorizationToken("some.dummy.token"),
-            TigrisDBConfiguration.newBuilder("some-url").build(),
+            TigrisConfiguration.newBuilder("some-url").build(),
             channelBuilder);
     grpcCleanupRule.register(client.getChannel());
     return client;

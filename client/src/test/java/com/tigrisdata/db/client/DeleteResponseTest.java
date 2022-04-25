@@ -13,16 +13,24 @@
  */
 package com.tigrisdata.db.client;
 
+import com.google.protobuf.Timestamp;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.UUID;
 
 public class DeleteResponseTest {
 
   @Test
   public void equalsTest() {
-    TigrisDBResponse tigrisDBResponse = new TigrisDBResponse("ok");
-    DeleteResponse ob1 = new DeleteResponse(tigrisDBResponse);
-    DeleteResponse ob2 = new DeleteResponse(tigrisDBResponse);
+    final String status = UUID.randomUUID().toString();
+
+    final Timestamp createdAt =
+        Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
+    final Timestamp updatedAt =
+        Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
+    DeleteResponse ob1 = new DeleteResponse(status, createdAt, updatedAt);
+    DeleteResponse ob2 = new DeleteResponse(status, createdAt, updatedAt);
     Assert.assertEquals(ob1, ob1);
     Assert.assertEquals(ob1, ob2);
     Assert.assertNotEquals(ob1, null);
@@ -31,21 +39,33 @@ public class DeleteResponseTest {
 
   @Test
   public void hashCodeTest() {
-    TigrisDBResponse tigrisDBResponse = new TigrisDBResponse("ok");
-    DeleteResponse ob1 = new DeleteResponse(tigrisDBResponse);
-    DeleteResponse ob2 = new DeleteResponse(tigrisDBResponse);
+    final String status = UUID.randomUUID().toString();
+
+    final Timestamp createdAt =
+        Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
+    final Timestamp updatedAt =
+        Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
+    DeleteResponse ob1 = new DeleteResponse(status, createdAt, updatedAt);
+    DeleteResponse ob2 = new DeleteResponse(status, createdAt, updatedAt);
     Assert.assertEquals(ob1.hashCode(), ob1.hashCode());
     Assert.assertEquals(ob1.hashCode(), ob2.hashCode());
 
-    DeleteResponse ob3 = new DeleteResponse(null);
-    DeleteResponse ob4 = new DeleteResponse(null);
+    DeleteResponse ob3 = new DeleteResponse(status, createdAt, updatedAt);
+    DeleteResponse ob4 = new DeleteResponse(status, createdAt, updatedAt);
     Assert.assertEquals(ob3.hashCode(), ob4.hashCode());
   }
 
   @Test
   public void accessorTest() {
-    TigrisDBResponse tigrisDBResponse = new TigrisDBResponse("ok");
-    DeleteResponse ob = new DeleteResponse(tigrisDBResponse);
-    Assert.assertEquals(ob.getTigrisDBResponse(), tigrisDBResponse);
+    final String status = UUID.randomUUID().toString();
+
+    final Timestamp createdAt =
+        Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
+    final Timestamp updatedAt =
+        Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
+    DeleteResponse ob = new DeleteResponse(status, createdAt, updatedAt);
+    Assert.assertEquals(status, ob.getStatus());
+    Assert.assertEquals(createdAt, ob.getMetadata().getCreatedAt());
+    Assert.assertEquals(updatedAt, ob.getMetadata().getUpdatedAt());
   }
 }

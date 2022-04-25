@@ -14,7 +14,7 @@
 package com.tigrisdata.db.client;
 
 import com.tigrisdata.db.client.collection.DB1_C1;
-import com.tigrisdata.db.client.error.TigrisDBException;
+import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.grpc.FailingTestUserService;
 import io.grpc.Status;
 import io.grpc.inprocess.InProcessServerBuilder;
@@ -48,17 +48,17 @@ public class StandardTigrisCollectionFailureTest {
   @Test
   public void testRead() {
     String dbName = UUID.randomUUID().toString();
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db = client.getDatabase(dbName);
     try {
       db.getCollection(DB1_C1.class).readOne(Filters.eq("id", 0));
       Assert.fail("This must fail");
-    } catch (TigrisDBException tigrisDBException) {
+    } catch (TigrisException tigrisException) {
       Assert.assertEquals(
           "Failed to read Cause: FAILED_PRECONDITION: Test failure " + dbName,
-          tigrisDBException.getMessage());
+          tigrisException.getMessage());
       Assert.assertEquals(
-          Status.fromThrowable(tigrisDBException.getCause()).getCode(),
+          Status.fromThrowable(tigrisException.getCause()).getCode(),
           Status.FAILED_PRECONDITION.getCode());
     }
   }
@@ -66,17 +66,17 @@ public class StandardTigrisCollectionFailureTest {
   @Test
   public void testInsert() {
     String dbName = UUID.randomUUID().toString();
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db = client.getDatabase(dbName);
     try {
       db.getCollection(DB1_C1.class).insert(new DB1_C1(6, "name6"));
       Assert.fail("This must fail");
-    } catch (TigrisDBException tigrisDBException) {
+    } catch (TigrisException tigrisException) {
       Assert.assertEquals(
           "Failed to insert Cause: FAILED_PRECONDITION: Test failure " + dbName,
-          tigrisDBException.getMessage());
+          tigrisException.getMessage());
       Assert.assertEquals(
-          Status.fromThrowable(tigrisDBException.getCause()).getCode(),
+          Status.fromThrowable(tigrisException.getCause()).getCode(),
           Status.FAILED_PRECONDITION.getCode());
     }
   }
@@ -84,18 +84,18 @@ public class StandardTigrisCollectionFailureTest {
   @Test
   public void testInsertOrReplace() {
     String dbName = UUID.randomUUID().toString();
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db = client.getDatabase(dbName);
     try {
       db.getCollection(DB1_C1.class)
           .insertOrReplace(Collections.singletonList(new DB1_C1(6, "name6")));
       Assert.fail("This must fail");
-    } catch (TigrisDBException tigrisDBException) {
+    } catch (TigrisException tigrisException) {
       Assert.assertEquals(
           "Failed to insertOrReplace Cause: FAILED_PRECONDITION: Test failure " + dbName,
-          tigrisDBException.getMessage());
+          tigrisException.getMessage());
       Assert.assertEquals(
-          Status.fromThrowable(tigrisDBException.getCause()).getCode(),
+          Status.fromThrowable(tigrisException.getCause()).getCode(),
           Status.FAILED_PRECONDITION.getCode());
     }
   }
@@ -103,17 +103,17 @@ public class StandardTigrisCollectionFailureTest {
   @Test
   public void testDelete() {
     String dbName = UUID.randomUUID().toString();
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db = client.getDatabase(dbName);
     try {
       db.getCollection(DB1_C1.class).delete(Filters.eq("id", 0));
       Assert.fail("This must fail");
-    } catch (TigrisDBException tigrisDBException) {
+    } catch (TigrisException tigrisException) {
       Assert.assertEquals(
           "Failed to delete Cause: FAILED_PRECONDITION: Test failure " + dbName,
-          tigrisDBException.getMessage());
+          tigrisException.getMessage());
       Assert.assertEquals(
-          Status.fromThrowable(tigrisDBException.getCause()).getCode(),
+          Status.fromThrowable(tigrisException.getCause()).getCode(),
           Status.FAILED_PRECONDITION.getCode());
     }
   }
@@ -121,22 +121,19 @@ public class StandardTigrisCollectionFailureTest {
   @Test
   public void testUpdate() {
     String dbName = UUID.randomUUID().toString();
-    TigrisDBClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db = client.getDatabase(dbName);
     try {
       db.getCollection(DB1_C1.class)
           .update(
-              Filters.eq("id", 0),
-              UpdateFields.newBuilder()
-                  .set(UpdateFields.SetFields.newBuilder().set("name", "updated_name").build())
-                  .build());
+              Filters.eq("id", 0), UpdateFields.newBuilder().set("name", "updated_name").build());
       Assert.fail("This must fail");
-    } catch (TigrisDBException tigrisDBException) {
+    } catch (TigrisException tigrisException) {
       Assert.assertEquals(
           "Failed to update Cause: FAILED_PRECONDITION: Test failure " + dbName,
-          tigrisDBException.getMessage());
+          tigrisException.getMessage());
       Assert.assertEquals(
-          Status.fromThrowable(tigrisDBException.getCause()).getCode(),
+          Status.fromThrowable(tigrisException.getCause()).getCode(),
           Status.FAILED_PRECONDITION.getCode());
     }
   }

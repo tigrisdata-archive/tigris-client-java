@@ -20,33 +20,33 @@ public class TigrisDBResponseTest {
 
   @Test
   public void testEquals() {
-    TigrisDBResponse ob1 = new TigrisDBResponse("ok");
-    TigrisDBResponse ob2 = new TigrisDBResponse("ok");
+    TigrisResponse ob1 = new TigrisResponse("ok");
+    TigrisResponse ob2 = new TigrisResponse("ok");
     Assert.assertEquals(ob1, ob1);
     Assert.assertEquals(ob1, ob2);
     Assert.assertNotEquals(ob1, null);
     Assert.assertNotEquals(ob1, "some-string");
 
-    TigrisDBResponse ob3 = new TigrisDBResponse("ok1");
-    TigrisDBResponse ob4 = new TigrisDBResponse("ok2");
+    TigrisResponse ob3 = new TigrisResponse("ok1");
+    TigrisResponse ob4 = new TigrisResponse("ok2");
     Assert.assertNotEquals(ob3, ob4);
   }
 
   @Test
   public void testHashCode() {
-    TigrisDBResponse ob1 = new TigrisDBResponse("ok");
-    TigrisDBResponse ob2 = new TigrisDBResponse("ok");
+    TigrisResponse ob1 = new TigrisResponse("ok");
+    TigrisResponse ob2 = new TigrisResponse("ok");
     Assert.assertEquals(ob1.hashCode(), ob1.hashCode());
     Assert.assertEquals(ob1.hashCode(), ob2.hashCode());
 
-    TigrisDBResponse ob3 = new TigrisDBResponse(null);
-    TigrisDBResponse ob4 = new TigrisDBResponse(null);
+    TigrisResponse ob3 = new TigrisResponse(null);
+    TigrisResponse ob4 = new TigrisResponse(null);
     Assert.assertEquals(ob3.hashCode(), ob4.hashCode());
   }
 
   @Test
   public void testAccessor() {
-    TigrisDBResponse ob1 = new TigrisDBResponse("ok");
-    Assert.assertEquals("ok", ob1.getMessage());
+    TigrisResponse ob1 = new TigrisResponse("ok");
+    Assert.assertEquals("ok", ob1.getStatus());
   }
 }

@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /** Specifies a field of a document. Allows user to customize the schema for the field. */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD})
-public @interface TigrisDBCollectionField {
+public @interface TigrisField {
   /**
    * Description of the field, this is for documentation / readability purpose
    *

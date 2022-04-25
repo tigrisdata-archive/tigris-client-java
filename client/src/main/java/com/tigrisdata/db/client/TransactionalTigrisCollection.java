@@ -16,7 +16,7 @@ package com.tigrisdata.db.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
-import com.tigrisdata.db.client.error.TigrisDBException;
+import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisCollectionType;
 
 import java.util.Collections;
@@ -46,7 +46,7 @@ public class TransactionalTigrisCollection<T extends TigrisCollectionType>
   @Override
   public Iterator<T> read(
       TigrisFilter filter, ReadFields fields, ReadRequestOptions readRequestOptions)
-      throws TigrisDBException {
+      throws TigrisException {
     if (readRequestOptions.getReadOptions() != null) {
       readRequestOptions
           .getReadOptions()
@@ -60,7 +60,7 @@ public class TransactionalTigrisCollection<T extends TigrisCollectionType>
 
   @Override
   public InsertResponse insert(List<T> documents, InsertRequestOptions insertRequestOptions)
-      throws TigrisDBException {
+      throws TigrisException {
     if (insertRequestOptions.getWriteOptions() != null) {
       insertRequestOptions
           .getWriteOptions()
@@ -75,7 +75,7 @@ public class TransactionalTigrisCollection<T extends TigrisCollectionType>
   @Override
   public InsertOrReplaceResponse insertOrReplace(
       List<T> documents, InsertOrReplaceRequestOptions insertOrReplaceRequestOptions)
-      throws TigrisDBException {
+      throws TigrisException {
     if (insertOrReplaceRequestOptions.getWriteOptions() != null) {
       insertOrReplaceRequestOptions
           .getWriteOptions()
@@ -88,13 +88,13 @@ public class TransactionalTigrisCollection<T extends TigrisCollectionType>
   }
 
   @Override
-  public InsertOrReplaceResponse insertOrReplace(List<T> documents) throws TigrisDBException {
+  public InsertOrReplaceResponse insertOrReplace(List<T> documents) throws TigrisException {
     return insertOrReplace(documents, new InsertOrReplaceRequestOptions());
   }
 
   @Override
   public DeleteResponse delete(TigrisFilter filter, DeleteRequestOptions deleteRequestOptions)
-      throws TigrisDBException {
+      throws TigrisException {
     if (deleteRequestOptions.getWriteOptions() != null) {
       deleteRequestOptions
           .getWriteOptions()
@@ -107,7 +107,7 @@ public class TransactionalTigrisCollection<T extends TigrisCollectionType>
   }
 
   @Override
-  public Iterator<T> read(TigrisFilter filter, ReadFields fields) throws TigrisDBException {
+  public Iterator<T> read(TigrisFilter filter, ReadFields fields) throws TigrisException {
     return read(
         filter,
         fields,
@@ -115,7 +115,7 @@ public class TransactionalTigrisCollection<T extends TigrisCollectionType>
   }
 
   @Override
-  public Optional<T> readOne(TigrisFilter filter) throws TigrisDBException {
+  public Optional<T> readOne(TigrisFilter filter) throws TigrisException {
     Iterator<T> iterator = this.read(filter, ReadFields.empty());
     if (iterator.hasNext()) {
       return Optional.of(iterator.next());
@@ -124,19 +124,19 @@ public class TransactionalTigrisCollection<T extends TigrisCollectionType>
   }
 
   @Override
-  public InsertResponse insert(List<T> documents) throws TigrisDBException {
+  public InsertResponse insert(List<T> documents) throws TigrisException {
     return insert(
         documents,
         new InsertRequestOptions(new WriteOptions(TypeConverter.toTransactionCtx(transactionCtx))));
   }
 
   @Override
-  public InsertResponse insert(T document) throws TigrisDBException {
+  public InsertResponse insert(T document) throws TigrisException {
     return this.insert(Collections.singletonList(document));
   }
 
   @Override
-  public DeleteResponse delete(TigrisFilter filter) throws TigrisDBException {
+  public DeleteResponse delete(TigrisFilter filter) throws TigrisException {
     return delete(
         filter,
         new DeleteRequestOptions(new WriteOptions(TypeConverter.toTransactionCtx(transactionCtx))));

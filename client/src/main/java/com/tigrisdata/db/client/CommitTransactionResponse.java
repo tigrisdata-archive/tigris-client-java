@@ -12,22 +12,9 @@
  * limitations under the License.
  */
 package com.tigrisdata.db.client;
-
-import com.tigrisdata.db.type.TigrisCollectionType;
-
-/**
- * A callback that reads the documents
- *
- * @param <T> Collection type
- */
-public interface TigrisDBAsyncReader<T extends TigrisCollectionType> {
-
-  /** @param document next document */
-  void onNext(T document);
-
-  /** @param t captures the error */
-  void onError(Throwable t);
-
-  /** Gets invoked when read is completed */
-  void onCompleted();
+/** Represents response of Transaction commit operation */
+public class CommitTransactionResponse extends TigrisResponse {
+  CommitTransactionResponse(String status) {
+    super(status);
+  }
 }

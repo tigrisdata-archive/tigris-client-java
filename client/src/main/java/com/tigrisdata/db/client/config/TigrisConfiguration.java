@@ -20,13 +20,13 @@ import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import java.time.Duration;
 
 /** TigrisDB client configuration */
-public class TigrisDBConfiguration {
-  private final String baseURL;
-  private final TigrisDBConfiguration.NetworkConfig network;
+public class TigrisConfiguration {
+  private final String serverURL;
+  private final TigrisConfiguration.NetworkConfig network;
   private final ObjectMapper objectMapper;
 
-  private TigrisDBConfiguration(TigrisDBConfiguration.TigrisDBClientConfigurationBuilder builder) {
-    this.baseURL = builder.baseURL;
+  private TigrisConfiguration(Builder builder) {
+    this.serverURL = builder.baseURL;
     this.network = builder.network;
     this.objectMapper = builder.objectMapper;
   }
@@ -35,18 +35,17 @@ public class TigrisDBConfiguration {
    * Get the builder
    *
    * @param baseURL server base URL
-   * @return an instance of {@link TigrisDBClientConfigurationBuilder}
+   * @return an instance of {@link Builder}
    */
-  public static TigrisDBConfiguration.TigrisDBClientConfigurationBuilder newBuilder(
-      final String baseURL) {
-    return new TigrisDBConfiguration.TigrisDBClientConfigurationBuilder(baseURL);
+  public static Builder newBuilder(final String baseURL) {
+    return new Builder(baseURL);
   }
 
-  public String getBaseURL() {
-    return this.baseURL;
+  public String getServerURL() {
+    return this.serverURL;
   }
 
-  public TigrisDBConfiguration.NetworkConfig getNetwork() {
+  public TigrisConfiguration.NetworkConfig getNetwork() {
     return this.network;
   }
 
@@ -54,14 +53,14 @@ public class TigrisDBConfiguration {
     return objectMapper;
   }
 
-  /** Builder class for {@link TigrisDBConfiguration} */
-  public static final class TigrisDBClientConfigurationBuilder {
+  /** Builder class for {@link TigrisConfiguration} */
+  public static final class Builder {
 
     private final String baseURL;
-    private TigrisDBConfiguration.NetworkConfig network;
+    private TigrisConfiguration.NetworkConfig network;
     private ObjectMapper objectMapper;
 
-    private TigrisDBClientConfigurationBuilder(String baseURL) {
+    private Builder(String baseURL) {
       this.baseURL = baseURL;
       this.network = NetworkConfig.newBuilder().build();
       // configure ObjectMapper to work with immutable objects
@@ -75,8 +74,7 @@ public class TigrisDBConfiguration {
      * @param network network config
      * @return ongoing builder
      */
-    public TigrisDBConfiguration.TigrisDBClientConfigurationBuilder withNetwork(
-        TigrisDBConfiguration.NetworkConfig network) {
+    public Builder withNetwork(TigrisConfiguration.NetworkConfig network) {
       this.network = network;
       return this;
     }
@@ -88,14 +86,13 @@ public class TigrisDBConfiguration {
      * @param objectMapper customized object mapper
      * @return ongoing builder
      */
-    public TigrisDBConfiguration.TigrisDBClientConfigurationBuilder withObjectMapper(
-        ObjectMapper objectMapper) {
+    public Builder withObjectMapper(ObjectMapper objectMapper) {
       this.objectMapper = objectMapper;
       return this;
     }
 
-    public TigrisDBConfiguration build() {
-      return new TigrisDBConfiguration(this);
+    public TigrisConfiguration build() {
+      return new TigrisConfiguration(this);
     }
   }
 
@@ -104,13 +101,13 @@ public class TigrisDBConfiguration {
     private final Duration deadline;
     private final boolean usePlainText;
 
-    public static NetworkConfigBuilder newBuilder() {
-      return new NetworkConfigBuilder();
+    public static Builder newBuilder() {
+      return new Builder();
     }
 
-    private NetworkConfig(NetworkConfigBuilder networkConfigBuilder) {
-      this.deadline = networkConfigBuilder.deadline;
-      this.usePlainText = networkConfigBuilder.usePlainText;
+    private NetworkConfig(Builder builder) {
+      this.deadline = builder.deadline;
+      this.usePlainText = builder.usePlainText;
     }
 
     public Duration getDeadline() {
@@ -122,13 +119,13 @@ public class TigrisDBConfiguration {
     }
 
     /** Builder class for {@link NetworkConfig} */
-    public static class NetworkConfigBuilder {
+    public static class Builder {
       public static final Duration DEFAULT_DEADLINE = Duration.ofSeconds(5);
 
       private Duration deadline;
       private boolean usePlainText;
 
-      public NetworkConfigBuilder() {
+      public Builder() {
         this.deadline = DEFAULT_DEADLINE;
         this.usePlainText = false;
       }
@@ -139,7 +136,7 @@ public class TigrisDBConfiguration {
        * @param deadline duration of time
        * @return ongoing builder
        */
-      public NetworkConfigBuilder withDeadline(Duration deadline) {
+      public Builder withDeadline(Duration deadline) {
         this.deadline = deadline;
         return this;
       }
@@ -150,7 +147,7 @@ public class TigrisDBConfiguration {
        *
        * @return ongoing builder
        */
-      public NetworkConfigBuilder usePlainText() {
+      public Builder usePlainText() {
         this.usePlainText = true;
         return this;
       }

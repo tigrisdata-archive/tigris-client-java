@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /** Annotates that given type is a TigrisDB collection type. */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
-public @interface TigrisDBCollection {
+public @interface TigrisCollection {
   /**
    * User can specify their collection name here. Default the collection name is derived by
    * pluralizing the classname and snake casing the string.

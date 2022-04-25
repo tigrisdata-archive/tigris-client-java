@@ -13,9 +13,9 @@
  */
 package com.tigrisdata.tools.schema.core.testdata;
 
-import com.tigrisdata.db.annotation.TigrisDBCollection;
+import com.tigrisdata.db.annotation.TigrisCollection;
 
-@TigrisDBCollection("NestedObjectTypes")
+@TigrisCollection("NestedObjectTypes")
 public class NestedObjectTypes {
   private School primarySchool;
   private City birthPlace;

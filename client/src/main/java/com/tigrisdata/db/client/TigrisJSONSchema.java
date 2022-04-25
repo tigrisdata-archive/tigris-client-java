@@ -15,7 +15,7 @@ package com.tigrisdata.db.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tigrisdata.db.client.error.TigrisDBException;
+import com.tigrisdata.db.client.error.TigrisException;
 
 import java.util.Objects;
 
@@ -23,22 +23,22 @@ import java.util.Objects;
  * Represents TigrisDB JSON collection schema. This is used to read / parse and register
  * collection's schema.
  */
-public class TigrisDBJSONSchema implements TigrisDBSchema {
+class TigrisJSONSchema implements TigrisSchema {
 
   private String schemaName;
   private String schemaContent;
 
   /**
-   * Constructs the {@link TigrisDBJSONSchema} from schemaContent and schemaName
+   * Constructs the {@link TigrisJSONSchema} from schemaContent and schemaName
    *
    * @param schemaContent content of schema
    */
-  public TigrisDBJSONSchema(String schemaContent) throws TigrisDBException {
+  public TigrisJSONSchema(String schemaContent) throws TigrisException {
     this.schemaContent = schemaContent;
     try {
       this.schemaName = new ObjectMapper().readTree(schemaContent).get("title").asText();
     } catch (JsonProcessingException ex) {
-      throw new TigrisDBException("Could not parse schema", ex);
+      throw new TigrisException("Could not parse schema", ex);
     }
   }
 
@@ -57,7 +57,7 @@ public class TigrisDBJSONSchema implements TigrisDBSchema {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    TigrisDBJSONSchema that = (TigrisDBJSONSchema) o;
+    TigrisJSONSchema that = (TigrisJSONSchema) o;
 
     if (!Objects.equals(schemaName, that.schemaName)) return false;
     return Objects.equals(schemaContent, that.schemaContent);

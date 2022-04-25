@@ -15,31 +15,29 @@ package com.tigrisdata.db.client;
 
 import java.util.Objects;
 
-/** Represents Server response for Drop collection operation */
-public class DropCollectionResponse extends TigrisResponse {
-  private final String message;
+/** represents the generic server response */
+class TigrisResponse {
+  protected final String status;
 
-  public DropCollectionResponse(String status, String message) {
-    super(status);
-    this.message = message;
+  TigrisResponse(String status) {
+    this.status = status;
   }
 
-  /** @return the message from server */
-  public String getMessage() {
-    return message;
+  /** @return the status from server */
+  public String getStatus() {
+    return status;
   }
 
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
-    if (!super.equals(o)) return false;
-    DropCollectionResponse that = (DropCollectionResponse) o;
-    return Objects.equals(message, that.message);
+    TigrisResponse that = (TigrisResponse) o;
+    return Objects.equals(status, that.status);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(super.hashCode(), message);
+    return Objects.hash(status);
   }
 }

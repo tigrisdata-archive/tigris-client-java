@@ -17,17 +17,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
-import static com.tigrisdata.db.client.TypeConverter.readOneDefaultReadRequestOptions;
-import static com.tigrisdata.db.client.TypeConverter.toDeleteRequest;
-import static com.tigrisdata.db.client.TypeConverter.toReadRequest;
-import static com.tigrisdata.db.client.TypeConverter.toReplaceRequest;
-import static com.tigrisdata.db.client.TypeConverter.toUpdateRequest;
-import com.tigrisdata.db.client.error.TigrisDBException;
 import static com.tigrisdata.db.client.Messages.DELETE_FAILED;
 import static com.tigrisdata.db.client.Messages.INSERT_FAILED;
 import static com.tigrisdata.db.client.Messages.INSERT_OR_REPLACE_FAILED;
 import static com.tigrisdata.db.client.Messages.READ_FAILED;
 import static com.tigrisdata.db.client.Messages.UPDATE_FAILED;
+import static com.tigrisdata.db.client.TypeConverter.readOneDefaultReadRequestOptions;
+import static com.tigrisdata.db.client.TypeConverter.toDeleteRequest;
+import static com.tigrisdata.db.client.TypeConverter.toReadRequest;
+import static com.tigrisdata.db.client.TypeConverter.toReplaceRequest;
+import static com.tigrisdata.db.client.TypeConverter.toUpdateRequest;
+import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisCollectionType;
 import io.grpc.StatusRuntimeException;
 
@@ -61,7 +61,7 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
   @Override
   public Iterator<T> read(
       TigrisFilter filter, ReadFields fields, ReadRequestOptions readRequestOptions)
-      throws TigrisDBException {
+      throws TigrisException {
     try {
       Api.ReadRequest readRequest =
           toReadRequest(
@@ -72,24 +72,24 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
           readResponse -> {
             try {
               return objectMapper.readValue(
-                  readResponse.getDoc().toStringUtf8(), collectionTypeClass);
+                  readResponse.getData().toStringUtf8(), collectionTypeClass);
             } catch (JsonProcessingException e) {
               throw new IllegalArgumentException("Failed to convert response to  the user type", e);
             }
           };
       return Utilities.transformIterator(readResponseIterator, converter);
     } catch (StatusRuntimeException exception) {
-      throw new TigrisDBException(READ_FAILED, exception);
+      throw new TigrisException(READ_FAILED, exception);
     }
   }
 
   @Override
-  public Iterator<T> read(TigrisFilter filter, ReadFields fields) throws TigrisDBException {
+  public Iterator<T> read(TigrisFilter filter, ReadFields fields) throws TigrisException {
     return this.read(filter, fields, new ReadRequestOptions());
   }
 
   @Override
-  public Optional<T> readOne(TigrisFilter filter) throws TigrisDBException {
+  public Optional<T> readOne(TigrisFilter filter) throws TigrisException {
     Iterator<T> iterator =
         this.read(filter, ReadFields.empty(), readOneDefaultReadRequestOptions());
     try {
@@ -97,65 +97,69 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
         return Optional.of(iterator.next());
       }
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisDBException(READ_FAILED, statusRuntimeException);
+      throw new TigrisException(READ_FAILED, statusRuntimeException);
     }
     return Optional.empty();
   }
 
   @Override
   public InsertResponse insert(List<T> documents, InsertRequestOptions insertRequestOptions)
-      throws TigrisDBException {
+      throws TigrisException {
     try {
       Api.InsertRequest insertRequest =
           TypeConverter.toInsertRequest(
               databaseName, collectionName, documents, insertRequestOptions, objectMapper);
-      stub.insert(insertRequest);
-      // TODO actual status back
-      return new InsertResponse(new TigrisDBResponse(Utilities.INSERT_SUCCESS_RESPONSE));
+      Api.InsertResponse response = stub.insert(insertRequest);
+      return new InsertResponse(
+          response.getStatus(),
+          response.getMetadata().getCreatedAt(),
+          response.getMetadata().getUpdatedAt());
     } catch (JsonProcessingException ex) {
-      throw new TigrisDBException("Failed to serialize documents to JSON", ex);
+      throw new TigrisException("Failed to serialize documents to JSON", ex);
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisDBException(INSERT_FAILED, statusRuntimeException);
+      throw new TigrisException(INSERT_FAILED, statusRuntimeException);
     }
   }
 
   @Override
-  public InsertResponse insert(List<T> documents) throws TigrisDBException {
+  public InsertResponse insert(List<T> documents) throws TigrisException {
     return insert(documents, new InsertRequestOptions(new WriteOptions()));
   }
 
   @Override
-  public InsertResponse insert(T document) throws TigrisDBException {
+  public InsertResponse insert(T document) throws TigrisException {
     return insert(Collections.singletonList(document));
   }
 
   @Override
   public InsertOrReplaceResponse insertOrReplace(
       List<T> documents, InsertOrReplaceRequestOptions insertOrReplaceRequestOptions)
-      throws TigrisDBException {
+      throws TigrisException {
     try {
       Api.ReplaceRequest replaceRequest =
           toReplaceRequest(
               databaseName, collectionName, documents, insertOrReplaceRequestOptions, objectMapper);
-      stub.replace(replaceRequest);
-      // TODO actual status back
-      return new InsertOrReplaceResponse(new TigrisDBResponse(Utilities.INSERT_SUCCESS_RESPONSE));
+      Api.ReplaceResponse response = stub.replace(replaceRequest);
+      return new InsertOrReplaceResponse(
+          response.getStatus(),
+          response.getMetadata().getCreatedAt(),
+          response.getMetadata().getUpdatedAt());
     } catch (JsonProcessingException ex) {
-      throw new TigrisDBException("Failed to serialize to JSON", ex);
+      throw new TigrisException("Failed to serialize to JSON", ex);
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisDBException(INSERT_OR_REPLACE_FAILED, statusRuntimeException);
+      throw new TigrisException(INSERT_OR_REPLACE_FAILED, statusRuntimeException);
     }
   }
 
   @Override
-  public InsertOrReplaceResponse insertOrReplace(List<T> documents) throws TigrisDBException {
+  public InsertOrReplaceResponse insertOrReplace(List<T> documents) throws TigrisException {
     return insertOrReplace(documents, new InsertOrReplaceRequestOptions());
   }
 
   @Override
   public UpdateResponse update(
       TigrisFilter filter, UpdateFields updateFields, UpdateRequestOptions updateRequestOptions)
-      throws TigrisDBException {
+      throws TigrisException {
     try {
       Api.UpdateRequest updateRequest =
           toUpdateRequest(
@@ -166,34 +170,40 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
               updateRequestOptions,
               objectMapper);
       Api.UpdateResponse updateResponse = stub.update(updateRequest);
-      return new UpdateResponse(updateResponse.getRc());
+      return new UpdateResponse(
+          updateResponse.getStatus(),
+          updateResponse.getMetadata().getCreatedAt(),
+          updateResponse.getMetadata().getUpdatedAt(),
+          updateResponse.getModifiedCount());
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisDBException(UPDATE_FAILED, statusRuntimeException);
+      throw new TigrisException(UPDATE_FAILED, statusRuntimeException);
     }
   }
 
   @Override
   public UpdateResponse update(TigrisFilter filter, UpdateFields updateFields)
-      throws TigrisDBException {
+      throws TigrisException {
     return update(filter, updateFields, new UpdateRequestOptions());
   }
 
   @Override
   public DeleteResponse delete(TigrisFilter filter, DeleteRequestOptions deleteRequestOptions)
-      throws TigrisDBException {
+      throws TigrisException {
     try {
       Api.DeleteRequest deleteRequest =
           toDeleteRequest(databaseName, collectionName, filter, deleteRequestOptions, objectMapper);
-      stub.delete(deleteRequest);
-      // TODO actual status back
-      return new DeleteResponse(new TigrisDBResponse(Utilities.DELETE_SUCCESS_RESPONSE));
+      Api.DeleteResponse response = stub.delete(deleteRequest);
+      return new DeleteResponse(
+          response.getStatus(),
+          response.getMetadata().getCreatedAt(),
+          response.getMetadata().getUpdatedAt());
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisDBException(DELETE_FAILED, statusRuntimeException);
+      throw new TigrisException(DELETE_FAILED, statusRuntimeException);
     }
   }
 
   @Override
-  public DeleteResponse delete(TigrisFilter filter) throws TigrisDBException {
+  public DeleteResponse delete(TigrisFilter filter) throws TigrisException {
     return delete(filter, new DeleteRequestOptions(new WriteOptions()));
   }
 

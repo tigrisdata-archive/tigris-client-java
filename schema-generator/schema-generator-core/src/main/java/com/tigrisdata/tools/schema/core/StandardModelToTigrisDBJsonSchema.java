@@ -24,11 +24,13 @@ import com.github.victools.jsonschema.generator.SchemaGenerator;
 import com.github.victools.jsonschema.generator.SchemaGeneratorConfig;
 import com.github.victools.jsonschema.generator.SchemaGeneratorConfigBuilder;
 import com.github.victools.jsonschema.generator.SchemaVersion;
-import com.tigrisdata.db.annotation.TigrisDBCollection;
-import com.tigrisdata.db.annotation.TigrisDBCollectionField;
-import com.tigrisdata.db.annotation.TigrisDBCollectionPrimaryKey;
+import com.tigrisdata.db.annotation.TigrisCollection;
+import com.tigrisdata.db.annotation.TigrisField;
+import com.tigrisdata.db.annotation.TigrisPrimaryKey;
 import com.tigrisdata.db.type.TigrisCollectionType;
 import com.tigrisdata.db.util.TypeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -36,10 +38,10 @@ import java.util.Iterator;
 import java.util.Map;
 
 /** Generates TigrisDB compatible JSON schema from Java models */
-public class DefaultModelToTigrisDBJsonSchema implements ModelToJsonSchema {
+public class StandardModelToTigrisDBJsonSchema implements ModelToJsonSchema {
 
   private static final String FORMAT = "format";
-  private static final String BINARY = "binary";
+  private static final String BYTE = "byte";
 
   private static final String STRING = "string";
   private static final String DESCRIPTION = "description";
@@ -51,6 +53,9 @@ public class DefaultModelToTigrisDBJsonSchema implements ModelToJsonSchema {
   private static final String $SCHEMA = "$schema";
   private static final String PRIMARY_KEYS = "primary_key";
   private static final String ADDITIONAL_PROPERTIES = "additionalProperties";
+
+  private static final Logger log =
+      LoggerFactory.getLogger(StandardModelToTigrisDBJsonSchema.class);
 
   @Override
   public JsonNode toJsonSchema(Class<? extends TigrisCollectionType> clazz) {
@@ -65,13 +70,9 @@ public class DefaultModelToTigrisDBJsonSchema implements ModelToJsonSchema {
                         .forFields()
                         .withDescriptionResolver(
                             target -> {
-                              TigrisDBCollectionField tigrisDBCollectionField =
-                                  target.getAnnotation(TigrisDBCollectionField.class);
-                              if (tigrisDBCollectionField != null
-                                  && !tigrisDBCollectionField.description().isEmpty()) {
-                                return target
-                                    .getAnnotation(TigrisDBCollectionField.class)
-                                    .description();
+                              TigrisField tigrisField = target.getAnnotation(TigrisField.class);
+                              if (tigrisField != null && !tigrisField.description().isEmpty()) {
+                                return target.getAnnotation(TigrisField.class).description();
                               }
                               return null;
                             })
@@ -89,7 +90,9 @@ public class DefaultModelToTigrisDBJsonSchema implements ModelToJsonSchema {
 
     SchemaGenerator generator = new SchemaGenerator(config);
     JsonNode jsonSchema = generator.generateSchema(clazz);
-    return customizeSchema(jsonSchema, clazz);
+    JsonNode result = customizeSchema(jsonSchema, clazz);
+    log.info("Collection type class: {}, schema: {}", clazz.getName(), result.toPrettyString());
+    return result;
   }
 
   /**
@@ -122,7 +125,7 @@ public class DefaultModelToTigrisDBJsonSchema implements ModelToJsonSchema {
       itemsItr = new ObjectMapper().createObjectNode();
     }
     itemsItr.put(TYPE, STRING);
-    itemsItr.put(FORMAT, BINARY);
+    itemsItr.put(FORMAT, BYTE);
 
     return property;
   }
@@ -130,10 +133,10 @@ public class DefaultModelToTigrisDBJsonSchema implements ModelToJsonSchema {
   private static JsonNode customizeSchema(
       JsonNode jsonSchema, Class<? extends TigrisCollectionType> clazz) {
     String schemaName = TypeUtils.getCollectionName(clazz);
-    TigrisDBCollection tigrisDBCollection = clazz.getAnnotation(TigrisDBCollection.class);
+    TigrisCollection tigrisCollection = clazz.getAnnotation(TigrisCollection.class);
     String description = null;
-    if (tigrisDBCollection != null) {
-      description = tigrisDBCollection.description();
+    if (tigrisCollection != null) {
+      description = tigrisCollection.description();
     }
 
     ObjectNode objectNode = new ObjectMapper().createObjectNode();
@@ -156,8 +159,7 @@ public class DefaultModelToTigrisDBJsonSchema implements ModelToJsonSchema {
     // inspect first level fields
     Map<Integer, String> primaryKeysMap = new HashMap<>();
     for (Field field : clazz.getDeclaredFields()) {
-      TigrisDBCollectionPrimaryKey primaryKeyTag =
-          field.getAnnotation(TigrisDBCollectionPrimaryKey.class);
+      TigrisPrimaryKey primaryKeyTag = field.getAnnotation(TigrisPrimaryKey.class);
       if (primaryKeyTag != null) {
         primaryKeysMap.put(primaryKeyTag.value(), field.getName());
       }

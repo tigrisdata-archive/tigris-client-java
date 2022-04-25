@@ -13,18 +13,18 @@
  */
 package com.tigrisdata.tools.schema.core.testdata;
 
-import com.tigrisdata.db.annotation.TigrisDBCollection;
-import com.tigrisdata.db.annotation.TigrisDBCollectionPrimaryKey;
+import com.tigrisdata.db.annotation.TigrisCollection;
+import com.tigrisdata.db.annotation.TigrisPrimaryKey;
 import com.tigrisdata.db.type.TigrisCollectionType;
 
 import java.util.UUID;
 
-@TigrisDBCollection(
+@TigrisCollection(
     value = "TigrisCustomTypeCollection",
     description = "Test description for TigrisCustomTypes")
 public class TigrisCustomTypes implements TigrisCollectionType {
 
-  @TigrisDBCollectionPrimaryKey(1)
+  @TigrisPrimaryKey(1)
   private UUID id;
 
   private byte[][] byteArr;

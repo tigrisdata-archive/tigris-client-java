@@ -13,7 +13,7 @@
  */
 package com.tigrisdata.db.util;
 
-import com.tigrisdata.db.annotation.TigrisDBCollection;
+import com.tigrisdata.db.annotation.TigrisCollection;
 import com.tigrisdata.db.type.TigrisCollectionType;
 import org.junit.Assert;
 import org.junit.Test;
@@ -32,7 +32,7 @@ public class TypeUtilsTest {
 
   class User implements TigrisCollectionType {}
 
-  @TigrisDBCollection("customized_name")
+  @TigrisCollection("customized_name")
   class CustomCollectionName implements TigrisCollectionType {}
 
   class UserType implements TigrisCollectionType {}

@@ -13,24 +13,28 @@
  */
 package com.tigrisdata.db.client;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
 import static com.tigrisdata.db.client.Messages.CREATE_DB_FAILED;
-import static com.tigrisdata.db.client.Messages.DB_ALREADY_EXISTS;
 import static com.tigrisdata.db.client.Messages.DROP_DB_FAILED;
 import static com.tigrisdata.db.client.Messages.LIST_DBS_FAILED;
 import static com.tigrisdata.db.client.TypeConverter.toCreateDatabaseRequest;
 import static com.tigrisdata.db.client.TypeConverter.toDropDatabaseRequest;
 import static com.tigrisdata.db.client.TypeConverter.toListDatabasesRequest;
 import com.tigrisdata.db.client.auth.AuthorizationToken;
-import com.tigrisdata.db.client.config.TigrisDBConfiguration;
-import com.tigrisdata.db.client.error.TigrisDBException;
+import com.tigrisdata.db.client.config.TigrisConfiguration;
+import com.tigrisdata.db.client.error.TigrisException;
+import com.tigrisdata.tools.schema.core.ModelToJsonSchema;
+import com.tigrisdata.tools.schema.core.StandardModelToTigrisDBJsonSchema;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,66 +45,63 @@ import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 
 /** Async client for TigrisDB */
-public class StandardTigrisDBAsyncClient extends AbstractTigrisDBClient
-    implements TigrisDBAsyncClient {
+public class StandardTigrisAsyncClient extends AbstractTigrisDBClient implements TigrisAsyncClient {
 
   private final TigrisDBGrpc.TigrisDBFutureStub stub;
   private final Executor executor;
+  private static final Logger log = LoggerFactory.getLogger(StandardTigrisAsyncClient.class);
 
-  private StandardTigrisDBAsyncClient(
-      TigrisDBConfiguration clientConfiguration, AuthorizationToken authorizationToken) {
-    this(clientConfiguration, authorizationToken, Executors.newCachedThreadPool());
+  private StandardTigrisAsyncClient(TigrisConfiguration clientConfiguration) {
+    this(clientConfiguration, Executors.newCachedThreadPool());
   }
 
-  StandardTigrisDBAsyncClient(
-      TigrisDBConfiguration clientConfiguration,
-      AuthorizationToken authorizationToken,
-      Executor executor) {
-    super(clientConfiguration, authorizationToken);
+  StandardTigrisAsyncClient(TigrisConfiguration clientConfiguration, Executor executor) {
+    // TODO: authorization token injection
+    super(clientConfiguration, Optional.empty(), new StandardModelToTigrisDBJsonSchema());
     this.stub = TigrisDBGrpc.newFutureStub(channel);
     this.executor = executor;
   }
 
   @VisibleForTesting
-  StandardTigrisDBAsyncClient(
+  StandardTigrisAsyncClient(
       AuthorizationToken authorizationToken,
-      TigrisDBConfiguration configuration,
+      TigrisConfiguration configuration,
       ManagedChannelBuilder<? extends ManagedChannelBuilder> managedChannelBuilder) {
-    super(authorizationToken, configuration, managedChannelBuilder);
+    super(
+        authorizationToken,
+        configuration,
+        managedChannelBuilder,
+        new StandardModelToTigrisDBJsonSchema());
     this.stub = TigrisDBGrpc.newFutureStub(channel);
     this.executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
   }
 
   /**
-   * Creates a new instance of @{@link StandardTigrisDBAsyncClient} with the given inputs
+   * Creates a new instance of @{@link StandardTigrisAsyncClient} with the given inputs
    *
-   * @param authorizationToken authorization token
-   * @param tigrisDBConfiguration configuration
-   * @return a new instance of @{@link StandardTigrisDBAsyncClient}
+   * @param tigrisConfiguration configuration
+   * @return a new instance of @{@link StandardTigrisAsyncClient}
    */
-  public static StandardTigrisDBAsyncClient getInstance(
-      AuthorizationToken authorizationToken, TigrisDBConfiguration tigrisDBConfiguration) {
-    return new StandardTigrisDBAsyncClient(tigrisDBConfiguration, authorizationToken);
+  public static StandardTigrisAsyncClient getInstance(TigrisConfiguration tigrisConfiguration) {
+    return new StandardTigrisAsyncClient(tigrisConfiguration);
   }
 
   /**
-   * Creates a new instance of @{@link StandardTigrisDBAsyncClient} with the given inputs
+   * Creates a new instance of @{@link StandardTigrisAsyncClient} with the given inputs
    *
-   * @param authorizationToken authorization token
-   * @param tigrisDBConfiguration configuration
+   * @param tigrisConfiguration configuration
    * @param executor executor that executes the future translation
-   * @return a new instance of @{@link StandardTigrisDBAsyncClient}
+   * @return a new instance of @{@link StandardTigrisAsyncClient}
    */
-  public static StandardTigrisDBAsyncClient getInstance(
-      AuthorizationToken authorizationToken,
-      TigrisDBConfiguration tigrisDBConfiguration,
-      Executor executor) {
-    return new StandardTigrisDBAsyncClient(tigrisDBConfiguration, authorizationToken, executor);
+  public static StandardTigrisAsyncClient getInstance(
+      TigrisConfiguration tigrisConfiguration, Executor executor) {
+    return new StandardTigrisAsyncClient(tigrisConfiguration, executor);
   }
 
   @Override
   public TigrisAsyncDatabase getDatabase(String databaseName) {
-    return new StandardTigrisAsyncDatabase(databaseName, stub, channel, executor, objectMapper);
+    return new StandardTigrisAsyncDatabase(
+        databaseName, stub, channel, executor, objectMapper, modelToJsonSchema);
   }
 
   @Override
@@ -116,7 +117,12 @@ public class StandardTigrisDBAsyncClient extends AbstractTigrisDBClient
           for (Api.DatabaseInfo databaseInfo : listDatabasesResponse.getDatabasesList()) {
             tigrisAsyncDatabases.add(
                 new StandardTigrisAsyncDatabase(
-                    databaseInfo.getName(), stub, channel, executor, objectMapper));
+                    databaseInfo.getDb(),
+                    stub,
+                    channel,
+                    executor,
+                    objectMapper,
+                    modelToJsonSchema));
           }
           return tigrisAsyncDatabases;
         },
@@ -125,25 +131,29 @@ public class StandardTigrisDBAsyncClient extends AbstractTigrisDBClient
   }
 
   @Override
-  public CompletableFuture<TigrisDBResponse> createDatabaseIfNotExists(String databaseName) {
+  public CompletableFuture<TigrisAsyncDatabase> createDatabaseIfNotExists(String databaseName) {
     ListenableFuture<Api.CreateDatabaseResponse> createDatabaseResponse =
         stub.createDatabase(
             toCreateDatabaseRequest(databaseName, DatabaseOptions.DEFAULT_INSTANCE));
     return Utilities.transformFuture(
         createDatabaseResponse,
-        apiResponse -> new TigrisDBResponse(apiResponse.getMsg()),
+        response ->
+            new StandardTigrisAsyncDatabase(
+                databaseName, stub, channel, executor, objectMapper, modelToJsonSchema),
         executor,
         CREATE_DB_FAILED,
-        Optional.of(CreateDatabaseExceptionHandler.DEFAULT_INSTANCE));
+        Optional.of(
+            new CreateDatabaseExceptionHandler(
+                databaseName, stub, executor, channel, objectMapper, modelToJsonSchema)));
   }
 
   @Override
-  public CompletableFuture<TigrisDBResponse> dropDatabase(String databaseName) {
+  public CompletableFuture<DropDatabaseResponse> dropDatabase(String databaseName) {
     ListenableFuture<Api.DropDatabaseResponse> dropDatabaseResponse =
         stub.dropDatabase(toDropDatabaseRequest(databaseName, DatabaseOptions.DEFAULT_INSTANCE));
     return Utilities.transformFuture(
         dropDatabaseResponse,
-        apiResponse -> new TigrisDBResponse(apiResponse.getMsg()),
+        response -> new DropDatabaseResponse(response.getStatus(), response.getMessage()),
         executor,
         DROP_DB_FAILED);
   }
@@ -163,22 +173,45 @@ public class StandardTigrisDBAsyncClient extends AbstractTigrisDBClient
    * if the server says database already exists, it will pass the exception further otherwise.
    */
   static class CreateDatabaseExceptionHandler
-      implements BiConsumer<CompletableFuture<TigrisDBResponse>, Throwable> {
-    static final CreateDatabaseExceptionHandler DEFAULT_INSTANCE =
-        new CreateDatabaseExceptionHandler();
+      implements BiConsumer<CompletableFuture<TigrisAsyncDatabase>, Throwable> {
+    private final String dbName;
+    private final TigrisDBGrpc.TigrisDBFutureStub stub;
+    private final Executor executor;
+    private final ManagedChannel channel;
+    private final ObjectMapper objectMapper;
+    private final ModelToJsonSchema modelToJsonSchema;
+
+    public CreateDatabaseExceptionHandler(
+        String dbName,
+        TigrisDBGrpc.TigrisDBFutureStub stub,
+        Executor executor,
+        ManagedChannel channel,
+        ObjectMapper objectMapper,
+        ModelToJsonSchema modelToJsonSchema) {
+      this.dbName = dbName;
+      this.stub = stub;
+      this.executor = executor;
+      this.channel = channel;
+      this.objectMapper = objectMapper;
+      this.modelToJsonSchema = modelToJsonSchema;
+    }
 
     @Override
-    public void accept(CompletableFuture<TigrisDBResponse> completableFuture, Throwable throwable) {
+    public void accept(
+        CompletableFuture<TigrisAsyncDatabase> completableFuture, Throwable throwable) {
       if (throwable instanceof StatusRuntimeException) {
         if (((StatusRuntimeException) throwable).getStatus().getCode()
             == Status.ALREADY_EXISTS.getCode()) {
           // swallow the already exists exception
-          completableFuture.complete(new TigrisDBResponse(DB_ALREADY_EXISTS));
+          log.info("database already exists: {}", dbName);
+          completableFuture.complete(
+              new StandardTigrisAsyncDatabase(
+                  dbName, stub, channel, executor, objectMapper, modelToJsonSchema));
           return;
         }
       }
       // pass on the error otherwise
-      completableFuture.completeExceptionally(new TigrisDBException(CREATE_DB_FAILED, throwable));
+      completableFuture.completeExceptionally(new TigrisException(CREATE_DB_FAILED, throwable));
     }
   }
 }

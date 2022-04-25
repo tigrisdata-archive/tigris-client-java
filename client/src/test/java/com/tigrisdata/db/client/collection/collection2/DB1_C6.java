@@ -13,11 +13,11 @@
  */
 package com.tigrisdata.db.client.collection.collection2;
 
-import com.tigrisdata.db.annotation.TigrisDBCollection;
+import com.tigrisdata.db.annotation.TigrisCollection;
 import com.tigrisdata.db.type.TigrisCollectionType;
 
 /** Test collection type */
-@TigrisDBCollection("db1_c6")
+@TigrisCollection("db1_c6")
 public class DB1_C6 implements TigrisCollectionType {
   private long id;
   private String name;

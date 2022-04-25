@@ -13,32 +13,12 @@
  */
 package com.tigrisdata.db.client;
 
-import java.util.Objects;
+import com.google.protobuf.Timestamp;
 
 /** Represents Server response for Delete operation */
-public class DeleteResponse {
-  private final TigrisDBResponse tigrisDBResponse;
+public class DeleteResponse extends DMLResponse {
 
-  public DeleteResponse(TigrisDBResponse tigrisDBResponse) {
-    this.tigrisDBResponse = tigrisDBResponse;
-  }
-
-  public TigrisDBResponse getTigrisDBResponse() {
-    return tigrisDBResponse;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-
-    DeleteResponse that = (DeleteResponse) o;
-
-    return Objects.equals(tigrisDBResponse, that.tigrisDBResponse);
-  }
-
-  @Override
-  public int hashCode() {
-    return tigrisDBResponse != null ? tigrisDBResponse.hashCode() : 0;
+  DeleteResponse(String status, Timestamp createdAt, Timestamp updatedAt) {
+    super(status, createdAt, updatedAt);
   }
 }

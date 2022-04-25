@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD})
-public @interface TigrisDBCollectionPrimaryKey {
+public @interface TigrisPrimaryKey {
   /**
    * There can be multiple field composing the primary-key. This accepts the order.
    *

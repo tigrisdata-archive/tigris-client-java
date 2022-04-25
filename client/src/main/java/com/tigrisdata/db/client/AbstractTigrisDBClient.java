@@ -2,7 +2,8 @@ package com.tigrisdata.db.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tigrisdata.db.client.auth.AuthorizationToken;
-import com.tigrisdata.db.client.config.TigrisDBConfiguration;
+import com.tigrisdata.db.client.config.TigrisConfiguration;
+import com.tigrisdata.tools.schema.core.ModelToJsonSchema;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Metadata;
@@ -10,9 +11,13 @@ import io.grpc.stub.MetadataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Optional;
+
 abstract class AbstractTigrisDBClient {
   protected final ManagedChannel channel;
   protected final ObjectMapper objectMapper;
+  protected final ModelToJsonSchema modelToJsonSchema;
+
   private static final Metadata.Key<String> USER_AGENT_KEY =
       Metadata.Key.of("user-agent", Metadata.ASCII_STRING_MARSHALLER);
   private static final Metadata.Key<String> CLIENT_VERSION_KEY =
@@ -24,12 +29,16 @@ abstract class AbstractTigrisDBClient {
   private static final Logger log = LoggerFactory.getLogger(AbstractTigrisDBClient.class);
 
   protected AbstractTigrisDBClient(
-      TigrisDBConfiguration configuration, AuthorizationToken authorizationToken) {
+      TigrisConfiguration configuration,
+      Optional<AuthorizationToken> authorizationToken,
+      ModelToJsonSchema modelToJsonSchema) {
 
     ManagedChannelBuilder channelBuilder =
-        ManagedChannelBuilder.forTarget(configuration.getBaseURL())
-            .intercept(new AuthHeaderInterceptor(authorizationToken))
+        ManagedChannelBuilder.forTarget(configuration.getServerURL())
             .intercept(MetadataUtils.newAttachHeadersInterceptor(getDefaultHeaders(configuration)));
+    if (authorizationToken.isPresent()) {
+      channelBuilder.intercept(new AuthHeaderInterceptor(authorizationToken.get()));
+    }
     if (configuration.getNetwork().isUsePlainText()) {
       log.warn(
           "Client is configured to use plaintext communication. It is advised to not use plaintext communication");
@@ -37,25 +46,28 @@ abstract class AbstractTigrisDBClient {
     }
     this.channel = channelBuilder.build();
     this.objectMapper = configuration.getObjectMapper();
+    this.modelToJsonSchema = modelToJsonSchema;
   }
 
   protected AbstractTigrisDBClient(
       AuthorizationToken authorizationToken,
-      TigrisDBConfiguration configuration,
-      ManagedChannelBuilder<? extends ManagedChannelBuilder> managedChannelBuilder) {
+      TigrisConfiguration configuration,
+      ManagedChannelBuilder<? extends ManagedChannelBuilder> managedChannelBuilder,
+      ModelToJsonSchema modelToJsonSchema) {
     this.channel =
         managedChannelBuilder
             .intercept(new AuthHeaderInterceptor(authorizationToken))
             .intercept(MetadataUtils.newAttachHeadersInterceptor(getDefaultHeaders(configuration)))
             .build();
     this.objectMapper = configuration.getObjectMapper();
+    this.modelToJsonSchema = modelToJsonSchema;
   }
 
-  private static Metadata getDefaultHeaders(TigrisDBConfiguration configuration) {
+  private static Metadata getDefaultHeaders(TigrisConfiguration configuration) {
     Metadata defaultHeaders = new Metadata();
     defaultHeaders.put(USER_AGENT_KEY, USER_AGENT_VALUE);
     defaultHeaders.put(CLIENT_VERSION_KEY, CLIENT_VERSION_VALUE);
-    defaultHeaders.put(INTENDED_DESTINATION_NAME, configuration.getBaseURL());
+    defaultHeaders.put(INTENDED_DESTINATION_NAME, configuration.getServerURL());
     return defaultHeaders;
   }
 }

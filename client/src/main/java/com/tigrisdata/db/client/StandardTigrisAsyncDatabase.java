@@ -18,13 +18,11 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
 import static com.tigrisdata.db.client.Messages.BEGIN_TRANSACTION_FAILED;
-import static com.tigrisdata.db.client.Messages.COLLECTIONS_APPLIED;
 import static com.tigrisdata.db.client.Messages.DROP_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.Messages.LIST_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.TypeConverter.toBeginTransactionRequest;
 import static com.tigrisdata.db.client.TypeConverter.toDropCollectionRequest;
 import com.tigrisdata.db.type.TigrisCollectionType;
-import com.tigrisdata.tools.schema.core.DefaultModelToTigrisDBJsonSchema;
 import com.tigrisdata.tools.schema.core.ModelToJsonSchema;
 import io.grpc.ManagedChannel;
 
@@ -43,18 +41,21 @@ public class StandardTigrisAsyncDatabase implements TigrisAsyncDatabase {
   private final ManagedChannel channel;
   private final Executor executor;
   private final ObjectMapper objectMapper;
+  private final ModelToJsonSchema modelToJsonSchema;
 
   StandardTigrisAsyncDatabase(
       String databaseName,
       TigrisDBGrpc.TigrisDBFutureStub stub,
       ManagedChannel channel,
       Executor executor,
-      ObjectMapper objectMapper) {
+      ObjectMapper objectMapper,
+      ModelToJsonSchema modelToJsonSchema) {
     this.stub = stub;
     this.channel = channel;
     this.databaseName = databaseName;
     this.executor = executor;
     this.objectMapper = objectMapper;
+    this.modelToJsonSchema = modelToJsonSchema;
   }
 
   @Override
@@ -86,18 +87,21 @@ public class StandardTigrisAsyncDatabase implements TigrisAsyncDatabase {
           if (throwable != null) {
             result.completeExceptionally(throwable);
           }
-          ModelToJsonSchema modelToJsonSchema = new DefaultModelToTigrisDBJsonSchema();
+          CreateOrUpdateCollectionsResponse response = null;
           for (Class<? extends TigrisCollectionType> collectionModel : collectionModelTypes) {
             try {
               String schemaContent = modelToJsonSchema.toJsonSchema(collectionModel).toString();
-              transactionSession.createOrUpdateCollections(
-                  new TigrisDBJSONSchema(schemaContent), CollectionOptions.DEFAULT_INSTANCE);
+
+              response =
+                  transactionSession.createOrUpdateCollections(
+                      new TigrisJSONSchema(schemaContent), CollectionOptions.DEFAULT_INSTANCE);
             } catch (Exception ex) {
               result.completeExceptionally(ex);
             }
           }
-          result.complete(
-              new CreateOrUpdateCollectionsResponse(new TigrisDBResponse(COLLECTIONS_APPLIED)));
+          if (response != null) {
+            result.complete(response);
+          }
         }));
     return result;
   }
@@ -121,7 +125,7 @@ public class StandardTigrisAsyncDatabase implements TigrisAsyncDatabase {
                 Optional.empty()));
     return Utilities.transformFuture(
         dropCollectionResponseListenableFuture,
-        input -> new DropCollectionResponse(new TigrisDBResponse(input.getMsg())),
+        response -> new DropCollectionResponse(response.getStatus(), response.getMessage()),
         executor,
         DROP_COLLECTION_FAILED);
   }

@@ -13,5 +13,5 @@
  */
 package com.tigrisdata.db.client.auth;
 
-/** Market interface for Authorization */
+/** Marker interface for Authorization */
 public interface Authorization {}

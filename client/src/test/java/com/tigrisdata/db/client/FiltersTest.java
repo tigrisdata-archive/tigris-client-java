@@ -16,13 +16,13 @@ package com.tigrisdata.db.client;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tigrisdata.db.client.config.TigrisDBConfiguration;
+import com.tigrisdata.db.client.config.TigrisConfiguration;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class FiltersTest {
   private static ObjectMapper DEFAULT_OBJECT_MAPPER =
-      TigrisDBConfiguration.newBuilder("test").build().getObjectMapper();
+      TigrisConfiguration.newBuilder("test").build().getObjectMapper();
 
   @Test
   public void equalFilterTest() {

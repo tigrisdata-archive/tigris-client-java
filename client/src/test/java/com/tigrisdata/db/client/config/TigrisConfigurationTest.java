@@ -21,12 +21,12 @@ import org.junit.Test;
 
 import java.time.Duration;
 
-public class TigrisDBConfigurationTest {
+public class TigrisConfigurationTest {
   @Test
   public void testDefault() {
-    TigrisDBConfiguration defaultConfiguration =
-        TigrisDBConfiguration.newBuilder("some-host:443").build();
-    assertEquals("some-host:443", defaultConfiguration.getBaseURL());
+    TigrisConfiguration defaultConfiguration =
+        TigrisConfiguration.newBuilder("some-host:443").build();
+    assertEquals("some-host:443", defaultConfiguration.getServerURL());
     assertNotNull(defaultConfiguration.getObjectMapper());
 
     assertEquals(Duration.ofSeconds(5), defaultConfiguration.getNetwork().getDeadline());
@@ -35,17 +35,17 @@ public class TigrisDBConfigurationTest {
   @Test
   public void testCustomization() {
     ObjectMapper objectMapper = new ObjectMapper();
-    TigrisDBConfiguration customConfiguration =
-        TigrisDBConfiguration.newBuilder("some-host:443")
+    TigrisConfiguration customConfiguration =
+        TigrisConfiguration.newBuilder("some-host:443")
             .withNetwork(
-                TigrisDBConfiguration.NetworkConfig.newBuilder()
+                TigrisConfiguration.NetworkConfig.newBuilder()
                     .usePlainText()
                     .withDeadline(Duration.ofSeconds(50))
                     .build())
             .withObjectMapper(objectMapper)
             .build();
 
-    assertEquals("some-host:443", customConfiguration.getBaseURL());
+    assertEquals("some-host:443", customConfiguration.getServerURL());
     assertTrue(objectMapper == customConfiguration.getObjectMapper());
 
     assertTrue(customConfiguration.getNetwork().isUsePlainText());

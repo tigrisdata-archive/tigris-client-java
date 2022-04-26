@@ -1,4 +1,4 @@
-# TigrisDB Java Client
+# Tigris Java Client
 
 Java driver for TigrisDB
 

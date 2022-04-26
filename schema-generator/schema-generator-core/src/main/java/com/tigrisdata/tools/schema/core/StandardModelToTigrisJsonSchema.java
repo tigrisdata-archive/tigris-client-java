@@ -37,8 +37,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-/** Generates TigrisDB compatible JSON schema from Java models */
-public class StandardModelToTigrisDBJsonSchema implements ModelToJsonSchema {
+/** Generates Tigris compatible JSON schema from Java models */
+public class StandardModelToTigrisJsonSchema implements ModelToJsonSchema {
 
   private static final String FORMAT = "format";
   private static final String BYTE = "byte";
@@ -54,8 +54,7 @@ public class StandardModelToTigrisDBJsonSchema implements ModelToJsonSchema {
   private static final String PRIMARY_KEYS = "primary_key";
   private static final String ADDITIONAL_PROPERTIES = "additionalProperties";
 
-  private static final Logger log =
-      LoggerFactory.getLogger(StandardModelToTigrisDBJsonSchema.class);
+  private static final Logger log = LoggerFactory.getLogger(StandardModelToTigrisJsonSchema.class);
 
   @Override
   public JsonNode toJsonSchema(Class<? extends TigrisCollectionType> clazz) {

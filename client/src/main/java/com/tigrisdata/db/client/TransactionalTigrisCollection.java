@@ -15,7 +15,7 @@ package com.tigrisdata.db.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tigrisdata.db.api.v1.grpc.Api;
-import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
+import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisCollectionType;
 
@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Transaction aware TigrisDB collection instance
+ * Transaction aware Tigris collection instance
  *
  * @param <T> type of the collection
  */
@@ -36,7 +36,7 @@ public class TransactionalTigrisCollection<T extends TigrisCollectionType>
   TransactionalTigrisCollection(
       String databaseName,
       Class<T> collectionTypeClass,
-      TigrisDBGrpc.TigrisDBBlockingStub stub,
+      TigrisGrpc.TigrisBlockingStub stub,
       Api.TransactionCtx transactionCtx,
       ObjectMapper objectMapper) {
     super(databaseName, collectionTypeClass, stub, objectMapper);

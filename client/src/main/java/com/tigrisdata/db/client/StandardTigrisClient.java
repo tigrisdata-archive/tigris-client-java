@@ -15,7 +15,7 @@ package com.tigrisdata.db.client;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.tigrisdata.db.api.v1.grpc.Api;
-import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
+import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import static com.tigrisdata.db.client.Messages.CREATE_DB_FAILED;
 import static com.tigrisdata.db.client.Messages.DROP_DB_FAILED;
 import static com.tigrisdata.db.client.Messages.LIST_DBS_FAILED;
@@ -24,7 +24,7 @@ import static com.tigrisdata.db.client.TypeConverter.toDropDatabaseRequest;
 import com.tigrisdata.db.client.auth.AuthorizationToken;
 import com.tigrisdata.db.client.config.TigrisConfiguration;
 import com.tigrisdata.db.client.error.TigrisException;
-import com.tigrisdata.tools.schema.core.StandardModelToTigrisDBJsonSchema;
+import com.tigrisdata.tools.schema.core.StandardModelToTigrisJsonSchema;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Status;
@@ -36,15 +36,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/** Client for TigrisDB */
-public class StandardTigrisClient extends AbstractTigrisDBClient implements TigrisClient {
+/** Client for Tigris */
+public class StandardTigrisClient extends AbstractTigrisClient implements TigrisClient {
 
-  private final TigrisDBGrpc.TigrisDBBlockingStub stub;
+  private final TigrisGrpc.TigrisBlockingStub stub;
   private static final Logger log = LoggerFactory.getLogger(StandardTigrisClient.class);
 
   private StandardTigrisClient(TigrisConfiguration clientConfiguration) {
-    super(clientConfiguration, Optional.empty(), new StandardModelToTigrisDBJsonSchema());
-    this.stub = TigrisDBGrpc.newBlockingStub(channel);
+    super(clientConfiguration, Optional.empty(), new StandardModelToTigrisJsonSchema());
+    this.stub = TigrisGrpc.newBlockingStub(channel);
   }
 
   @VisibleForTesting
@@ -56,8 +56,8 @@ public class StandardTigrisClient extends AbstractTigrisDBClient implements Tigr
         authorizationToken,
         configuration,
         managedChannelBuilder,
-        new StandardModelToTigrisDBJsonSchema());
-    this.stub = TigrisDBGrpc.newBlockingStub(channel);
+        new StandardModelToTigrisJsonSchema());
+    this.stub = TigrisGrpc.newBlockingStub(channel);
   }
 
   /**

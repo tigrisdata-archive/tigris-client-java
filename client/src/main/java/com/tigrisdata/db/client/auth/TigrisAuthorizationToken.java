@@ -13,15 +13,15 @@
  */
 package com.tigrisdata.db.client.auth;
 
-/** Represents the authorization token for TigrisDB */
+/** Represents the authorization token for Tigris */
 public class TigrisAuthorizationToken implements AuthorizationToken {
   private final String authorizationToken;
 
-  public TigrisAuthorizationToken(String tigrisDbApiToken) {
-    if (tigrisDbApiToken == null || tigrisDbApiToken.isEmpty()) {
+  public TigrisAuthorizationToken(String tigrisApiToken) {
+    if (tigrisApiToken == null || tigrisApiToken.isEmpty()) {
       throw new IllegalArgumentException("Token is invalid");
     }
-    this.authorizationToken = tigrisDbApiToken;
+    this.authorizationToken = tigrisApiToken;
   }
 
   @Override

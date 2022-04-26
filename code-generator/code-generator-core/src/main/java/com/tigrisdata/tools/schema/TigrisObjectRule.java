@@ -67,13 +67,13 @@ import java.util.Set;
  * @see <a href= "http://tools.ietf.org/html/draft-zyp-json-schema-03#section-5.1">http:/
  *     /tools.ietf.org/html/draft-zyp-json-schema-03#section-5.1</a>
  */
-public class TigrisDBObjectRule implements Rule<JPackage, JType> {
+public class TigrisObjectRule implements Rule<JPackage, JType> {
 
   private final RuleFactory ruleFactory;
   private final ReflectionHelper reflectionHelper;
   private final ParcelableHelper parcelableHelper;
 
-  protected TigrisDBObjectRule(
+  protected TigrisObjectRule(
       RuleFactory ruleFactory,
       ParcelableHelper parcelableHelper,
       ReflectionHelper reflectionHelper) {
@@ -296,7 +296,7 @@ public class TigrisDBObjectRule implements Rule<JPackage, JType> {
           String javaTypeName = Inflector.getInstance().singularize(className);
           newType = _package._class(javaTypeName);
           if (collectionName != null) {
-            addTigrisDBCollectionAnnotation(newType, collectionName);
+            addTigrisCollectionAnnotation(newType, collectionName);
           }
         }
       }
@@ -638,10 +638,10 @@ public class TigrisDBObjectRule implements Rule<JPackage, JType> {
   private static void addGeneratedAnnotation(JDefinedClass jclass) {
     JClass annotationClass = jclass.owner().ref(Generated.class);
     JAnnotationUse generated = jclass.annotate(annotationClass);
-    generated.param("value", "tigrisdb-model-generator");
+    generated.param("value", "tigris-model-generator");
   }
 
-  private static void addTigrisDBCollectionAnnotation(JDefinedClass jclass, String collectionName) {
+  private static void addTigrisCollectionAnnotation(JDefinedClass jclass, String collectionName) {
     JClass annotationClass = jclass.owner().ref(TigrisCollection.class);
     JAnnotationUse generated = jclass.annotate(annotationClass);
     generated.param("value", collectionName);

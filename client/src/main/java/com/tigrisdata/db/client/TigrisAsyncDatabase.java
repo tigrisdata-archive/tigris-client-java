@@ -21,7 +21,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 
-/** TigrisDB async database */
+/** Tigris async database */
 public interface TigrisAsyncDatabase {
 
   /**

@@ -16,7 +16,7 @@ package com.tigrisdata.db.client;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TigrisDBResponseTest {
+public class TigrisResponseTest {
 
   @Test
   public void testEquals() {

@@ -17,7 +17,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.protobuf.ByteString;
 import com.tigrisdata.db.api.v1.grpc.Api;
-import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
+import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-public class TestUserService extends TigrisDBGrpc.TigrisDBImplBase {
+public class TestUserService extends TigrisGrpc.TigrisImplBase {
 
   private Set<String> dbs;
   private Map<String, Set<String>> dbToCollectionsMap;

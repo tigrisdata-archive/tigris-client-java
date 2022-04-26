@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
-abstract class AbstractTigrisDBClient {
+abstract class AbstractTigrisClient {
   protected final ManagedChannel channel;
   protected final ObjectMapper objectMapper;
   protected final ModelToJsonSchema modelToJsonSchema;
@@ -24,11 +24,11 @@ abstract class AbstractTigrisDBClient {
       Metadata.Key.of("client-version", Metadata.ASCII_STRING_MARSHALLER);
   private static final Metadata.Key<String> INTENDED_DESTINATION_NAME =
       Metadata.Key.of("destination-name", Metadata.ASCII_STRING_MARSHALLER);
-  private static final String USER_AGENT_VALUE = "tigrisdb-client-java.grpc";
+  private static final String USER_AGENT_VALUE = "tigris-client-java.grpc";
   private static final String CLIENT_VERSION_VALUE = "1.0";
-  private static final Logger log = LoggerFactory.getLogger(AbstractTigrisDBClient.class);
+  private static final Logger log = LoggerFactory.getLogger(AbstractTigrisClient.class);
 
-  protected AbstractTigrisDBClient(
+  protected AbstractTigrisClient(
       TigrisConfiguration configuration,
       Optional<AuthorizationToken> authorizationToken,
       ModelToJsonSchema modelToJsonSchema) {
@@ -49,7 +49,7 @@ abstract class AbstractTigrisDBClient {
     this.modelToJsonSchema = modelToJsonSchema;
   }
 
-  protected AbstractTigrisDBClient(
+  protected AbstractTigrisClient(
       AuthorizationToken authorizationToken,
       TigrisConfiguration configuration,
       ManagedChannelBuilder<? extends ManagedChannelBuilder> managedChannelBuilder,

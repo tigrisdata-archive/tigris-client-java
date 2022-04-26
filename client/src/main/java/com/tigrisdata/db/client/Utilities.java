@@ -50,7 +50,7 @@ final class Utilities {
    * @param filter filter to select classes from scanned classes
    * @return tigris db collection model classes
    */
-  static Class<? extends TigrisCollectionType>[] scanTigrisDBCollectionModels(
+  static Class<? extends TigrisCollectionType>[] scanTigrisCollectionModels(
       String[] packagesToScan, Optional<Predicate<Class<? extends TigrisCollectionType>>> filter) {
     Set<Class<? extends TigrisCollectionType>> scannedClasses = new HashSet<>();
     for (String packageToScan : packagesToScan) {

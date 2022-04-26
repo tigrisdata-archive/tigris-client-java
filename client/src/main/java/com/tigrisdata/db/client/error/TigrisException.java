@@ -13,7 +13,7 @@
  */
 package com.tigrisdata.db.client.error;
 
-/** Base type of TigrisDB exceptions */
+/** Base type of Tigris exceptions */
 public class TigrisException extends Exception {
 
   public TigrisException(String message, Throwable cause) {

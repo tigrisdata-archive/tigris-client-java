@@ -21,7 +21,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * An async TigrisDB collection
+ * An async Tigris collection
  *
  * @param <T> type of collection
  */

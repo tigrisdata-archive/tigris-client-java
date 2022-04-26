@@ -15,7 +15,7 @@ package com.tigrisdata.db.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tigrisdata.db.api.v1.grpc.Api;
-import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
+import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import static com.tigrisdata.db.client.Messages.BEGIN_TRANSACTION_FAILED;
 import static com.tigrisdata.db.client.Messages.CREATE_OR_UPDATE_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.Messages.DROP_COLLECTION_FAILED;
@@ -31,18 +31,18 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-/** TigrisDB Database implementation */
+/** Tigris Database implementation */
 public class StandardTigrisDatabase implements TigrisDatabase {
 
   private final String dbName;
-  private final TigrisDBGrpc.TigrisDBBlockingStub stub;
+  private final TigrisGrpc.TigrisBlockingStub stub;
   private final ManagedChannel managedChannel;
   private final ObjectMapper objectMapper;
   private final ModelToJsonSchema modelToJsonSchema;
 
   StandardTigrisDatabase(
       String dbName,
-      TigrisDBGrpc.TigrisDBBlockingStub stub,
+      TigrisGrpc.TigrisBlockingStub stub,
       ManagedChannel managedChannel,
       ObjectMapper objectMapper,
       ModelToJsonSchema modelToJsonSchema) {
@@ -136,7 +136,7 @@ public class StandardTigrisDatabase implements TigrisDatabase {
       String[] packagesToScan, Optional<Predicate<Class<? extends TigrisCollectionType>>> filter)
       throws TigrisException {
     return this.createOrUpdateCollections(
-        Utilities.scanTigrisDBCollectionModels(packagesToScan, filter));
+        Utilities.scanTigrisCollectionModels(packagesToScan, filter));
   }
 
   @Override

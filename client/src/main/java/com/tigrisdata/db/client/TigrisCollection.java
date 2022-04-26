@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * TigrisDB collection
+ * Tigris collection
  *
  * @param <T> type of the collection
  */

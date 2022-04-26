@@ -15,7 +15,7 @@ package com.tigrisdata.db.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tigrisdata.db.api.v1.grpc.Api;
-import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
+import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import static com.tigrisdata.db.client.TypeConverter.toCreateCollectionRequest;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisCollectionType;
@@ -30,7 +30,7 @@ import java.util.Optional;
 public class StandardTransactionSession implements TransactionSession {
   private final Api.TransactionCtx transactionCtx;
   private final String databaseName;
-  private final TigrisDBGrpc.TigrisDBBlockingStub stub;
+  private final TigrisGrpc.TigrisBlockingStub stub;
   private final ObjectMapper objectMapper;
 
   private static final String TRANSACTION_HEADER_ORIGIN_KEY = "tx-origin";
@@ -55,7 +55,7 @@ public class StandardTransactionSession implements TransactionSession {
         transactionCtx.getId());
     // attach headers
     this.stub =
-        TigrisDBGrpc.newBlockingStub(managedChannel)
+        TigrisGrpc.newBlockingStub(managedChannel)
             .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(transactionHeaders));
   }
 

@@ -82,6 +82,12 @@ public interface TigrisDatabase {
    */
   TransactionSession beginTransaction(TransactionOptions transactionOptions) throws TigrisException;
 
+  /**
+   * @return description of database and its collections.
+   * @throws TigrisException in case of an error.
+   */
+  DatabaseDescription describe() throws TigrisException;
+
   /** @return name of the current database */
   String name();
 }

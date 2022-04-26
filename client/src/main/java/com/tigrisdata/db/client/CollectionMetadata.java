@@ -13,22 +13,4 @@
  */
 package com.tigrisdata.db.client;
 
-import java.io.IOException;
-
-/** represents the TigrisSchema */
-public interface TigrisSchema {
-  /**
-   * Reads the schema content
-   *
-   * @return string form of the JSON schema
-   * @throws IOException if the reading of schema failed.
-   */
-  String getSchemaContent() throws IOException;
-  /**
-   * Reads the schema name from "title" JSON attribute.
-   *
-   * @return name of the schema
-   * @throws IOException if the reading of schema failed.
-   */
-  String getName() throws IOException;
-}
+public class CollectionMetadata {}

@@ -16,6 +16,7 @@ package com.tigrisdata.db.client;
 import com.tigrisdata.db.client.collection.DB1_C1;
 import com.tigrisdata.db.client.collection.DB1_C5;
 import com.tigrisdata.db.client.collection.User;
+import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.grpc.TestUserService;
 import com.tigrisdata.db.type.TigrisCollectionType;
 import io.grpc.inprocess.InProcessServerBuilder;
@@ -28,6 +29,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -177,6 +179,24 @@ public class StandardTigrisAsyncDatabaseTest {
     TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
     Assert.assertEquals("db1", db1.name());
+  }
+
+  @Test
+  public void testDescribe()
+      throws TigrisException, IOException, ExecutionException, InterruptedException {
+    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
+    DatabaseDescription databaseDescription = db1.describe().get();
+    Assert.assertEquals("db1", databaseDescription.getName());
+    Assert.assertEquals(
+        "{\"title\":\"db1_c5\",\"description\":\"This document records the details of user for tigris store\","
+            + "\"properties\":{\"id\":{\"description\":\"A unique identifier for the user\",\"type\":\"int\"},"
+            + "\"name\":{\"description\":\"Name of the user\",\"type\":\"string\"},"
+            + "\"balance\":{\"description\":\"user balance in USD\",\"type\":\"double\"}},"
+            + "\"primary_key\":[\"id\"]}",
+        databaseDescription.getCollectionsDescription().get(0).getSchema().getSchemaContent());
+    Assert.assertNotNull(databaseDescription.getMetadata());
+    Assert.assertNotNull(databaseDescription.getMetadata());
   }
 
   @Test

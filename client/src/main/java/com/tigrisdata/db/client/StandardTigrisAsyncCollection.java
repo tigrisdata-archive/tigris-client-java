@@ -19,11 +19,14 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
 import static com.tigrisdata.db.client.Messages.DELETE_FAILED;
+import static com.tigrisdata.db.client.Messages.DESCRIBE_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.Messages.INSERT_FAILED;
 import static com.tigrisdata.db.client.Messages.INSERT_OR_REPLACE_FAILED;
 import static com.tigrisdata.db.client.Messages.READ_FAILED;
 import static com.tigrisdata.db.client.Messages.UPDATE_FAILED;
 import static com.tigrisdata.db.client.TypeConverter.readOneDefaultReadRequestOptions;
+import static com.tigrisdata.db.client.TypeConverter.toCollectionDescription;
+import static com.tigrisdata.db.client.TypeConverter.toCollectionOptions;
 import static com.tigrisdata.db.client.TypeConverter.toDeleteRequest;
 import static com.tigrisdata.db.client.TypeConverter.toInsertRequest;
 import static com.tigrisdata.db.client.TypeConverter.toReadRequest;
@@ -225,6 +228,28 @@ public class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
   @Override
   public CompletableFuture<DeleteResponse> delete(TigrisFilter filter) {
     return this.delete(filter, new DeleteRequestOptions());
+  }
+
+  @Override
+  public CompletableFuture<CollectionDescription> describe(CollectionOptions collectionOptions)
+      throws TigrisException {
+    ListenableFuture<Api.DescribeCollectionResponse> describeCollectionResponseListenableFuture =
+        futureStub.describeCollection(
+            Api.DescribeCollectionRequest.newBuilder()
+                .setCollection(collectionName)
+                .setOptions(toCollectionOptions(collectionOptions, Optional.empty()))
+                .build());
+    return Utilities.transformFuture(
+        describeCollectionResponseListenableFuture,
+        response -> {
+          try {
+            return toCollectionDescription(response);
+          } catch (TigrisException e) {
+            throw new IllegalArgumentException(e);
+          }
+        },
+        executor,
+        DESCRIBE_COLLECTION_FAILED);
   }
 
   @Override

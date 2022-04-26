@@ -142,6 +142,16 @@ public interface TigrisAsyncCollection<T extends TigrisCollectionType> {
    */
   CompletableFuture<DeleteResponse> delete(TigrisFilter filter);
 
+  /**
+   * Describes the collection
+   *
+   * @param collectionOptions options
+   * @return future to the collection description
+   * @throws TigrisException in case of an error
+   */
+  CompletableFuture<CollectionDescription> describe(CollectionOptions collectionOptions)
+      throws TigrisException;
+
   /** @return Name of the collection */
   String name();
 }

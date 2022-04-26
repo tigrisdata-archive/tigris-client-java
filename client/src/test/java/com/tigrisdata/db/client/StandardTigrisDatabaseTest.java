@@ -29,6 +29,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -183,6 +184,23 @@ public class StandardTigrisDatabaseTest {
     TransactionSession transactionSession =
         db1.beginTransaction(TransactionOptions.DEFAULT_INSTANCE);
     transactionSession.rollback();
+  }
+
+  @Test
+  public void testDescribe() throws TigrisException, IOException {
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+    TigrisDatabase db1 = client.getDatabase("db1");
+    DatabaseDescription databaseDescription = db1.describe();
+    Assert.assertEquals("db1", databaseDescription.getName());
+    Assert.assertEquals(
+        "{\"title\":\"db1_c5\",\"description\":\"This document records the details of user for tigris store\","
+            + "\"properties\":{\"id\":{\"description\":\"A unique identifier for the user\",\"type\":\"int\"},"
+            + "\"name\":{\"description\":\"Name of the user\",\"type\":\"string\"},"
+            + "\"balance\":{\"description\":\"user balance in USD\",\"type\":\"double\"}},"
+            + "\"primary_key\":[\"id\"]}",
+        databaseDescription.getCollectionsDescription().get(0).getSchema().getSchemaContent());
+    Assert.assertNotNull(databaseDescription.getMetadata());
+    Assert.assertNotNull(databaseDescription.getMetadata());
   }
 
   @Test

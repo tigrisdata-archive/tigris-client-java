@@ -327,6 +327,44 @@ public class TestUserService extends TigrisDBGrpc.TigrisDBImplBase {
     responseObserver.onCompleted();
   }
 
+  @Override
+  public void describeDatabase(
+      Api.DescribeDatabaseRequest request,
+      StreamObserver<Api.DescribeDatabaseResponse> responseObserver) {
+
+    responseObserver.onNext(
+        Api.DescribeDatabaseResponse.newBuilder()
+            .setDb(request.getDb())
+            .setMetadata(Api.DatabaseMetadata.newBuilder().build())
+            .addCollections(
+                Api.CollectionDescription.newBuilder()
+                    .setCollection("c1")
+                    .setMetadata(Api.CollectionMetadata.newBuilder().build())
+                    .setSchema(
+                        ByteString.copyFromUtf8(
+                            "{\"title\":\"db1_c5\",\"description\":\"This document records the details of user for "
+                                + "tigris store\",\"properties\":{\"id\":{\"description\":\"A unique identifier for the user\",\"type\":\"int\"},\"name\":{\"description\":\"Name of the user\",\"type\":\"string\"},\"balance\":{\"description\":\"user balance in USD\",\"type\":\"double\"}},\"primary_key\":[\"id\"]}"))
+                    .build())
+            .build());
+    responseObserver.onCompleted();
+  }
+
+  @Override
+  public void describeCollection(
+      Api.DescribeCollectionRequest request,
+      StreamObserver<Api.DescribeCollectionResponse> responseObserver) {
+    responseObserver.onNext(
+        Api.DescribeCollectionResponse.newBuilder()
+            .setCollection(request.getCollection())
+            .setMetadata(Api.CollectionMetadata.newBuilder().build())
+            .setSchema(
+                ByteString.copyFromUtf8(
+                    "{\"title\":\"db1_c5\",\"description\":\"This document records the details of user for tigris "
+                        + "store\",\"properties\":{\"id\":{\"description\":\"A unique identifier for the user\",\"type\":\"int\"},\"name\":{\"description\":\"Name of the user\",\"type\":\"string\"},\"balance\":{\"description\":\"user balance in USD\",\"type\":\"double\"}},\"primary_key\":[\"id\"]}"))
+            .build());
+    responseObserver.onCompleted();
+  }
+
   private void resetTx() {
     this.txOrigin = "";
     this.txId = "";

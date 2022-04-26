@@ -142,6 +142,15 @@ public interface TigrisCollection<T extends TigrisCollectionType> {
    */
   DeleteResponse delete(TigrisFilter filter) throws TigrisException;
 
+  /**
+   * Describes the collection
+   *
+   * @param collectionOptions options
+   * @return description
+   * @throws TigrisException in case of an error
+   */
+  CollectionDescription describe(CollectionOptions collectionOptions) throws TigrisException;
+
   /** @return Name of the collection */
   String name();
 }

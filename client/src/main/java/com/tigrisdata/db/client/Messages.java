@@ -29,6 +29,7 @@ final class Messages {
       "Failed to create collections in transaction";
   public static final String DROP_COLLECTION_FAILED = "Failed to drop collection";
   public static final String BEGIN_TRANSACTION_FAILED = "Failed to begin transaction";
+  public static final String DESCRIBE_DB_FAILED = "Failed to describe database";
 
   // collections
   public static final String INSERT_FAILED = "Failed to insert";
@@ -36,6 +37,7 @@ final class Messages {
   public static final String UPDATE_FAILED = "Failed to update";
   public static final String DELETE_FAILED = "Failed to delete";
   public static final String READ_FAILED = "Failed to read";
+  public static final String DESCRIBE_COLLECTION_FAILED = "Failed to describe collection";
 
   // success
   public static final String COLLECTIONS_APPLIED = "Collections created or changes applied";

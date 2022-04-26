@@ -21,6 +21,7 @@ import com.tigrisdata.db.client.error.TigrisException;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -218,7 +219,18 @@ final class TypeConverter {
         .build();
   }
 
-  private static Api.CollectionOptions toCollectionOptions(
+  public static DatabaseDescription toDatabaseDescription(Api.DescribeDatabaseResponse response)
+      throws TigrisException {
+    List<CollectionDescription> collectionsDescription = new ArrayList<>();
+    for (Api.CollectionDescription collectionDescription : response.getCollectionsList()) {
+      collectionsDescription.add(toCollectionDescription(collectionDescription));
+    }
+
+    DatabaseMetadata metadata = toDatabaseMetadata(response.getMetadata());
+    return new DatabaseDescription(response.getDb(), metadata, collectionsDescription);
+  }
+
+  public static Api.CollectionOptions toCollectionOptions(
       CollectionOptions collectionOptions, Optional<Api.TransactionCtx> transactionCtx) {
     Api.CollectionOptions.Builder collectionsOptionBuilder = Api.CollectionOptions.newBuilder();
     transactionCtx.ifPresent(collectionsOptionBuilder::setTxCtx);
@@ -231,5 +243,35 @@ final class TypeConverter {
       writeOptionsBuilder.setTxCtx(toTransactionCtx(writeOptions.getTransactionCtx()));
     }
     return writeOptionsBuilder.build();
+  }
+
+  public static CollectionDescription toCollectionDescription(
+      Api.DescribeCollectionResponse response) throws TigrisException {
+    CollectionMetadata collectionMetadata = toCollectionMetadata(response.getMetadata());
+    return new CollectionDescription(
+        response.getCollection(),
+        collectionMetadata,
+        new TigrisJSONSchema(response.getSchema().toStringUtf8()));
+  }
+
+  public static CollectionDescription toCollectionDescription(
+      Api.CollectionDescription collectionDescription) throws TigrisException {
+    CollectionMetadata collectionMetadata =
+        toCollectionMetadata(collectionDescription.getMetadata());
+    return new CollectionDescription(
+        collectionDescription.getCollection(),
+        collectionMetadata,
+        new TigrisJSONSchema(collectionDescription.getSchema().toStringUtf8()));
+  }
+
+  private static DatabaseMetadata toDatabaseMetadata(Api.DatabaseMetadata databaseMetadata) {
+    // empty metadata for now
+    return new DatabaseMetadata();
+  }
+
+  private static CollectionMetadata toCollectionMetadata(
+      Api.CollectionMetadata collectionMetadata) {
+    // empty metadata for now
+    return new CollectionMetadata();
   }
 }

@@ -140,6 +140,13 @@ public class StandardTigrisDatabase implements TigrisDatabase {
   }
 
   @Override
+  public DatabaseDescription describe() throws TigrisException {
+    Api.DescribeDatabaseResponse response =
+        stub.describeDatabase(Api.DescribeDatabaseRequest.newBuilder().setDb(dbName).build());
+    return TypeConverter.toDatabaseDescription(response);
+  }
+
+  @Override
   public String name() {
     return dbName;
   }

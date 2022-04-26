@@ -18,7 +18,7 @@ import com.tigrisdata.db.client.error.TigrisException;
 import java.io.Closeable;
 import java.util.List;
 
-/** TigrisDB client */
+/** Tigris client */
 public interface TigrisClient extends Closeable {
 
   /**

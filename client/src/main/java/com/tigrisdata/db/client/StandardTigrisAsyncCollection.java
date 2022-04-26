@@ -17,7 +17,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.tigrisdata.db.api.v1.grpc.Api;
-import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
+import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import static com.tigrisdata.db.client.Messages.DELETE_FAILED;
 import static com.tigrisdata.db.client.Messages.DESCRIBE_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.Messages.INSERT_FAILED;
@@ -44,7 +44,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 /**
- * An async implementation of TigrisDB Collection
+ * An async implementation of Tigris Collection
  *
  * @param <T> type of the collection
  */
@@ -54,8 +54,8 @@ public class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
   private final String collectionName;
   private final Class<T> collectionTypeClass;
   private final Executor executor;
-  private final TigrisDBGrpc.TigrisDBStub stub;
-  private final TigrisDBGrpc.TigrisDBFutureStub futureStub;
+  private final TigrisGrpc.TigrisStub stub;
+  private final TigrisGrpc.TigrisFutureStub futureStub;
   private final ObjectMapper objectMapper;
 
   StandardTigrisAsyncCollection(
@@ -68,8 +68,8 @@ public class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
     this.collectionName = Utilities.getCollectionName(collectionTypeClass);
     this.collectionTypeClass = collectionTypeClass;
     this.executor = executor;
-    this.stub = TigrisDBGrpc.newStub(channel);
-    this.futureStub = TigrisDBGrpc.newFutureStub(channel);
+    this.stub = TigrisGrpc.newStub(channel);
+    this.futureStub = TigrisGrpc.newFutureStub(channel);
     this.objectMapper = objectMapper;
   }
 

@@ -19,7 +19,7 @@ import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 
 import java.time.Duration;
 
-/** TigrisDB client configuration */
+/** Tigris client configuration */
 public class TigrisConfiguration {
   private final String serverURL;
   private final TigrisConfiguration.NetworkConfig network;
@@ -96,7 +96,7 @@ public class TigrisConfiguration {
     }
   }
 
-  /** TigrisDB network related configuration */
+  /** Tigris network related configuration */
   public static class NetworkConfig {
     private final Duration deadline;
     private final boolean usePlainText;

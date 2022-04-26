@@ -31,7 +31,7 @@ import org.jsonschema2pojo.util.TypeUtil;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-public class TigrisDBTypeRule implements Rule<JClassContainer, JType> {
+public class TigrisTypeRule implements Rule<JClassContainer, JType> {
 
   private static final String DEFAULT_TYPE_NAME = "any";
   private static final String CONTENT_ENCODING = "contentEncoding";
@@ -39,7 +39,7 @@ public class TigrisDBTypeRule implements Rule<JClassContainer, JType> {
 
   private final RuleFactory ruleFactory;
 
-  protected TigrisDBTypeRule(RuleFactory ruleFactory) {
+  protected TigrisTypeRule(RuleFactory ruleFactory) {
     this.ruleFactory = ruleFactory;
   }
 

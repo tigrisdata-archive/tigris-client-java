@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-/** TigrisDB Database */
+/** Tigris Database */
 public interface TigrisDatabase {
 
   /**

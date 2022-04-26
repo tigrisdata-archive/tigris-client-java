@@ -33,12 +33,12 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.Arrays;
 
-/** Read TigrisDB Schema and generate Java models. */
+/** Read Tigris Schema and generate Java models. */
 @Mojo(name = "generate-sources", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
 public class SourceCodeGeneratorMojo extends AbstractMojo {
 
   @Parameter(
-      defaultValue = "${project.basedir}/src/main/resources/tigrisdb-schema",
+      defaultValue = "${project.basedir}/src/main/resources/tigris-schema",
       required = true,
       readonly = true)
   private String schemaDir;

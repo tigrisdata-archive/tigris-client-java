@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.tigrisdata.db.api.v1.grpc.Api;
-import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
+import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import static com.tigrisdata.db.client.Messages.CREATE_DB_FAILED;
 import static com.tigrisdata.db.client.Messages.DROP_DB_FAILED;
 import static com.tigrisdata.db.client.Messages.LIST_DBS_FAILED;
@@ -28,7 +28,7 @@ import com.tigrisdata.db.client.auth.AuthorizationToken;
 import com.tigrisdata.db.client.config.TigrisConfiguration;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.tools.schema.core.ModelToJsonSchema;
-import com.tigrisdata.tools.schema.core.StandardModelToTigrisDBJsonSchema;
+import com.tigrisdata.tools.schema.core.StandardModelToTigrisJsonSchema;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Status;
@@ -44,10 +44,10 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 
-/** Async client for TigrisDB */
-public class StandardTigrisAsyncClient extends AbstractTigrisDBClient implements TigrisAsyncClient {
+/** Async client for Tigris */
+public class StandardTigrisAsyncClient extends AbstractTigrisClient implements TigrisAsyncClient {
 
-  private final TigrisDBGrpc.TigrisDBFutureStub stub;
+  private final TigrisGrpc.TigrisFutureStub stub;
   private final Executor executor;
   private static final Logger log = LoggerFactory.getLogger(StandardTigrisAsyncClient.class);
 
@@ -57,8 +57,8 @@ public class StandardTigrisAsyncClient extends AbstractTigrisDBClient implements
 
   StandardTigrisAsyncClient(TigrisConfiguration clientConfiguration, Executor executor) {
     // TODO: authorization token injection
-    super(clientConfiguration, Optional.empty(), new StandardModelToTigrisDBJsonSchema());
-    this.stub = TigrisDBGrpc.newFutureStub(channel);
+    super(clientConfiguration, Optional.empty(), new StandardModelToTigrisJsonSchema());
+    this.stub = TigrisGrpc.newFutureStub(channel);
     this.executor = executor;
   }
 
@@ -71,8 +71,8 @@ public class StandardTigrisAsyncClient extends AbstractTigrisDBClient implements
         authorizationToken,
         configuration,
         managedChannelBuilder,
-        new StandardModelToTigrisDBJsonSchema());
-    this.stub = TigrisDBGrpc.newFutureStub(channel);
+        new StandardModelToTigrisJsonSchema());
+    this.stub = TigrisGrpc.newFutureStub(channel);
     this.executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
   }
 
@@ -175,7 +175,7 @@ public class StandardTigrisAsyncClient extends AbstractTigrisDBClient implements
   static class CreateDatabaseExceptionHandler
       implements BiConsumer<CompletableFuture<TigrisAsyncDatabase>, Throwable> {
     private final String dbName;
-    private final TigrisDBGrpc.TigrisDBFutureStub stub;
+    private final TigrisGrpc.TigrisFutureStub stub;
     private final Executor executor;
     private final ManagedChannel channel;
     private final ObjectMapper objectMapper;
@@ -183,7 +183,7 @@ public class StandardTigrisAsyncClient extends AbstractTigrisDBClient implements
 
     public CreateDatabaseExceptionHandler(
         String dbName,
-        TigrisDBGrpc.TigrisDBFutureStub stub,
+        TigrisGrpc.TigrisFutureStub stub,
         Executor executor,
         ManagedChannel channel,
         ObjectMapper objectMapper,

@@ -16,7 +16,7 @@ package com.tigrisdata.db.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.tigrisdata.db.api.v1.grpc.Api;
-import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
+import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import static com.tigrisdata.db.client.Messages.BEGIN_TRANSACTION_FAILED;
 import static com.tigrisdata.db.client.Messages.DESCRIBE_DB_FAILED;
 import static com.tigrisdata.db.client.Messages.DROP_COLLECTION_FAILED;
@@ -37,10 +37,10 @@ import java.util.concurrent.Executor;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-/** Async implementation of TigrisDB */
+/** Async implementation of Tigris database */
 public class StandardTigrisAsyncDatabase implements TigrisAsyncDatabase {
   private final String databaseName;
-  private final TigrisDBGrpc.TigrisDBFutureStub stub;
+  private final TigrisGrpc.TigrisFutureStub stub;
   private final ManagedChannel channel;
   private final Executor executor;
   private final ObjectMapper objectMapper;
@@ -48,7 +48,7 @@ public class StandardTigrisAsyncDatabase implements TigrisAsyncDatabase {
 
   StandardTigrisAsyncDatabase(
       String databaseName,
-      TigrisDBGrpc.TigrisDBFutureStub stub,
+      TigrisGrpc.TigrisFutureStub stub,
       ManagedChannel channel,
       Executor executor,
       ObjectMapper objectMapper,
@@ -113,7 +113,7 @@ public class StandardTigrisAsyncDatabase implements TigrisAsyncDatabase {
   public CompletableFuture<CreateOrUpdateCollectionsResponse> createOrUpdateCollections(
       String[] packagesToScan, Optional<Predicate<Class<? extends TigrisCollectionType>>> filter) {
     return this.createOrUpdateCollections(
-        Utilities.scanTigrisDBCollectionModels(packagesToScan, filter));
+        Utilities.scanTigrisCollectionModels(packagesToScan, filter));
   }
 
   @Override

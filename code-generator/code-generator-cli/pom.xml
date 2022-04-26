@@ -19,7 +19,7 @@
         </dependency>
         <dependency>
             <groupId>com.tigrisdata</groupId>
-            <artifactId>tigrisdb-client</artifactId>
+            <artifactId>tigris-client</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

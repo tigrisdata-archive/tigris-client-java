@@ -15,7 +15,7 @@ package com.tigrisdata.tools.service;
 
 import com.sun.codemodel.JCodeModel;
 import com.tigrisdata.tools.config.JavaCodeGenerationConfig;
-import com.tigrisdata.tools.schema.TigrisDBRuleFactory;
+import com.tigrisdata.tools.schema.TigrisRuleFactory;
 import org.jsonschema2pojo.GenerationConfig;
 import org.jsonschema2pojo.Jackson2Annotator;
 import org.jsonschema2pojo.SchemaGenerator;
@@ -48,7 +48,7 @@ public class JsonSchemaToModelGenerator implements ModelGenerator {
 
         SchemaMapper mapper =
             new SchemaMapper(
-                new TigrisDBRuleFactory(
+                new TigrisRuleFactory(
                     generationConfig, new Jackson2Annotator(generationConfig), new SchemaStore()),
                 new SchemaGenerator());
         mapper.generate(codeModel, "name", javaCodeGenerationConfig.getJavaPackageName(), source);

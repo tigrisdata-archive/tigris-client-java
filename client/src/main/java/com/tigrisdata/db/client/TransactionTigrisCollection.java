@@ -16,7 +16,7 @@ package com.tigrisdata.db.client;
 import com.tigrisdata.db.type.TigrisCollectionType;
 
 /**
- * Transaction aware TigrisDB collection
+ * Transaction aware Tigris collection
  *
  * @param <T> type of the collection
  */

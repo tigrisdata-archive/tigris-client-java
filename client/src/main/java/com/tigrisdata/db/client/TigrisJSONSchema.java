@@ -20,8 +20,8 @@ import com.tigrisdata.db.client.error.TigrisException;
 import java.util.Objects;
 
 /**
- * Represents TigrisDB JSON collection schema. This is used to read / parse and register
- * collection's schema.
+ * Represents Tigris JSON collection schema. This is used to read / parse and register collection's
+ * schema.
  */
 public class TigrisJSONSchema implements TigrisSchema {
 

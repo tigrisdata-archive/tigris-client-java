@@ -43,19 +43,19 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * This class is created referring {@code ConstructorRule} for TigrisDB Schema This class is
+ * This class is created referring {@code ConstructorRule} for Tigris Schema This class is
  * responsible for creating constructors with PK as args. This is to tell users those are required
  * field of your type.
  *
  * <p>NOTE: The order of the constructor argument matches the order defined in the JSON schema
  */
-public class TigrisDBConstructorRule implements Rule<JDefinedClass, JDefinedClass> {
+public class TigrisConstructorRule implements Rule<JDefinedClass, JDefinedClass> {
 
   private static final String PRIMARY_KEYS = "primary_keys";
   private final RuleFactory ruleFactory;
   private final ReflectionHelper reflectionHelper;
 
-  public TigrisDBConstructorRule(RuleFactory ruleFactory, ReflectionHelper reflectionHelper) {
+  public TigrisConstructorRule(RuleFactory ruleFactory, ReflectionHelper reflectionHelper) {
     this.ruleFactory = ruleFactory;
     this.reflectionHelper = reflectionHelper;
   }

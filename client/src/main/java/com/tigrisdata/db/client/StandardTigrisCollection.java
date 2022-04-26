@@ -15,8 +15,6 @@ package com.tigrisdata.db.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tigrisdata.db.api.v1.grpc.Api;
-import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
 import static com.tigrisdata.db.client.Messages.DELETE_FAILED;
 import static com.tigrisdata.db.client.Messages.INSERT_FAILED;
 import static com.tigrisdata.db.client.Messages.INSERT_OR_REPLACE_FAILED;
@@ -31,6 +29,9 @@ import static com.tigrisdata.db.client.TypeConverter.toReplaceRequest;
 import static com.tigrisdata.db.client.TypeConverter.toUpdateRequest;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisCollectionType;
+import com.tigrisdata.db.api.v1.grpc.Api;
+import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
+
 import io.grpc.StatusRuntimeException;
 
 import java.util.Collections;
@@ -38,20 +39,20 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-/** TigrisDB collection implementation */
+/** Tigris collection implementation */
 public class StandardTigrisCollection<T extends TigrisCollectionType>
     implements TigrisCollection<T> {
 
   private final String databaseName;
   private final String collectionName;
   private final Class<T> collectionTypeClass;
-  private final TigrisDBGrpc.TigrisDBBlockingStub stub;
+  private final TigrisGrpc.TigrisBlockingStub stub;
   private final ObjectMapper objectMapper;
 
   StandardTigrisCollection(
       String databaseName,
       Class<T> collectionTypeClass,
-      TigrisDBGrpc.TigrisDBBlockingStub stub,
+      TigrisGrpc.TigrisBlockingStub stub,
       ObjectMapper objectMapper) {
     this.databaseName = databaseName;
     this.collectionName = Utilities.getCollectionName(collectionTypeClass);

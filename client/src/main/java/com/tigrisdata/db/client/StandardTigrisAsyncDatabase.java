@@ -18,10 +18,13 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.TigrisDBGrpc;
 import static com.tigrisdata.db.client.Messages.BEGIN_TRANSACTION_FAILED;
+import static com.tigrisdata.db.client.Messages.DESCRIBE_DB_FAILED;
 import static com.tigrisdata.db.client.Messages.DROP_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.Messages.LIST_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.TypeConverter.toBeginTransactionRequest;
+import static com.tigrisdata.db.client.TypeConverter.toDatabaseDescription;
 import static com.tigrisdata.db.client.TypeConverter.toDropCollectionRequest;
+import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisCollectionType;
 import com.tigrisdata.tools.schema.core.ModelToJsonSchema;
 import io.grpc.ManagedChannel;
@@ -144,10 +147,29 @@ public class StandardTigrisAsyncDatabase implements TigrisAsyncDatabase {
         stub.beginTransaction(toBeginTransactionRequest(databaseName, transactionOptions));
     return Utilities.transformFuture(
         beginTransactionResponseListenableFuture,
-        input ->
-            new StandardTransactionSession(databaseName, input.getTxCtx(), channel, objectMapper),
+        response ->
+            new StandardTransactionSession(
+                databaseName, response.getTxCtx(), channel, objectMapper),
         executor,
         BEGIN_TRANSACTION_FAILED);
+  }
+
+  @Override
+  public CompletableFuture<DatabaseDescription> describe() throws TigrisException {
+    ListenableFuture<Api.DescribeDatabaseResponse> describeDatabaseResponseListenableFuture =
+        stub.describeDatabase(Api.DescribeDatabaseRequest.newBuilder().setDb(databaseName).build());
+
+    return Utilities.transformFuture(
+        describeDatabaseResponseListenableFuture,
+        response -> {
+          try {
+            return toDatabaseDescription(response);
+          } catch (TigrisException e) {
+            throw new IllegalArgumentException(e);
+          }
+        },
+        executor,
+        DESCRIBE_DB_FAILED);
   }
 
   @Override

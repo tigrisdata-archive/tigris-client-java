@@ -14,6 +14,7 @@
 package com.tigrisdata.db.client;
 
 import com.tigrisdata.db.client.collection.DB1_C1;
+import com.tigrisdata.db.client.collection.DB1_C5;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.grpc.TestUserService;
 import io.grpc.inprocess.InProcessServerBuilder;
@@ -24,6 +25,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -218,6 +220,20 @@ public class StandardTigrisAsyncCollectionTest {
         new DB1_C1(2L, "db1_c1_d2"),
         new DB1_C1(3L, "db1_c1_d3"),
         new DB1_C1(4L, "db1_c1_d4"));
+  }
+
+  @Test
+  public void testDescribe()
+      throws TigrisException, ExecutionException, InterruptedException, IOException {
+    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncCollection<DB1_C5> coll = asyncClient.getDatabase("db1").getCollection(DB1_C5.class);
+    Assert.assertEquals(
+        "db1_c5", coll.describe(CollectionOptions.DEFAULT_INSTANCE).get().getName());
+    Assert.assertEquals(
+        "db1_c5", coll.describe(CollectionOptions.DEFAULT_INSTANCE).get().getSchema().getName());
+    Assert.assertEquals(
+        "{\"title\":\"db1_c5\",\"description\":\"This document records the details of user for tigris store\",\"properties\":{\"id\":{\"description\":\"A unique identifier for the user\",\"type\":\"int\"},\"name\":{\"description\":\"Name of the user\",\"type\":\"string\"},\"balance\":{\"description\":\"user balance in USD\",\"type\":\"double\"}},\"primary_key\":[\"id\"]}",
+        coll.describe(CollectionOptions.DEFAULT_INSTANCE).get().getSchema().getSchemaContent());
   }
 
   @Test

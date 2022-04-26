@@ -23,6 +23,8 @@ import static com.tigrisdata.db.client.Messages.INSERT_OR_REPLACE_FAILED;
 import static com.tigrisdata.db.client.Messages.READ_FAILED;
 import static com.tigrisdata.db.client.Messages.UPDATE_FAILED;
 import static com.tigrisdata.db.client.TypeConverter.readOneDefaultReadRequestOptions;
+import static com.tigrisdata.db.client.TypeConverter.toCollectionDescription;
+import static com.tigrisdata.db.client.TypeConverter.toCollectionOptions;
 import static com.tigrisdata.db.client.TypeConverter.toDeleteRequest;
 import static com.tigrisdata.db.client.TypeConverter.toReadRequest;
 import static com.tigrisdata.db.client.TypeConverter.toReplaceRequest;
@@ -205,6 +207,17 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
   @Override
   public DeleteResponse delete(TigrisFilter filter) throws TigrisException {
     return delete(filter, new DeleteRequestOptions(new WriteOptions()));
+  }
+
+  @Override
+  public CollectionDescription describe(CollectionOptions options) throws TigrisException {
+    Api.DescribeCollectionResponse response =
+        stub.describeCollection(
+            Api.DescribeCollectionRequest.newBuilder()
+                .setCollection(collectionName)
+                .setOptions(toCollectionOptions(options, Optional.empty()))
+                .build());
+    return toCollectionDescription(response);
   }
 
   @Override

@@ -13,6 +13,7 @@
  */
 package com.tigrisdata.db.client;
 
+import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisCollectionType;
 
 import java.util.List;
@@ -75,6 +76,12 @@ public interface TigrisAsyncDatabase {
    * @return the future to the {@link TransactionSession}
    */
   CompletableFuture<TransactionSession> beginTransaction(TransactionOptions transactionOptions);
+
+  /**
+   * @return the future to the {@link DatabaseDescription} containing description of database.
+   * @throws TigrisException in case of an error.
+   */
+  CompletableFuture<DatabaseDescription> describe() throws TigrisException;
 
   /** @return name of the current database */
   String name();

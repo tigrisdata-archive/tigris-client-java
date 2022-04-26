@@ -23,7 +23,7 @@ import java.util.Objects;
  * Represents TigrisDB JSON collection schema. This is used to read / parse and register
  * collection's schema.
  */
-class TigrisJSONSchema implements TigrisSchema {
+public class TigrisJSONSchema implements TigrisSchema {
 
   private String schemaName;
   private String schemaContent;
@@ -33,7 +33,7 @@ class TigrisJSONSchema implements TigrisSchema {
    *
    * @param schemaContent content of schema
    */
-  public TigrisJSONSchema(String schemaContent) throws TigrisException {
+  TigrisJSONSchema(String schemaContent) throws TigrisException {
     this.schemaContent = schemaContent;
     try {
       this.schemaName = new ObjectMapper().readTree(schemaContent).get("title").asText();

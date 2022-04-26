@@ -88,9 +88,8 @@ public class StandardTransactionSession implements TransactionSession {
               .setDb(databaseName)
               .setTxCtx(transactionCtx)
               .build();
-      stub.commitTransaction(commitTransactionRequest);
-      // TODO actual status back
-      return new CommitTransactionResponse("committed");
+      Api.CommitTransactionResponse response = stub.commitTransaction(commitTransactionRequest);
+      return new CommitTransactionResponse(response.getStatus());
     } catch (StatusRuntimeException statusRuntimeException) {
       throw new TigrisException("Failed to commit transaction", statusRuntimeException);
     }
@@ -104,9 +103,9 @@ public class StandardTransactionSession implements TransactionSession {
               .setDb(databaseName)
               .setTxCtx(transactionCtx)
               .build();
-      stub.rollbackTransaction(rollbackTransactionRequest);
-      // TODO actual status back
-      return new RollbackTransactionResponse("rolled back");
+      Api.RollbackTransactionResponse response =
+          stub.rollbackTransaction(rollbackTransactionRequest);
+      return new RollbackTransactionResponse(response.getStatus());
     } catch (StatusRuntimeException statusRuntimeException) {
       throw new TigrisException("Failed to rollback transaction", statusRuntimeException);
     }

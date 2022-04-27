@@ -1,8 +1,8 @@
 [submodule "client/api"]
 	path = client/api
 	branch = main
-	url = git@github.com:tigrisdata/tigrisdb-api.git
+	url = git@github.com:tigrisdata/tigris-api.git
 [submodule "code-generator/code-generator-core/test-data"]
 	branch = main
 	path = code-generator/code-generator-core/test-data
-	url = git@github.com:tigrisdata/tigrisdb-test-data.git
+	url = git@github.com:tigrisdata/tigris-test-data.git

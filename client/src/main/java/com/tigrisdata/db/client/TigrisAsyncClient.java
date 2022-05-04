@@ -51,4 +51,7 @@ public interface TigrisAsyncClient extends Closeable {
    * @return a future to the {@link DropDatabaseResponse}
    */
   CompletableFuture<DropDatabaseResponse> dropDatabase(String databaseName);
+
+  /** @return future to the server metadata */
+  CompletableFuture<ServerMetadata> getServerMetadata();
 }

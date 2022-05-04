@@ -342,8 +342,12 @@ public class TestUserService extends TigrisGrpc.TigrisImplBase {
                     .setMetadata(Api.CollectionMetadata.newBuilder().build())
                     .setSchema(
                         ByteString.copyFromUtf8(
-                            "{\"title\":\"db1_c5\",\"description\":\"This document records the details of user for "
-                                + "tigris store\",\"properties\":{\"id\":{\"description\":\"A unique identifier for the user\",\"type\":\"int\"},\"name\":{\"description\":\"Name of the user\",\"type\":\"string\"},\"balance\":{\"description\":\"user balance in USD\",\"type\":\"double\"}},\"primary_key\":[\"id\"]}"))
+                            "{\"title\":\"db1_c5\",\"description\":\"This document "
+                                + "records the details of user for "
+                                + "tigris store\","
+                                + "\"properties\":{\"id\":{\"description\":\"A unique "
+                                + "identifier for the user\",\"type\":\"int\"},"
+                                + "\"name\":{\"description\":\"Name of the user\",\"type\":\"string\"},\"balance\":{\"description\":\"user balance in USD\",\"type\":\"double\"}},\"primary_key\":[\"id\"]}"))
                     .build())
             .build());
     responseObserver.onCompleted();
@@ -362,6 +366,14 @@ public class TestUserService extends TigrisGrpc.TigrisImplBase {
                     "{\"title\":\"db1_c5\",\"description\":\"This document records the details of user for tigris "
                         + "store\",\"properties\":{\"id\":{\"description\":\"A unique identifier for the user\",\"type\":\"int\"},\"name\":{\"description\":\"Name of the user\",\"type\":\"string\"},\"balance\":{\"description\":\"user balance in USD\",\"type\":\"double\"}},\"primary_key\":[\"id\"]}"))
             .build());
+    responseObserver.onCompleted();
+  }
+
+  @Override
+  public void getInfo(
+      Api.GetInfoRequest request, StreamObserver<Api.GetInfoResponse> responseObserver) {
+    responseObserver.onNext(
+        Api.GetInfoResponse.newBuilder().setServerVersion("1.2.3-alpha.4").build());
     responseObserver.onCompleted();
   }
 

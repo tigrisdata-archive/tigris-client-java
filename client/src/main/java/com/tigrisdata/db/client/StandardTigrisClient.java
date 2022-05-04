@@ -21,6 +21,7 @@ import static com.tigrisdata.db.client.Messages.DROP_DB_FAILED;
 import static com.tigrisdata.db.client.Messages.LIST_DBS_FAILED;
 import static com.tigrisdata.db.client.TypeConverter.toCreateDatabaseRequest;
 import static com.tigrisdata.db.client.TypeConverter.toDropDatabaseRequest;
+import static com.tigrisdata.db.client.TypeConverter.toServerMetadata;
 import com.tigrisdata.db.client.auth.AuthorizationToken;
 import com.tigrisdata.db.client.config.TigrisConfiguration;
 import com.tigrisdata.db.client.error.TigrisException;
@@ -118,6 +119,16 @@ public class StandardTigrisClient extends AbstractTigrisClient implements Tigris
           stub.dropDatabase(toDropDatabaseRequest(databaseName, DatabaseOptions.DEFAULT_INSTANCE));
       return new DropDatabaseResponse(
           dropDatabaseResponse.getStatus(), dropDatabaseResponse.getMessage());
+    } catch (StatusRuntimeException statusRuntimeException) {
+      throw new TigrisException(DROP_DB_FAILED, statusRuntimeException);
+    }
+  }
+
+  @Override
+  public ServerMetadata getServerMetadata() throws TigrisException {
+    try {
+      Api.GetInfoResponse apiResponse = stub.getInfo(Api.GetInfoRequest.newBuilder().build());
+      return toServerMetadata(apiResponse);
     } catch (StatusRuntimeException statusRuntimeException) {
       throw new TigrisException(DROP_DB_FAILED, statusRuntimeException);
     }

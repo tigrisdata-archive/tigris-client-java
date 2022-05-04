@@ -48,6 +48,10 @@ final class TypeConverter {
         .build();
   }
 
+  public static ServerMetadata toServerMetadata(Api.GetInfoResponse apiGetInfoResponse) {
+    return new ServerMetadata(apiGetInfoResponse.getServerVersion());
+  }
+
   public static CollectionInfo toCollectionInfo(Api.CollectionInfo collectionInfo) {
     return new CollectionInfo(collectionInfo.getCollection());
   }

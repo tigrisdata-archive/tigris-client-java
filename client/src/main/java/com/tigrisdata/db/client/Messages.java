@@ -22,6 +22,7 @@ final class Messages {
   public static final String CREATE_DB_FAILED = "Failed to create database";
   public static final String DROP_DB_FAILED = "Failed to drop database";
   public static final String DB_ALREADY_EXISTS = "Database already exists";
+  public static final String SERVER_METADATA_FAILED = "Failed to retrieve server metadata";
 
   // database
   public static final String LIST_COLLECTION_FAILED = "Failed to list collection(s)";

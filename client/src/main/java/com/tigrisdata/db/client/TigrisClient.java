@@ -55,4 +55,10 @@ public interface TigrisClient extends Closeable {
    * @throws TigrisException in case of auth error or any other failure.
    */
   DropDatabaseResponse dropDatabase(String databaseName) throws TigrisException;
+
+  /**
+   * @return server metadata
+   * @throws TigrisException in case of auth error or any other failure.
+   */
+  ServerMetadata getServerMetadata() throws TigrisException;
 }

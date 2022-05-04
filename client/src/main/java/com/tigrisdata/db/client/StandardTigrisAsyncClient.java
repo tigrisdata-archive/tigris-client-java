@@ -21,9 +21,11 @@ import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import static com.tigrisdata.db.client.Messages.CREATE_DB_FAILED;
 import static com.tigrisdata.db.client.Messages.DROP_DB_FAILED;
 import static com.tigrisdata.db.client.Messages.LIST_DBS_FAILED;
+import static com.tigrisdata.db.client.Messages.SERVER_METADATA_FAILED;
 import static com.tigrisdata.db.client.TypeConverter.toCreateDatabaseRequest;
 import static com.tigrisdata.db.client.TypeConverter.toDropDatabaseRequest;
 import static com.tigrisdata.db.client.TypeConverter.toListDatabasesRequest;
+import static com.tigrisdata.db.client.TypeConverter.toServerMetadata;
 import com.tigrisdata.db.client.auth.AuthorizationToken;
 import com.tigrisdata.db.client.config.TigrisConfiguration;
 import com.tigrisdata.db.client.error.TigrisException;
@@ -156,6 +158,14 @@ public class StandardTigrisAsyncClient extends AbstractTigrisClient implements T
         response -> new DropDatabaseResponse(response.getStatus(), response.getMessage()),
         executor,
         DROP_DB_FAILED);
+  }
+
+  @Override
+  public CompletableFuture<ServerMetadata> getServerMetadata() {
+    ListenableFuture<Api.GetInfoResponse> infoResponse =
+        stub.getInfo(Api.GetInfoRequest.newBuilder().build());
+    return Utilities.transformFuture(
+        infoResponse, response -> toServerMetadata(response), executor, SERVER_METADATA_FAILED);
   }
 
   @Override

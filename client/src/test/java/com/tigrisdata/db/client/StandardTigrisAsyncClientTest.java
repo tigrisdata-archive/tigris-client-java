@@ -117,6 +117,13 @@ public class StandardTigrisAsyncClientTest {
   }
 
   @Test
+  public void testServerMetadata() throws Exception {
+    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    ServerMetadata serverMetadata = asyncClient.getServerMetadata().get();
+    Assert.assertEquals("1.2.3-alpha.4", serverMetadata.getServerVersion());
+  }
+
+  @Test
   public void testClose() throws Exception {
     ManagedChannelBuilder mockedChannelBuilder = Mockito.mock(ManagedChannelBuilder.class);
     Mockito.when(mockedChannelBuilder.intercept(ArgumentMatchers.any(ClientInterceptor.class)))

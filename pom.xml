@@ -11,7 +11,6 @@
     <url>https://github.com/tigrisdata/tigris-client-java</url>
     <modules>
         <module>client</module>
-        <module>code-generator</module>
         <module>schema-generator</module>
         <module>types</module>
     </modules>

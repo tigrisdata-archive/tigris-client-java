@@ -65,7 +65,7 @@
                         <version>3.3.2</version>
                         <configuration>
                             <!-- grpc generated classes -->
-                            <excludePackageNames>com.google.*:com.tigrisdata.db.api.v1.*:org.openapi_v3.*</excludePackageNames>
+                            <excludePackageNames>com.google.*:com.tigrisdata.db.api.v1.*:org.*</excludePackageNames>
                         </configuration>
                         <executions>
                             <execution>

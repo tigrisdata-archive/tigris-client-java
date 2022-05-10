@@ -61,11 +61,12 @@ public class TransactionalTigrisCollectionTest {
   public void testRead() throws TigrisException {
     TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
-    TransactionSession transactionSession = db1.beginTransaction(new TransactionOptions());
-    TransactionTigrisCollection<DB1_C1> transactionalTigrisCollection =
-        transactionSession.getCollection(DB1_C1.class);
+    TransactionSession transactionSession =
+        db1.beginTransaction(TransactionOptions.DEFAULT_INSTANCE);
+    TigrisCollection<DB1_C1> collection = db1.getCollection(DB1_C1.class);
     inspectDocs(
-        transactionalTigrisCollection,
+        transactionSession,
+        collection,
         new DB1_C1(0L, "db1_c1_d0"),
         new DB1_C1(1L, "db1_c1_d1"),
         new DB1_C1(2L, "db1_c1_d2"),
@@ -78,47 +79,47 @@ public class TransactionalTigrisCollectionTest {
   public void testReadOne() throws TigrisException {
     TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
-    TransactionSession transactionSession = db1.beginTransaction(new TransactionOptions());
+    TransactionSession session = db1.beginTransaction(TransactionOptions.DEFAULT_INSTANCE);
 
-    TransactionTigrisCollection<DB1_C1> transactionalTigrisCollection =
-        transactionSession.getCollection(DB1_C1.class);
+    TigrisCollection<DB1_C1> collection = db1.getCollection(DB1_C1.class);
 
-    Optional<DB1_C1> result = transactionalTigrisCollection.readOne(Filters.eq("id", 0));
+    Optional<DB1_C1> result = collection.readOne(session, Filters.eq("id", 0));
     Assert.assertTrue(result.isPresent());
     Assert.assertEquals(0L, result.get().getId());
     Assert.assertEquals("db1_c1_d0", result.get().getName());
-    transactionSession.commit();
+    session.commit();
   }
 
   @Test
   public void testReadOneEmpty() throws TigrisException {
     TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
-    TransactionSession transactionSession = db1.beginTransaction(new TransactionOptions());
+    TransactionSession session = db1.beginTransaction(TransactionOptions.DEFAULT_INSTANCE);
 
-    TransactionTigrisCollection<DB1_C1> transactionalTigrisCollection =
-        transactionSession.getCollection(DB1_C1.class);
+    TigrisCollection<DB1_C1> collection = db1.getCollection(DB1_C1.class);
 
-    Optional<DB1_C1> result = transactionalTigrisCollection.readOne(Filters.eq("id", 100));
+    Optional<DB1_C1> result = collection.readOne(session, Filters.eq("id", 100));
     Assert.assertFalse(result.isPresent());
-    transactionSession.commit();
+    session.commit();
   }
 
   @Test
   public void testInsert() throws TigrisException {
     TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
-    TransactionSession transactionSession = db1.beginTransaction(new TransactionOptions());
+    TransactionSession transactionSession =
+        db1.beginTransaction(TransactionOptions.DEFAULT_INSTANCE);
+    TigrisCollection<DB1_C1> collection = db1.getCollection(DB1_C1.class);
 
-    TransactionTigrisCollection<DB1_C1> transactionalTigrisCollection =
-        transactionSession.getCollection(DB1_C1.class);
     InsertResponse response =
-        transactionalTigrisCollection.insert(
+        collection.insert(
+            transactionSession,
             Collections.singletonList(new DB1_C1(5L, "db1_c1_test-inserted")),
             new InsertRequestOptions());
     Assert.assertNotNull(response);
     inspectDocs(
-        transactionalTigrisCollection,
+        transactionSession,
+        collection,
         new DB1_C1(0L, "db1_c1_d0"),
         new DB1_C1(1L, "db1_c1_d1"),
         new DB1_C1(2L, "db1_c1_d2"),
@@ -132,15 +133,16 @@ public class TransactionalTigrisCollectionTest {
   public void testInsertOne() throws TigrisException {
     TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
-    TransactionSession transactionSession = db1.beginTransaction(new TransactionOptions());
+    TransactionSession transactionSession =
+        db1.beginTransaction(TransactionOptions.DEFAULT_INSTANCE);
+    TigrisCollection<DB1_C1> collection = db1.getCollection(DB1_C1.class);
 
-    TransactionTigrisCollection<DB1_C1> transactionalTigrisCollection =
-        transactionSession.getCollection(DB1_C1.class);
     InsertResponse response =
-        transactionalTigrisCollection.insert(new DB1_C1(5L, "db1_c1_test-inserted"));
+        collection.insert(transactionSession, new DB1_C1(5L, "db1_c1_test-inserted"));
     Assert.assertNotNull(response);
     inspectDocs(
-        transactionalTigrisCollection,
+        transactionSession,
+        collection,
         new DB1_C1(0L, "db1_c1_d0"),
         new DB1_C1(1L, "db1_c1_d1"),
         new DB1_C1(2L, "db1_c1_d2"),
@@ -154,19 +156,20 @@ public class TransactionalTigrisCollectionTest {
   public void testinsertOrReplace() throws TigrisException {
     TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
-    TransactionSession transactionSession = db1.beginTransaction(new TransactionOptions());
+    TransactionSession transactionSession =
+        db1.beginTransaction(TransactionOptions.DEFAULT_INSTANCE);
+    TigrisCollection<DB1_C1> collection = db1.getCollection(DB1_C1.class);
 
-    TransactionTigrisCollection<DB1_C1> transactionalTigrisCollection =
-        transactionSession.getCollection(DB1_C1.class);
     List<DB1_C1> replacePayload = new ArrayList<>();
     replacePayload.add(new DB1_C1(1L, "testReplace1"));
     replacePayload.add(new DB1_C1(3L, "testReplace3"));
     replacePayload.add(new DB1_C1(4L, "testReplace4"));
     InsertOrReplaceResponse response =
-        transactionalTigrisCollection.insertOrReplace(
-            replacePayload, new InsertOrReplaceRequestOptions());
+        collection.insertOrReplace(
+            transactionSession, replacePayload, new InsertOrReplaceRequestOptions());
     inspectDocs(
-        transactionalTigrisCollection,
+        transactionSession,
+        collection,
         new DB1_C1(0L, "db1_c1_d0"),
         new DB1_C1(1L, "testReplace1"),
         new DB1_C1(2L, "db1_c1_d2"),
@@ -180,18 +183,20 @@ public class TransactionalTigrisCollectionTest {
   public void testinsertOrReplaceOverloaded() throws TigrisException {
     TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
-    TransactionSession transactionSession = db1.beginTransaction(new TransactionOptions());
+    TransactionSession transactionSession =
+        db1.beginTransaction(TransactionOptions.DEFAULT_INSTANCE);
 
-    TransactionTigrisCollection<DB1_C1> transactionalTigrisCollection =
-        transactionSession.getCollection(DB1_C1.class);
+    TigrisCollection<DB1_C1> collection = db1.getCollection(DB1_C1.class);
+
     List<DB1_C1> replacePayload = new ArrayList<>();
     replacePayload.add(new DB1_C1(1L, "testReplace1"));
     replacePayload.add(new DB1_C1(3L, "testReplace3"));
     replacePayload.add(new DB1_C1(4L, "testReplace4"));
     InsertOrReplaceResponse response =
-        transactionalTigrisCollection.insertOrReplace(replacePayload);
+        collection.insertOrReplace(transactionSession, replacePayload);
     inspectDocs(
-        transactionalTigrisCollection,
+        transactionSession,
+        collection,
         new DB1_C1(0L, "db1_c1_d0"),
         new DB1_C1(1L, "testReplace1"),
         new DB1_C1(2L, "db1_c1_d2"),
@@ -205,25 +210,27 @@ public class TransactionalTigrisCollectionTest {
   public void testDelete() throws TigrisException {
     TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
-    TransactionSession transactionSession = db1.beginTransaction(new TransactionOptions());
+    TransactionSession transactionSession =
+        db1.beginTransaction(TransactionOptions.DEFAULT_INSTANCE);
+    TigrisCollection<DB1_C1> collection = db1.getCollection(DB1_C1.class);
 
-    TransactionTigrisCollection<DB1_C1> transactionalTigrisCollection =
-        transactionSession.getCollection(DB1_C1.class);
     DeleteResponse response =
-        transactionalTigrisCollection.delete(Filters.eq("id", 3), new DeleteRequestOptions());
+        collection.delete(transactionSession, Filters.eq("id", 3), new DeleteRequestOptions());
     Assert.assertNotNull(response);
     inspectDocs(
-        transactionalTigrisCollection,
+        transactionSession,
+        collection,
         new DB1_C1(0L, "db1_c1_d0"),
         new DB1_C1(1L, "db1_c1_d1"),
         new DB1_C1(2L, "db1_c1_d2"),
         new DB1_C1(4L, "db1_c1_d4"));
 
     response =
-        transactionalTigrisCollection.delete(Filters.eq("id", 1), new DeleteRequestOptions());
+        collection.delete(transactionSession, Filters.eq("id", 1), new DeleteRequestOptions());
     Assert.assertNotNull(response);
     inspectDocs(
-        transactionalTigrisCollection,
+        transactionSession,
+        collection,
         new DB1_C1(0L, "db1_c1_d0"),
         new DB1_C1(2L, "db1_c1_d2"),
         new DB1_C1(4L, "db1_c1_d4"));
@@ -234,24 +241,27 @@ public class TransactionalTigrisCollectionTest {
   public void testDeleteOverloaded() throws TigrisException {
     TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
-    TransactionSession transactionSession = db1.beginTransaction(new TransactionOptions());
+    TransactionSession transactionSession =
+        db1.beginTransaction(TransactionOptions.DEFAULT_INSTANCE);
 
-    TransactionTigrisCollection<DB1_C1> transactionalTigrisCollection =
-        transactionSession.getCollection(DB1_C1.class);
+    TigrisCollection<DB1_C1> collection = db1.getCollection(DB1_C1.class);
+
     DeleteResponse response =
-        transactionalTigrisCollection.delete(Filters.eq("id", 3), new DeleteRequestOptions());
+        collection.delete(transactionSession, Filters.eq("id", 3), new DeleteRequestOptions());
     Assert.assertNotNull(response);
     inspectDocs(
-        transactionalTigrisCollection,
+        transactionSession,
+        collection,
         new DB1_C1(0L, "db1_c1_d0"),
         new DB1_C1(1L, "db1_c1_d1"),
         new DB1_C1(2L, "db1_c1_d2"),
         new DB1_C1(4L, "db1_c1_d4"));
 
-    response = transactionalTigrisCollection.delete(Filters.eq("id", 1));
+    response = collection.delete(transactionSession, Filters.eq("id", 1));
     Assert.assertNotNull(response);
     inspectDocs(
-        transactionalTigrisCollection,
+        transactionSession,
+        collection,
         new DB1_C1(0L, "db1_c1_d0"),
         new DB1_C1(2L, "db1_c1_d2"),
         new DB1_C1(4L, "db1_c1_d4"));
@@ -262,17 +272,21 @@ public class TransactionalTigrisCollectionTest {
   public void testUpdate() throws TigrisException {
     TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
-    TransactionSession transactionSession = db1.beginTransaction(new TransactionOptions());
+    TransactionSession transactionSession =
+        db1.beginTransaction(TransactionOptions.DEFAULT_INSTANCE);
 
-    TransactionTigrisCollection<DB1_C1> transactionalTigrisCollection =
-        transactionSession.getCollection(DB1_C1.class);
+    TigrisCollection<DB1_C1> collection = db1.getCollection(DB1_C1.class);
+
     UpdateResponse response =
-        transactionalTigrisCollection.update(
-            Filters.eq("id", 1), UpdateFields.newBuilder().set("name", "new name 1").build());
+        collection.update(
+            transactionSession,
+            Filters.eq("id", 1),
+            UpdateFields.newBuilder().set("name", "new name 1").build());
     Assert.assertNotNull(response);
 
     inspectDocs(
-        transactionalTigrisCollection,
+        transactionSession,
+        collection,
         new DB1_C1(0L, "db1_c1_d0"),
         new DB1_C1(1L, "new name 1"),
         new DB1_C1(2L, "db1_c1_d2"),
@@ -285,19 +299,22 @@ public class TransactionalTigrisCollectionTest {
   public void testName() throws TigrisException {
     TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
-    TransactionSession transactionSession = db1.beginTransaction(new TransactionOptions());
+    TransactionSession transactionSession =
+        db1.beginTransaction(TransactionOptions.DEFAULT_INSTANCE);
+    TigrisCollection<DB1_C1> collection = db1.getCollection(DB1_C1.class);
 
-    TransactionTigrisCollection<DB1_C1> transactionalTigrisCollection =
-        transactionSession.getCollection(DB1_C1.class);
-    Assert.assertEquals("db1_c1", transactionalTigrisCollection.name());
+    Assert.assertEquals("db1_c1", collection.name());
     transactionSession.commit();
   }
 
   private static void inspectDocs(
-      TransactionTigrisCollection<DB1_C1> transactionalTigrisCollection, DB1_C1... expectedDocs)
+      TransactionSession session,
+      TigrisCollection<DB1_C1> transactionalTigrisCollection,
+      DB1_C1... expectedDocs)
       throws TigrisException {
     Iterator<DB1_C1> c1Iterator =
-        transactionalTigrisCollection.read(Filters.eq("ignore", "ignore"), ReadFields.empty());
+        transactionalTigrisCollection.read(
+            session, Filters.eq("ignore", "ignore"), ReadFields.empty());
     Assert.assertTrue(c1Iterator.hasNext());
     for (DB1_C1 expectedDoc : expectedDocs) {
       DB1_C1 db1_c1 = c1Iterator.next();

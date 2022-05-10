@@ -14,31 +14,9 @@
 package com.tigrisdata.db.client;
 
 import com.tigrisdata.db.client.error.TigrisException;
-import com.tigrisdata.db.type.TigrisCollectionType;
 
 /** Transaction Session */
 public interface TransactionSession {
-  /**
-   * Return an instance of {@link TransactionTigrisCollection}
-   *
-   * @param collectionTypeClass Class type of the collection
-   * @param <C> type of the collection that is of type {@link TigrisCollectionType}
-   * @return an instance of {@link TransactionTigrisCollection}
-   */
-  <C extends TigrisCollectionType> TransactionTigrisCollection<C> getCollection(
-      Class<C> collectionTypeClass);
-
-  /**
-   * Creates or updates collections under current database in transactional session.
-   *
-   * @param schema schema of the collection
-   * @param collectionOptions collection option
-   * @return the instance of {@link CreateOrUpdateCollectionsResponse} from server
-   * @throws TigrisException in case of an error.
-   */
-  CreateOrUpdateCollectionsResponse createOrUpdateCollections(
-      TigrisSchema schema, CollectionOptions collectionOptions) throws TigrisException;
-
   /**
    * Commits the current ongoing transaction
    *

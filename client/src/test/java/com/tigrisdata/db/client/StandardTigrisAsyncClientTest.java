@@ -78,9 +78,9 @@ public class StandardTigrisAsyncClientTest {
     MatcherAssert.assertThat(
         databases,
         Matchers.containsInAnyOrder(
-            new StandardTigrisAsyncDatabase("db1", null, null, null, null, null),
-            new StandardTigrisAsyncDatabase("db2", null, null, null, null, null),
-            new StandardTigrisAsyncDatabase("db3", null, null, null, null, null)));
+            new StandardTigrisAsyncDatabase("db1", null, null, null, null, null, null),
+            new StandardTigrisAsyncDatabase("db2", null, null, null, null, null, null),
+            new StandardTigrisAsyncDatabase("db3", null, null, null, null, null, null)));
   }
 
   @Test
@@ -112,8 +112,8 @@ public class StandardTigrisAsyncClientTest {
     MatcherAssert.assertThat(
         asyncClient.listDatabases(DatabaseOptions.DEFAULT_INSTANCE).get(),
         Matchers.containsInAnyOrder(
-            new StandardTigrisAsyncDatabase("db1", null, null, null, null, null),
-            new StandardTigrisAsyncDatabase("db3", null, null, null, null, null)));
+            new StandardTigrisAsyncDatabase("db1", null, null, null, null, null, null),
+            new StandardTigrisAsyncDatabase("db3", null, null, null, null, null, null)));
   }
 
   @Test

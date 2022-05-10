@@ -105,6 +105,85 @@ final class TypeConverter {
         .build();
   }
 
+  public static ReadRequestOptions makeTransactionAware(
+      TransactionSession session, ReadRequestOptions readRequestOptions) {
+
+    if (session == null) {
+      return readRequestOptions;
+    }
+    Api.TransactionCtx ctx = ((StandardTransactionSession) session).getTransactionCtx();
+
+    if (readRequestOptions.getReadOptions() != null) {
+      readRequestOptions.getReadOptions().setTransactionCtx(TypeConverter.toTransactionCtx(ctx));
+    } else {
+      readRequestOptions.setReadOptions(new ReadOptions(TypeConverter.toTransactionCtx(ctx)));
+    }
+    return readRequestOptions;
+  }
+
+  public static InsertRequestOptions makeTransactionAware(
+      TransactionSession session, InsertRequestOptions insertRequestOptions) {
+
+    if (session == null) {
+      return insertRequestOptions;
+    }
+    Api.TransactionCtx ctx = ((StandardTransactionSession) session).getTransactionCtx();
+    if (insertRequestOptions.getWriteOptions() != null) {
+      insertRequestOptions.getWriteOptions().setTransactionCtx(TypeConverter.toTransactionCtx(ctx));
+    } else {
+      insertRequestOptions.setWriteOptions(new WriteOptions(TypeConverter.toTransactionCtx(ctx)));
+    }
+    return insertRequestOptions;
+  }
+
+  public static InsertOrReplaceRequestOptions makeTransactionAware(
+      TransactionSession session, InsertOrReplaceRequestOptions insertOrReplaceRequestOptions) {
+
+    if (session == null) {
+      return insertOrReplaceRequestOptions;
+    }
+    Api.TransactionCtx ctx = ((StandardTransactionSession) session).getTransactionCtx();
+    if (insertOrReplaceRequestOptions.getWriteOptions() != null) {
+      insertOrReplaceRequestOptions
+          .getWriteOptions()
+          .setTransactionCtx(TypeConverter.toTransactionCtx(ctx));
+    } else {
+      insertOrReplaceRequestOptions.setWriteOptions(
+          new WriteOptions(TypeConverter.toTransactionCtx(ctx)));
+    }
+    return insertOrReplaceRequestOptions;
+  }
+
+  public static UpdateRequestOptions makeTransactionAware(
+      TransactionSession session, UpdateRequestOptions updateRequestOptions) {
+
+    if (session == null) {
+      return updateRequestOptions;
+    }
+    Api.TransactionCtx ctx = ((StandardTransactionSession) session).getTransactionCtx();
+    if (updateRequestOptions.getWriteOptions() != null) {
+      updateRequestOptions.getWriteOptions().setTransactionCtx(TypeConverter.toTransactionCtx(ctx));
+    } else {
+      updateRequestOptions.setWriteOptions(new WriteOptions(TypeConverter.toTransactionCtx(ctx)));
+    }
+    return updateRequestOptions;
+  }
+
+  public static DeleteRequestOptions makeTransactionAware(
+      TransactionSession session, DeleteRequestOptions deleteRequestOptions) {
+
+    if (session == null) {
+      return deleteRequestOptions;
+    }
+    Api.TransactionCtx ctx = ((StandardTransactionSession) session).getTransactionCtx();
+    if (deleteRequestOptions.getWriteOptions() != null) {
+      deleteRequestOptions.getWriteOptions().setTransactionCtx(TypeConverter.toTransactionCtx(ctx));
+    } else {
+      deleteRequestOptions.setWriteOptions(new WriteOptions(TypeConverter.toTransactionCtx(ctx)));
+    }
+    return deleteRequestOptions;
+  }
+
   public static Api.ReadRequest toReadRequest(
       String databaseName,
       String collectionName,

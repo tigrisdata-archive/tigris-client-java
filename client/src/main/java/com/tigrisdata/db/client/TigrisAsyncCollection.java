@@ -25,7 +25,8 @@ import java.util.concurrent.CompletableFuture;
  *
  * @param <T> type of collection
  */
-public interface TigrisAsyncCollection<T extends TigrisCollectionType> {
+public interface TigrisAsyncCollection<T extends TigrisCollectionType>
+    extends TransactionalCollectionOperation<T> {
 
   /**
    * @param filter filter to narrow down read

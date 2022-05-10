@@ -18,6 +18,7 @@ import com.tigrisdata.db.type.TigrisCollectionType;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /** Tigris Database */
@@ -58,11 +59,13 @@ public interface TigrisDatabase {
   /**
    * Drops the collection.
    *
-   * @param collectionName name of the collection
+   * @param collectionType type of the collection
+   * @param <T> type of the collection that is of type {@link TigrisCollectionType}
    * @return the instance of {@link DropCollectionResponse} from server
    * @throws TigrisException in case of an error.
    */
-  DropCollectionResponse dropCollection(String collectionName) throws TigrisException;
+  <T extends TigrisCollectionType> DropCollectionResponse dropCollection(Class<T> collectionType)
+      throws TigrisException;
 
   /**
    * Return an instance of {@link TigrisCollection}
@@ -90,4 +93,14 @@ public interface TigrisDatabase {
 
   /** @return name of the current database */
   String name();
+
+  /**
+   * performs batch of operation in a transaction. consume the tx to perform operations. If the
+   * consumer throws a RuntimeException transaction will be rolled back and {@link TigrisException}
+   * will be raised.
+   *
+   * @param tx consumer to consume session
+   * @throws TigrisException
+   */
+  void transact(Consumer<TransactionSession> tx) throws TigrisException;
 }

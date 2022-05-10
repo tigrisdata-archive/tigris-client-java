@@ -87,16 +87,19 @@ public class TransactionSessionTest {
     TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
     TransactionSession transactionSession = db1.beginTransaction(new TransactionOptions());
-    TigrisCollection<DB1_C1> c1TigrisCollection = transactionSession.getCollection(DB1_C1.class);
+    TigrisCollection<DB1_C1> c1TigrisCollection = db1.getCollection(DB1_C1.class);
 
-    c1TigrisCollection.insert(Collections.singletonList(new DB1_C1(1, "hello")));
+    c1TigrisCollection.insert(
+        transactionSession, Collections.singletonList(new DB1_C1(1, "hello")));
 
-    c1TigrisCollection.delete(Filters.eq("id", 0L));
+    c1TigrisCollection.delete(transactionSession, Filters.eq("id", 0L));
 
-    c1TigrisCollection.insert(Collections.singletonList(new DB1_C1(5, "foo")));
+    c1TigrisCollection.insert(transactionSession, Collections.singletonList(new DB1_C1(5, "foo")));
 
     c1TigrisCollection.update(
-        Filters.eq("id", 5), UpdateFields.newBuilder().set("name", "new name").build());
+        transactionSession,
+        Filters.eq("id", 5),
+        UpdateFields.newBuilder().set("name", "new name").build());
 
     transactionSession.commit();
   }

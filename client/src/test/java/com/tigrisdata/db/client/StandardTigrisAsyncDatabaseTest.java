@@ -16,6 +16,7 @@ package com.tigrisdata.db.client;
 import com.tigrisdata.db.client.collection.DB1_C1;
 import com.tigrisdata.db.client.collection.DB1_C5;
 import com.tigrisdata.db.client.collection.User;
+import com.tigrisdata.db.client.collection.collection2.DB1_C3;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.grpc.TestUserService;
 import com.tigrisdata.db.type.TigrisCollectionType;
@@ -145,7 +146,7 @@ public class StandardTigrisAsyncDatabaseTest {
   public void testDropCollection() throws InterruptedException, ExecutionException {
     TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
-    CompletableFuture<DropCollectionResponse> response = db1.dropCollection("db1_c3");
+    CompletableFuture<DropCollectionResponse> response = db1.dropCollection(DB1_C3.class);
     Assert.assertEquals("db1_c3 dropped", response.get().getMessage());
     MatcherAssert.assertThat(
         db1.listCollections().get(),
@@ -203,7 +204,7 @@ public class StandardTigrisAsyncDatabaseTest {
   public void testToString() {
     TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
-    Assert.assertEquals("StandardTigrisAsyncDatabase{databaseName='db1'}", db1.toString());
+    Assert.assertEquals("StandardTigrisAsyncDatabase{db='db1'}", db1.toString());
   }
 
   @Test
@@ -215,13 +216,15 @@ public class StandardTigrisAsyncDatabaseTest {
 
     // null dbName resolves to 0 hashcode
     Assert.assertEquals(
-        0, new StandardTigrisAsyncDatabase(null, null, null, null, null, null).hashCode());
+        0, new StandardTigrisAsyncDatabase(null, null, null, null, null, null, null).hashCode());
   }
 
   @Test
   public void testEquals() {
-    TigrisAsyncDatabase db1 = new StandardTigrisAsyncDatabase("db1", null, null, null, null, null);
-    TigrisAsyncDatabase db2 = new StandardTigrisAsyncDatabase("db1", null, null, null, null, null);
+    TigrisAsyncDatabase db1 =
+        new StandardTigrisAsyncDatabase("db1", null, null, null, null, null, null);
+    TigrisAsyncDatabase db2 =
+        new StandardTigrisAsyncDatabase("db1", null, null, null, null, null, null);
     Assert.assertTrue(db1.equals(db2));
     Assert.assertTrue(db1.equals(db1));
 

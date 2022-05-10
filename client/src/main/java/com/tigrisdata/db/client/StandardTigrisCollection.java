@@ -15,11 +15,14 @@ package com.tigrisdata.db.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tigrisdata.db.api.v1.grpc.Api;
+import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import static com.tigrisdata.db.client.Messages.DELETE_FAILED;
 import static com.tigrisdata.db.client.Messages.INSERT_FAILED;
 import static com.tigrisdata.db.client.Messages.INSERT_OR_REPLACE_FAILED;
 import static com.tigrisdata.db.client.Messages.READ_FAILED;
 import static com.tigrisdata.db.client.Messages.UPDATE_FAILED;
+import static com.tigrisdata.db.client.TypeConverter.makeTransactionAware;
 import static com.tigrisdata.db.client.TypeConverter.readOneDefaultReadRequestOptions;
 import static com.tigrisdata.db.client.TypeConverter.toCollectionDescription;
 import static com.tigrisdata.db.client.TypeConverter.toCollectionOptions;
@@ -29,9 +32,6 @@ import static com.tigrisdata.db.client.TypeConverter.toReplaceRequest;
 import static com.tigrisdata.db.client.TypeConverter.toUpdateRequest;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisCollectionType;
-import com.tigrisdata.db.api.v1.grpc.Api;
-import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
-
 import io.grpc.StatusRuntimeException;
 
 import java.util.Collections;
@@ -39,26 +39,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+
 /** Tigris collection implementation */
 public class StandardTigrisCollection<T extends TigrisCollectionType>
-    implements TigrisCollection<T> {
-
-  private final String databaseName;
-  private final String collectionName;
-  private final Class<T> collectionTypeClass;
-  private final TigrisGrpc.TigrisBlockingStub stub;
-  private final ObjectMapper objectMapper;
+    extends AbstractTigrisCollection<T> implements TigrisCollection<T> {
 
   StandardTigrisCollection(
       String databaseName,
       Class<T> collectionTypeClass,
       TigrisGrpc.TigrisBlockingStub stub,
       ObjectMapper objectMapper) {
-    this.databaseName = databaseName;
-    this.collectionName = Utilities.getCollectionName(collectionTypeClass);
-    this.collectionTypeClass = collectionTypeClass;
-    this.stub = stub;
-    this.objectMapper = objectMapper;
+    super(databaseName, collectionTypeClass, stub, objectMapper);
   }
 
   @Override
@@ -69,8 +60,16 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
       Api.ReadRequest readRequest =
           toReadRequest(
               databaseName, collectionName, filter, fields, readRequestOptions, objectMapper);
-      Iterator<Api.ReadResponse> readResponseIterator = stub.read(readRequest);
-
+      Iterator<Api.ReadResponse> readResponseIterator;
+      if (readRequestOptions.getReadOptions() != null
+          && readRequestOptions.getReadOptions().getTransactionCtx() != null) {
+        readResponseIterator =
+            transactionAwareStub(
+                    blockingStub, readRequestOptions.getReadOptions().getTransactionCtx())
+                .read(readRequest);
+      } else {
+        readResponseIterator = blockingStub.read(readRequest);
+      }
       Function<Api.ReadResponse, T> converter =
           readResponse -> {
             try {
@@ -87,14 +86,39 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
   }
 
   @Override
+  public Iterator<T> read(
+      TransactionSession session,
+      TigrisFilter filter,
+      ReadFields fields,
+      ReadRequestOptions readRequestOptions)
+      throws TigrisException {
+    return this.read(filter, fields, makeTransactionAware(session, readRequestOptions));
+  }
+
+  @Override
   public Iterator<T> read(TigrisFilter filter, ReadFields fields) throws TigrisException {
     return this.read(filter, fields, new ReadRequestOptions());
   }
 
   @Override
+  public Iterator<T> read(TransactionSession session, TigrisFilter filter, ReadFields fields)
+      throws TigrisException {
+    return this.read(filter, fields, makeTransactionAware(session, new ReadRequestOptions()));
+  }
+
+  @Override
   public Optional<T> readOne(TigrisFilter filter) throws TigrisException {
+    return this.readOne(null, filter);
+  }
+
+  @Override
+  public Optional<T> readOne(TransactionSession session, TigrisFilter filter)
+      throws TigrisException {
     Iterator<T> iterator =
-        this.read(filter, ReadFields.empty(), readOneDefaultReadRequestOptions());
+        this.read(
+            filter,
+            ReadFields.empty(),
+            makeTransactionAware(session, readOneDefaultReadRequestOptions()));
     try {
       if (iterator.hasNext()) {
         return Optional.of(iterator.next());
@@ -112,7 +136,16 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
       Api.InsertRequest insertRequest =
           TypeConverter.toInsertRequest(
               databaseName, collectionName, documents, insertRequestOptions, objectMapper);
-      Api.InsertResponse response = stub.insert(insertRequest);
+      Api.InsertResponse response;
+      if (insertRequestOptions.getWriteOptions() != null
+          && insertRequestOptions.getWriteOptions().getTransactionCtx() != null) {
+        response =
+            transactionAwareStub(
+                    blockingStub, insertRequestOptions.getWriteOptions().getTransactionCtx())
+                .insert(insertRequest);
+      } else {
+        response = blockingStub.insert(insertRequest);
+      }
       return new InsertResponse(
           response.getStatus(),
           response.getMetadata().getCreatedAt(),
@@ -125,13 +158,32 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
   }
 
   @Override
+  public InsertResponse insert(
+      TransactionSession session, List<T> documents, InsertRequestOptions insertRequestOptions)
+      throws TigrisException {
+    return this.insert(documents, makeTransactionAware(session, insertRequestOptions));
+  }
+
+  @Override
   public InsertResponse insert(List<T> documents) throws TigrisException {
     return insert(documents, new InsertRequestOptions(new WriteOptions()));
   }
 
   @Override
+  public InsertResponse insert(TransactionSession session, List<T> documents)
+      throws TigrisException {
+    return insert(
+        documents, makeTransactionAware(session, new InsertRequestOptions(new WriteOptions())));
+  }
+
+  @Override
   public InsertResponse insert(T document) throws TigrisException {
     return insert(Collections.singletonList(document));
+  }
+
+  @Override
+  public InsertResponse insert(TransactionSession session, T document) throws TigrisException {
+    return insert(session, Collections.singletonList(document));
   }
 
   @Override
@@ -142,7 +194,18 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
       Api.ReplaceRequest replaceRequest =
           toReplaceRequest(
               databaseName, collectionName, documents, insertOrReplaceRequestOptions, objectMapper);
-      Api.ReplaceResponse response = stub.replace(replaceRequest);
+
+      Api.ReplaceResponse response = null;
+      if (insertOrReplaceRequestOptions.getWriteOptions() != null
+          && insertOrReplaceRequestOptions.getWriteOptions().getTransactionCtx() != null) {
+        response =
+            transactionAwareStub(
+                    blockingStub,
+                    insertOrReplaceRequestOptions.getWriteOptions().getTransactionCtx())
+                .replace(replaceRequest);
+      } else {
+        response = blockingStub.replace(replaceRequest);
+      }
       return new InsertOrReplaceResponse(
           response.getStatus(),
           response.getMetadata().getCreatedAt(),
@@ -155,8 +218,24 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
   }
 
   @Override
+  public InsertOrReplaceResponse insertOrReplace(
+      TransactionSession session,
+      List<T> documents,
+      InsertOrReplaceRequestOptions insertOrReplaceRequestOptions)
+      throws TigrisException {
+    return this.insertOrReplace(
+        documents, makeTransactionAware(session, insertOrReplaceRequestOptions));
+  }
+
+  @Override
   public InsertOrReplaceResponse insertOrReplace(List<T> documents) throws TigrisException {
     return insertOrReplace(documents, new InsertOrReplaceRequestOptions());
+  }
+
+  @Override
+  public InsertOrReplaceResponse insertOrReplace(TransactionSession session, List<T> documents)
+      throws TigrisException {
+    return insertOrReplace(session, documents, new InsertOrReplaceRequestOptions());
   }
 
   @Override
@@ -172,7 +251,17 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
               updateFields,
               updateRequestOptions,
               objectMapper);
-      Api.UpdateResponse updateResponse = stub.update(updateRequest);
+
+      Api.UpdateResponse updateResponse = null;
+      if (updateRequestOptions.getWriteOptions() != null
+          && updateRequestOptions.getWriteOptions().getTransactionCtx() != null) {
+        updateResponse =
+            transactionAwareStub(
+                    blockingStub, updateRequestOptions.getWriteOptions().getTransactionCtx())
+                .update(updateRequest);
+      } else {
+        updateResponse = blockingStub.update(updateRequest);
+      }
       return new UpdateResponse(
           updateResponse.getStatus(),
           updateResponse.getMetadata().getCreatedAt(),
@@ -184,9 +273,27 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
   }
 
   @Override
+  public UpdateResponse update(
+      TransactionSession session,
+      TigrisFilter filter,
+      UpdateFields updateFields,
+      UpdateRequestOptions updateRequestOptions)
+      throws TigrisException {
+    return this.update(filter, updateFields, makeTransactionAware(session, updateRequestOptions));
+  }
+
+  @Override
   public UpdateResponse update(TigrisFilter filter, UpdateFields updateFields)
       throws TigrisException {
     return update(filter, updateFields, new UpdateRequestOptions());
+  }
+
+  @Override
+  public UpdateResponse update(
+      TransactionSession session, TigrisFilter filter, UpdateFields updateFields)
+      throws TigrisException {
+    return this.update(
+        filter, updateFields, makeTransactionAware(session, new UpdateRequestOptions()));
   }
 
   @Override
@@ -195,7 +302,17 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
     try {
       Api.DeleteRequest deleteRequest =
           toDeleteRequest(databaseName, collectionName, filter, deleteRequestOptions, objectMapper);
-      Api.DeleteResponse response = stub.delete(deleteRequest);
+
+      Api.DeleteResponse response = null;
+      if (deleteRequestOptions.getWriteOptions() != null
+          && deleteRequestOptions.getWriteOptions().getTransactionCtx() != null) {
+        response =
+            transactionAwareStub(
+                    blockingStub, deleteRequestOptions.getWriteOptions().getTransactionCtx())
+                .delete(deleteRequest);
+      } else {
+        response = blockingStub.delete(deleteRequest);
+      }
       return new DeleteResponse(
           response.getStatus(),
           response.getMetadata().getCreatedAt(),
@@ -206,14 +323,28 @@ public class StandardTigrisCollection<T extends TigrisCollectionType>
   }
 
   @Override
+  public DeleteResponse delete(
+      TransactionSession session, TigrisFilter filter, DeleteRequestOptions deleteRequestOptions)
+      throws TigrisException {
+    return this.delete(filter, makeTransactionAware(session, deleteRequestOptions));
+  }
+
+  @Override
   public DeleteResponse delete(TigrisFilter filter) throws TigrisException {
     return delete(filter, new DeleteRequestOptions(new WriteOptions()));
   }
 
   @Override
+  public DeleteResponse delete(TransactionSession session, TigrisFilter filter)
+      throws TigrisException {
+    return this.delete(
+        filter, makeTransactionAware(session, new DeleteRequestOptions(new WriteOptions())));
+  }
+
+  @Override
   public CollectionDescription describe(CollectionOptions options) throws TigrisException {
     Api.DescribeCollectionResponse response =
-        stub.describeCollection(
+        blockingStub.describeCollection(
             Api.DescribeCollectionRequest.newBuilder()
                 .setCollection(collectionName)
                 .setOptions(toCollectionOptions(options, Optional.empty()))

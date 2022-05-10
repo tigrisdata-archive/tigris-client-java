@@ -11,14 +11,10 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tigrisdata.db.client;
+package com.tigrisdata.db.client.collection.collection2;
 
+import com.tigrisdata.db.annotation.TigrisCollection;
 import com.tigrisdata.db.type.TigrisCollectionType;
 
-/**
- * Transaction aware Tigris collection
- *
- * @param <T> type of the collection
- */
-public interface TransactionTigrisCollection<T extends TigrisCollectionType>
-    extends TigrisCollection<T> {}
+@TigrisCollection("db1_c3")
+public class DB1_C3 implements TigrisCollectionType {}

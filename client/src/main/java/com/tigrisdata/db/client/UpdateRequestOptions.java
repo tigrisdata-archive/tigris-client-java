@@ -17,7 +17,7 @@ import java.util.Objects;
 
 /** represents options for UpdateRequest */
 public class UpdateRequestOptions {
-  private final WriteOptions writeOptions;
+  private WriteOptions writeOptions;
 
   public UpdateRequestOptions() {
     this.writeOptions = new WriteOptions();
@@ -29,6 +29,10 @@ public class UpdateRequestOptions {
 
   public WriteOptions getWriteOptions() {
     return writeOptions;
+  }
+
+  public void setWriteOptions(WriteOptions writeOptions) {
+    this.writeOptions = writeOptions;
   }
 
   @Override

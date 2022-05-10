@@ -16,6 +16,7 @@ package com.tigrisdata.db.client;
 import com.tigrisdata.db.client.collection.DB1_C1;
 import com.tigrisdata.db.client.collection.DB1_C5;
 import com.tigrisdata.db.client.collection.User;
+import com.tigrisdata.db.client.collection.collection2.DB1_C3;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.grpc.TestUserService;
 import com.tigrisdata.db.type.TigrisCollectionType;
@@ -140,7 +141,7 @@ public class StandardTigrisDatabaseTest {
   public void testDropCollection() throws TigrisException {
     TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
-    DropCollectionResponse response = db1.dropCollection("db1_c3");
+    DropCollectionResponse response = db1.dropCollection(DB1_C3.class);
     Assert.assertEquals("db1_c3 dropped", response.getMessage());
     MatcherAssert.assertThat(
         db1.listCollections(),
@@ -194,7 +195,8 @@ public class StandardTigrisDatabaseTest {
     Assert.assertEquals("db1", databaseDescription.getName());
     Assert.assertEquals(
         "{\"title\":\"db1_c5\",\"description\":\"This document records the details of user for tigris store\","
-            + "\"properties\":{\"id\":{\"description\":\"A unique identifier for the user\",\"type\":\"int\"},"
+            + "\"properties\":{\"id\":{\"description\":\"A unique identifier for the user\","
+            + "\"type\":\"int\"},"
             + "\"name\":{\"description\":\"Name of the user\",\"type\":\"string\"},"
             + "\"balance\":{\"description\":\"user balance in USD\",\"type\":\"double\"}},"
             + "\"primary_key\":[\"id\"]}",
@@ -211,10 +213,34 @@ public class StandardTigrisDatabaseTest {
   }
 
   @Test
+  public void testTransactionalFunction() throws TigrisException {
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+    TigrisDatabase db1 = client.getDatabase("db1");
+    Assert.assertEquals(
+        "db1_c1_d1", db1.getCollection(DB1_C1.class).readOne(Filters.eq("id", 1)).get().getName());
+    db1.transact(
+        tx -> {
+          try {
+            // insert
+            TigrisCollection<DB1_C1> collection = db1.getCollection(DB1_C1.class);
+            collection.insert(tx, new DB1_C1(100, "db1_c1_d100"));
+            collection.update(
+                tx, Filters.eq("id", 1), UpdateFields.newBuilder().set("name", "new name").build());
+          } catch (Exception ex) {
+            Assert.fail("must not fail");
+          }
+        });
+    // now the updates must be made from transaction
+    Assert.assertTrue(db1.getCollection(DB1_C1.class).readOne(Filters.eq("id", 100)).isPresent());
+    Assert.assertEquals(
+        "new name", db1.getCollection(DB1_C1.class).readOne(Filters.eq("id", 1)).get().getName());
+  }
+
+  @Test
   public void testToString() {
     TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
-    Assert.assertEquals("StandardTigrisDatabase{dbName='db1'}", db1.toString());
+    Assert.assertEquals("StandardTigrisDatabase{db='db1'}", db1.toString());
   }
 
   @Test

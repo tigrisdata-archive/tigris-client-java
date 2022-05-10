@@ -13,6 +13,7 @@
  */
 package com.tigrisdata.db.client;
 
+import com.tigrisdata.db.client.collection.collection2.DB1_C3;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.grpc.FailingTestUserService;
 import io.grpc.Status;
@@ -66,7 +67,7 @@ public class StandardTigrisDatabaseFailureTest {
 
     TigrisDatabase db1 = client.getDatabase(dbName);
     try {
-      db1.dropCollection("db1_c3");
+      db1.dropCollection(DB1_C3.class);
       Assert.fail("This must fail");
     } catch (TigrisException tigrisException) {
       Assert.assertEquals(

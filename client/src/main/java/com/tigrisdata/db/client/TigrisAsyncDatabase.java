@@ -51,13 +51,16 @@ public interface TigrisAsyncDatabase {
    */
   CompletableFuture<CreateOrUpdateCollectionsResponse> createOrUpdateCollections(
       String[] packagesToScan, Optional<Predicate<Class<? extends TigrisCollectionType>>> filter);
+
   /**
    * Drops the collection.
    *
-   * @param collectionName name of the collection
+   * @param collectionTypeClass Class type of the collection
+   * @param <T> type of the collection that is of type {@link TigrisCollectionType}
    * @return the future to the {@link DropCollectionResponse}
    */
-  CompletableFuture<DropCollectionResponse> dropCollection(String collectionName);
+  <T extends TigrisCollectionType> CompletableFuture<DropCollectionResponse> dropCollection(
+      Class<T> collectionTypeClass);
 
   /**
    * Return an instance of {@link TigrisCollection}

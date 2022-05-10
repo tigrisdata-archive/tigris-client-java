@@ -16,6 +16,7 @@ package com.tigrisdata.db.client;
 final class Messages {
 
   private Messages() {}
+
   // error
   // client
   public static final String LIST_DBS_FAILED = "Failed to list database(s)";
@@ -30,6 +31,7 @@ final class Messages {
       "Failed to create collections in transaction";
   public static final String DROP_COLLECTION_FAILED = "Failed to drop collection";
   public static final String BEGIN_TRANSACTION_FAILED = "Failed to begin transaction";
+  public static final String TRANSACTION_FAILED = "Failed to perform transaction";
   public static final String DESCRIBE_DB_FAILED = "Failed to describe database";
 
   // collections

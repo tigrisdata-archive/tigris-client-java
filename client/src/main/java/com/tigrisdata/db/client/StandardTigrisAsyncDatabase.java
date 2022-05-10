@@ -38,9 +38,9 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /** Async implementation of Tigris database */
-public class StandardTigrisAsyncDatabase implements TigrisAsyncDatabase {
-  private final String databaseName;
-  private final TigrisGrpc.TigrisFutureStub stub;
+public class StandardTigrisAsyncDatabase extends AbstractTigrisDatabase
+    implements TigrisAsyncDatabase {
+  private final TigrisGrpc.TigrisFutureStub futureStub;
   private final ManagedChannel channel;
   private final Executor executor;
   private final ObjectMapper objectMapper;
@@ -48,14 +48,15 @@ public class StandardTigrisAsyncDatabase implements TigrisAsyncDatabase {
 
   StandardTigrisAsyncDatabase(
       String databaseName,
-      TigrisGrpc.TigrisFutureStub stub,
+      TigrisGrpc.TigrisFutureStub futureStub,
+      TigrisGrpc.TigrisBlockingStub blockingStub,
       ManagedChannel channel,
       Executor executor,
       ObjectMapper objectMapper,
       ModelToJsonSchema modelToJsonSchema) {
-    this.stub = stub;
+    super(databaseName, blockingStub);
+    this.futureStub = futureStub;
     this.channel = channel;
-    this.databaseName = databaseName;
     this.executor = executor;
     this.objectMapper = objectMapper;
     this.modelToJsonSchema = modelToJsonSchema;
@@ -64,8 +65,7 @@ public class StandardTigrisAsyncDatabase implements TigrisAsyncDatabase {
   @Override
   public CompletableFuture<List<CollectionInfo>> listCollections() {
     ListenableFuture<Api.ListCollectionsResponse> listListenableFuture =
-        stub.listCollections(
-            Api.ListCollectionsRequest.newBuilder().setDb(this.databaseName).build());
+        futureStub.listCollections(Api.ListCollectionsRequest.newBuilder().setDb(this.db).build());
     return Utilities.transformFuture(
         listListenableFuture,
         listCollectionsResponse ->
@@ -96,8 +96,10 @@ public class StandardTigrisAsyncDatabase implements TigrisAsyncDatabase {
               String schemaContent = modelToJsonSchema.toJsonSchema(collectionModel).toString();
 
               response =
-                  transactionSession.createOrUpdateCollections(
-                      new TigrisJSONSchema(schemaContent), CollectionOptions.DEFAULT_INSTANCE);
+                  createOrUpdateCollections(
+                      transactionSession,
+                      new TigrisJSONSchema(schemaContent),
+                      CollectionOptions.DEFAULT_INSTANCE);
             } catch (Exception ex) {
               result.completeExceptionally(ex);
             }
@@ -117,13 +119,13 @@ public class StandardTigrisAsyncDatabase implements TigrisAsyncDatabase {
   }
 
   @Override
-  public CompletableFuture<DropCollectionResponse> dropCollection(String collectionName) {
-    // TODO: pull CollectionsOut in API
+  public <T extends TigrisCollectionType> CompletableFuture<DropCollectionResponse> dropCollection(
+      Class<T> collectionTypeClass) {
     ListenableFuture<Api.DropCollectionResponse> dropCollectionResponseListenableFuture =
-        stub.dropCollection(
+        futureStub.dropCollection(
             toDropCollectionRequest(
-                databaseName,
-                collectionName,
+                db,
+                Utilities.getCollectionName(collectionTypeClass),
                 CollectionOptions.DEFAULT_INSTANCE,
                 Optional.empty()));
     return Utilities.transformFuture(
@@ -137,19 +139,17 @@ public class StandardTigrisAsyncDatabase implements TigrisAsyncDatabase {
   public <C extends TigrisCollectionType> TigrisAsyncCollection<C> getCollection(
       Class<C> collectionTypeClass) {
     return new StandardTigrisAsyncCollection<>(
-        databaseName, collectionTypeClass, channel, executor, objectMapper);
+        db, collectionTypeClass, channel, executor, objectMapper);
   }
 
   @Override
   public CompletableFuture<TransactionSession> beginTransaction(
       TransactionOptions transactionOptions) {
     ListenableFuture<Api.BeginTransactionResponse> beginTransactionResponseListenableFuture =
-        stub.beginTransaction(toBeginTransactionRequest(databaseName, transactionOptions));
+        futureStub.beginTransaction(toBeginTransactionRequest(db, transactionOptions));
     return Utilities.transformFuture(
         beginTransactionResponseListenableFuture,
-        response ->
-            new StandardTransactionSession(
-                databaseName, response.getTxCtx(), channel, objectMapper),
+        response -> new StandardTransactionSession(db, response.getTxCtx(), channel),
         executor,
         BEGIN_TRANSACTION_FAILED);
   }
@@ -157,7 +157,7 @@ public class StandardTigrisAsyncDatabase implements TigrisAsyncDatabase {
   @Override
   public CompletableFuture<DatabaseDescription> describe() throws TigrisException {
     ListenableFuture<Api.DescribeDatabaseResponse> describeDatabaseResponseListenableFuture =
-        stub.describeDatabase(Api.DescribeDatabaseRequest.newBuilder().setDb(databaseName).build());
+        futureStub.describeDatabase(Api.DescribeDatabaseRequest.newBuilder().setDb(db).build());
 
     return Utilities.transformFuture(
         describeDatabaseResponseListenableFuture,
@@ -174,7 +174,7 @@ public class StandardTigrisAsyncDatabase implements TigrisAsyncDatabase {
 
   @Override
   public String name() {
-    return databaseName;
+    return db;
   }
 
   @Override
@@ -184,16 +184,16 @@ public class StandardTigrisAsyncDatabase implements TigrisAsyncDatabase {
 
     StandardTigrisAsyncDatabase that = (StandardTigrisAsyncDatabase) o;
 
-    return Objects.equals(databaseName, that.databaseName);
+    return Objects.equals(db, that.db);
   }
 
   @Override
   public int hashCode() {
-    return databaseName != null ? databaseName.hashCode() : 0;
+    return db != null ? db.hashCode() : 0;
   }
 
   @Override
   public String toString() {
-    return "StandardTigrisAsyncDatabase{" + "databaseName='" + databaseName + '\'' + '}';
+    return "StandardTigrisAsyncDatabase{" + "db='" + db + '\'' + '}';
   }
 }

@@ -4,7 +4,7 @@
 
     <groupId>com.tigrisdata</groupId>
     <artifactId>tigris-client-java</artifactId>
-    <version>1.0.0-alpha.11-SNAPSHOT</version>
+    <version>1.0.0-alpha.12-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Tigris-Client-Java</name>
     <description>A Java client for Tigris</description>

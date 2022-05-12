@@ -99,8 +99,14 @@ public interface TigrisDatabase {
    * consumer throws a RuntimeException transaction will be rolled back and {@link TigrisException}
    * will be raised.
    *
+   * <p>Usage:
+   *
+   * <pre>{@code
+   * db.transact(session -> collection.insert(session, new User(1, "Name")));
+   * }</pre>
+   *
    * @param tx consumer to consume session
-   * @throws TigrisException
+   * @throws TigrisException in case of an error
    */
   void transact(Consumer<TransactionSession> tx) throws TigrisException;
 }

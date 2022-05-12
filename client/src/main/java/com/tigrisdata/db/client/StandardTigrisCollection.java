@@ -41,8 +41,8 @@ import java.util.Optional;
 import java.util.function.Function;
 
 /** Tigris collection implementation */
-public class StandardTigrisCollection<T extends TigrisCollectionType>
-    extends AbstractTigrisCollection<T> implements TigrisCollection<T> {
+class StandardTigrisCollection<T extends TigrisCollectionType> extends AbstractTigrisCollection<T>
+    implements TigrisCollection<T> {
 
   StandardTigrisCollection(
       String databaseName,

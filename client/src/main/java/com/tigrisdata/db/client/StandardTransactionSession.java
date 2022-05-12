@@ -22,7 +22,7 @@ import io.grpc.StatusRuntimeException;
 import io.grpc.stub.MetadataUtils;
 
 /** Transactional session implementation */
-public class StandardTransactionSession implements TransactionSession {
+class StandardTransactionSession implements TransactionSession {
   private final Api.TransactionCtx transactionCtx;
   private final String databaseName;
   private final TigrisGrpc.TigrisBlockingStub stub;

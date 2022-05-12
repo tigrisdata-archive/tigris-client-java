@@ -38,8 +38,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /** Async implementation of Tigris database */
-public class StandardTigrisAsyncDatabase extends AbstractTigrisDatabase
-    implements TigrisAsyncDatabase {
+class StandardTigrisAsyncDatabase extends AbstractTigrisDatabase implements TigrisAsyncDatabase {
   private final TigrisGrpc.TigrisFutureStub futureStub;
   private final ManagedChannel channel;
   private final Executor executor;

@@ -52,7 +52,7 @@ import java.util.function.Function;
  *
  * @param <T> type of the collection
  */
-public class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
+class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
     extends AbstractTigrisCollection<T> implements TigrisAsyncCollection<T> {
   private final Executor executor;
   private final TigrisGrpc.TigrisStub stub;

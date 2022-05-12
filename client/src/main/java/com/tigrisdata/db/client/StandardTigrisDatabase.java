@@ -35,7 +35,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /** Tigris Database implementation */
-public class StandardTigrisDatabase extends AbstractTigrisDatabase implements TigrisDatabase {
+class StandardTigrisDatabase extends AbstractTigrisDatabase implements TigrisDatabase {
 
   private final ManagedChannel managedChannel;
   private final ObjectMapper objectMapper;

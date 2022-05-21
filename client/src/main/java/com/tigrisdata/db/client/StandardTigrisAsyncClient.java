@@ -49,6 +49,7 @@ import java.util.function.BiConsumer;
 /** Async client for Tigris */
 public class StandardTigrisAsyncClient extends AbstractTigrisClient implements TigrisAsyncClient {
 
+  private final TigrisGrpc.TigrisStub stub;
   private final TigrisGrpc.TigrisFutureStub futureStub;
   private final TigrisGrpc.TigrisBlockingStub blockingStub;
   private final Executor executor;
@@ -61,6 +62,7 @@ public class StandardTigrisAsyncClient extends AbstractTigrisClient implements T
   StandardTigrisAsyncClient(TigrisConfiguration clientConfiguration, Executor executor) {
     // TODO: authorization token injection
     super(clientConfiguration, Optional.empty(), new StandardModelToTigrisJsonSchema());
+    this.stub = TigrisGrpc.newStub(channel);
     this.futureStub = TigrisGrpc.newFutureStub(channel);
     this.blockingStub = TigrisGrpc.newBlockingStub(channel);
     this.executor = executor;
@@ -76,6 +78,7 @@ public class StandardTigrisAsyncClient extends AbstractTigrisClient implements T
         configuration,
         managedChannelBuilder,
         new StandardModelToTigrisJsonSchema());
+    this.stub = TigrisGrpc.newStub(channel);
     this.futureStub = TigrisGrpc.newFutureStub(channel);
     this.blockingStub = TigrisGrpc.newBlockingStub(channel);
     this.executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
@@ -106,7 +109,14 @@ public class StandardTigrisAsyncClient extends AbstractTigrisClient implements T
   @Override
   public TigrisAsyncDatabase getDatabase(String databaseName) {
     return new StandardTigrisAsyncDatabase(
-        databaseName, futureStub, blockingStub, channel, executor, objectMapper, modelToJsonSchema);
+        databaseName,
+        stub,
+        futureStub,
+        blockingStub,
+        channel,
+        executor,
+        objectMapper,
+        modelToJsonSchema);
   }
 
   @Override
@@ -123,6 +133,7 @@ public class StandardTigrisAsyncClient extends AbstractTigrisClient implements T
             tigrisAsyncDatabases.add(
                 new StandardTigrisAsyncDatabase(
                     databaseInfo.getDb(),
+                    stub,
                     futureStub,
                     blockingStub,
                     channel,
@@ -146,6 +157,7 @@ public class StandardTigrisAsyncClient extends AbstractTigrisClient implements T
         response ->
             new StandardTigrisAsyncDatabase(
                 databaseName,
+                stub,
                 futureStub,
                 blockingStub,
                 channel,
@@ -157,6 +169,7 @@ public class StandardTigrisAsyncClient extends AbstractTigrisClient implements T
         Optional.of(
             new CreateDatabaseExceptionHandler(
                 databaseName,
+                stub,
                 futureStub,
                 blockingStub,
                 executor,
@@ -202,7 +215,8 @@ public class StandardTigrisAsyncClient extends AbstractTigrisClient implements T
   static class CreateDatabaseExceptionHandler
       implements BiConsumer<CompletableFuture<TigrisAsyncDatabase>, Throwable> {
     private final String dbName;
-    private final TigrisGrpc.TigrisFutureStub stub;
+    private final TigrisGrpc.TigrisStub stub;
+    private final TigrisGrpc.TigrisFutureStub futureStub;
     private final TigrisGrpc.TigrisBlockingStub blockingStub;
 
     private final Executor executor;
@@ -212,7 +226,8 @@ public class StandardTigrisAsyncClient extends AbstractTigrisClient implements T
 
     public CreateDatabaseExceptionHandler(
         String dbName,
-        TigrisGrpc.TigrisFutureStub stub,
+        TigrisGrpc.TigrisStub stub,
+        TigrisGrpc.TigrisFutureStub futureStub,
         TigrisGrpc.TigrisBlockingStub blockingStub,
         Executor executor,
         ManagedChannel channel,
@@ -220,6 +235,7 @@ public class StandardTigrisAsyncClient extends AbstractTigrisClient implements T
         ModelToJsonSchema modelToJsonSchema) {
       this.dbName = dbName;
       this.stub = stub;
+      this.futureStub = futureStub;
       this.blockingStub = blockingStub;
       this.executor = executor;
       this.channel = channel;
@@ -237,7 +253,14 @@ public class StandardTigrisAsyncClient extends AbstractTigrisClient implements T
           log.info("database already exists: {}", dbName);
           completableFuture.complete(
               new StandardTigrisAsyncDatabase(
-                  dbName, stub, blockingStub, channel, executor, objectMapper, modelToJsonSchema));
+                  dbName,
+                  stub,
+                  futureStub,
+                  blockingStub,
+                  channel,
+                  executor,
+                  objectMapper,
+                  modelToJsonSchema));
           return;
         }
       }

@@ -21,6 +21,7 @@ import static com.tigrisdata.db.client.Messages.BEGIN_TRANSACTION_FAILED;
 import static com.tigrisdata.db.client.Messages.DESCRIBE_DB_FAILED;
 import static com.tigrisdata.db.client.Messages.DROP_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.Messages.LIST_COLLECTION_FAILED;
+import static com.tigrisdata.db.client.Messages.STREAM_FAILED;
 import static com.tigrisdata.db.client.TypeConverter.toBeginTransactionRequest;
 import static com.tigrisdata.db.client.TypeConverter.toDatabaseDescription;
 import static com.tigrisdata.db.client.TypeConverter.toDropCollectionRequest;
@@ -28,7 +29,9 @@ import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisCollectionType;
 import com.tigrisdata.tools.schema.core.ModelToJsonSchema;
 import io.grpc.ManagedChannel;
+import io.grpc.stub.StreamObserver;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -39,6 +42,7 @@ import java.util.stream.Collectors;
 
 /** Async implementation of Tigris database */
 class StandardTigrisAsyncDatabase extends AbstractTigrisDatabase implements TigrisAsyncDatabase {
+  private final TigrisGrpc.TigrisStub stub;
   private final TigrisGrpc.TigrisFutureStub futureStub;
   private final ManagedChannel channel;
   private final Executor executor;
@@ -47,6 +51,7 @@ class StandardTigrisAsyncDatabase extends AbstractTigrisDatabase implements Tigr
 
   StandardTigrisAsyncDatabase(
       String databaseName,
+      TigrisGrpc.TigrisStub stub,
       TigrisGrpc.TigrisFutureStub futureStub,
       TigrisGrpc.TigrisBlockingStub blockingStub,
       ManagedChannel channel,
@@ -54,6 +59,7 @@ class StandardTigrisAsyncDatabase extends AbstractTigrisDatabase implements Tigr
       ObjectMapper objectMapper,
       ModelToJsonSchema modelToJsonSchema) {
     super(databaseName, blockingStub);
+    this.stub = stub;
     this.futureStub = futureStub;
     this.channel = channel;
     this.executor = executor;
@@ -169,6 +175,33 @@ class StandardTigrisAsyncDatabase extends AbstractTigrisDatabase implements Tigr
         },
         executor,
         DESCRIBE_DB_FAILED);
+  }
+
+  @Override
+  public void stream(TigrisAsyncStreamer streamer) {
+    Api.StreamRequest streamRequest = Api.StreamRequest.newBuilder().setDb(db).build();
+    stub.stream(
+        streamRequest,
+        new StreamObserver<Api.StreamResponse>() {
+          @Override
+          public void onNext(Api.StreamResponse streamResponse) {
+            try {
+              streamer.onNext(StreamEvent.from(streamResponse.getEvent(), objectMapper));
+            } catch (IOException e) {
+              streamer.onError(new TigrisException("Failed to convert event data to JSON", e));
+            }
+          }
+
+          @Override
+          public void onError(Throwable throwable) {
+            streamer.onError(new TigrisException(STREAM_FAILED, throwable));
+          }
+
+          @Override
+          public void onCompleted() {
+            streamer.onCompleted();
+          }
+        });
   }
 
   @Override

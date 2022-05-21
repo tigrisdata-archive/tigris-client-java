@@ -72,6 +72,9 @@ public interface TigrisAsyncDatabase {
   <C extends TigrisCollectionType> TigrisAsyncCollection<C> getCollection(
       Class<C> collectionTypeClass);
 
+  /** @param streamer streamer callback */
+  void stream(TigrisAsyncStreamer streamer);
+
   /**
    * Begins the transaction on current database
    *

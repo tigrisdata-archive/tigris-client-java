@@ -27,10 +27,13 @@ import com.tigrisdata.tools.schema.core.ModelToJsonSchema;
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
 
+import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -145,6 +148,21 @@ class StandardTigrisDatabase extends AbstractTigrisDatabase implements TigrisDat
     Api.DescribeDatabaseResponse response =
         blockingStub.describeDatabase(Api.DescribeDatabaseRequest.newBuilder().setDb(db).build());
     return TypeConverter.toDatabaseDescription(response);
+  }
+
+  @Override
+  public Iterator<StreamEvent> stream() throws TigrisException {
+    Api.StreamRequest streamRequest = Api.StreamRequest.newBuilder().setDb(db).build();
+    Iterator<Api.StreamResponse> streamResponseIterator = blockingStub.stream(streamRequest);
+    Function<Api.StreamResponse, StreamEvent> converter =
+        streamResponse -> {
+          try {
+            return StreamEvent.from(streamResponse.getEvent(), objectMapper);
+          } catch (IOException e) {
+            throw new IllegalArgumentException("Failed to convert event data to JSON", e);
+          }
+        };
+    return Utilities.transformIterator(streamResponseIterator, converter);
   }
 
   @Override

@@ -21,6 +21,7 @@ import static com.tigrisdata.db.client.Messages.BEGIN_TRANSACTION_FAILED;
 import static com.tigrisdata.db.client.Messages.DESCRIBE_DB_FAILED;
 import static com.tigrisdata.db.client.Messages.DROP_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.Messages.LIST_COLLECTION_FAILED;
+import static com.tigrisdata.db.client.Messages.STREAM_CONVERT_FAILED;
 import static com.tigrisdata.db.client.Messages.STREAM_FAILED;
 import static com.tigrisdata.db.client.TypeConverter.toBeginTransactionRequest;
 import static com.tigrisdata.db.client.TypeConverter.toDatabaseDescription;
@@ -188,7 +189,7 @@ class StandardTigrisAsyncDatabase extends AbstractTigrisDatabase implements Tigr
             try {
               streamer.onNext(StreamEvent.from(streamResponse.getEvent(), objectMapper));
             } catch (IOException e) {
-              streamer.onError(new TigrisException("Failed to convert event data to JSON", e));
+              streamer.onError(new TigrisException(STREAM_CONVERT_FAILED, e));
             }
           }
 

@@ -40,7 +40,8 @@ final class Messages {
   public static final String UPDATE_FAILED = "Failed to update";
   public static final String DELETE_FAILED = "Failed to delete";
   public static final String READ_FAILED = "Failed to read";
-  public static final String STREAM_FAILED = "Failed to stream";
+  public static final String STREAM_FAILED = "Failed to stream events";
+  public static final String STREAM_CONVERT_FAILED = "Failed to convert event data";
   public static final String DESCRIBE_COLLECTION_FAILED = "Failed to describe collection";
 
   // success

@@ -93,7 +93,7 @@ public interface TigrisDatabase {
   DatabaseDescription describe() throws TigrisException;
 
   /**
-   * @return stream of JSON events.
+   * @return stream of events.
    * @throws TigrisException in case of an error.
    */
   Iterator<StreamEvent> stream() throws TigrisException;

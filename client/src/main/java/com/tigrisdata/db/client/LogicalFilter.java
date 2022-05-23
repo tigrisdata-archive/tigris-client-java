@@ -40,6 +40,6 @@ class LogicalFilter implements TigrisFilter {
         + Arrays.stream(tigrisFilters)
             .map(filter -> filter.toJSON(objectMapper))
             .collect(Collectors.joining(","))
-        + "]";
+        + "]}";
   }
 }

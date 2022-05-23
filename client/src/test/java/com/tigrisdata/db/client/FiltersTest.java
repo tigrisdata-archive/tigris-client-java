@@ -36,7 +36,7 @@ public class FiltersTest {
   @Test
   public void orFilterTest() {
     Assert.assertEquals(
-        "{\"$or\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}]",
+        "{\"$or\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}]}",
         Filters.or(Filters.eq("k1", 123), Filters.eq("k2", false), Filters.eq("k3", "val3"))
             .toJSON(DEFAULT_OBJECT_MAPPER));
   }
@@ -44,7 +44,7 @@ public class FiltersTest {
   @Test
   public void andFilterTest() {
     Assert.assertEquals(
-        "{\"$and\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}]",
+        "{\"$and\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}]}",
         Filters.and(Filters.eq("k1", 123), Filters.eq("k2", false), Filters.eq("k3", "val3"))
             .toJSON(DEFAULT_OBJECT_MAPPER));
   }
@@ -57,8 +57,8 @@ public class FiltersTest {
         Filters.and(Filters.eq("k1", 456), Filters.eq("k2", false), Filters.eq("k3", "val4"));
 
     Assert.assertEquals(
-        "{\"$or\":[{\"$and\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}],"
-            + "{\"$and\":[{\"k1\":456},{\"k2\":false},{\"k3\":\"val4\"}]]",
+        "{\"$or\":[{\"$and\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}]},{\"$and\":[{\"k1\":456},{\"k2\":false},"
+            + "{\"k3\":\"val4\"}]}]}",
         Filters.or(filter1, filter2).toJSON(DEFAULT_OBJECT_MAPPER));
   }
 
@@ -70,8 +70,8 @@ public class FiltersTest {
         Filters.and(Filters.eq("k4", 456), Filters.eq("k5", false), Filters.eq("k6", "val4"));
 
     Assert.assertEquals(
-        "{\"$and\":[{\"$and\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}],"
-            + "{\"$and\":[{\"k4\":456},{\"k5\":false},{\"k6\":\"val4\"}]]",
+        "{\"$and\":[{\"$and\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}]},{\"$and\":[{\"k4\":456},"
+            + "{\"k5\":false},{\"k6\":\"val4\"}]}]}",
         Filters.and(filter1, filter2).toJSON(DEFAULT_OBJECT_MAPPER));
   }
 
@@ -83,8 +83,8 @@ public class FiltersTest {
         Filters.or(Filters.eq("k1", 456), Filters.eq("k2", false), Filters.eq("k3", "val4"));
 
     Assert.assertEquals(
-        "{\"$and\":[{\"$or\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}],"
-            + "{\"$or\":[{\"k1\":456},{\"k2\":false},{\"k3\":\"val4\"}]]",
+        "{\"$and\":[{\"$or\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}]},{\"$or\":[{\"k1\":456},{\"k2\":false},"
+            + "{\"k3\":\"val4\"}]}]}",
         Filters.and(filter1, filter2).toJSON(DEFAULT_OBJECT_MAPPER));
   }
 
@@ -96,8 +96,8 @@ public class FiltersTest {
         Filters.or(Filters.eq("k4", 456), Filters.eq("k5", false), Filters.eq("k6", "val4"));
 
     Assert.assertEquals(
-        "{\"$and\":[{\"$or\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}],"
-            + "{\"$or\":[{\"k4\":456},{\"k5\":false},{\"k6\":\"val4\"}]]",
+        "{\"$and\":[{\"$or\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}]},{\"$or\":[{\"k4\":456},{\"k5\":false},"
+            + "{\"k6\":\"val4\"}]}]}",
         Filters.and(filter1, filter2).toJSON(DEFAULT_OBJECT_MAPPER));
   }
 

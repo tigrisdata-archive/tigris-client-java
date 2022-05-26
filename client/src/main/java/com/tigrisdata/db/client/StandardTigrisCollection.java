@@ -149,7 +149,8 @@ class StandardTigrisCollection<T extends TigrisCollectionType> extends AbstractT
       return new InsertResponse(
           response.getStatus(),
           response.getMetadata().getCreatedAt(),
-          response.getMetadata().getUpdatedAt());
+          response.getMetadata().getUpdatedAt(),
+          TypeConverter.toArrayOfMap(response.getKeysList(), objectMapper));
     } catch (JsonProcessingException ex) {
       throw new TigrisException("Failed to serialize documents to JSON", ex);
     } catch (StatusRuntimeException statusRuntimeException) {
@@ -209,7 +210,8 @@ class StandardTigrisCollection<T extends TigrisCollectionType> extends AbstractT
       return new InsertOrReplaceResponse(
           response.getStatus(),
           response.getMetadata().getCreatedAt(),
-          response.getMetadata().getUpdatedAt());
+          response.getMetadata().getUpdatedAt(),
+          TypeConverter.toArrayOfMap(response.getKeysList(), objectMapper));
     } catch (JsonProcessingException ex) {
       throw new TigrisException("Failed to serialize to JSON", ex);
     } catch (StatusRuntimeException statusRuntimeException) {

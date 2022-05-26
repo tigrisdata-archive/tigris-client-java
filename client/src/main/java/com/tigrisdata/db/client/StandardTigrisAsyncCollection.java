@@ -123,7 +123,8 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
               new InsertResponse(
                   input.getStatus(),
                   input.getMetadata().getCreatedAt(),
-                  input.getMetadata().getUpdatedAt()),
+                  input.getMetadata().getUpdatedAt(),
+                  TypeConverter.toArrayOfMap(input.getKeysList(), objectMapper)),
           executor,
           INSERT_FAILED);
     } catch (JsonProcessingException jsonProcessingException) {
@@ -160,7 +161,8 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
               new InsertOrReplaceResponse(
                   input.getStatus(),
                   input.getMetadata().getCreatedAt(),
-                  input.getMetadata().getUpdatedAt()),
+                  input.getMetadata().getUpdatedAt(),
+                  TypeConverter.toArrayOfMap(input.getKeysList(), objectMapper)),
           executor,
           INSERT_OR_REPLACE_FAILED);
     } catch (JsonProcessingException jsonProcessingException) {
@@ -339,7 +341,8 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
       return new InsertResponse(
           response.getStatus(),
           response.getMetadata().getCreatedAt(),
-          response.getMetadata().getUpdatedAt());
+          response.getMetadata().getUpdatedAt(),
+          TypeConverter.toArrayOfMap(response.getKeysList(), objectMapper));
     } catch (JsonProcessingException ex) {
       throw new TigrisException("Failed to serialize documents to JSON", ex);
     } catch (StatusRuntimeException statusRuntimeException) {
@@ -374,7 +377,7 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
           toReplaceRequest(
               databaseName, collectionName, documents, insertOrReplaceRequestOptions, objectMapper);
 
-      Api.ReplaceResponse response = null;
+      Api.ReplaceResponse response;
       if (insertOrReplaceRequestOptions.getWriteOptions() != null
           && insertOrReplaceRequestOptions.getWriteOptions().getTransactionCtx() != null) {
         response =
@@ -388,7 +391,8 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
       return new InsertOrReplaceResponse(
           response.getStatus(),
           response.getMetadata().getCreatedAt(),
-          response.getMetadata().getUpdatedAt());
+          response.getMetadata().getUpdatedAt(),
+          TypeConverter.toArrayOfMap(response.getKeysList(), objectMapper));
     } catch (JsonProcessingException ex) {
       throw new TigrisException("Failed to serialize to JSON", ex);
     } catch (StatusRuntimeException statusRuntimeException) {
@@ -425,7 +429,7 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
               updateRequestOptions,
               objectMapper);
 
-      Api.UpdateResponse updateResponse = null;
+      Api.UpdateResponse updateResponse;
       if (updateRequestOptions.getWriteOptions() != null
           && updateRequestOptions.getWriteOptions().getTransactionCtx() != null) {
         updateResponse =
@@ -470,7 +474,7 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
       Api.DeleteRequest deleteRequest =
           toDeleteRequest(databaseName, collectionName, filter, deleteRequestOptions, objectMapper);
 
-      Api.DeleteResponse response = null;
+      Api.DeleteResponse response;
       if (deleteRequestOptions.getWriteOptions() != null
           && deleteRequestOptions.getWriteOptions().getTransactionCtx() != null) {
         response =

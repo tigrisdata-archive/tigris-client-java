@@ -14,6 +14,7 @@
 package com.tigrisdata.db.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.protobuf.ByteString;
 import com.tigrisdata.db.api.v1.grpc.Api;
@@ -22,8 +23,12 @@ import com.tigrisdata.db.client.error.TigrisException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
+import java.util.UUID;
 
 final class TypeConverter {
   private TypeConverter() {}
@@ -229,6 +234,37 @@ final class TypeConverter {
           ByteString.copyFromUtf8(objectMapper.writeValueAsString(document)));
     }
     return insertRequestBuilder.build();
+  }
+
+  public static Map<String, Object>[] toArrayOfMap(
+      List<ByteString> keys, ObjectMapper objectMapper) {
+    try {
+      Map<String, Object>[] result = new TreeMap[keys.size()];
+      int i = 0;
+      for (ByteString key : keys) {
+        JsonNode node = objectMapper.readTree(key.toStringUtf8());
+        Iterator<Map.Entry<String, JsonNode>> itr = node.fields();
+        result[i] = new TreeMap<>();
+        while (itr.hasNext()) {
+          Map.Entry<String, JsonNode> entry = itr.next();
+          if (entry.getValue().isInt()) {
+            result[i].put(entry.getKey(), entry.getValue().intValue());
+          } else if (entry.getValue().isLong()) {
+            result[i].put(entry.getKey(), entry.getValue().longValue());
+          } else if (entry.getValue().isTextual()) {
+            try {
+              result[i].put(entry.getKey(), UUID.fromString(entry.getValue().asText()));
+            } catch (IllegalArgumentException ignore) {
+              result[i].put(entry.getKey(), entry.getValue().asText());
+            }
+          }
+        }
+        i++;
+      }
+      return result;
+    } catch (JsonProcessingException jex) {
+      throw new IllegalArgumentException(jex);
+    }
   }
 
   public static <T> Api.ReplaceRequest toReplaceRequest(

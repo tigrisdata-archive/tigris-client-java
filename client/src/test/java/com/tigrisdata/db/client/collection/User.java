@@ -19,4 +19,26 @@ import com.tigrisdata.db.type.TigrisCollectionType;
 public class User implements TigrisCollectionType {
   String name;
   int id;
+
+  public User() {}
+
+  public User(String name) {
+    this.name = name;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public int getId() {
+    return id;
+  }
+
+  public void setId(int id) {
+    this.id = id;
+  }
 }

@@ -15,6 +15,7 @@ package com.tigrisdata.db.client;
 
 import com.tigrisdata.db.client.collection.DB1_C1;
 import com.tigrisdata.db.client.collection.DB1_C5;
+import com.tigrisdata.db.client.collection.User;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.grpc.TestUserService;
 import io.grpc.inprocess.InProcessServerBuilder;
@@ -31,6 +32,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public class StandardTigrisCollectionTest {
 
@@ -128,6 +130,46 @@ public class StandardTigrisCollectionTest {
   }
 
   @Test
+  public void testInsertAutoGenerateKeys() throws TigrisException {
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+    TigrisDatabase db1 = client.getDatabase("autoGenerateTestDB");
+    InsertResponse response =
+        db1.getCollection(User.class)
+            .insert(
+                Collections.singletonList(new User("name-without-id")), new InsertRequestOptions());
+    Assert.assertNotNull(response);
+    Assert.assertEquals(5, response.getGeneratedKeys().length);
+    Assert.assertEquals(1, response.getGeneratedKeys()[0].get("intPKey"));
+    Assert.assertEquals(2, response.getGeneratedKeys()[1].get("intPKey"));
+    Assert.assertEquals(3, response.getGeneratedKeys()[2].get("intPKey"));
+    Assert.assertEquals(4, response.getGeneratedKeys()[3].get("intPKey"));
+    Assert.assertEquals(5, response.getGeneratedKeys()[4].get("intPKey"));
+
+    Assert.assertEquals(Long.MAX_VALUE - 1, response.getGeneratedKeys()[0].get("longPKey"));
+    Assert.assertEquals(Long.MAX_VALUE - 2, response.getGeneratedKeys()[1].get("longPKey"));
+    Assert.assertEquals(Long.MAX_VALUE - 3, response.getGeneratedKeys()[2].get("longPKey"));
+    Assert.assertEquals(Long.MAX_VALUE - 4, response.getGeneratedKeys()[3].get("longPKey"));
+    Assert.assertEquals(Long.MAX_VALUE - 5, response.getGeneratedKeys()[4].get("longPKey"));
+
+    Assert.assertEquals("a", response.getGeneratedKeys()[0].get("strPKey"));
+    Assert.assertEquals("b", response.getGeneratedKeys()[1].get("strPKey"));
+    Assert.assertEquals("c", response.getGeneratedKeys()[2].get("strPKey"));
+    Assert.assertEquals("d", response.getGeneratedKeys()[3].get("strPKey"));
+    Assert.assertEquals("e", response.getGeneratedKeys()[4].get("strPKey"));
+
+    Assert.assertNotNull(
+        UUID.fromString(response.getGeneratedKeys()[0].get("uuidPKey").toString()));
+    Assert.assertNotNull(
+        UUID.fromString(response.getGeneratedKeys()[1].get("uuidPKey").toString()));
+    Assert.assertNotNull(
+        UUID.fromString(response.getGeneratedKeys()[2].get("uuidPKey").toString()));
+    Assert.assertNotNull(
+        UUID.fromString(response.getGeneratedKeys()[3].get("uuidPKey").toString()));
+    Assert.assertNotNull(
+        UUID.fromString(response.getGeneratedKeys()[4].get("uuidPKey").toString()));
+  }
+
+  @Test
   public void testInsertOne() throws TigrisException {
     TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
@@ -183,6 +225,45 @@ public class StandardTigrisCollectionTest {
         new DB1_C1(3L, "testReplace3"),
         new DB1_C1(4L, "testReplace4"));
     Assert.assertNotNull(response);
+  }
+
+  @Test
+  public void testInsertOrReplaceAutoGenerate() throws TigrisException {
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+    TigrisDatabase db1 = client.getDatabase("autoGenerateTestDB");
+    InsertOrReplaceResponse response =
+        db1.getCollection(User.class)
+            .insertOrReplace(Collections.singletonList(new User("name-without-id")));
+    Assert.assertNotNull(response);
+    Assert.assertEquals(5, response.getGeneratedKeys().length);
+    Assert.assertEquals(1, response.getGeneratedKeys()[0].get("intPKey"));
+    Assert.assertEquals(2, response.getGeneratedKeys()[1].get("intPKey"));
+    Assert.assertEquals(3, response.getGeneratedKeys()[2].get("intPKey"));
+    Assert.assertEquals(4, response.getGeneratedKeys()[3].get("intPKey"));
+    Assert.assertEquals(5, response.getGeneratedKeys()[4].get("intPKey"));
+
+    Assert.assertEquals(Long.MAX_VALUE - 1, response.getGeneratedKeys()[0].get("longPKey"));
+    Assert.assertEquals(Long.MAX_VALUE - 2, response.getGeneratedKeys()[1].get("longPKey"));
+    Assert.assertEquals(Long.MAX_VALUE - 3, response.getGeneratedKeys()[2].get("longPKey"));
+    Assert.assertEquals(Long.MAX_VALUE - 4, response.getGeneratedKeys()[3].get("longPKey"));
+    Assert.assertEquals(Long.MAX_VALUE - 5, response.getGeneratedKeys()[4].get("longPKey"));
+
+    Assert.assertEquals("a", response.getGeneratedKeys()[0].get("strPKey"));
+    Assert.assertEquals("b", response.getGeneratedKeys()[1].get("strPKey"));
+    Assert.assertEquals("c", response.getGeneratedKeys()[2].get("strPKey"));
+    Assert.assertEquals("d", response.getGeneratedKeys()[3].get("strPKey"));
+    Assert.assertEquals("e", response.getGeneratedKeys()[4].get("strPKey"));
+
+    Assert.assertNotNull(
+        UUID.fromString(response.getGeneratedKeys()[0].get("uuidPKey").toString()));
+    Assert.assertNotNull(
+        UUID.fromString(response.getGeneratedKeys()[1].get("uuidPKey").toString()));
+    Assert.assertNotNull(
+        UUID.fromString(response.getGeneratedKeys()[2].get("uuidPKey").toString()));
+    Assert.assertNotNull(
+        UUID.fromString(response.getGeneratedKeys()[3].get("uuidPKey").toString()));
+    Assert.assertNotNull(
+        UUID.fromString(response.getGeneratedKeys()[4].get("uuidPKey").toString()));
   }
 
   @Test
@@ -260,7 +341,11 @@ public class StandardTigrisCollectionTest {
     CollectionDescription description = collection.describe(CollectionOptions.DEFAULT_INSTANCE);
     Assert.assertEquals("db1_c5", description.getName());
     Assert.assertEquals(
-        "{\"title\":\"db1_c5\",\"description\":\"This document records the details of user for tigris store\",\"properties\":{\"id\":{\"description\":\"A unique identifier for the user\",\"type\":\"int\"},\"name\":{\"description\":\"Name of the user\",\"type\":\"string\"},\"balance\":{\"description\":\"user balance in USD\",\"type\":\"double\"}},\"primary_key\":[\"id\"]}",
+        "{\"title\":\"db1_c5\",\"description\":\"This document records the details of user for tigris "
+            + "store\",\"properties\":{\"id\":{\"description\":\"A unique identifier for the user\","
+            + "\"type\":\"int\"},\"name\":{\"description\":\"Name of the user\",\"type\":\"string\"},"
+            + "\"balance\":{\"description\":\"user balance in USD\",\"type\":\"double\"}},"
+            + "\"primary_key\":[\"id\"]}",
         description.getSchema().getSchemaContent());
     Assert.assertNotNull(description.getMetadata());
   }

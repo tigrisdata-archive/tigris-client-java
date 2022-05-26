@@ -15,6 +15,7 @@ package com.tigrisdata.db.client;
 
 import com.tigrisdata.db.client.collection.DB1_C1;
 import com.tigrisdata.db.client.collection.DB1_C5;
+import com.tigrisdata.db.client.collection.User;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.grpc.TestUserService;
 import io.grpc.inprocess.InProcessServerBuilder;
@@ -32,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -142,6 +144,47 @@ public class StandardTigrisAsyncCollectionTest {
   }
 
   @Test
+  public void testInsertWithAutoGenerateId()
+      throws TigrisException, ExecutionException, InterruptedException {
+    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncDatabase db1 = asyncClient.getDatabase("autoGenerateTestDB");
+    CompletableFuture<InsertResponse> responseCompletableFuture =
+        db1.getCollection(User.class)
+            .insert(Collections.singletonList(new User("name-without-id")));
+    InsertResponse response = responseCompletableFuture.get();
+    Assert.assertNotNull(response);
+    Assert.assertEquals(5, response.getGeneratedKeys().length);
+    Assert.assertEquals(1, response.getGeneratedKeys()[0].get("intPKey"));
+    Assert.assertEquals(2, response.getGeneratedKeys()[1].get("intPKey"));
+    Assert.assertEquals(3, response.getGeneratedKeys()[2].get("intPKey"));
+    Assert.assertEquals(4, response.getGeneratedKeys()[3].get("intPKey"));
+    Assert.assertEquals(5, response.getGeneratedKeys()[4].get("intPKey"));
+
+    Assert.assertEquals(Long.MAX_VALUE - 1, response.getGeneratedKeys()[0].get("longPKey"));
+    Assert.assertEquals(Long.MAX_VALUE - 2, response.getGeneratedKeys()[1].get("longPKey"));
+    Assert.assertEquals(Long.MAX_VALUE - 3, response.getGeneratedKeys()[2].get("longPKey"));
+    Assert.assertEquals(Long.MAX_VALUE - 4, response.getGeneratedKeys()[3].get("longPKey"));
+    Assert.assertEquals(Long.MAX_VALUE - 5, response.getGeneratedKeys()[4].get("longPKey"));
+
+    Assert.assertEquals("a", response.getGeneratedKeys()[0].get("strPKey"));
+    Assert.assertEquals("b", response.getGeneratedKeys()[1].get("strPKey"));
+    Assert.assertEquals("c", response.getGeneratedKeys()[2].get("strPKey"));
+    Assert.assertEquals("d", response.getGeneratedKeys()[3].get("strPKey"));
+    Assert.assertEquals("e", response.getGeneratedKeys()[4].get("strPKey"));
+
+    Assert.assertNotNull(
+        UUID.fromString(response.getGeneratedKeys()[0].get("uuidPKey").toString()));
+    Assert.assertNotNull(
+        UUID.fromString(response.getGeneratedKeys()[1].get("uuidPKey").toString()));
+    Assert.assertNotNull(
+        UUID.fromString(response.getGeneratedKeys()[2].get("uuidPKey").toString()));
+    Assert.assertNotNull(
+        UUID.fromString(response.getGeneratedKeys()[3].get("uuidPKey").toString()));
+    Assert.assertNotNull(
+        UUID.fromString(response.getGeneratedKeys()[4].get("uuidPKey").toString()));
+  }
+
+  @Test
   public void testReplace() throws TigrisException, ExecutionException, InterruptedException {
     TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
@@ -161,6 +204,47 @@ public class StandardTigrisAsyncCollectionTest {
         new DB1_C1(3L, "testReplace3"),
         new DB1_C1(4L, "testReplace4"));
     Assert.assertNotNull(response);
+  }
+
+  @Test
+  public void testReplaceWithAutoGenerateId()
+      throws TigrisException, ExecutionException, InterruptedException {
+    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncDatabase db1 = asyncClient.getDatabase("autoGenerateTestDB");
+    CompletableFuture<InsertOrReplaceResponse> responseCompletableFuture =
+        db1.getCollection(User.class)
+            .insertOrReplace(Collections.singletonList(new User("name-without-id")));
+    InsertOrReplaceResponse response = responseCompletableFuture.get();
+    Assert.assertNotNull(response);
+    Assert.assertEquals(5, response.getGeneratedKeys().length);
+    Assert.assertEquals(1, response.getGeneratedKeys()[0].get("intPKey"));
+    Assert.assertEquals(2, response.getGeneratedKeys()[1].get("intPKey"));
+    Assert.assertEquals(3, response.getGeneratedKeys()[2].get("intPKey"));
+    Assert.assertEquals(4, response.getGeneratedKeys()[3].get("intPKey"));
+    Assert.assertEquals(5, response.getGeneratedKeys()[4].get("intPKey"));
+
+    Assert.assertEquals(Long.MAX_VALUE - 1, response.getGeneratedKeys()[0].get("longPKey"));
+    Assert.assertEquals(Long.MAX_VALUE - 2, response.getGeneratedKeys()[1].get("longPKey"));
+    Assert.assertEquals(Long.MAX_VALUE - 3, response.getGeneratedKeys()[2].get("longPKey"));
+    Assert.assertEquals(Long.MAX_VALUE - 4, response.getGeneratedKeys()[3].get("longPKey"));
+    Assert.assertEquals(Long.MAX_VALUE - 5, response.getGeneratedKeys()[4].get("longPKey"));
+
+    Assert.assertEquals("a", response.getGeneratedKeys()[0].get("strPKey"));
+    Assert.assertEquals("b", response.getGeneratedKeys()[1].get("strPKey"));
+    Assert.assertEquals("c", response.getGeneratedKeys()[2].get("strPKey"));
+    Assert.assertEquals("d", response.getGeneratedKeys()[3].get("strPKey"));
+    Assert.assertEquals("e", response.getGeneratedKeys()[4].get("strPKey"));
+
+    Assert.assertNotNull(
+        UUID.fromString(response.getGeneratedKeys()[0].get("uuidPKey").toString()));
+    Assert.assertNotNull(
+        UUID.fromString(response.getGeneratedKeys()[1].get("uuidPKey").toString()));
+    Assert.assertNotNull(
+        UUID.fromString(response.getGeneratedKeys()[2].get("uuidPKey").toString()));
+    Assert.assertNotNull(
+        UUID.fromString(response.getGeneratedKeys()[3].get("uuidPKey").toString()));
+    Assert.assertNotNull(
+        UUID.fromString(response.getGeneratedKeys()[4].get("uuidPKey").toString()));
   }
 
   @Test
@@ -232,7 +316,11 @@ public class StandardTigrisAsyncCollectionTest {
     Assert.assertEquals(
         "db1_c5", coll.describe(CollectionOptions.DEFAULT_INSTANCE).get().getSchema().getName());
     Assert.assertEquals(
-        "{\"title\":\"db1_c5\",\"description\":\"This document records the details of user for tigris store\",\"properties\":{\"id\":{\"description\":\"A unique identifier for the user\",\"type\":\"int\"},\"name\":{\"description\":\"Name of the user\",\"type\":\"string\"},\"balance\":{\"description\":\"user balance in USD\",\"type\":\"double\"}},\"primary_key\":[\"id\"]}",
+        "{\"title\":\"db1_c5\",\"description\":\"This document records the details of user for tigris "
+            + "store\",\"properties\":{\"id\":{\"description\":\"A unique identifier for the user\","
+            + "\"type\":\"int\"},\"name\":{\"description\":\"Name of the user\",\"type\":\"string\"},"
+            + "\"balance\":{\"description\":\"user balance in USD\",\"type\":\"double\"}},"
+            + "\"primary_key\":[\"id\"]}",
         coll.describe(CollectionOptions.DEFAULT_INSTANCE).get().getSchema().getSchemaContent());
   }
 

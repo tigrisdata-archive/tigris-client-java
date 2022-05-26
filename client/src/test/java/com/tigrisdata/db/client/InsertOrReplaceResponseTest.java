@@ -17,6 +17,7 @@ import com.google.protobuf.Timestamp;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.TreeMap;
 import java.util.UUID;
 
 public class InsertOrReplaceResponseTest {
@@ -28,8 +29,10 @@ public class InsertOrReplaceResponseTest {
     Timestamp updatedAt =
         Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
     final String ok = "ok";
-    InsertOrReplaceResponse ob1 = new InsertOrReplaceResponse(ok, createdAt, createdAt);
-    InsertOrReplaceResponse ob2 = new InsertOrReplaceResponse(ok, createdAt, updatedAt);
+    InsertOrReplaceResponse ob1 =
+        new InsertOrReplaceResponse(ok, createdAt, createdAt, new TreeMap[0]);
+    InsertOrReplaceResponse ob2 =
+        new InsertOrReplaceResponse(ok, createdAt, updatedAt, new TreeMap[0]);
     Assert.assertEquals(ob1, ob1);
     Assert.assertEquals(ob1, ob2);
     Assert.assertNotEquals(ob1, null);
@@ -43,13 +46,17 @@ public class InsertOrReplaceResponseTest {
     Timestamp updatedAt =
         Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
     final String ok = "ok";
-    InsertOrReplaceResponse ob1 = new InsertOrReplaceResponse(ok, createdAt, updatedAt);
-    InsertOrReplaceResponse ob2 = new InsertOrReplaceResponse(ok, createdAt, updatedAt);
+    InsertOrReplaceResponse ob1 =
+        new InsertOrReplaceResponse(ok, createdAt, updatedAt, new TreeMap[0]);
+    InsertOrReplaceResponse ob2 =
+        new InsertOrReplaceResponse(ok, createdAt, updatedAt, new TreeMap[0]);
     Assert.assertEquals(ob1.hashCode(), ob1.hashCode());
     Assert.assertEquals(ob1.hashCode(), ob2.hashCode());
 
-    InsertOrReplaceResponse ob3 = new InsertOrReplaceResponse(null, createdAt, updatedAt);
-    InsertOrReplaceResponse ob4 = new InsertOrReplaceResponse(null, createdAt, updatedAt);
+    InsertOrReplaceResponse ob3 =
+        new InsertOrReplaceResponse(null, createdAt, updatedAt, new TreeMap[0]);
+    InsertOrReplaceResponse ob4 =
+        new InsertOrReplaceResponse(null, createdAt, updatedAt, new TreeMap[0]);
     Assert.assertEquals(ob3.hashCode(), ob4.hashCode());
   }
 
@@ -60,7 +67,8 @@ public class InsertOrReplaceResponseTest {
         Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
     Timestamp updatedAt =
         Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
-    InsertOrReplaceResponse ob = new InsertOrReplaceResponse(status, createdAt, updatedAt);
+    InsertOrReplaceResponse ob =
+        new InsertOrReplaceResponse(status, createdAt, updatedAt, new TreeMap[0]);
     Assert.assertEquals(status, ob.getStatus());
     Assert.assertEquals(createdAt, ob.getMetadata().getCreatedAt());
     Assert.assertEquals(updatedAt, ob.getMetadata().getUpdatedAt());

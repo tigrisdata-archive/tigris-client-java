@@ -121,41 +121,89 @@ public class TestUserService extends TigrisGrpc.TigrisImplBase {
   @Override
   public void insert(
       Api.InsertRequest request, StreamObserver<Api.InsertResponse> responseObserver) {
-    if (dbToCollectionsMap.get(request.getDb()).contains(request.getCollection())) {
-      for (ByteString bytes : request.getDocumentsList()) {
-        collectionToDocumentsMap
-            .get(request.getCollection())
-            .add(JsonParser.parseString(bytes.toStringUtf8()).getAsJsonObject());
+    if (request.getDb().equals("autoGenerateTestDB")) {
+      Api.InsertResponse.Builder builder = Api.InsertResponse.newBuilder();
+      for (int i = 0; i < 5; i++) {
+        builder.addKeys(
+            ByteString.copyFromUtf8(
+                "{\n"
+                    + "  \"intPKey\": "
+                    + (i + 1)
+                    + ",\n"
+                    + "  \"longPKey\": "
+                    + (Long.MAX_VALUE - (i + 1))
+                    + ",\n"
+                    + "  \"strPKey\": \""
+                    + (char) ('a' + i)
+                    + "\",\n"
+                    + "  \"uuidPKey\": \""
+                    + UUID.randomUUID().toString()
+                    + "\""
+                    + "}"));
       }
+      responseObserver.onNext(builder.build());
+      responseObserver.onCompleted();
+    } else {
+      if (dbToCollectionsMap.get(request.getDb()).contains(request.getCollection())) {
+        for (ByteString bytes : request.getDocumentsList()) {
+          collectionToDocumentsMap
+              .get(request.getCollection())
+              .add(JsonParser.parseString(bytes.toStringUtf8()).getAsJsonObject());
+        }
+      }
+      responseObserver.onNext(Api.InsertResponse.newBuilder().build());
+      responseObserver.onCompleted();
     }
-    responseObserver.onNext(Api.InsertResponse.newBuilder().build());
-    responseObserver.onCompleted();
   }
 
   @Override
   public void replace(
       Api.ReplaceRequest request, StreamObserver<Api.ReplaceResponse> responseObserver) {
-    if (dbToCollectionsMap.get(request.getDb()).contains(request.getCollection())) {
-      for (ByteString docBytes : request.getDocumentsList()) {
-        JsonObject doc = JsonParser.parseString(docBytes.toStringUtf8()).getAsJsonObject();
-        boolean matched = false;
-        for (JsonObject jsonObject : collectionToDocumentsMap.get(request.getCollection())) {
-          if (jsonObject.get("id").getAsLong() == doc.get("id").getAsLong()) {
-            // update name
-            matched = true;
-            jsonObject.remove("name");
-            jsonObject.addProperty("name", doc.get("name").getAsString());
-            break;
+    if (request.getDb().equals("autoGenerateTestDB")) {
+      Api.ReplaceResponse.Builder builder = Api.ReplaceResponse.newBuilder();
+      for (int i = 0; i < 5; i++) {
+        builder.addKeys(
+            ByteString.copyFromUtf8(
+                "{\n"
+                    + "  \"intPKey\": "
+                    + (i + 1)
+                    + ",\n"
+                    + "  \"longPKey\": "
+                    + (Long.MAX_VALUE - (i + 1))
+                    + ",\n"
+                    + "  \"strPKey\": \""
+                    + (char) ('a' + i)
+                    + "\",\n"
+                    + "  \"uuidPKey\": \""
+                    + UUID.randomUUID().toString()
+                    + "\""
+                    + "}"));
+      }
+      responseObserver.onNext(builder.build());
+      responseObserver.onCompleted();
+    } else {
+      if (dbToCollectionsMap.get(request.getDb()).contains(request.getCollection())) {
+        for (ByteString docBytes : request.getDocumentsList()) {
+          JsonObject doc = JsonParser.parseString(docBytes.toStringUtf8()).getAsJsonObject();
+          boolean matched = false;
+          for (JsonObject jsonObject : collectionToDocumentsMap.get(request.getCollection())) {
+            if (jsonObject.get("id").getAsLong() == doc.get("id").getAsLong()) {
+              // update name
+              matched = true;
+              jsonObject.remove("name");
+              jsonObject.addProperty("name", doc.get("name").getAsString());
+              break;
+            }
+          }
+          if (!matched) {
+            // if not exist add it
+            collectionToDocumentsMap.get(request.getCollection()).add(doc);
           }
         }
-        if (!matched) {
-          // if not exist add it
-          collectionToDocumentsMap.get(request.getCollection()).add(doc);
-        }
       }
+      responseObserver.onNext(Api.ReplaceResponse.newBuilder().build());
+      responseObserver.onCompleted();
     }
-    responseObserver.onNext(Api.ReplaceResponse.newBuilder().build());
-    responseObserver.onCompleted();
   }
 
   @Override
@@ -347,7 +395,11 @@ public class TestUserService extends TigrisGrpc.TigrisImplBase {
                                 + "tigris store\","
                                 + "\"properties\":{\"id\":{\"description\":\"A unique "
                                 + "identifier for the user\",\"type\":\"int\"},"
-                                + "\"name\":{\"description\":\"Name of the user\",\"type\":\"string\"},\"balance\":{\"description\":\"user balance in USD\",\"type\":\"double\"}},\"primary_key\":[\"id\"]}"))
+                                + "\"name\":{\"description\":\"Name of the user\","
+                                + "\"type\":\"string\"},"
+                                + "\"balance\":{\"description\":\"user balance in "
+                                + "USD\",\"type\":\"double\"}},"
+                                + "\"primary_key\":[\"id\"]}"))
                     .build())
             .build());
     responseObserver.onCompleted();
@@ -363,8 +415,13 @@ public class TestUserService extends TigrisGrpc.TigrisImplBase {
             .setMetadata(Api.CollectionMetadata.newBuilder().build())
             .setSchema(
                 ByteString.copyFromUtf8(
-                    "{\"title\":\"db1_c5\",\"description\":\"This document records the details of user for tigris "
-                        + "store\",\"properties\":{\"id\":{\"description\":\"A unique identifier for the user\",\"type\":\"int\"},\"name\":{\"description\":\"Name of the user\",\"type\":\"string\"},\"balance\":{\"description\":\"user balance in USD\",\"type\":\"double\"}},\"primary_key\":[\"id\"]}"))
+                    "{\"title\":\"db1_c5\",\"description\":\"This document records the details of"
+                        + " user for tigris "
+                        + "store\",\"properties\":{\"id\":{\"description\":\"A unique "
+                        + "identifier for the user\",\"type\":\"int\"},"
+                        + "\"name\":{\"description\":\"Name of the user\",\"type\":\"string\"},"
+                        + "\"balance\":{\"description\":\"user balance in USD\","
+                        + "\"type\":\"double\"}},\"primary_key\":[\"id\"]}"))
             .build());
     responseObserver.onCompleted();
   }

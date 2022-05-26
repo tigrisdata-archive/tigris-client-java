@@ -15,10 +15,45 @@ package com.tigrisdata.db.client;
 
 import com.google.protobuf.Timestamp;
 
+import java.util.Arrays;
+import java.util.Map;
+
 /** Represents Server response for InsertOrReplace operation */
 public class InsertOrReplaceResponse extends DMLResponse {
+  private final Map<String, Object>[] generatedKeys;
 
-  public InsertOrReplaceResponse(String status, Timestamp createdAt, Timestamp updatedAt) {
+  public InsertOrReplaceResponse(
+      String status,
+      Timestamp createdAt,
+      Timestamp updatedAt,
+      Map<String, Object>[] generatedKeys) {
     super(status, createdAt, updatedAt);
+    this.generatedKeys = generatedKeys;
+  }
+
+  /**
+   * @return an array of (Map of (String to Object)). Value in map is one of these types (int, long,
+   *     UUID, String). The key of the map is the primaryKey field name in your collection and value
+   *     is the generated value for that. Array preserves the order in which the entries were
+   *     submitted to server.
+   */
+  public Map<String, Object>[] getGeneratedKeys() {
+    return generatedKeys;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    if (!super.equals(o)) return false;
+    InsertOrReplaceResponse that = (InsertOrReplaceResponse) o;
+    return Arrays.equals(generatedKeys, that.generatedKeys);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = super.hashCode();
+    result = 31 * result + Arrays.hashCode(generatedKeys);
+    return result;
   }
 }

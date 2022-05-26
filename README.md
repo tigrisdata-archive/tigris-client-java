@@ -1,6 +1,4 @@
-# Tigris Java Client
-
-Java driver for Tigris
+# Tigris Java Client Library
 
 [![java-ci](https://github.com/tigrisdata/tigris-client-java/actions/workflows/java-ci.yml/badge.svg?branch=main)](https://github.com/tigrisdata/tigris-client-java/actions/workflows/java-ci.yml)
 [![codecov](https://codecov.io/gh/tigrisdata/tigris-client-java/branch/main/graph/badge.svg)](https://codecov.io/gh/tigrisdata/tigris-client-java)
@@ -11,46 +9,75 @@ Java driver for Tigris
 [![slack](https://img.shields.io/badge/Slack-4A154B?style=for-the-badge&logo=slack&logoColor=white)](https://join.slack.com/t/tigrisdatacommunity/shared_invite/zt-16fn5ogio-OjxJlgttJIV0ZDywcBItJQ)
 [![GitHub](https://img.shields.io/github/license/tigrisdata/tigris-client-java)](https://github.com/tigrisdata/tigris-client-java/blob/main/LICENSE)
 
-# Maven
+Tigris provides an easy-to-use and intuitive interface for Java combined with data modeling that is incorporated into your application code as Java classes.
+
+The Tigris Java client libraries offer both asynchronous and synchronous clients.
+
+# Documentation
+- [Quickstart](https://docs.tigrisdata.com/quickstart/with-java)
+- [Java Sync Client](https://docs.tigrisdata.com/client-libraries/java/sync-client)
+- [Java Async Client](https://docs.tigrisdata.com/client-libraries/java/async-client)
+- [Data Modeling Using Java](https://docs.tigrisdata.com/datamodels/using-java)
+
+# Maven Configuration
 
 ```xml
 <dependency>
     <groupId>com.tigrisdata</groupId>
     <artifactId>tigris-client</artifactId>
-    <version>1.0.0-alpha.11</version>
+    <version>${tigris.client.java.version}</version>
 </dependency>
 ```
 
+For latest version and for other dependency management or build tool you can 
+refer to dependency snippet from
+[here](https://mvnrepository.com/artifact/com.tigrisdata/tigris-client).
+
 # Usage
 ```java
-// prepare config
-TigrisConfiguration tigrisConfiguration = 
-        TigrisConfiguration.newBuilder("tigris-data-host:port").build();
+// configuration
+TigrisConfiguration config =
+    TigrisConfiguration.newBuilder("localhost:8081")
+        .withNetwork(
+            TigrisConfiguration.NetworkConfig.newBuilder()
+                .usePlainText() // for dev env - plaintext communication
+                .build())
+        .build();
 
-// initialize the client
-TigrisClient tigrisClient = StandardTigrisClient.getInstance
-        (tigrisConfiguration);
+// construct client
+TigrisClient client = StandardTigrisClient.getInstance(config);
 
-// get access to your database
-TigrisDatabase myDB = tigrisClient.getDatabase("your-db-name");
+// create or get db
+TigrisDatabase helloDB = client.createDatabaseIfNotExists("hello_db");
 
-// get access to your collection
-TigrisCollection<Person> peopleCollection = myDB.getCollection(Person.class);
+// create or update collection(s)
+helloDB.createOrUpdateCollections(User.class);
+
+// get collection
+TigrisCollection<User> users = helloDB.getCollection(User.class);
 
 // insert
-peopleCollection.insert(new Person(1, "Alice"));
+users.insert(new User(1, "Jania McGrory", 6045.7));
 
 // read
-Person alice = peopleCollection.readOne(Filters.eq("id", 1)).get();
+User user1 = users.readOne(Filters.eq("id", 1)).get();
 
 // update
-peopleCollection.update(
-    Filters.eq("id", 1),
-    UpdateFields.newBuilder()
-        .set("name", "Dr. Alice")
-        .build()
+users.update(
+    Filters.eq("id", 1), 
+    UpdateFields.newBuilder().set("name", "Jania McGrover").build()
 );
 
 // delete
-peopleCollection.delete(Filters.eq("id", 1));
+// delete - delete users with id 1 or 2
+users.delete(
+    Filters.or(
+        Filters.eq("id", 1), 
+        Filters.eq("id", 2)
+    )
+);
 ```
+
+# License
+
+This software is licensed under the [Apache 2.0](LICENSE).

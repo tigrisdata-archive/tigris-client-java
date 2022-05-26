@@ -53,6 +53,7 @@ public class StandardModelToTigrisJsonSchema implements ModelToJsonSchema {
   private static final String $SCHEMA = "$schema";
   private static final String PRIMARY_KEYS = "primary_key";
   private static final String ADDITIONAL_PROPERTIES = "additionalProperties";
+  private static final String AUTO_GENERATE = "autoGenerate";
 
   private static final Logger log = LoggerFactory.getLogger(StandardModelToTigrisJsonSchema.class);
 
@@ -82,6 +83,14 @@ public class StandardModelToTigrisJsonSchema implements ModelToJsonSchema {
                                 ObjectNode customProperty =
                                     handleMultiDimensionalByteArray(scope.getType().getSignature());
                                 return new CustomPropertyDefinition(customProperty);
+                              } else if (scope.getAnnotation(TigrisPrimaryKey.class) != null
+                                  && scope.getAnnotation(TigrisPrimaryKey.class).autoGenerate()) {
+                                // get default
+                                ObjectNode autoGenerateProperty =
+                                    context.createDefinition(scope.getType());
+                                // customize
+                                autoGenerateProperty.put(AUTO_GENERATE, true);
+                                return new CustomPropertyDefinition(autoGenerateProperty);
                               }
                               return null;
                             }))
@@ -160,7 +169,7 @@ public class StandardModelToTigrisJsonSchema implements ModelToJsonSchema {
     for (Field field : clazz.getDeclaredFields()) {
       TigrisPrimaryKey primaryKeyTag = field.getAnnotation(TigrisPrimaryKey.class);
       if (primaryKeyTag != null) {
-        primaryKeysMap.put(primaryKeyTag.value(), field.getName());
+        primaryKeysMap.put(primaryKeyTag.order(), field.getName());
       }
     }
     ArrayNode primaryKeys = objectNode.putArray(PRIMARY_KEYS);

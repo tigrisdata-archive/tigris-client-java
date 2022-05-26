@@ -1,0 +1,16 @@
+{
+  "title" : "primary_key_with_auto_generation1s",
+  "additionalProperties" : false,
+  "type" : "object",
+  "properties" : {
+    "id" : {
+      "type" : "integer",
+      "format" : "int32",
+      "autoGenerate" : true
+    },
+    "name" : {
+      "type" : "string"
+    }
+  },
+  "primary_key" : [ "id" ]
+}

@@ -24,7 +24,7 @@ import java.util.UUID;
     description = "Test description for TigrisCustomTypes")
 public class TigrisCustomTypes implements TigrisCollectionType {
 
-  @TigrisPrimaryKey(1)
+  @TigrisPrimaryKey(order = 1)
   private UUID id;
 
   private byte[][] byteArr;

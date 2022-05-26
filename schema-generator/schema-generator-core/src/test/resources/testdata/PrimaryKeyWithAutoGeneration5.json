@@ -1,0 +1,17 @@
+{
+  "title" : "primary_key_with_auto_generation5s",
+  "additionalProperties" : false,
+  "type" : "object",
+  "properties" : {
+    "id" : {
+      "type" : "integer",
+      "format" : "int32",
+      "autoGenerate" : true
+    },
+    "idStr" : {
+      "type" : "string",
+      "autoGenerate" : true
+    }
+  },
+  "primary_key" : [ "id", "idStr" ]
+}

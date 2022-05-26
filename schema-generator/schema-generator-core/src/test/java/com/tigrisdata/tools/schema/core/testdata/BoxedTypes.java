@@ -22,7 +22,7 @@ import java.util.Date;
 @TigrisCollection(value = "BoxedTypes", description = "Test description for boxed type")
 public class BoxedTypes implements TigrisCollectionType {
 
-  @TigrisPrimaryKey(1)
+  @TigrisPrimaryKey(order = 1)
   private Integer aInteger;
 
   private Long aLong;

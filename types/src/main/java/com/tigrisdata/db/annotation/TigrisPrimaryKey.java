@@ -17,5 +17,13 @@ public @interface TigrisPrimaryKey {
    *
    * @return order of the field in primary_keys
    */
-  int value();
+  int order();
+
+  /**
+   * Primary key can have auto-generate value set to it on server as part of insert operations,
+   * server will supply auto-generated value if this field is left empty by user.
+   *
+   * @return if this should be auto-generated, if left empty during insertion.
+   */
+  boolean autoGenerate() default false;
 }

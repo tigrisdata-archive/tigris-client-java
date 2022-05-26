@@ -1,0 +1,15 @@
+{
+  "title" : "primary_key_with_auto_generation4s",
+  "additionalProperties" : false,
+  "type" : "object",
+  "properties" : {
+    "id" : {
+      "type" : "string",
+      "autoGenerate" : true
+    },
+    "name" : {
+      "type" : "string"
+    }
+  },
+  "primary_key" : [ "id" ]
+}

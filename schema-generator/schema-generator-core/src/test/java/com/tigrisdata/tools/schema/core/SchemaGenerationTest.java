@@ -20,6 +20,14 @@ import com.tigrisdata.tools.schema.core.testdata.ByteArrayMultiDimensional;
 import com.tigrisdata.tools.schema.core.testdata.CustomizedNestedObjectType;
 import com.tigrisdata.tools.schema.core.testdata.EnumTypes;
 import com.tigrisdata.tools.schema.core.testdata.NestedObjectTypes;
+import com.tigrisdata.tools.schema.core.testdata.PrimaryKeyWithAutoGeneration1;
+import com.tigrisdata.tools.schema.core.testdata.PrimaryKeyWithAutoGeneration2;
+import com.tigrisdata.tools.schema.core.testdata.PrimaryKeyWithAutoGeneration3;
+import com.tigrisdata.tools.schema.core.testdata.PrimaryKeyWithAutoGeneration4;
+import com.tigrisdata.tools.schema.core.testdata.PrimaryKeyWithAutoGeneration5;
+import com.tigrisdata.tools.schema.core.testdata.PrimaryKeyWithAutoGeneration6;
+import com.tigrisdata.tools.schema.core.testdata.PrimaryKeyWithAutoGeneration7;
+import com.tigrisdata.tools.schema.core.testdata.PrimaryKeyWithAutoGeneration8;
 import com.tigrisdata.tools.schema.core.testdata.PrimitiveTypes;
 import com.tigrisdata.tools.schema.core.testdata.TigrisCustomTypes;
 import org.junit.Assert;
@@ -75,6 +83,46 @@ public class SchemaGenerationTest {
   @Test
   public void testByteArrayMultiDimensional() throws Exception {
     compareSchema(ByteArrayMultiDimensional.class);
+  }
+
+  @Test
+  public void testPrimaryKeyWithAutoGeneration1() throws Exception {
+    compareSchema(PrimaryKeyWithAutoGeneration1.class);
+  }
+
+  @Test
+  public void testPrimaryKeyWithAutoGeneration2() throws Exception {
+    compareSchema(PrimaryKeyWithAutoGeneration2.class);
+  }
+
+  @Test
+  public void testPrimaryKeyWithAutoGeneration3() throws Exception {
+    compareSchema(PrimaryKeyWithAutoGeneration3.class);
+  }
+
+  @Test
+  public void testPrimaryKeyWithAutoGeneration4() throws Exception {
+    compareSchema(PrimaryKeyWithAutoGeneration4.class);
+  }
+
+  @Test
+  public void testPrimaryKeyWithAutoGeneration5() throws Exception {
+    compareSchema(PrimaryKeyWithAutoGeneration5.class);
+  }
+
+  @Test
+  public void testPrimaryKeyWithAutoGeneration6() throws Exception {
+    compareSchema(PrimaryKeyWithAutoGeneration6.class);
+  }
+
+  @Test
+  public void testPrimaryKeyWithAutoGeneration7() throws Exception {
+    compareSchema(PrimaryKeyWithAutoGeneration7.class);
+  }
+
+  @Test
+  public void testPrimaryKeyWithAutoGeneration8() throws Exception {
+    compareSchema(PrimaryKeyWithAutoGeneration8.class);
   }
 
   private static void compareSchema(Class clazz) throws Exception {

@@ -13,23 +13,14 @@
  */
 package com.tigrisdata.tools.schema.core.testdata;
 
-import com.tigrisdata.db.annotation.TigrisCollection;
-import com.tigrisdata.db.annotation.TigrisField;
 import com.tigrisdata.db.annotation.TigrisPrimaryKey;
 import com.tigrisdata.db.type.TigrisCollectionType;
 
-@TigrisCollection("PrimitiveTypesCollection")
-public class PrimitiveTypes implements TigrisCollectionType {
-  @TigrisField(description = "This is the id field")
-  @TigrisPrimaryKey(order = 1)
-  private int id;
+import java.util.UUID;
+
+public class PrimaryKeyWithAutoGeneration3 implements TigrisCollectionType {
+  @TigrisPrimaryKey(order = 1, autoGenerate = true)
+  private UUID id;
 
   private String name;
-  private short shortNum;
-  private byte byteNum;
-  private long longNum;
-  private float floatNum;
-  private double doubleNum;
-  private char aChar;
-  private boolean aBoolean;
 }

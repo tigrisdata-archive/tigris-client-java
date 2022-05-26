@@ -1,0 +1,16 @@
+{
+  "title" : "primary_key_with_auto_generation3s",
+  "additionalProperties" : false,
+  "type" : "object",
+  "properties" : {
+    "id" : {
+      "type" : "string",
+      "format" : "uuid",
+      "autoGenerate" : true
+    },
+    "name" : {
+      "type" : "string"
+    }
+  },
+  "primary_key" : [ "id" ]
+}

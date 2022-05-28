@@ -111,7 +111,8 @@ public class StandardTigrisDatabaseTest {
             new CollectionInfo("db1_c4"),
             new CollectionInfo("db1_c5"),
             new CollectionInfo("db1_c6"),
-            new CollectionInfo("users")));
+            new CollectionInfo("users"),
+            new CollectionInfo("auto_generating_p_keys_models")));
   }
 
   @Test
@@ -227,6 +228,7 @@ public class StandardTigrisDatabaseTest {
             collection.update(
                 tx, Filters.eq("id", 1), UpdateFields.newBuilder().set("name", "new name").build());
           } catch (Exception ex) {
+            ex.printStackTrace();
             Assert.fail("must not fail");
           }
         });

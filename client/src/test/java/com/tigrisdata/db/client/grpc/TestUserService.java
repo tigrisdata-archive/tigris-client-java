@@ -13,6 +13,7 @@
  */
 package com.tigrisdata.db.client.grpc;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.protobuf.ByteString;
@@ -151,7 +152,10 @@ public class TestUserService extends TigrisGrpc.TigrisImplBase {
               .add(JsonParser.parseString(bytes.toStringUtf8()).getAsJsonObject());
         }
       }
-      responseObserver.onNext(Api.InsertResponse.newBuilder().build());
+      Api.InsertResponse.Builder builder = Api.InsertResponse.newBuilder();
+      JsonArray keys = generateKeys(request.getDocumentsCount());
+      keys.forEach(key -> builder.addKeys(ByteString.copyFromUtf8(key.toString())));
+      responseObserver.onNext(builder.build());
       responseObserver.onCompleted();
     }
   }
@@ -201,7 +205,12 @@ public class TestUserService extends TigrisGrpc.TigrisImplBase {
           }
         }
       }
-      responseObserver.onNext(Api.ReplaceResponse.newBuilder().build());
+
+      Api.ReplaceResponse.Builder builder = Api.ReplaceResponse.newBuilder();
+      JsonArray keys = generateKeys(request.getDocumentsCount());
+      keys.forEach(key -> builder.addKeys(ByteString.copyFromUtf8(key.toString())));
+
+      responseObserver.onNext(builder.build());
       responseObserver.onCompleted();
     }
   }
@@ -444,5 +453,16 @@ public class TestUserService extends TigrisGrpc.TigrisImplBase {
     jsonObject.addProperty("id", index);
     jsonObject.addProperty("name", collectionName + "_d" + index);
     return jsonObject;
+  }
+
+  private static JsonArray generateKeys(int count) {
+
+    JsonArray result = new JsonArray();
+    for (int i = 0; i < count; i++) {
+      JsonObject obj = new JsonObject();
+      obj.addProperty("id", i);
+      result.add(obj);
+    }
+    return result;
   }
 }

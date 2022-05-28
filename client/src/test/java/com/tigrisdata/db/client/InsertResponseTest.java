@@ -17,6 +17,7 @@ import com.google.protobuf.Timestamp;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.TreeMap;
 import java.util.UUID;
 
@@ -28,8 +29,10 @@ public class InsertResponseTest {
     Timestamp updatedAt =
         Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
     String ok = "ok";
-    InsertResponse ob1 = new InsertResponse(ok, createdAt, updatedAt, new TreeMap[0]);
-    InsertResponse ob2 = new InsertResponse(ok, createdAt, updatedAt, new TreeMap[0]);
+    InsertResponse ob1 =
+        new InsertResponse(ok, createdAt, updatedAt, new TreeMap[0], Collections.emptyList());
+    InsertResponse ob2 =
+        new InsertResponse(ok, createdAt, updatedAt, new TreeMap[0], Collections.emptyList());
     Assert.assertEquals(ob1, ob1);
     Assert.assertEquals(ob1, ob2);
     Assert.assertNotEquals(ob1, null);
@@ -43,13 +46,17 @@ public class InsertResponseTest {
     Timestamp updatedAt =
         Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
     String ok = "ok";
-    InsertResponse ob1 = new InsertResponse(ok, createdAt, updatedAt, new TreeMap[0]);
-    InsertResponse ob2 = new InsertResponse(ok, createdAt, updatedAt, new TreeMap[0]);
+    InsertResponse ob1 =
+        new InsertResponse(ok, createdAt, updatedAt, new TreeMap[0], Collections.emptyList());
+    InsertResponse ob2 =
+        new InsertResponse(ok, createdAt, updatedAt, new TreeMap[0], Collections.emptyList());
     Assert.assertEquals(ob1.hashCode(), ob1.hashCode());
     Assert.assertEquals(ob1.hashCode(), ob2.hashCode());
 
-    InsertResponse ob3 = new InsertResponse(null, createdAt, updatedAt, new TreeMap[0]);
-    InsertResponse ob4 = new InsertResponse(null, createdAt, updatedAt, new TreeMap[0]);
+    InsertResponse ob3 =
+        new InsertResponse(null, createdAt, updatedAt, new TreeMap[0], Collections.emptyList());
+    InsertResponse ob4 =
+        new InsertResponse(null, createdAt, updatedAt, new TreeMap[0], Collections.emptyList());
     Assert.assertEquals(ob3.hashCode(), ob4.hashCode());
   }
 
@@ -61,7 +68,8 @@ public class InsertResponseTest {
         Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
     Timestamp updatedAt =
         Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
-    InsertResponse ob = new InsertResponse(status, createdAt, updatedAt, new TreeMap[0]);
+    InsertResponse ob =
+        new InsertResponse(status, createdAt, updatedAt, new TreeMap[0], Collections.emptyList());
     Assert.assertEquals(status, ob.getStatus());
     Assert.assertEquals(ob.getMetadata().getCreatedAt(), createdAt);
     Assert.assertEquals(ob.getMetadata().getCreatedAt(), updatedAt);

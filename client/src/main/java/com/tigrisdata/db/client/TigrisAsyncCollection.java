@@ -64,7 +64,7 @@ public interface TigrisAsyncCollection<T extends TigrisCollectionType>
    * @return a future to the {@link InsertResponse}
    * @throws TigrisException in case of an error
    */
-  CompletableFuture<InsertResponse> insert(
+  CompletableFuture<InsertResponse<T>> insert(
       List<T> documents, InsertRequestOptions insertRequestOptions) throws TigrisException;
 
   /**
@@ -72,7 +72,7 @@ public interface TigrisAsyncCollection<T extends TigrisCollectionType>
    * @return a future to the {@link InsertResponse}
    * @throws TigrisException in case of an error
    */
-  CompletableFuture<InsertResponse> insert(List<T> documents) throws TigrisException;
+  CompletableFuture<InsertResponse<T>> insert(List<T> documents) throws TigrisException;
 
   /**
    * inserts a single document to the collection
@@ -81,7 +81,7 @@ public interface TigrisAsyncCollection<T extends TigrisCollectionType>
    * @return a future to the {@link InsertResponse}
    * @throws TigrisException in case of an error
    */
-  CompletableFuture<InsertResponse> insert(T document) throws TigrisException;
+  CompletableFuture<InsertResponse<T>> insert(T document) throws TigrisException;
 
   /**
    * Inserts the documents if they don't exist already, replaces them otherwise.
@@ -91,7 +91,7 @@ public interface TigrisAsyncCollection<T extends TigrisCollectionType>
    * @return a future to the {@link InsertOrReplaceResponse}
    * @throws TigrisException in case of an error
    */
-  CompletableFuture<InsertOrReplaceResponse> insertOrReplace(
+  CompletableFuture<InsertOrReplaceResponse<T>> insertOrReplace(
       List<T> documents, InsertOrReplaceRequestOptions insertOrReplaceRequestOptions)
       throws TigrisException;
 
@@ -102,7 +102,7 @@ public interface TigrisAsyncCollection<T extends TigrisCollectionType>
    * @return a future to the {@link InsertOrReplaceResponse}
    * @throws TigrisException in case of an error
    */
-  CompletableFuture<InsertOrReplaceResponse> insertOrReplace(List<T> documents)
+  CompletableFuture<InsertOrReplaceResponse<T>> insertOrReplace(List<T> documents)
       throws TigrisException;
 
   /**

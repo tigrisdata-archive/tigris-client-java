@@ -25,9 +25,12 @@ import org.atteo.evo.inflector.English;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -120,6 +123,21 @@ final class Utilities {
       Executor executor,
       String errorMessage) {
     return transformFuture(listenableFuture, converter, executor, errorMessage, Optional.empty());
+  }
+
+  static <T> void fillInIds(List<T> documents, Map<String, Object>[] generatedKeys) {
+    // fill in ids
+    for (int index = 0; index < documents.size(); index++) {
+      for (String fieldName : generatedKeys[index].keySet()) {
+        try {
+          Field field = documents.get(index).getClass().getDeclaredField(fieldName);
+          field.setAccessible(true);
+          field.set(documents.get(index), generatedKeys[index].get(fieldName));
+        } catch (NoSuchFieldException | IllegalAccessException ex) {
+          throw new IllegalStateException(ex);
+        }
+      }
+    }
   }
   /**
    * Converts {@link ListenableFuture} of type F to {@link CompletableFuture} of type T

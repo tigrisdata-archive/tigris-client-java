@@ -13,9 +13,9 @@
  */
 package com.tigrisdata.db.client;
 
+import com.tigrisdata.db.client.collection.AutoGeneratingPKeysModel;
 import com.tigrisdata.db.client.collection.DB1_C1;
 import com.tigrisdata.db.client.collection.DB1_C5;
-import com.tigrisdata.db.client.collection.User;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.grpc.TestUserService;
 import io.grpc.inprocess.InProcessServerBuilder;
@@ -92,7 +92,7 @@ public class StandardTigrisAsyncCollectionTest {
   public void testInsert1() throws TigrisException, ExecutionException, InterruptedException {
     TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
-    CompletableFuture<InsertResponse> response =
+    CompletableFuture<InsertResponse<DB1_C1>> response =
         db1.getCollection(DB1_C1.class)
             .insert(
                 Collections.singletonList(new DB1_C1(5L, "db1_c1_test-inserted")),
@@ -112,7 +112,7 @@ public class StandardTigrisAsyncCollectionTest {
   public void testInsert2() throws TigrisException, ExecutionException, InterruptedException {
     TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
-    CompletableFuture<InsertResponse> response =
+    CompletableFuture<InsertResponse<DB1_C1>> response =
         db1.getCollection(DB1_C1.class).insert(new DB1_C1(5L, "db1_c1_test-inserted"));
     response.get();
     inspectDocs(
@@ -129,7 +129,7 @@ public class StandardTigrisAsyncCollectionTest {
   public void testInsert3() throws TigrisException, ExecutionException, InterruptedException {
     TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
-    CompletableFuture<InsertResponse> response =
+    CompletableFuture<InsertResponse<DB1_C1>> response =
         db1.getCollection(DB1_C1.class)
             .insert(Collections.singletonList(new DB1_C1(5L, "db1_c1_test-inserted")));
     response.get();
@@ -148,10 +148,10 @@ public class StandardTigrisAsyncCollectionTest {
       throws TigrisException, ExecutionException, InterruptedException {
     TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     TigrisAsyncDatabase db1 = asyncClient.getDatabase("autoGenerateTestDB");
-    CompletableFuture<InsertResponse> responseCompletableFuture =
-        db1.getCollection(User.class)
-            .insert(Collections.singletonList(new User("name-without-id")));
-    InsertResponse response = responseCompletableFuture.get();
+    CompletableFuture<InsertResponse<AutoGeneratingPKeysModel>> responseCompletableFuture =
+        db1.getCollection(AutoGeneratingPKeysModel.class)
+            .insert(Collections.singletonList(new AutoGeneratingPKeysModel("name-without-id")));
+    InsertResponse<AutoGeneratingPKeysModel> response = responseCompletableFuture.get();
     Assert.assertNotNull(response);
     Assert.assertEquals(5, response.getGeneratedKeys().length);
     Assert.assertEquals(1, response.getGeneratedKeys()[0].get("intPKey"));
@@ -182,6 +182,11 @@ public class StandardTigrisAsyncCollectionTest {
         UUID.fromString(response.getGeneratedKeys()[3].get("uuidPKey").toString()));
     Assert.assertNotNull(
         UUID.fromString(response.getGeneratedKeys()[4].get("uuidPKey").toString()));
+
+    Assert.assertEquals("a", response.getDocs().get(0).getStrPKey());
+    Assert.assertEquals(1, response.getDocs().get(0).getIntPKey());
+    Assert.assertEquals(9223372036854775806L, response.getDocs().get(0).getLongPKey());
+    Assert.assertNotNull(response.getDocs().get(0).getUuidPKey());
   }
 
   @Test
@@ -192,7 +197,7 @@ public class StandardTigrisAsyncCollectionTest {
     replacePayload.add(new DB1_C1(1L, "testReplace1"));
     replacePayload.add(new DB1_C1(3L, "testReplace3"));
     replacePayload.add(new DB1_C1(4L, "testReplace4"));
-    CompletableFuture<InsertOrReplaceResponse> response =
+    CompletableFuture<InsertOrReplaceResponse<DB1_C1>> response =
         db1.getCollection(DB1_C1.class)
             .insertOrReplace(replacePayload, new InsertOrReplaceRequestOptions());
     response.get();
@@ -211,10 +216,11 @@ public class StandardTigrisAsyncCollectionTest {
       throws TigrisException, ExecutionException, InterruptedException {
     TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     TigrisAsyncDatabase db1 = asyncClient.getDatabase("autoGenerateTestDB");
-    CompletableFuture<InsertOrReplaceResponse> responseCompletableFuture =
-        db1.getCollection(User.class)
-            .insertOrReplace(Collections.singletonList(new User("name-without-id")));
-    InsertOrReplaceResponse response = responseCompletableFuture.get();
+    CompletableFuture<InsertOrReplaceResponse<AutoGeneratingPKeysModel>> responseCompletableFuture =
+        db1.getCollection(AutoGeneratingPKeysModel.class)
+            .insertOrReplace(
+                Collections.singletonList(new AutoGeneratingPKeysModel("name-without-id")));
+    InsertOrReplaceResponse<AutoGeneratingPKeysModel> response = responseCompletableFuture.get();
     Assert.assertNotNull(response);
     Assert.assertEquals(5, response.getGeneratedKeys().length);
     Assert.assertEquals(1, response.getGeneratedKeys()[0].get("intPKey"));
@@ -245,6 +251,11 @@ public class StandardTigrisAsyncCollectionTest {
         UUID.fromString(response.getGeneratedKeys()[3].get("uuidPKey").toString()));
     Assert.assertNotNull(
         UUID.fromString(response.getGeneratedKeys()[4].get("uuidPKey").toString()));
+
+    Assert.assertEquals(1, response.getDocs().get(0).getIntPKey());
+    Assert.assertEquals(9223372036854775806L, response.getDocs().get(0).getLongPKey());
+    Assert.assertEquals("a", response.getDocs().get(0).getStrPKey());
+    Assert.assertNotNull(response.getDocs().get(0).getUuidPKey());
   }
 
   @Test

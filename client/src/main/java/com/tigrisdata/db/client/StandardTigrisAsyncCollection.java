@@ -39,6 +39,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -109,7 +110,7 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
   }
 
   @Override
-  public CompletableFuture<InsertResponse> insert(
+  public CompletableFuture<InsertResponse<T>> insert(
       List<T> documents, InsertRequestOptions insertRequestOptions) throws TigrisException {
     try {
       Api.InsertRequest insertRequest =
@@ -124,7 +125,8 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
                   input.getStatus(),
                   input.getMetadata().getCreatedAt(),
                   input.getMetadata().getUpdatedAt(),
-                  TypeConverter.toArrayOfMap(input.getKeysList(), objectMapper)),
+                  TypeConverter.toArrayOfMap(input.getKeysList(), objectMapper),
+                  documents),
           executor,
           INSERT_FAILED);
     } catch (JsonProcessingException jsonProcessingException) {
@@ -136,17 +138,17 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
   }
 
   @Override
-  public CompletableFuture<InsertResponse> insert(List<T> documents) throws TigrisException {
+  public CompletableFuture<InsertResponse<T>> insert(List<T> documents) throws TigrisException {
     return this.insert(documents, new InsertRequestOptions());
   }
 
   @Override
-  public CompletableFuture<InsertResponse> insert(T document) throws TigrisException {
+  public CompletableFuture<InsertResponse<T>> insert(T document) throws TigrisException {
     return this.insert(Collections.singletonList(document));
   }
 
   @Override
-  public CompletableFuture<InsertOrReplaceResponse> insertOrReplace(
+  public CompletableFuture<InsertOrReplaceResponse<T>> insertOrReplace(
       List<T> documents, InsertOrReplaceRequestOptions insertOrReplaceRequestOptions)
       throws TigrisException {
     try {
@@ -162,7 +164,8 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
                   input.getStatus(),
                   input.getMetadata().getCreatedAt(),
                   input.getMetadata().getUpdatedAt(),
-                  TypeConverter.toArrayOfMap(input.getKeysList(), objectMapper)),
+                  TypeConverter.toArrayOfMap(input.getKeysList(), objectMapper),
+                  new ArrayList(documents)),
           executor,
           INSERT_OR_REPLACE_FAILED);
     } catch (JsonProcessingException jsonProcessingException) {
@@ -174,7 +177,7 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
   }
 
   @Override
-  public CompletableFuture<InsertOrReplaceResponse> insertOrReplace(List<T> documents)
+  public CompletableFuture<InsertOrReplaceResponse<T>> insertOrReplace(List<T> documents)
       throws TigrisException {
     return this.insertOrReplace(documents, new InsertOrReplaceRequestOptions());
   }
@@ -342,7 +345,8 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
           response.getStatus(),
           response.getMetadata().getCreatedAt(),
           response.getMetadata().getUpdatedAt(),
-          TypeConverter.toArrayOfMap(response.getKeysList(), objectMapper));
+          TypeConverter.toArrayOfMap(response.getKeysList(), objectMapper),
+          documents);
     } catch (JsonProcessingException ex) {
       throw new TigrisException("Failed to serialize documents to JSON", ex);
     } catch (StatusRuntimeException statusRuntimeException) {
@@ -392,7 +396,8 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
           response.getStatus(),
           response.getMetadata().getCreatedAt(),
           response.getMetadata().getUpdatedAt(),
-          TypeConverter.toArrayOfMap(response.getKeysList(), objectMapper));
+          TypeConverter.toArrayOfMap(response.getKeysList(), objectMapper),
+          documents);
     } catch (JsonProcessingException ex) {
       throw new TigrisException("Failed to serialize to JSON", ex);
     } catch (StatusRuntimeException statusRuntimeException) {

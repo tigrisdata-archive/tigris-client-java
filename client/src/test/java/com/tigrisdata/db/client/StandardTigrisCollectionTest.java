@@ -13,9 +13,9 @@
  */
 package com.tigrisdata.db.client;
 
+import com.tigrisdata.db.client.collection.AutoGeneratingPKeysModel;
 import com.tigrisdata.db.client.collection.DB1_C1;
 import com.tigrisdata.db.client.collection.DB1_C5;
-import com.tigrisdata.db.client.collection.User;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.grpc.TestUserService;
 import io.grpc.inprocess.InProcessServerBuilder;
@@ -133,10 +133,11 @@ public class StandardTigrisCollectionTest {
   public void testInsertAutoGenerateKeys() throws TigrisException {
     TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("autoGenerateTestDB");
-    InsertResponse response =
-        db1.getCollection(User.class)
+    InsertResponse<AutoGeneratingPKeysModel> response =
+        db1.getCollection(AutoGeneratingPKeysModel.class)
             .insert(
-                Collections.singletonList(new User("name-without-id")), new InsertRequestOptions());
+                Collections.singletonList(new AutoGeneratingPKeysModel("name-without-id")),
+                new InsertRequestOptions());
     Assert.assertNotNull(response);
     Assert.assertEquals(5, response.getGeneratedKeys().length);
     Assert.assertEquals(1, response.getGeneratedKeys()[0].get("intPKey"));
@@ -159,14 +160,11 @@ public class StandardTigrisCollectionTest {
 
     Assert.assertNotNull(
         UUID.fromString(response.getGeneratedKeys()[0].get("uuidPKey").toString()));
-    Assert.assertNotNull(
-        UUID.fromString(response.getGeneratedKeys()[1].get("uuidPKey").toString()));
-    Assert.assertNotNull(
-        UUID.fromString(response.getGeneratedKeys()[2].get("uuidPKey").toString()));
-    Assert.assertNotNull(
-        UUID.fromString(response.getGeneratedKeys()[3].get("uuidPKey").toString()));
-    Assert.assertNotNull(
-        UUID.fromString(response.getGeneratedKeys()[4].get("uuidPKey").toString()));
+
+    Assert.assertEquals("a", response.getDocs().get(0).getStrPKey());
+    Assert.assertEquals(1, response.getDocs().get(0).getIntPKey());
+    Assert.assertEquals(9223372036854775806L, response.getDocs().get(0).getLongPKey());
+    Assert.assertNotNull(response.getDocs().get(0).getUuidPKey());
   }
 
   @Test
@@ -231,9 +229,10 @@ public class StandardTigrisCollectionTest {
   public void testInsertOrReplaceAutoGenerate() throws TigrisException {
     TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("autoGenerateTestDB");
-    InsertOrReplaceResponse response =
-        db1.getCollection(User.class)
-            .insertOrReplace(Collections.singletonList(new User("name-without-id")));
+    InsertOrReplaceResponse<AutoGeneratingPKeysModel> response =
+        db1.getCollection(AutoGeneratingPKeysModel.class)
+            .insertOrReplace(
+                Collections.singletonList(new AutoGeneratingPKeysModel("name-without-keys")));
     Assert.assertNotNull(response);
     Assert.assertEquals(5, response.getGeneratedKeys().length);
     Assert.assertEquals(1, response.getGeneratedKeys()[0].get("intPKey"));
@@ -264,6 +263,10 @@ public class StandardTigrisCollectionTest {
         UUID.fromString(response.getGeneratedKeys()[3].get("uuidPKey").toString()));
     Assert.assertNotNull(
         UUID.fromString(response.getGeneratedKeys()[4].get("uuidPKey").toString()));
+    Assert.assertEquals(1, response.getDocs().get(0).getIntPKey());
+    Assert.assertEquals("a", response.getDocs().get(0).getStrPKey());
+    Assert.assertEquals(9223372036854775806L, response.getDocs().get(0).getLongPKey());
+    Assert.assertNotNull(response.getDocs().get(0).getUuidPKey());
   }
 
   @Test

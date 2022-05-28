@@ -34,6 +34,7 @@ import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisCollectionType;
 import io.grpc.StatusRuntimeException;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -150,7 +151,8 @@ class StandardTigrisCollection<T extends TigrisCollectionType> extends AbstractT
           response.getStatus(),
           response.getMetadata().getCreatedAt(),
           response.getMetadata().getUpdatedAt(),
-          TypeConverter.toArrayOfMap(response.getKeysList(), objectMapper));
+          TypeConverter.toArrayOfMap(response.getKeysList(), objectMapper),
+          new ArrayList(documents));
     } catch (JsonProcessingException ex) {
       throw new TigrisException("Failed to serialize documents to JSON", ex);
     } catch (StatusRuntimeException statusRuntimeException) {
@@ -211,7 +213,8 @@ class StandardTigrisCollection<T extends TigrisCollectionType> extends AbstractT
           response.getStatus(),
           response.getMetadata().getCreatedAt(),
           response.getMetadata().getUpdatedAt(),
-          TypeConverter.toArrayOfMap(response.getKeysList(), objectMapper));
+          TypeConverter.toArrayOfMap(response.getKeysList(), objectMapper),
+          new ArrayList(documents));
     } catch (JsonProcessingException ex) {
       throw new TigrisException("Failed to serialize to JSON", ex);
     } catch (StatusRuntimeException statusRuntimeException) {

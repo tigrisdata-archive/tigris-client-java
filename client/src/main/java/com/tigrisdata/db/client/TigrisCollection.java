@@ -64,7 +64,7 @@ public interface TigrisCollection<T extends TigrisCollectionType>
    * @return an instance of {@link InsertResponse} from server
    * @throws TigrisException in case of an error
    */
-  InsertResponse insert(List<T> documents, InsertRequestOptions insertRequestOptions)
+  InsertResponse<T> insert(List<T> documents, InsertRequestOptions insertRequestOptions)
       throws TigrisException;
 
   /**
@@ -72,7 +72,7 @@ public interface TigrisCollection<T extends TigrisCollectionType>
    * @return an instance of {@link InsertResponse} from server
    * @throws TigrisException in case of an error
    */
-  InsertResponse insert(List<T> documents) throws TigrisException;
+  InsertResponse<T> insert(List<T> documents) throws TigrisException;
 
   /**
    * Inserts the documents if they don't exist already, replaces them otherwise.
@@ -82,7 +82,7 @@ public interface TigrisCollection<T extends TigrisCollectionType>
    * @return an instance of {@link InsertOrReplaceResponse} from server
    * @throws TigrisException in case of an error
    */
-  InsertOrReplaceResponse insertOrReplace(
+  InsertOrReplaceResponse<T> insertOrReplace(
       List<T> documents, InsertOrReplaceRequestOptions insertOrReplaceRequestOptions)
       throws TigrisException;
 
@@ -93,7 +93,7 @@ public interface TigrisCollection<T extends TigrisCollectionType>
    * @return an instance of {@link InsertOrReplaceResponse} from server
    * @throws TigrisException in case of an error
    */
-  InsertOrReplaceResponse insertOrReplace(List<T> documents) throws TigrisException;
+  InsertOrReplaceResponse<T> insertOrReplace(List<T> documents) throws TigrisException;
 
   /**
    * inserts a single document to the collection
@@ -102,7 +102,7 @@ public interface TigrisCollection<T extends TigrisCollectionType>
    * @return an instance of InsertResponse
    * @throws TigrisException in case of an error
    */
-  InsertResponse insert(T document) throws TigrisException;
+  InsertResponse<T> insert(T document) throws TigrisException;
 
   /**
    * @param filter filters documents to update

@@ -115,7 +115,8 @@ public class StandardTigrisAsyncDatabaseTest {
             new CollectionInfo("db1_c4"),
             new CollectionInfo("db1_c5"),
             new CollectionInfo("db1_c6"),
-            new CollectionInfo("users")));
+            new CollectionInfo("users"),
+            new CollectionInfo("auto_generating_p_keys_models")));
   }
 
   @Test

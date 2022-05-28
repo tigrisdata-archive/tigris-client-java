@@ -79,7 +79,7 @@ public class StandardTigrisAsyncCollectionFailureTest {
     String dbName = UUID.randomUUID().toString();
 
     TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
-    CompletableFuture<InsertResponse> result =
+    CompletableFuture<InsertResponse<DB1_C1>> result =
         asyncClient.getDatabase(dbName).getCollection(DB1_C1.class).insert(new DB1_C1(1, "msg"));
     try {
       result.join();
@@ -98,7 +98,7 @@ public class StandardTigrisAsyncCollectionFailureTest {
   public void testInsertAndReplace() throws TigrisException {
     String dbName = UUID.randomUUID().toString();
     TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
-    CompletableFuture<InsertOrReplaceResponse> result =
+    CompletableFuture<InsertOrReplaceResponse<DB1_C1>> result =
         asyncClient
             .getDatabase(dbName)
             .getCollection(DB1_C1.class)

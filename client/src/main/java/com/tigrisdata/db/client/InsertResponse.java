@@ -16,19 +16,33 @@ package com.tigrisdata.db.client;
 import com.google.protobuf.Timestamp;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 /** Represents Server response for Insert operation */
-public class InsertResponse extends DMLResponse {
+public class InsertResponse<T> extends DMLResponse {
   private final Map<String, Object>[] generatedKeys;
+  private final List<T> docs;
 
-  public InsertResponse(
+  InsertResponse(
       String status,
       Timestamp createdAt,
       Timestamp updatedAt,
-      Map<String, Object>[] generatedKeys) {
+      Map<String, Object>[] generatedKeys,
+      List<T> docs)
+      throws IllegalStateException {
     super(status, createdAt, updatedAt);
     this.generatedKeys = generatedKeys;
+    this.docs = docs;
+    Utilities.fillInIds(docs, generatedKeys);
+  }
+
+  /**
+   * @return copy of the documents with their primary-keys set. This is useful to know when
+   *     primary-key is set to autoGenerate
+   */
+  public List<T> getDocs() {
+    return docs;
   }
 
   /**

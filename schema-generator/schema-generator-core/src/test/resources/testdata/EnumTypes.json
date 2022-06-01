@@ -10,7 +10,11 @@
     "vegetables" : {
       "type" : "string",
       "enum" : [ "TOMATO", "POTATO" ]
+    },
+    "_id" : {
+      "type" : "string",
+      "format" : "uuid"
     }
   },
-  "primary_key" : [ ]
+  "primary_key" : [ "_id" ]
 }

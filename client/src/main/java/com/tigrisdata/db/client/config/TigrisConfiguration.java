@@ -14,8 +14,10 @@
 package com.tigrisdata.db.client.config;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+import com.tigrisdata.db.jackson.TigrisAnnotationIntrospector;
 
 import java.time.Duration;
 
@@ -65,7 +67,10 @@ public class TigrisConfiguration {
       this.network = NetworkConfig.newBuilder().build();
       // configure ObjectMapper to work with immutable objects
       this.objectMapper =
-          new ObjectMapper().registerModule(new ParameterNamesModule(JsonCreator.Mode.PROPERTIES));
+          new ObjectMapper()
+              .setAnnotationIntrospector(new TigrisAnnotationIntrospector())
+              .registerModule(new ParameterNamesModule(JsonCreator.Mode.PROPERTIES))
+              .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     /**

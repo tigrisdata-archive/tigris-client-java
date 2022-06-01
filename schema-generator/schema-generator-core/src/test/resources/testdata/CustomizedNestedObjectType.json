@@ -55,7 +55,11 @@
           }
         }
       }
+    },
+    "_id" : {
+      "type" : "string",
+      "format" : "uuid"
     }
   },
-  "primary_key" : [ ]
+  "primary_key" : [ "_id" ]
 }

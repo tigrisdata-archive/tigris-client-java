@@ -178,5 +178,9 @@
             <name>Jigar Joshi</name>
             <organization>Tigris Data</organization>
         </developer>
+        <developer>
+            <id>matt.ayres</id>
+            <name>Matt Ayres</name>
+        </developer>
     </developers>
 </project>

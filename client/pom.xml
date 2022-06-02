@@ -13,7 +13,7 @@
         <junit-version>4.13.1</junit-version>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
-        <grpc.version>1.46.0</grpc.version>
+        <grpc.version>1.47.0</grpc.version>
     </properties>
 
     <artifactId>tigris-client</artifactId>
@@ -40,13 +40,13 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.13.2.2</version>
+            <version>2.13.3</version>
         </dependency>
         <!-- allow immutable bindings -->
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-parameter-names</artifactId>
-            <version>2.13.2</version>
+            <version>2.13.3</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -80,7 +80,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>4.3.1</version>
+            <version>4.6.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>

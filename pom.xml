@@ -4,7 +4,7 @@
 
     <groupId>com.tigrisdata</groupId>
     <artifactId>tigris-client-java</artifactId>
-    <version>1.0.0-alpha.16-SNAPSHOT</version>
+    <version>1.0.0-alpha.16</version>
     <packaging>pom</packaging>
     <name>Tigris-Client-Java</name>
     <description>A Java client for Tigris</description>
@@ -164,7 +164,7 @@
             scm:git:git@github.com:tigrisdata/tigris-client-java.git
         </developerConnection>
         <url>git@github.com:tigrisdata/tigris-client-java.git</url>
-        <tag>HEAD</tag>
+        <tag>tigris-client-java-1.0.0-alpha.16</tag>
     </scm>
     <licenses>
         <license>

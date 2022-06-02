@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.tigrisdata</groupId>
         <artifactId>tigris-client-java</artifactId>
-        <version>1.0.0-alpha.16-SNAPSHOT</version>
+        <version>1.0.0-alpha.16</version>
     </parent>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

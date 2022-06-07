@@ -20,6 +20,8 @@ import com.tigrisdata.db.client.config.TigrisConfiguration;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.UUID;
+
 public class FiltersTest {
   private static ObjectMapper DEFAULT_OBJECT_MAPPER =
       TigrisConfiguration.newBuilder("test").build().getObjectMapper();
@@ -31,6 +33,10 @@ public class FiltersTest {
     Assert.assertEquals("{\"k3\":true}", Filters.eq("k3", true).toJSON(DEFAULT_OBJECT_MAPPER));
     Assert.assertEquals(
         "{\"k4\":\"val1\"}", Filters.eq("k4", "val1").toJSON(DEFAULT_OBJECT_MAPPER));
+    UUID uuid = UUID.fromString("aa8f8da5-5fd6-4660-a348-9ed7fe96253a");
+    Assert.assertEquals(
+        "{\"uuidField\":\"aa8f8da5-5fd6-4660-a348-9ed7fe96253a\"}",
+        Filters.eq("uuidField", uuid).toJSON(DEFAULT_OBJECT_MAPPER));
   }
 
   @Test

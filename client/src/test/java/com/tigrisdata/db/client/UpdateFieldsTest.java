@@ -8,6 +8,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 public class UpdateFieldsTest {
   private static ObjectMapper DEFAULT_OBJECT_MAPPER =
@@ -20,6 +21,7 @@ public class UpdateFieldsTest {
 
   @Test
   public void setFields() {
+    UUID uuid = UUID.fromString("aa8f8da5-5fd6-4660-a348-9ed7fe96253a");
     UpdateFields withSetFields =
         UpdateFields.newBuilder()
             .set("name", "new_name")
@@ -28,9 +30,12 @@ public class UpdateFieldsTest {
             .set("total_long_score", 200L)
             .set("byte_arr", "test input".getBytes(StandardCharsets.UTF_8))
             .set("double_field", 123.456D)
+            .set("uuidField", uuid)
             .build();
     Assert.assertEquals(
-        "{\"$set\":{\"name\":\"new_name\",\"active\":true,\"total_int_score\":100,\"total_long_score\":200,\"byte_arr\":\"dGVzdCBpbnB1dA==\",\"double_field\":123.456}}",
+        "{\"$set\":{\"name\":\"new_name\",\"active\":true,\"total_int_score\":100,\"total_long_score\":200,"
+            + "\"byte_arr\":\"dGVzdCBpbnB1dA==\",\"double_field\":123.456,"
+            + "\"uuidField\":\"aa8f8da5-5fd6-4660-a348-9ed7fe96253a\"}}",
         withSetFields.toJSON(DEFAULT_OBJECT_MAPPER));
   }
 

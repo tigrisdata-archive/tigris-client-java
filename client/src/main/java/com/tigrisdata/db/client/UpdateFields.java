@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Represents structure to update what and how to update fields of certain filtered documents in
@@ -69,6 +70,11 @@ public final class UpdateFields {
     }
 
     public UpdateFieldsBuilder set(String fieldName, double newValue) {
+      setMap.put(fieldName, newValue);
+      return this;
+    }
+
+    public UpdateFieldsBuilder set(String fieldName, UUID newValue) {
       setMap.put(fieldName, newValue);
       return this;
     }

@@ -13,6 +13,8 @@
  */
 package com.tigrisdata.db.client;
 
+import java.util.UUID;
+
 /** Helper class to help construct Filters */
 public final class Filters {
 
@@ -57,6 +59,17 @@ public final class Filters {
    * @return constructed {@link SelectorFilter} of type {@link String}
    */
   public static SelectorFilter<String> eq(String key, String value) {
+    return new SelectorFilter<>(ComparisonOperator.EQUALS, key, value);
+  }
+
+  /**
+   * Creates equals filter for given key and value
+   *
+   * @param key field key
+   * @param value field value
+   * @return constructed {@link SelectorFilter} of type {@link UUID}
+   */
+  public static SelectorFilter<UUID> eq(String key, UUID value) {
     return new SelectorFilter<>(ComparisonOperator.EQUALS, key, value);
   }
 

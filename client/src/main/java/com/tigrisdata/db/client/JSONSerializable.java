@@ -11,7 +11,17 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tigrisdata.db.client;
 
-/** Represents the filter */
-public interface TigrisFilter extends JSONSerializable {}
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+public interface JSONSerializable {
+  /**
+   * Converts Object to JSON string representation
+   *
+   * @param objectMapper custom
+   * @return string representation of the object
+   */
+  String toJSON(ObjectMapper objectMapper);
+}

@@ -13,17 +13,20 @@
  */
 package com.tigrisdata.db.client;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tigrisdata.db.api.v1.grpc.Api;
-import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import static com.tigrisdata.db.client.Constants.DESCRIBE_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.Constants.READ_FAILED;
 import static com.tigrisdata.db.client.TypeConverter.toCollectionDescription;
 import static com.tigrisdata.db.client.TypeConverter.toCollectionOptions;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tigrisdata.db.api.v1.grpc.Api;
+import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import com.tigrisdata.db.client.error.TigrisException;
+import com.tigrisdata.db.client.search.SearchRequest;
+import com.tigrisdata.db.client.search.SearchRequestOptions;
+import com.tigrisdata.db.client.search.SearchResult;
 import com.tigrisdata.db.type.TigrisCollectionType;
 import io.grpc.StatusRuntimeException;
-
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -105,6 +108,17 @@ class StandardTigrisCollection<T extends TigrisCollectionType> extends AbstractT
           statusRuntimeException);
     }
     return Optional.empty();
+  }
+
+  @Override
+  public Iterator<SearchResult<T>> search(SearchRequest request, SearchRequestOptions options)
+      throws TigrisException {
+    return this.searchInternal(request, options);
+  }
+
+  @Override
+  public Iterator<SearchResult<T>> search(SearchRequest request) throws TigrisException {
+    return this.search(request, SearchRequestOptions.getDefault());
   }
 
   @Override

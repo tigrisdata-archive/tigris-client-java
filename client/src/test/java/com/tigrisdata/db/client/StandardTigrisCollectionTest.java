@@ -18,14 +18,13 @@ import com.tigrisdata.db.client.collection.DB1_C1;
 import com.tigrisdata.db.client.collection.DB1_C5;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.grpc.TestUserService;
+import com.tigrisdata.db.client.search.FacetCountDistribution;
+import com.tigrisdata.db.client.search.FacetFieldsQuery;
+import com.tigrisdata.db.client.search.QueryString;
+import com.tigrisdata.db.client.search.SearchRequest;
+import com.tigrisdata.db.client.search.SearchResult;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.testing.GrpcCleanupRule;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,6 +32,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 public class StandardTigrisCollectionTest {
 
@@ -107,6 +111,45 @@ public class StandardTigrisCollectionTest {
     TigrisDatabase db1 = client.getDatabase("db1");
     Optional<DB1_C1> result = db1.getCollection(DB1_C1.class).readOne(Filters.eq("id", 100));
     Assert.assertFalse(result.isPresent());
+  }
+
+  @Test
+  public void testSearch() throws TigrisException {
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+    TigrisDatabase db1 = client.getDatabase("db1");
+    TigrisCollection<DB1_C1> collection = db1.getCollection(DB1_C1.class);
+    SearchRequest searchRequest =
+        SearchRequest.newBuilder(QueryString.newBuilder("my search string").build())
+            .withFacetQuery(FacetFieldsQuery.newBuilder().withField("name").build())
+            .withReadFields(ReadFields.newBuilder().includeField("other_field").build())
+            .withFilter(
+                Filters.and(
+                    Filters.eq("first_key", "first_value"), Filters.eq("some_key", "some value")))
+            .build();
+
+    Iterator<SearchResult<DB1_C1>> resultIterator = collection.search(searchRequest);
+    Assert.assertNotNull(resultIterator);
+
+    // validate client receives all results
+    long recvdHits = 0;
+    long foundResults = 0;
+    while (resultIterator.hasNext()) {
+      SearchResult<DB1_C1> result = resultIterator.next();
+      result
+          .getHits()
+          .forEach(
+              hit -> {
+                Assert.assertNotNull(hit.getDocument());
+                Assert.assertEquals(DB1_C1.class, hit.getDocument().getClass());
+              });
+      recvdHits += result.getHits().size();
+      Assert.assertTrue(result.getFacets().containsKey("name"));
+      FacetCountDistribution facet = result.getFacets().get("name");
+      Assert.assertNotNull(facet.getStats());
+      Assert.assertNotNull(facet.getCounts());
+      foundResults = result.getMeta().getFound();
+    }
+    Assert.assertEquals(foundResults, recvdHits);
   }
 
   @Test

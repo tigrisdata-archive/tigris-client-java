@@ -59,6 +59,12 @@ public interface TigrisAsyncCollection<T extends TigrisCollectionType>
   CompletableFuture<Optional<T>> readOne(TigrisFilter filter);
 
   /**
+   * Inserts documents into collection
+   *
+   * <p>Note: if your collection model has primary key that is tagged to autoGenerate values. The
+   * input list of documents will be modified to set the primary key fields after successful
+   * insertion.
+   *
    * @param documents list of documents to insert
    * @param insertRequestOptions insert option
    * @return a future to the {@link InsertResponse}
@@ -68,6 +74,12 @@ public interface TigrisAsyncCollection<T extends TigrisCollectionType>
       List<T> documents, InsertRequestOptions insertRequestOptions) throws TigrisException;
 
   /**
+   * Inserts documents into collection
+   *
+   * <p>Note: if your collection model has primary key that is tagged to autoGenerate values. The
+   * input list of documents will be modified to set the primary key fields after successful
+   * insertion.
+   *
    * @param documents list of documents to insert
    * @return a future to the {@link InsertResponse}
    * @throws TigrisException in case of an error
@@ -77,6 +89,10 @@ public interface TigrisAsyncCollection<T extends TigrisCollectionType>
   /**
    * inserts a single document to the collection
    *
+   * <p>Note: if your collection model has primary key that is tagged to autoGenerate values. The
+   * input list of documents will be modified to set the primary key fields after successful
+   * insertion.
+   *
    * @param document document to insert
    * @return a future to the {@link InsertResponse}
    * @throws TigrisException in case of an error
@@ -85,6 +101,10 @@ public interface TigrisAsyncCollection<T extends TigrisCollectionType>
 
   /**
    * Inserts the documents if they don't exist already, replaces them otherwise.
+   *
+   * <p>Note: if your collection model has primary key that is tagged to autoGenerate values. The
+   * input list of documents will be modified to set the primary key fields after successful
+   * insertion.
    *
    * @param documents list of documents to replace
    * @param insertOrReplaceRequestOptions option

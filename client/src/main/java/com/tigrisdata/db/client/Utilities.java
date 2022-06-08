@@ -19,6 +19,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.tigrisdata.db.annotation.TigrisCollection;
+import com.tigrisdata.db.annotation.TigrisPrimaryKey;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisCollectionType;
 import org.atteo.evo.inflector.English;
@@ -131,8 +132,12 @@ final class Utilities {
       for (String fieldName : generatedKeys[index].keySet()) {
         try {
           Field field = documents.get(index).getClass().getDeclaredField(fieldName);
-          field.setAccessible(true);
-          field.set(documents.get(index), generatedKeys[index].get(fieldName));
+          TigrisPrimaryKey tigrisPrimaryKey = field.getAnnotation(TigrisPrimaryKey.class);
+          // only mutate if the field is annotated to autoGenerate
+          if (tigrisPrimaryKey != null && tigrisPrimaryKey.autoGenerate()) {
+            field.setAccessible(true);
+            field.set(documents.get(index), generatedKeys[index].get(fieldName));
+          }
         } catch (NoSuchFieldException | IllegalAccessException ex) {
           throw new IllegalStateException(ex);
         }

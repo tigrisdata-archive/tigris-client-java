@@ -13,14 +13,22 @@
  */
 package com.tigrisdata.db.client.collection;
 
+import com.tigrisdata.db.annotation.TigrisPrimaryKey;
 import com.tigrisdata.db.type.TigrisCollectionType;
 
 import java.util.UUID;
 
 public class AutoGeneratingPKeysModel implements TigrisCollectionType {
+  @TigrisPrimaryKey(order = 1, autoGenerate = true)
   int intPKey;
+
+  @TigrisPrimaryKey(order = 2, autoGenerate = true)
   long longPKey;
+
+  @TigrisPrimaryKey(order = 3, autoGenerate = true)
   UUID uuidPKey;
+
+  @TigrisPrimaryKey(order = 4, autoGenerate = true)
   String strPKey;
 
   String name;

@@ -148,45 +148,40 @@ public class StandardTigrisAsyncCollectionTest {
       throws TigrisException, ExecutionException, InterruptedException {
     TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     TigrisAsyncDatabase db1 = asyncClient.getDatabase("autoGenerateTestDB");
+    AutoGeneratingPKeysModel input = new AutoGeneratingPKeysModel("name-without-id");
     CompletableFuture<InsertResponse<AutoGeneratingPKeysModel>> responseCompletableFuture =
-        db1.getCollection(AutoGeneratingPKeysModel.class)
-            .insert(Collections.singletonList(new AutoGeneratingPKeysModel("name-without-id")));
+        db1.getCollection(AutoGeneratingPKeysModel.class).insert(Collections.singletonList(input));
     InsertResponse<AutoGeneratingPKeysModel> response = responseCompletableFuture.get();
     Assert.assertNotNull(response);
-    Assert.assertEquals(5, response.getGeneratedKeys().length);
-    Assert.assertEquals(1, response.getGeneratedKeys()[0].get("intPKey"));
-    Assert.assertEquals(2, response.getGeneratedKeys()[1].get("intPKey"));
-    Assert.assertEquals(3, response.getGeneratedKeys()[2].get("intPKey"));
-    Assert.assertEquals(4, response.getGeneratedKeys()[3].get("intPKey"));
-    Assert.assertEquals(5, response.getGeneratedKeys()[4].get("intPKey"));
+    Assert.assertEquals(5, response.getKeys().length);
+    Assert.assertEquals(1, response.getKeys()[0].get("intPKey"));
+    Assert.assertEquals(2, response.getKeys()[1].get("intPKey"));
+    Assert.assertEquals(3, response.getKeys()[2].get("intPKey"));
+    Assert.assertEquals(4, response.getKeys()[3].get("intPKey"));
+    Assert.assertEquals(5, response.getKeys()[4].get("intPKey"));
 
-    Assert.assertEquals(Long.MAX_VALUE - 1, response.getGeneratedKeys()[0].get("longPKey"));
-    Assert.assertEquals(Long.MAX_VALUE - 2, response.getGeneratedKeys()[1].get("longPKey"));
-    Assert.assertEquals(Long.MAX_VALUE - 3, response.getGeneratedKeys()[2].get("longPKey"));
-    Assert.assertEquals(Long.MAX_VALUE - 4, response.getGeneratedKeys()[3].get("longPKey"));
-    Assert.assertEquals(Long.MAX_VALUE - 5, response.getGeneratedKeys()[4].get("longPKey"));
+    Assert.assertEquals(Long.MAX_VALUE - 1, response.getKeys()[0].get("longPKey"));
+    Assert.assertEquals(Long.MAX_VALUE - 2, response.getKeys()[1].get("longPKey"));
+    Assert.assertEquals(Long.MAX_VALUE - 3, response.getKeys()[2].get("longPKey"));
+    Assert.assertEquals(Long.MAX_VALUE - 4, response.getKeys()[3].get("longPKey"));
+    Assert.assertEquals(Long.MAX_VALUE - 5, response.getKeys()[4].get("longPKey"));
 
-    Assert.assertEquals("a", response.getGeneratedKeys()[0].get("strPKey"));
-    Assert.assertEquals("b", response.getGeneratedKeys()[1].get("strPKey"));
-    Assert.assertEquals("c", response.getGeneratedKeys()[2].get("strPKey"));
-    Assert.assertEquals("d", response.getGeneratedKeys()[3].get("strPKey"));
-    Assert.assertEquals("e", response.getGeneratedKeys()[4].get("strPKey"));
+    Assert.assertEquals("a", response.getKeys()[0].get("strPKey"));
+    Assert.assertEquals("b", response.getKeys()[1].get("strPKey"));
+    Assert.assertEquals("c", response.getKeys()[2].get("strPKey"));
+    Assert.assertEquals("d", response.getKeys()[3].get("strPKey"));
+    Assert.assertEquals("e", response.getKeys()[4].get("strPKey"));
 
-    Assert.assertNotNull(
-        UUID.fromString(response.getGeneratedKeys()[0].get("uuidPKey").toString()));
-    Assert.assertNotNull(
-        UUID.fromString(response.getGeneratedKeys()[1].get("uuidPKey").toString()));
-    Assert.assertNotNull(
-        UUID.fromString(response.getGeneratedKeys()[2].get("uuidPKey").toString()));
-    Assert.assertNotNull(
-        UUID.fromString(response.getGeneratedKeys()[3].get("uuidPKey").toString()));
-    Assert.assertNotNull(
-        UUID.fromString(response.getGeneratedKeys()[4].get("uuidPKey").toString()));
+    Assert.assertNotNull(UUID.fromString(response.getKeys()[0].get("uuidPKey").toString()));
+    Assert.assertNotNull(UUID.fromString(response.getKeys()[1].get("uuidPKey").toString()));
+    Assert.assertNotNull(UUID.fromString(response.getKeys()[2].get("uuidPKey").toString()));
+    Assert.assertNotNull(UUID.fromString(response.getKeys()[3].get("uuidPKey").toString()));
+    Assert.assertNotNull(UUID.fromString(response.getKeys()[4].get("uuidPKey").toString()));
 
-    Assert.assertEquals("a", response.getDocs().get(0).getStrPKey());
-    Assert.assertEquals(1, response.getDocs().get(0).getIntPKey());
-    Assert.assertEquals(9223372036854775806L, response.getDocs().get(0).getLongPKey());
-    Assert.assertNotNull(response.getDocs().get(0).getUuidPKey());
+    Assert.assertEquals("a", input.getStrPKey());
+    Assert.assertEquals(1, input.getIntPKey());
+    Assert.assertEquals(9223372036854775806L, input.getLongPKey());
+    Assert.assertNotNull(input.getUuidPKey());
   }
 
   @Test

@@ -59,6 +59,12 @@ public interface TigrisCollection<T extends TigrisCollectionType>
   Optional<T> readOne(TigrisFilter filter) throws TigrisException;
 
   /**
+   * Inserts the documents into collection.
+   *
+   * <p>Note: if your collection model has primary key that is tagged to autoGenerate values. The
+   * input list of documents will be modified to set the primary key fields after successful
+   * insertion.
+   *
    * @param documents list of documents to insert
    * @param insertRequestOptions insert option
    * @return an instance of {@link InsertResponse} from server
@@ -68,6 +74,12 @@ public interface TigrisCollection<T extends TigrisCollectionType>
       throws TigrisException;
 
   /**
+   * Inserts the document into collection.
+   *
+   * <p>Note: if your collection model has primary key that is tagged to autoGenerate values. The
+   * input list of documents will be modified to set the primary key fields after successful
+   * insertion.
+   *
    * @param documents list of documents to insert
    * @return an instance of {@link InsertResponse} from server
    * @throws TigrisException in case of an error
@@ -76,6 +88,10 @@ public interface TigrisCollection<T extends TigrisCollectionType>
 
   /**
    * Inserts the documents if they don't exist already, replaces them otherwise.
+   *
+   * <p>Note: if your collection model has primary key that is tagged to autoGenerate values. The
+   * input list of documents will be modified to set the primary key fields after successful
+   * insertion.
    *
    * @param documents list of documents to replace
    * @param insertOrReplaceRequestOptions option
@@ -89,6 +105,10 @@ public interface TigrisCollection<T extends TigrisCollectionType>
   /**
    * Inserts the documents if they don't exist already, replaces them otherwise.
    *
+   * <p>Note: if your collection model has primary key that is tagged to autoGenerate values. The
+   * input list of documents will be modified to set the primary key fields after successful
+   * insertion.
+   *
    * @param documents list of documents to replace
    * @return an instance of {@link InsertOrReplaceResponse} from server
    * @throws TigrisException in case of an error
@@ -97,6 +117,10 @@ public interface TigrisCollection<T extends TigrisCollectionType>
 
   /**
    * inserts a single document to the collection
+   *
+   * <p>Note: if your collection model has primary key that is tagged to autoGenerate values. The
+   * input list of documents will be modified to set the primary key fields after successful
+   * insertion.
    *
    * @param document document to insert
    * @return an instance of InsertResponse

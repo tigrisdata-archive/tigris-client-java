@@ -22,7 +22,6 @@ import java.util.Map;
 /** Represents Server response for Insert operation */
 public class InsertResponse<T> extends DMLResponse {
   private final Map<String, Object>[] generatedKeys;
-  private final List<T> docs;
 
   InsertResponse(
       String status,
@@ -33,25 +32,16 @@ public class InsertResponse<T> extends DMLResponse {
       throws IllegalStateException {
     super(status, createdAt, updatedAt);
     this.generatedKeys = generatedKeys;
-    this.docs = docs;
     Utilities.fillInIds(docs, generatedKeys);
-  }
-
-  /**
-   * @return copy of the documents with their primary-keys set. This is useful to know when
-   *     primary-key is set to autoGenerate
-   */
-  public List<T> getDocs() {
-    return docs;
   }
 
   /**
    * @return an array of (Map of (String to Object)). Value in map is one of these types (int, long,
    *     UUID, String). The key of the map is the primaryKey field name in your collection and value
-   *     is the generated value for that. Array preserves the order in which the entries were
-   *     submitted for insertion.
+   *     is the either generated or already supplied value for that. Array preserves the order in
+   *     which the entries were submitted for insertion.
    */
-  public Map<String, Object>[] getGeneratedKeys() {
+  public Map<String, Object>[] getKeys() {
     return generatedKeys;
   }
 

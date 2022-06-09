@@ -60,7 +60,10 @@ class StandardTransactionSession implements TransactionSession {
       Api.CommitTransactionResponse response = stub.commitTransaction(commitTransactionRequest);
       return new CommitTransactionResponse(response.getStatus());
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisException("Failed to commit transaction", statusRuntimeException);
+      throw new TigrisException(
+          Messages.COMMIT_TRANSACTION_FAILED,
+          TypeConverter.extractTigrisError(statusRuntimeException),
+          statusRuntimeException);
     }
   }
 
@@ -76,7 +79,10 @@ class StandardTransactionSession implements TransactionSession {
           stub.rollbackTransaction(rollbackTransactionRequest);
       return new RollbackTransactionResponse(response.getStatus());
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisException("Failed to rollback transaction", statusRuntimeException);
+      throw new TigrisException(
+          Messages.ROLLBACK_TRANSACTION_FAILED,
+          TypeConverter.extractTigrisError(statusRuntimeException),
+          statusRuntimeException);
     }
   }
 

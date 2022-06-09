@@ -265,7 +265,15 @@ public class StandardTigrisAsyncClient extends AbstractTigrisClient implements T
         }
       }
       // pass on the error otherwise
-      completableFuture.completeExceptionally(new TigrisException(CREATE_DB_FAILED, throwable));
+      if (throwable instanceof StatusRuntimeException) {
+        completableFuture.completeExceptionally(
+            new TigrisException(
+                CREATE_DB_FAILED,
+                TypeConverter.extractTigrisError((StatusRuntimeException) throwable),
+                throwable));
+      } else {
+        completableFuture.completeExceptionally(new TigrisException(CREATE_DB_FAILED, throwable));
+      }
     }
   }
 }

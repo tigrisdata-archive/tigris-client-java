@@ -13,8 +13,11 @@
  */
 package com.tigrisdata.db.client.error;
 
+import com.tigrisdata.db.api.v1.grpc.Api;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.Optional;
 
 public class TigrisExceptionTest {
 
@@ -34,5 +37,15 @@ public class TigrisExceptionTest {
   public void messageWithCauseNullMessageTest() {
     TigrisException ex = new TigrisException("message1", new Exception((String) null));
     Assert.assertEquals("message1", ex.getMessage());
+  }
+
+  @Test
+  public void withTigrisErrorTest() {
+    TigrisException ex =
+        new TigrisException(
+            "Exception message",
+            Optional.of(new TigrisError(Api.Code.BAD_GATEWAY)),
+            new Exception());
+    Assert.assertEquals(Api.Code.BAD_GATEWAY, ex.getTigrisErrorOptional().get().getCode());
   }
 }

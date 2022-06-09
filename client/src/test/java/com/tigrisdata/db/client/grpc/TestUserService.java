@@ -17,10 +17,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.protobuf.ByteString;
+import com.google.rpc.ErrorInfo;
 import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
-import io.grpc.Status;
-import io.grpc.StatusRuntimeException;
+import io.grpc.Metadata;
+import io.grpc.protobuf.ProtoUtils;
 import io.grpc.stub.StreamObserver;
 
 import java.util.ArrayList;
@@ -363,7 +364,18 @@ public class TestUserService extends TigrisGrpc.TigrisImplBase {
       StreamObserver<Api.CreateDatabaseResponse> responseObserver) {
     // to test already exists
     if (request.getDb().equals("pre-existing-db-name")) {
-      responseObserver.onError(new StatusRuntimeException(Status.ALREADY_EXISTS));
+      Metadata metadata = new Metadata();
+      Metadata.Key<ErrorInfo> errorResponseKey =
+          ProtoUtils.keyForProto(ErrorInfo.getDefaultInstance());
+      metadata.put(
+          errorResponseKey,
+          ErrorInfo.newBuilder()
+              .setReason("Reason from metadata - database already exists")
+              .build());
+      responseObserver.onError(
+          io.grpc.Status.ALREADY_EXISTS
+              .withDescription("Database already exists")
+              .asRuntimeException(metadata));
       return;
     }
     this.dbs.add(request.getDb());

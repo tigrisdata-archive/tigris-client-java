@@ -13,11 +13,31 @@
  */
 package com.tigrisdata.db.client.error;
 
+import java.util.Optional;
+
 /** Base type of Tigris exceptions */
 public class TigrisException extends Exception {
+  private final Optional<TigrisError> tigrisErrorOptional;
+
+  public TigrisException(
+      String message, Optional<TigrisError> tigrisErrorOptional, Throwable cause) {
+    super(message, cause);
+    this.tigrisErrorOptional = tigrisErrorOptional;
+  }
 
   public TigrisException(String message, Throwable cause) {
     super(message, cause);
+    this.tigrisErrorOptional = Optional.empty();
+  }
+
+  /**
+   * When Tigris Server reports an error, it will provide additional detail about the error. If this
+   * exception is raised from server side, those details will be made available here.
+   *
+   * @return optionally {@link TigrisError}
+   */
+  public Optional<TigrisError> getTigrisErrorOptional() {
+    return tigrisErrorOptional;
   }
 
   @Override

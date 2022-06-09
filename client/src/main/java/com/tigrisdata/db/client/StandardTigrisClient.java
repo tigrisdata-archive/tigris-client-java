@@ -90,7 +90,10 @@ public class StandardTigrisClient extends AbstractTigrisClient implements Tigris
       }
       return dbs;
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisException(LIST_DBS_FAILED, statusRuntimeException);
+      throw new TigrisException(
+          LIST_DBS_FAILED,
+          TypeConverter.extractTigrisError(statusRuntimeException),
+          statusRuntimeException);
     }
   }
 
@@ -104,7 +107,10 @@ public class StandardTigrisClient extends AbstractTigrisClient implements Tigris
     } catch (StatusRuntimeException statusRuntimeException) {
       // ignore the error if the database is already exists
       if (statusRuntimeException.getStatus().getCode() != Status.ALREADY_EXISTS.getCode()) {
-        throw new TigrisException(CREATE_DB_FAILED, statusRuntimeException);
+        throw new TigrisException(
+            CREATE_DB_FAILED,
+            TypeConverter.extractTigrisError(statusRuntimeException),
+            statusRuntimeException);
       }
       log.info("database already exists: {}", databaseName);
       return new StandardTigrisDatabase(
@@ -120,7 +126,10 @@ public class StandardTigrisClient extends AbstractTigrisClient implements Tigris
       return new DropDatabaseResponse(
           dropDatabaseResponse.getStatus(), dropDatabaseResponse.getMessage());
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisException(DROP_DB_FAILED, statusRuntimeException);
+      throw new TigrisException(
+          DROP_DB_FAILED,
+          TypeConverter.extractTigrisError(statusRuntimeException),
+          statusRuntimeException);
     }
   }
 
@@ -130,7 +139,10 @@ public class StandardTigrisClient extends AbstractTigrisClient implements Tigris
       Api.GetInfoResponse apiResponse = stub.getInfo(Api.GetInfoRequest.newBuilder().build());
       return toServerMetadata(apiResponse);
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisException(DROP_DB_FAILED, statusRuntimeException);
+      throw new TigrisException(
+          DROP_DB_FAILED,
+          TypeConverter.extractTigrisError(statusRuntimeException),
+          statusRuntimeException);
     }
   }
 

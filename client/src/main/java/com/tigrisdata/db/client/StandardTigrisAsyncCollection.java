@@ -22,8 +22,10 @@ import static com.tigrisdata.db.client.Messages.DELETE_FAILED;
 import static com.tigrisdata.db.client.Messages.DESCRIBE_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.Messages.INSERT_FAILED;
 import static com.tigrisdata.db.client.Messages.INSERT_OR_REPLACE_FAILED;
+import static com.tigrisdata.db.client.Messages.JSON_SER_DE_ERROR;
 import static com.tigrisdata.db.client.Messages.READ_FAILED;
 import static com.tigrisdata.db.client.Messages.UPDATE_FAILED;
+import static com.tigrisdata.db.client.TypeConverter.extractTigrisError;
 import static com.tigrisdata.db.client.TypeConverter.makeTransactionAware;
 import static com.tigrisdata.db.client.TypeConverter.readOneDefaultReadRequestOptions;
 import static com.tigrisdata.db.client.TypeConverter.toCollectionDescription;
@@ -130,10 +132,7 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
           executor,
           INSERT_FAILED);
     } catch (JsonProcessingException jsonProcessingException) {
-      throw new TigrisException(
-          "Failed to serialize documents to JSON, This should never happen on generated Java "
-              + "models, if the Java models are not locally modified please report a bug",
-          jsonProcessingException);
+      throw new TigrisException(JSON_SER_DE_ERROR, jsonProcessingException);
     }
   }
 
@@ -169,10 +168,7 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
           executor,
           INSERT_OR_REPLACE_FAILED);
     } catch (JsonProcessingException jsonProcessingException) {
-      throw new TigrisException(
-          "Failed to serialize documents to JSON, This should never happen on generated Java "
-              + "models, if the Java models are not locally modified please report a bug",
-          jsonProcessingException);
+      throw new TigrisException(JSON_SER_DE_ERROR, jsonProcessingException);
     }
   }
 
@@ -286,8 +282,11 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
             }
           };
       return Utilities.transformIterator(readResponseIterator, converter);
-    } catch (StatusRuntimeException exception) {
-      throw new TigrisException(READ_FAILED, exception);
+    } catch (StatusRuntimeException statusRuntimeException) {
+      throw new TigrisException(
+          READ_FAILED,
+          TypeConverter.extractTigrisError(statusRuntimeException),
+          statusRuntimeException);
     }
   }
 
@@ -320,7 +319,10 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
         return Optional.of(iterator.next());
       }
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisException(READ_FAILED, statusRuntimeException);
+      throw new TigrisException(
+          READ_FAILED,
+          TypeConverter.extractTigrisError(statusRuntimeException),
+          statusRuntimeException);
     }
     return Optional.empty();
   }
@@ -348,9 +350,10 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
           TypeConverter.toArrayOfMap(response.getKeysList(), objectMapper),
           documents);
     } catch (JsonProcessingException ex) {
-      throw new TigrisException("Failed to serialize documents to JSON", ex);
+      throw new TigrisException(JSON_SER_DE_ERROR, ex);
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisException(INSERT_FAILED, statusRuntimeException);
+      throw new TigrisException(
+          INSERT_FAILED, extractTigrisError(statusRuntimeException), statusRuntimeException);
     }
   }
 
@@ -399,9 +402,12 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
           TypeConverter.toArrayOfMap(response.getKeysList(), objectMapper),
           documents);
     } catch (JsonProcessingException ex) {
-      throw new TigrisException("Failed to serialize to JSON", ex);
+      throw new TigrisException(JSON_SER_DE_ERROR, ex);
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisException(INSERT_OR_REPLACE_FAILED, statusRuntimeException);
+      throw new TigrisException(
+          INSERT_OR_REPLACE_FAILED,
+          extractTigrisError(statusRuntimeException),
+          statusRuntimeException);
     }
   }
 
@@ -450,7 +456,8 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
           updateResponse.getMetadata().getUpdatedAt(),
           updateResponse.getModifiedCount());
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisException(UPDATE_FAILED, statusRuntimeException);
+      throw new TigrisException(
+          UPDATE_FAILED, extractTigrisError(statusRuntimeException), statusRuntimeException);
     }
   }
 
@@ -494,7 +501,8 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
           response.getMetadata().getCreatedAt(),
           response.getMetadata().getUpdatedAt());
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisException(DELETE_FAILED, statusRuntimeException);
+      throw new TigrisException(
+          DELETE_FAILED, extractTigrisError(statusRuntimeException), statusRuntimeException);
     }
   }
 
@@ -536,19 +544,19 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
         T doc = objectMapper.readValue(readResponse.getData().toStringUtf8(), collectionTypeClass);
         reader.onNext(doc);
       } catch (JsonProcessingException ex) {
-        reader.onError(
-            new TigrisException(
-                "Failed to deserialize the read document to your model of type "
-                    + collectionTypeClass.getName()
-                    + ", please make sure your local schema generated models are in sync with "
-                    + "server schema, please file a bug if your schemas are already in sync",
-                ex));
+        reader.onError(new TigrisException(JSON_SER_DE_ERROR, ex));
       }
     }
 
     @Override
     public void onError(Throwable throwable) {
-      reader.onError(new TigrisException(errorMessage, throwable));
+      if (throwable instanceof StatusRuntimeException) {
+        reader.onError(
+            new TigrisException(
+                errorMessage, extractTigrisError((StatusRuntimeException) throwable), throwable));
+      } else {
+        reader.onError(new TigrisException(errorMessage, throwable));
+      }
     }
 
     @Override
@@ -581,19 +589,19 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
         T doc = objectMapper.readValue(readResponse.getData().toStringUtf8(), collectionTypeClass);
         completableFuture.complete(Optional.of(doc));
       } catch (JsonProcessingException ex) {
-        completableFuture.completeExceptionally(
-            new TigrisException(
-                "Failed to deserialize the read document to your model of type "
-                    + collectionTypeClass.getName()
-                    + ", please make sure your local schema generated models are in sync with "
-                    + "server schema, please file a bug if your schemas are already in sync",
-                ex));
+        completableFuture.completeExceptionally(new TigrisException(JSON_SER_DE_ERROR, ex));
       }
     }
 
     @Override
     public void onError(Throwable throwable) {
-      completableFuture.completeExceptionally(new TigrisException(errorMessage, throwable));
+      if (throwable instanceof StatusRuntimeException) {
+        completableFuture.completeExceptionally(
+            new TigrisException(
+                errorMessage, extractTigrisError((StatusRuntimeException) throwable), throwable));
+      } else {
+        completableFuture.completeExceptionally(new TigrisException(errorMessage, throwable));
+      }
     }
 
     @Override

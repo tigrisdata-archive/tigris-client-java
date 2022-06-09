@@ -13,8 +13,15 @@
  */
 package com.tigrisdata.db.client;
 
+import com.google.protobuf.Any;
+import com.google.rpc.Code;
+import com.google.rpc.ErrorInfo;
+import com.google.rpc.Status;
 import com.tigrisdata.db.api.v1.grpc.Api;
+import com.tigrisdata.db.client.error.TigrisError;
 import com.tigrisdata.db.client.error.TigrisException;
+import io.grpc.StatusRuntimeException;
+import io.grpc.protobuf.StatusProto;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -48,5 +55,21 @@ public class TypeConverterTest {
       Assert.fail("This must fail");
     } catch (TigrisException ignore) {
     }
+  }
+
+  @Test
+  public void extractTigrisErrorTest() {
+    Status status =
+        Status.newBuilder()
+            .setCode(Code.INTERNAL.getNumber())
+            .setMessage("Test message")
+            .addDetails(
+                Any.pack(
+                    ErrorInfo.newBuilder().setReason(Api.Code.DEADLINE_EXCEEDED.name()).build()))
+            .build();
+
+    StatusRuntimeException statusRuntimeException = StatusProto.toStatusRuntimeException(status);
+    TigrisError tigrisError = TypeConverter.extractTigrisError(statusRuntimeException).get();
+    Assert.assertEquals(Api.Code.DEADLINE_EXCEEDED, tigrisError.getCode());
   }
 }

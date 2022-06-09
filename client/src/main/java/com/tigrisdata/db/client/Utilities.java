@@ -21,6 +21,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.tigrisdata.db.annotation.TigrisCollection;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisCollectionType;
+import io.grpc.StatusRuntimeException;
 import org.atteo.evo.inflector.English;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -139,6 +140,7 @@ final class Utilities {
       }
     }
   }
+
   /**
    * Converts {@link ListenableFuture} of type F to {@link CompletableFuture} of type T
    *
@@ -170,7 +172,15 @@ final class Utilities {
             if (exceptionHandler.isPresent()) {
               exceptionHandler.get().accept(result, throwable);
             } else {
-              result.completeExceptionally(new TigrisException(errorMessage, throwable));
+              if (throwable instanceof StatusRuntimeException) {
+                result.completeExceptionally(
+                    new TigrisException(
+                        errorMessage,
+                        TypeConverter.extractTigrisError((StatusRuntimeException) throwable),
+                        throwable));
+              } else {
+                result.completeExceptionally(new TigrisException(errorMessage, throwable));
+              }
             }
           }
         },

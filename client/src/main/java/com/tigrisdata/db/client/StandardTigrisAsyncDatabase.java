@@ -30,6 +30,7 @@ import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisCollectionType;
 import com.tigrisdata.tools.schema.core.ModelToJsonSchema;
 import io.grpc.ManagedChannel;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 
 import java.io.IOException;
@@ -195,7 +196,15 @@ class StandardTigrisAsyncDatabase extends AbstractTigrisDatabase implements Tigr
 
           @Override
           public void onError(Throwable throwable) {
-            streamer.onError(new TigrisException(STREAM_FAILED, throwable));
+            if (throwable instanceof StatusRuntimeException) {
+              streamer.onError(
+                  new TigrisException(
+                      STREAM_FAILED,
+                      TypeConverter.extractTigrisError((StatusRuntimeException) throwable),
+                      throwable));
+            } else {
+              streamer.onError(new TigrisException(STREAM_FAILED, throwable));
+            }
           }
 
           @Override

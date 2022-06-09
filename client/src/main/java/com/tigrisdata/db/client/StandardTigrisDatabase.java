@@ -18,8 +18,10 @@ import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import static com.tigrisdata.db.client.Messages.BEGIN_TRANSACTION_FAILED;
 import static com.tigrisdata.db.client.Messages.CREATE_OR_UPDATE_COLLECTION_FAILED;
+import static com.tigrisdata.db.client.Messages.DESCRIBE_DB_FAILED;
 import static com.tigrisdata.db.client.Messages.DROP_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.Messages.LIST_COLLECTION_FAILED;
+import static com.tigrisdata.db.client.Messages.STREAM_FAILED;
 import static com.tigrisdata.db.client.Messages.TRANSACTION_FAILED;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisCollectionType;
@@ -67,7 +69,10 @@ class StandardTigrisDatabase extends AbstractTigrisDatabase implements TigrisDat
           .map(TypeConverter::toCollectionInfo)
           .collect(Collectors.toList());
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisException(LIST_COLLECTION_FAILED, statusRuntimeException);
+      throw new TigrisException(
+          LIST_COLLECTION_FAILED,
+          TypeConverter.extractTigrisError(statusRuntimeException),
+          statusRuntimeException);
     }
   }
 
@@ -83,7 +88,10 @@ class StandardTigrisDatabase extends AbstractTigrisDatabase implements TigrisDat
       Api.DropCollectionResponse response = blockingStub.dropCollection(dropCollectionRequest);
       return new DropCollectionResponse(response.getStatus(), response.getMessage());
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisException(DROP_COLLECTION_FAILED, statusRuntimeException);
+      throw new TigrisException(
+          DROP_COLLECTION_FAILED,
+          TypeConverter.extractTigrisError(statusRuntimeException),
+          statusRuntimeException);
     }
   }
 
@@ -107,7 +115,10 @@ class StandardTigrisDatabase extends AbstractTigrisDatabase implements TigrisDat
       Api.TransactionCtx transactionCtx = beginTransactionResponse.getTxCtx();
       return new StandardTransactionSession(db, transactionCtx, managedChannel);
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisException(BEGIN_TRANSACTION_FAILED, statusRuntimeException);
+      throw new TigrisException(
+          BEGIN_TRANSACTION_FAILED,
+          TypeConverter.extractTigrisError(statusRuntimeException),
+          statusRuntimeException);
     }
   }
 
@@ -127,11 +138,19 @@ class StandardTigrisDatabase extends AbstractTigrisDatabase implements TigrisDat
       // TODO: revisit the response
       return new CreateOrUpdateCollectionsResponse(
           "Collections created successfully", "Collections created successfully");
-    } catch (Exception exception) {
+    } catch (StatusRuntimeException statusRuntimeException) {
       if (transactionSession != null) {
         transactionSession.rollback();
       }
-      throw new TigrisException(CREATE_OR_UPDATE_COLLECTION_FAILED, exception);
+      throw new TigrisException(
+          CREATE_OR_UPDATE_COLLECTION_FAILED,
+          TypeConverter.extractTigrisError(statusRuntimeException),
+          statusRuntimeException);
+    } catch (Exception ex) {
+      if (transactionSession != null) {
+        transactionSession.rollback();
+      }
+      throw new TigrisException(CREATE_OR_UPDATE_COLLECTION_FAILED, ex);
     }
   }
 
@@ -145,24 +164,38 @@ class StandardTigrisDatabase extends AbstractTigrisDatabase implements TigrisDat
 
   @Override
   public DatabaseDescription describe() throws TigrisException {
-    Api.DescribeDatabaseResponse response =
-        blockingStub.describeDatabase(Api.DescribeDatabaseRequest.newBuilder().setDb(db).build());
-    return TypeConverter.toDatabaseDescription(response);
+    try {
+      Api.DescribeDatabaseResponse response =
+          blockingStub.describeDatabase(Api.DescribeDatabaseRequest.newBuilder().setDb(db).build());
+      return TypeConverter.toDatabaseDescription(response);
+    } catch (StatusRuntimeException statusRuntimeException) {
+      throw new TigrisException(
+          DESCRIBE_DB_FAILED,
+          TypeConverter.extractTigrisError(statusRuntimeException),
+          statusRuntimeException);
+    }
   }
 
   @Override
   public Iterator<StreamEvent> stream() throws TigrisException {
-    Api.StreamRequest streamRequest = Api.StreamRequest.newBuilder().setDb(db).build();
-    Iterator<Api.StreamResponse> streamResponseIterator = blockingStub.stream(streamRequest);
-    Function<Api.StreamResponse, StreamEvent> converter =
-        streamResponse -> {
-          try {
-            return StreamEvent.from(streamResponse.getEvent(), objectMapper);
-          } catch (IOException e) {
-            throw new IllegalArgumentException("Failed to convert event data to JSON", e);
-          }
-        };
-    return Utilities.transformIterator(streamResponseIterator, converter);
+    try {
+      Api.StreamRequest streamRequest = Api.StreamRequest.newBuilder().setDb(db).build();
+      Iterator<Api.StreamResponse> streamResponseIterator = blockingStub.stream(streamRequest);
+      Function<Api.StreamResponse, StreamEvent> converter =
+          streamResponse -> {
+            try {
+              return StreamEvent.from(streamResponse.getEvent(), objectMapper);
+            } catch (IOException e) {
+              throw new IllegalArgumentException("Failed to convert event data to JSON", e);
+            }
+          };
+      return Utilities.transformIterator(streamResponseIterator, converter);
+    } catch (StatusRuntimeException statusRuntimeException) {
+      throw new TigrisException(
+          STREAM_FAILED,
+          TypeConverter.extractTigrisError(statusRuntimeException),
+          statusRuntimeException);
+    }
   }
 
   @Override
@@ -196,6 +229,12 @@ class StandardTigrisDatabase extends AbstractTigrisDatabase implements TigrisDat
     try {
       sessionConsumer.accept(session);
       session.commit();
+    } catch (StatusRuntimeException statusRuntimeException) {
+      session.rollback();
+      throw new TigrisException(
+          TRANSACTION_FAILED,
+          TypeConverter.extractTigrisError(statusRuntimeException),
+          statusRuntimeException);
     } catch (Throwable ex) {
       session.rollback();
       throw new TigrisException(TRANSACTION_FAILED, ex);

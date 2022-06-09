@@ -42,8 +42,11 @@ abstract class AbstractTigrisDatabase {
                   collectionOptions,
                   Optional.of(((StandardTransactionSession) session).getTransactionCtx())));
       return new CreateOrUpdateCollectionsResponse(response.getStatus(), response.getMessage());
-    } catch (StatusRuntimeException ex) {
-      throw new TigrisException("Failed to create collection in transactional session", ex);
+    } catch (StatusRuntimeException statusRuntimeException) {
+      throw new TigrisException(
+          Messages.CREATE_COLLECTIONS_FAILED,
+          TypeConverter.extractTigrisError(statusRuntimeException),
+          statusRuntimeException);
     }
   }
 }

@@ -26,11 +26,16 @@ final class Messages {
   public static final String SERVER_METADATA_FAILED = "Failed to retrieve server metadata";
 
   // database
+  public static final String CREATE_COLLECTIONS_FAILED =
+      "Failed to create collection in transactional session";
   public static final String LIST_COLLECTION_FAILED = "Failed to list collection(s)";
   public static final String CREATE_OR_UPDATE_COLLECTION_FAILED =
       "Failed to create collections in transaction";
   public static final String DROP_COLLECTION_FAILED = "Failed to drop collection";
   public static final String BEGIN_TRANSACTION_FAILED = "Failed to begin transaction";
+  public static final String COMMIT_TRANSACTION_FAILED = "Failed to commit transaction";
+  public static final String ROLLBACK_TRANSACTION_FAILED = "Failed to rollback transaction";
+
   public static final String TRANSACTION_FAILED = "Failed to perform transaction";
   public static final String DESCRIBE_DB_FAILED = "Failed to describe database";
 
@@ -44,6 +49,7 @@ final class Messages {
   public static final String STREAM_CONVERT_FAILED = "Failed to convert event data";
   public static final String DESCRIBE_COLLECTION_FAILED = "Failed to describe collection";
 
-  // success
-  public static final String COLLECTIONS_APPLIED = "Collections created or changes applied";
+  // JSON
+  public static final String JSON_SER_DE_ERROR =
+      "Failed to serialize/deserialize documents to JSON";
 }

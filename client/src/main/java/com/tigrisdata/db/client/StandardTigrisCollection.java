@@ -18,8 +18,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import static com.tigrisdata.db.client.Messages.DELETE_FAILED;
+import static com.tigrisdata.db.client.Messages.DESCRIBE_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.Messages.INSERT_FAILED;
 import static com.tigrisdata.db.client.Messages.INSERT_OR_REPLACE_FAILED;
+import static com.tigrisdata.db.client.Messages.JSON_SER_DE_ERROR;
 import static com.tigrisdata.db.client.Messages.READ_FAILED;
 import static com.tigrisdata.db.client.Messages.UPDATE_FAILED;
 import static com.tigrisdata.db.client.TypeConverter.makeTransactionAware;
@@ -81,8 +83,11 @@ class StandardTigrisCollection<T extends TigrisCollectionType> extends AbstractT
             }
           };
       return Utilities.transformIterator(readResponseIterator, converter);
-    } catch (StatusRuntimeException exception) {
-      throw new TigrisException(READ_FAILED, exception);
+    } catch (StatusRuntimeException statusRuntimeException) {
+      throw new TigrisException(
+          READ_FAILED,
+          TypeConverter.extractTigrisError(statusRuntimeException),
+          statusRuntimeException);
     }
   }
 
@@ -125,7 +130,10 @@ class StandardTigrisCollection<T extends TigrisCollectionType> extends AbstractT
         return Optional.of(iterator.next());
       }
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisException(READ_FAILED, statusRuntimeException);
+      throw new TigrisException(
+          READ_FAILED,
+          TypeConverter.extractTigrisError(statusRuntimeException),
+          statusRuntimeException);
     }
     return Optional.empty();
   }
@@ -154,9 +162,12 @@ class StandardTigrisCollection<T extends TigrisCollectionType> extends AbstractT
           TypeConverter.toArrayOfMap(response.getKeysList(), objectMapper),
           new ArrayList(documents));
     } catch (JsonProcessingException ex) {
-      throw new TigrisException("Failed to serialize documents to JSON", ex);
+      throw new TigrisException(JSON_SER_DE_ERROR, ex);
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisException(INSERT_FAILED, statusRuntimeException);
+      throw new TigrisException(
+          INSERT_FAILED,
+          TypeConverter.extractTigrisError(statusRuntimeException),
+          statusRuntimeException);
     }
   }
 
@@ -198,7 +209,7 @@ class StandardTigrisCollection<T extends TigrisCollectionType> extends AbstractT
           toReplaceRequest(
               databaseName, collectionName, documents, insertOrReplaceRequestOptions, objectMapper);
 
-      Api.ReplaceResponse response = null;
+      Api.ReplaceResponse response;
       if (insertOrReplaceRequestOptions.getWriteOptions() != null
           && insertOrReplaceRequestOptions.getWriteOptions().getTransactionCtx() != null) {
         response =
@@ -216,9 +227,12 @@ class StandardTigrisCollection<T extends TigrisCollectionType> extends AbstractT
           TypeConverter.toArrayOfMap(response.getKeysList(), objectMapper),
           new ArrayList(documents));
     } catch (JsonProcessingException ex) {
-      throw new TigrisException("Failed to serialize to JSON", ex);
+      throw new TigrisException(JSON_SER_DE_ERROR, ex);
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisException(INSERT_OR_REPLACE_FAILED, statusRuntimeException);
+      throw new TigrisException(
+          INSERT_OR_REPLACE_FAILED,
+          TypeConverter.extractTigrisError(statusRuntimeException),
+          statusRuntimeException);
     }
   }
 
@@ -257,7 +271,7 @@ class StandardTigrisCollection<T extends TigrisCollectionType> extends AbstractT
               updateRequestOptions,
               objectMapper);
 
-      Api.UpdateResponse updateResponse = null;
+      Api.UpdateResponse updateResponse;
       if (updateRequestOptions.getWriteOptions() != null
           && updateRequestOptions.getWriteOptions().getTransactionCtx() != null) {
         updateResponse =
@@ -273,7 +287,10 @@ class StandardTigrisCollection<T extends TigrisCollectionType> extends AbstractT
           updateResponse.getMetadata().getUpdatedAt(),
           updateResponse.getModifiedCount());
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisException(UPDATE_FAILED, statusRuntimeException);
+      throw new TigrisException(
+          UPDATE_FAILED,
+          TypeConverter.extractTigrisError(statusRuntimeException),
+          statusRuntimeException);
     }
   }
 
@@ -308,7 +325,7 @@ class StandardTigrisCollection<T extends TigrisCollectionType> extends AbstractT
       Api.DeleteRequest deleteRequest =
           toDeleteRequest(databaseName, collectionName, filter, deleteRequestOptions, objectMapper);
 
-      Api.DeleteResponse response = null;
+      Api.DeleteResponse response;
       if (deleteRequestOptions.getWriteOptions() != null
           && deleteRequestOptions.getWriteOptions().getTransactionCtx() != null) {
         response =
@@ -323,7 +340,10 @@ class StandardTigrisCollection<T extends TigrisCollectionType> extends AbstractT
           response.getMetadata().getCreatedAt(),
           response.getMetadata().getUpdatedAt());
     } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisException(DELETE_FAILED, statusRuntimeException);
+      throw new TigrisException(
+          DELETE_FAILED,
+          TypeConverter.extractTigrisError(statusRuntimeException),
+          statusRuntimeException);
     }
   }
 
@@ -348,13 +368,20 @@ class StandardTigrisCollection<T extends TigrisCollectionType> extends AbstractT
 
   @Override
   public CollectionDescription describe(CollectionOptions options) throws TigrisException {
-    Api.DescribeCollectionResponse response =
-        blockingStub.describeCollection(
-            Api.DescribeCollectionRequest.newBuilder()
-                .setCollection(collectionName)
-                .setOptions(toCollectionOptions(options, Optional.empty()))
-                .build());
-    return toCollectionDescription(response);
+    try {
+      Api.DescribeCollectionResponse response =
+          blockingStub.describeCollection(
+              Api.DescribeCollectionRequest.newBuilder()
+                  .setCollection(collectionName)
+                  .setOptions(toCollectionOptions(options, Optional.empty()))
+                  .build());
+      return toCollectionDescription(response);
+    } catch (StatusRuntimeException statusRuntimeException) {
+      throw new TigrisException(
+          DESCRIBE_COLLECTION_FAILED,
+          TypeConverter.extractTigrisError(statusRuntimeException),
+          statusRuntimeException);
+    }
   }
 
   @Override

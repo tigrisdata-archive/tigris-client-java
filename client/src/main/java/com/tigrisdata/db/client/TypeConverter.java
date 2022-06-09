@@ -16,9 +16,15 @@ package com.tigrisdata.db.client;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.rpc.ErrorInfo;
+import com.google.rpc.RetryInfo;
 import com.tigrisdata.db.api.v1.grpc.Api;
+import com.tigrisdata.db.client.error.TigrisError;
 import com.tigrisdata.db.client.error.TigrisException;
+import io.grpc.StatusRuntimeException;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -381,6 +387,30 @@ final class TypeConverter {
         collectionDescription.getCollection(),
         collectionMetadata,
         new TigrisJSONSchema(collectionDescription.getSchema().toStringUtf8()));
+  }
+
+  static Optional<TigrisError> extractTigrisError(StatusRuntimeException statusRuntimeException) {
+    Optional<ErrorInfo> errorInfo = extract(statusRuntimeException, ErrorInfo.class);
+    return errorInfo.map(info -> new TigrisError(Api.Code.valueOf(info.getReason())));
+  }
+
+  static Optional<RetryInfo> extractRetryInfo(StatusRuntimeException statusRuntimeException) {
+    return extract(statusRuntimeException, RetryInfo.class);
+  }
+
+  private static <T> Optional<T> extract(
+      StatusRuntimeException statusRuntimeException, Class clazz) {
+    com.google.rpc.Status status =
+        io.grpc.protobuf.StatusProto.fromThrowable(statusRuntimeException);
+    for (Any any : status.getDetailsList()) {
+      if (any.is(clazz)) {
+        try {
+          return (Optional<T>) Optional.of(any.unpack(clazz));
+        } catch (InvalidProtocolBufferException ignore) {
+        }
+      }
+    }
+    return Optional.empty();
   }
 
   private static DatabaseMetadata toDatabaseMetadata(Api.DatabaseMetadata databaseMetadata) {

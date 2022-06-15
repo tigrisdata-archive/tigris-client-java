@@ -3,7 +3,6 @@
 [![java-ci](https://github.com/tigrisdata/tigris-client-java/actions/workflows/java-ci.yml/badge.svg?branch=main)](https://github.com/tigrisdata/tigris-client-java/actions/workflows/java-ci.yml)
 [![codecov](https://codecov.io/gh/tigrisdata/tigris-client-java/branch/main/graph/badge.svg)](https://codecov.io/gh/tigrisdata/tigris-client-java)
 [![Language grade: Java](https://img.shields.io/lgtm/grade/java/g/tigrisdata/tigris-client-java.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/tigrisdata/tigris-client-java/context:java)
-![Snyk Vulnerabilities for GitHub Repo](https://img.shields.io/snyk/vulnerabilities/github/tigrisdata/tigris-client-java)
 [![javadoc](https://javadoc.io/badge2/com.tigrisdata/tigris-client/javadoc.svg)](https://javadoc.io/doc/com.tigrisdata/tigris-client)
 [![Maven Central](https://img.shields.io/maven-central/v/com.tigrisdata/tigris-client-java)](https://mvnrepository.com/artifact/com.tigrisdata/tigris-client)
 [![slack](https://img.shields.io/badge/slack-tigrisdata-34D058.svg?logo=slack)](https://tigrisdata.slack.com)

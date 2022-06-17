@@ -39,6 +39,15 @@ public interface TigrisCollection<T extends TigrisCollectionType>
       throws TigrisException;
 
   /**
+   * @param filter filter to narrow down read
+   * @param readRequestOptions read options
+   * @return stream of documents
+   * @throws TigrisException in case of an error
+   */
+  Iterator<T> read(TigrisFilter filter, ReadRequestOptions readRequestOptions)
+      throws TigrisException;
+
+  /**
    * Reads matching documents
    *
    * @param filter filter to narrow down read
@@ -47,6 +56,15 @@ public interface TigrisCollection<T extends TigrisCollectionType>
    * @throws TigrisException in case of an error
    */
   Iterator<T> read(TigrisFilter filter, ReadFields fields) throws TigrisException;
+
+  /**
+   * Reads matching documents
+   *
+   * @param filter filter to narrow down read
+   * @return stream of documents
+   * @throws TigrisException in case of an error
+   */
+  Iterator<T> read(TigrisFilter filter) throws TigrisException;
 
   /**
    * Reads a single document. This method is generally recommended for point lookup, if used for

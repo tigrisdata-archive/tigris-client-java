@@ -91,6 +91,17 @@ class StandardTigrisCollection<T extends TigrisCollectionType> extends AbstractT
   }
 
   @Override
+  public Iterator<T> read(TigrisFilter filter, ReadRequestOptions readRequestOptions)
+      throws TigrisException {
+    return this.read(filter, ReadFields.empty(), readRequestOptions);
+  }
+
+  @Override
+  public Iterator<T> read(TigrisFilter filter) throws TigrisException {
+    return this.read(filter, ReadFields.empty(), new ReadRequestOptions());
+  }
+
+  @Override
   public Iterator<T> read(
       TransactionSession session,
       TigrisFilter filter,
@@ -98,6 +109,12 @@ class StandardTigrisCollection<T extends TigrisCollectionType> extends AbstractT
       ReadRequestOptions readRequestOptions)
       throws TigrisException {
     return this.read(filter, fields, makeTransactionAware(session, readRequestOptions));
+  }
+
+  @Override
+  public Iterator<T> read(TransactionSession tx, TigrisFilter filter) throws TigrisException {
+    return this.read(
+        filter, ReadFields.empty(), makeTransactionAware(tx, new ReadRequestOptions()));
   }
 
   @Override

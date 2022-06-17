@@ -27,9 +27,6 @@ class StandardTransactionSession implements TransactionSession {
   private final String databaseName;
   private final TigrisGrpc.TigrisBlockingStub stub;
 
-  private static final String TRANSACTION_HEADER_ORIGIN_KEY = "tx-origin";
-  private static final String TRANSACTION_HEADER_ID_KEY = "tx-id";
-
   StandardTransactionSession(
       String databaseName, Api.TransactionCtx transactionCtx, ManagedChannel managedChannel) {
     this.databaseName = databaseName;
@@ -38,10 +35,10 @@ class StandardTransactionSession implements TransactionSession {
     // prepare headers
     Metadata transactionHeaders = new Metadata();
     transactionHeaders.put(
-        Metadata.Key.of(TRANSACTION_HEADER_ORIGIN_KEY, Metadata.ASCII_STRING_MARSHALLER),
+        Metadata.Key.of(Constants.TRANSACTION_HEADER_ORIGIN_KEY, Metadata.ASCII_STRING_MARSHALLER),
         transactionCtx.getOrigin());
     transactionHeaders.put(
-        Metadata.Key.of(TRANSACTION_HEADER_ID_KEY, Metadata.ASCII_STRING_MARSHALLER),
+        Metadata.Key.of(Constants.TRANSACTION_HEADER_ID_KEY, Metadata.ASCII_STRING_MARSHALLER),
         transactionCtx.getId());
     // attach headers
     this.stub =
@@ -61,7 +58,7 @@ class StandardTransactionSession implements TransactionSession {
       return new CommitTransactionResponse(response.getStatus());
     } catch (StatusRuntimeException statusRuntimeException) {
       throw new TigrisException(
-          Messages.COMMIT_TRANSACTION_FAILED,
+          Constants.COMMIT_TRANSACTION_FAILED,
           TypeConverter.extractTigrisError(statusRuntimeException),
           statusRuntimeException);
     }
@@ -80,7 +77,7 @@ class StandardTransactionSession implements TransactionSession {
       return new RollbackTransactionResponse(response.getStatus());
     } catch (StatusRuntimeException statusRuntimeException) {
       throw new TigrisException(
-          Messages.ROLLBACK_TRANSACTION_FAILED,
+          Constants.ROLLBACK_TRANSACTION_FAILED,
           TypeConverter.extractTigrisError(statusRuntimeException),
           statusRuntimeException);
     }

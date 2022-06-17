@@ -20,8 +20,6 @@ import io.grpc.Metadata;
 import io.grpc.stub.MetadataUtils;
 
 abstract class AbstractTigrisCollection<T extends TigrisCollectionType> {
-  private static final String TRANSACTION_HEADER_ORIGIN_KEY = "tx-origin";
-  private static final String TRANSACTION_HEADER_ID_KEY = "tx-id";
 
   protected final String databaseName;
   protected final String collectionName;
@@ -46,10 +44,10 @@ abstract class AbstractTigrisCollection<T extends TigrisCollectionType> {
     // prepare headers
     Metadata transactionHeaders = new Metadata();
     transactionHeaders.put(
-        Metadata.Key.of(TRANSACTION_HEADER_ORIGIN_KEY, Metadata.ASCII_STRING_MARSHALLER),
+        Metadata.Key.of(Constants.TRANSACTION_HEADER_ORIGIN_KEY, Metadata.ASCII_STRING_MARSHALLER),
         transactionCtx.getOrigin());
     transactionHeaders.put(
-        Metadata.Key.of(TRANSACTION_HEADER_ID_KEY, Metadata.ASCII_STRING_MARSHALLER),
+        Metadata.Key.of(Constants.TRANSACTION_HEADER_ID_KEY, Metadata.ASCII_STRING_MARSHALLER),
         transactionCtx.getId());
     // attach headers
     return blockingStub.withInterceptors(

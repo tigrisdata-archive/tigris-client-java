@@ -46,7 +46,6 @@ final class Utilities {
   private Utilities() {}
 
   private static final Logger log = LoggerFactory.getLogger(Utilities.class);
-
   /**
    * Scans the classpath for the given packages and searches for all the top level classes that are
    * of type {@link TigrisCollectionType} and optionally filters them using user supplied filter.

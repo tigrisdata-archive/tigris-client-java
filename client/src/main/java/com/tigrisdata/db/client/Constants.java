@@ -13,10 +13,14 @@
  */
 package com.tigrisdata.db.client;
 
-final class Messages {
+final class Constants {
 
-  private Messages() {}
+  private Constants() {}
 
+  // constants
+  public static final String TRANSACTION_HEADER_ORIGIN_KEY = "Tigris-Tx-Origin";
+  public static final String TRANSACTION_HEADER_ID_KEY = "Tigris-Tx-Id";
+  // messages
   // error
   // client
   public static final String LIST_DBS_FAILED = "Failed to list database(s)";

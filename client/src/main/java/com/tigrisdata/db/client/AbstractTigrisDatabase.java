@@ -44,7 +44,7 @@ abstract class AbstractTigrisDatabase {
       return new CreateOrUpdateCollectionsResponse(response.getStatus(), response.getMessage());
     } catch (StatusRuntimeException statusRuntimeException) {
       throw new TigrisException(
-          Messages.CREATE_COLLECTIONS_FAILED,
+          Constants.CREATE_COLLECTIONS_FAILED,
           TypeConverter.extractTigrisError(statusRuntimeException),
           statusRuntimeException);
     }

@@ -23,12 +23,12 @@ import io.grpc.ServerInterceptor;
 public class ContextSettingServerInterceptor implements ServerInterceptor {
 
   private static final Metadata.Key<String> TX_ID =
-      Metadata.Key.of("tx-id", Metadata.ASCII_STRING_MARSHALLER);
+      Metadata.Key.of("Tigris-Tx-Id", Metadata.ASCII_STRING_MARSHALLER);
   private static final Metadata.Key<String> TX_ORIGIN =
-      Metadata.Key.of("tx-origin", Metadata.ASCII_STRING_MARSHALLER);
+      Metadata.Key.of("Tigris-Tx-Origin", Metadata.ASCII_STRING_MARSHALLER);
 
-  public static final Context.Key<String> TX_ID_CONTEXT_KEY = Context.key("tx-id");
-  public static final Context.Key<String> TX_ORIGIN_CONTEXT_KEY = Context.key("tx-origin");
+  public static final Context.Key<String> TX_ID_CONTEXT_KEY = Context.key("Tigris-Tx-Id");
+  public static final Context.Key<String> TX_ORIGIN_CONTEXT_KEY = Context.key("Tigris-Tx-Origin");
 
   @Override
   public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(

@@ -353,7 +353,7 @@ public class StandardTigrisCollectionTest {
   private static void inspectDocs(TigrisDatabase db1, DB1_C1... expectedDocs)
       throws TigrisException {
     Iterator<DB1_C1> c1Iterator =
-        db1.getCollection(DB1_C1.class).read(Filters.eq("ignore", "ignore"), ReadFields.empty());
+        db1.getCollection(DB1_C1.class).read(Filters.eq("ignore", "ignore"));
     Assert.assertTrue(c1Iterator.hasNext());
     for (DB1_C1 expectedDoc : expectedDocs) {
       DB1_C1 db1_c1 = c1Iterator.next();

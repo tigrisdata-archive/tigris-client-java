@@ -38,6 +38,16 @@ public interface TransactionalCollectionOperation<T> {
       throws TigrisException;
 
   /**
+   * Transaction aware read
+   *
+   * @param tx transaction session
+   * @param filter filter to narrow down read
+   * @return stream of documents
+   * @throws TigrisException in case of an error
+   */
+  Iterator<T> read(TransactionSession tx, TigrisFilter filter) throws TigrisException;
+
+  /**
    * Transaction aware: Reads a single document. This method is generally recommended for point
    * lookup, if used for non-point lookup any arbitrary matching document will be returned.
    *

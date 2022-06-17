@@ -94,6 +94,11 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
   }
 
   @Override
+  public void read(TigrisFilter filter, TigrisAsyncReader<T> reader) {
+    this.read(filter, ReadFields.empty(), new ReadRequestOptions(), reader);
+  }
+
+  @Override
   public CompletableFuture<Optional<T>> readOne(TigrisFilter filter) {
     Api.ReadRequest readRequest =
         toReadRequest(
@@ -298,6 +303,11 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
       ReadRequestOptions readRequestOptions)
       throws TigrisException {
     return this.readSync(filter, fields, makeTransactionAware(session, readRequestOptions));
+  }
+
+  @Override
+  public Iterator<T> read(TransactionSession tx, TigrisFilter filter) throws TigrisException {
+    return this.read(tx, filter, ReadFields.empty(), new ReadRequestOptions());
   }
 
   @Override

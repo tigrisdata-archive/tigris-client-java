@@ -11,10 +11,10 @@
       "type" : "string",
       "enum" : [ "TOMATO", "POTATO" ]
     },
-    "_id" : {
+    "id" : {
       "type" : "string",
       "format" : "uuid"
     }
   },
-  "primary_key" : [ "_id" ]
+  "primary_key" : [ "id" ]
 }

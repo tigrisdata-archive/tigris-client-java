@@ -22,9 +22,12 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.rpc.ErrorInfo;
 import com.google.rpc.RetryInfo;
 import com.tigrisdata.db.api.v1.grpc.Api;
+import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import com.tigrisdata.db.client.error.TigrisError;
 import com.tigrisdata.db.client.error.TigrisException;
+import io.grpc.Metadata;
 import io.grpc.StatusRuntimeException;
+import io.grpc.stub.MetadataUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -72,21 +75,33 @@ final class TypeConverter {
   }
 
   public static Api.CreateOrUpdateCollectionRequest toCreateCollectionRequest(
-      String databaseName,
-      TigrisSchema schema,
-      CollectionOptions collectionOptions,
-      Optional<Api.TransactionCtx> transactionCtx)
+      String databaseName, TigrisSchema schema, CollectionOptions collectionOptions)
       throws TigrisException {
     try {
       return Api.CreateOrUpdateCollectionRequest.newBuilder()
           .setDb(databaseName)
           .setCollection(schema.getName())
           .setSchema(ByteString.copyFrom(schema.getSchemaContent(), StandardCharsets.UTF_8))
-          .setOptions(toCollectionOptions(collectionOptions, transactionCtx))
+          .setOptions(toCollectionOptions(collectionOptions))
           .build();
     } catch (IOException ioException) {
       throw new TigrisException("Failed to read schema content", ioException);
     }
+  }
+
+  public static TigrisGrpc.TigrisBlockingStub transactionAwareStub(
+      TigrisGrpc.TigrisBlockingStub blockingStub, Api.TransactionCtx transactionCtx) {
+    // prepare headers
+    Metadata transactionHeaders = new Metadata();
+    transactionHeaders.put(
+        Metadata.Key.of(Constants.TRANSACTION_HEADER_ORIGIN_KEY, Metadata.ASCII_STRING_MARSHALLER),
+        transactionCtx.getOrigin());
+    transactionHeaders.put(
+        Metadata.Key.of(Constants.TRANSACTION_HEADER_ID_KEY, Metadata.ASCII_STRING_MARSHALLER),
+        transactionCtx.getId());
+    // attach headers
+    return blockingStub.withInterceptors(
+        MetadataUtils.newAttachHeadersInterceptor(transactionHeaders));
   }
 
   public static ReadRequestOptions readOneDefaultReadRequestOptions() {
@@ -97,14 +112,11 @@ final class TypeConverter {
   }
 
   public static Api.DropCollectionRequest toDropCollectionRequest(
-      String databaseName,
-      String collectionName,
-      CollectionOptions collectionOptions,
-      Optional<Api.TransactionCtx> transactionCtx) {
+      String databaseName, String collectionName, CollectionOptions collectionOptions) {
     return Api.DropCollectionRequest.newBuilder()
         .setDb(databaseName)
         .setCollection(collectionName)
-        .setOptions(toCollectionOptions(collectionOptions, transactionCtx))
+        .setOptions(toCollectionOptions(collectionOptions))
         .build();
   }
 
@@ -114,85 +126,6 @@ final class TypeConverter {
         .setDb(databaseName)
         .setOptions(Api.TransactionOptions.newBuilder().build())
         .build();
-  }
-
-  public static ReadRequestOptions makeTransactionAware(
-      TransactionSession session, ReadRequestOptions readRequestOptions) {
-
-    if (session == null) {
-      return readRequestOptions;
-    }
-    Api.TransactionCtx ctx = ((StandardTransactionSession) session).getTransactionCtx();
-
-    if (readRequestOptions.getReadOptions() != null) {
-      readRequestOptions.getReadOptions().setTransactionCtx(TypeConverter.toTransactionCtx(ctx));
-    } else {
-      readRequestOptions.setReadOptions(new ReadOptions(TypeConverter.toTransactionCtx(ctx)));
-    }
-    return readRequestOptions;
-  }
-
-  public static InsertRequestOptions makeTransactionAware(
-      TransactionSession session, InsertRequestOptions insertRequestOptions) {
-
-    if (session == null) {
-      return insertRequestOptions;
-    }
-    Api.TransactionCtx ctx = ((StandardTransactionSession) session).getTransactionCtx();
-    if (insertRequestOptions.getWriteOptions() != null) {
-      insertRequestOptions.getWriteOptions().setTransactionCtx(TypeConverter.toTransactionCtx(ctx));
-    } else {
-      insertRequestOptions.setWriteOptions(new WriteOptions(TypeConverter.toTransactionCtx(ctx)));
-    }
-    return insertRequestOptions;
-  }
-
-  public static InsertOrReplaceRequestOptions makeTransactionAware(
-      TransactionSession session, InsertOrReplaceRequestOptions insertOrReplaceRequestOptions) {
-
-    if (session == null) {
-      return insertOrReplaceRequestOptions;
-    }
-    Api.TransactionCtx ctx = ((StandardTransactionSession) session).getTransactionCtx();
-    if (insertOrReplaceRequestOptions.getWriteOptions() != null) {
-      insertOrReplaceRequestOptions
-          .getWriteOptions()
-          .setTransactionCtx(TypeConverter.toTransactionCtx(ctx));
-    } else {
-      insertOrReplaceRequestOptions.setWriteOptions(
-          new WriteOptions(TypeConverter.toTransactionCtx(ctx)));
-    }
-    return insertOrReplaceRequestOptions;
-  }
-
-  public static UpdateRequestOptions makeTransactionAware(
-      TransactionSession session, UpdateRequestOptions updateRequestOptions) {
-
-    if (session == null) {
-      return updateRequestOptions;
-    }
-    Api.TransactionCtx ctx = ((StandardTransactionSession) session).getTransactionCtx();
-    if (updateRequestOptions.getWriteOptions() != null) {
-      updateRequestOptions.getWriteOptions().setTransactionCtx(TypeConverter.toTransactionCtx(ctx));
-    } else {
-      updateRequestOptions.setWriteOptions(new WriteOptions(TypeConverter.toTransactionCtx(ctx)));
-    }
-    return updateRequestOptions;
-  }
-
-  public static DeleteRequestOptions makeTransactionAware(
-      TransactionSession session, DeleteRequestOptions deleteRequestOptions) {
-
-    if (session == null) {
-      return deleteRequestOptions;
-    }
-    Api.TransactionCtx ctx = ((StandardTransactionSession) session).getTransactionCtx();
-    if (deleteRequestOptions.getWriteOptions() != null) {
-      deleteRequestOptions.getWriteOptions().setTransactionCtx(TypeConverter.toTransactionCtx(ctx));
-    } else {
-      deleteRequestOptions.setWriteOptions(new WriteOptions(TypeConverter.toTransactionCtx(ctx)));
-    }
-    return deleteRequestOptions;
   }
 
   public static Api.ReadRequest toReadRequest(
@@ -333,17 +266,6 @@ final class TypeConverter {
         .build();
   }
 
-  public static TransactionCtx toTransactionCtx(Api.TransactionCtx transactionCtx) {
-    return new TransactionCtx(transactionCtx.getId(), transactionCtx.getOrigin());
-  }
-
-  public static Api.TransactionCtx toTransactionCtx(TransactionCtx transactionCtx) {
-    return Api.TransactionCtx.newBuilder()
-        .setId(transactionCtx.getId())
-        .setOrigin(transactionCtx.getOrigin())
-        .build();
-  }
-
   public static DatabaseDescription toDatabaseDescription(Api.DescribeDatabaseResponse response)
       throws TigrisException {
     List<CollectionDescription> collectionsDescription = new ArrayList<>();
@@ -355,18 +277,13 @@ final class TypeConverter {
     return new DatabaseDescription(response.getDb(), metadata, collectionsDescription);
   }
 
-  public static Api.CollectionOptions toCollectionOptions(
-      CollectionOptions collectionOptions, Optional<Api.TransactionCtx> transactionCtx) {
+  public static Api.CollectionOptions toCollectionOptions(CollectionOptions collectionOptions) {
     Api.CollectionOptions.Builder collectionsOptionBuilder = Api.CollectionOptions.newBuilder();
-    transactionCtx.ifPresent(collectionsOptionBuilder::setTxCtx);
     return collectionsOptionBuilder.build();
   }
 
   private static Api.WriteOptions toWriteOptions(WriteOptions writeOptions) {
     Api.WriteOptions.Builder writeOptionsBuilder = Api.WriteOptions.newBuilder();
-    if (writeOptions.getTransactionCtx() != null) {
-      writeOptionsBuilder.setTxCtx(toTransactionCtx(writeOptions.getTransactionCtx()));
-    }
     return writeOptionsBuilder.build();
   }
 

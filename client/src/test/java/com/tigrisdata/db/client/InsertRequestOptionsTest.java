@@ -26,18 +26,11 @@ public class InsertRequestOptionsTest {
     Assert.assertEquals(op1, op2);
     Assert.assertNotEquals(op1, null);
 
-    InsertRequestOptions op3 = new InsertRequestOptions(new WriteOptions());
-    InsertRequestOptions op4 = new InsertRequestOptions(new WriteOptions());
+    InsertRequestOptions op3 = new InsertRequestOptions(WriteOptions.DEFAULT_INSTANCE);
+    InsertRequestOptions op4 = new InsertRequestOptions(WriteOptions.DEFAULT_INSTANCE);
     Assert.assertEquals(op3, op4);
 
-    TransactionCtx transactionCtx5 = new TransactionCtx("id", "origin");
-    TransactionCtx transactionCtx6 = new TransactionCtx("id", "origin");
-
-    InsertRequestOptions op5 = new InsertRequestOptions(new WriteOptions(transactionCtx5));
-    InsertRequestOptions op6 = new InsertRequestOptions(new WriteOptions(transactionCtx6));
-    Assert.assertEquals(op5, op6);
-
-    Assert.assertNotEquals(op5, "some-string");
+    Assert.assertNotEquals(op1, "some-string");
   }
 
   @Test
@@ -55,7 +48,7 @@ public class InsertRequestOptionsTest {
   @Test
   public void testAccessors() {
     InsertRequestOptions op = new InsertRequestOptions();
-    WriteOptions writeOptions = new WriteOptions();
+    WriteOptions writeOptions = WriteOptions.DEFAULT_INSTANCE;
     op.setWriteOptions(writeOptions);
     Assert.assertEquals(writeOptions, op.getWriteOptions());
   }

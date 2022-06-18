@@ -50,11 +50,10 @@ class StandardTransactionSession implements TransactionSession {
   public CommitTransactionResponse commit() throws TigrisException {
     try {
       Api.CommitTransactionRequest commitTransactionRequest =
-          Api.CommitTransactionRequest.newBuilder()
-              .setDb(databaseName)
-              .setTxCtx(transactionCtx)
-              .build();
-      Api.CommitTransactionResponse response = stub.commitTransaction(commitTransactionRequest);
+          Api.CommitTransactionRequest.newBuilder().setDb(databaseName).build();
+      Api.CommitTransactionResponse response =
+          TypeConverter.transactionAwareStub(stub, transactionCtx)
+              .commitTransaction(commitTransactionRequest);
       return new CommitTransactionResponse(response.getStatus());
     } catch (StatusRuntimeException statusRuntimeException) {
       throw new TigrisException(
@@ -68,12 +67,10 @@ class StandardTransactionSession implements TransactionSession {
   public RollbackTransactionResponse rollback() throws TigrisException {
     try {
       Api.RollbackTransactionRequest rollbackTransactionRequest =
-          Api.RollbackTransactionRequest.newBuilder()
-              .setDb(databaseName)
-              .setTxCtx(transactionCtx)
-              .build();
+          Api.RollbackTransactionRequest.newBuilder().setDb(databaseName).build();
       Api.RollbackTransactionResponse response =
-          stub.rollbackTransaction(rollbackTransactionRequest);
+          TypeConverter.transactionAwareStub(stub, transactionCtx)
+              .rollbackTransaction(rollbackTransactionRequest);
       return new RollbackTransactionResponse(response.getStatus());
     } catch (StatusRuntimeException statusRuntimeException) {
       throw new TigrisException(

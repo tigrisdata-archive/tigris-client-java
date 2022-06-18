@@ -26,17 +26,16 @@ public class InsertOrReplaceRequestOptionsTest {
     Assert.assertEquals(op1, op2);
     Assert.assertFalse(op1.equals(null));
 
-    InsertOrReplaceRequestOptions op3 = new InsertOrReplaceRequestOptions(new WriteOptions());
-    InsertOrReplaceRequestOptions op4 = new InsertOrReplaceRequestOptions(new WriteOptions());
+    InsertOrReplaceRequestOptions op3 =
+        new InsertOrReplaceRequestOptions(WriteOptions.DEFAULT_INSTANCE);
+    InsertOrReplaceRequestOptions op4 =
+        new InsertOrReplaceRequestOptions(WriteOptions.DEFAULT_INSTANCE);
     Assert.assertEquals(op3, op4);
 
-    TransactionCtx transactionCtx5 = new TransactionCtx("id", "origin");
-    TransactionCtx transactionCtx6 = new TransactionCtx("id", "origin");
-
     InsertOrReplaceRequestOptions op5 =
-        new InsertOrReplaceRequestOptions(new WriteOptions(transactionCtx5));
+        new InsertOrReplaceRequestOptions(WriteOptions.DEFAULT_INSTANCE);
     InsertOrReplaceRequestOptions op6 =
-        new InsertOrReplaceRequestOptions(new WriteOptions(transactionCtx6));
+        new InsertOrReplaceRequestOptions(WriteOptions.DEFAULT_INSTANCE);
     Assert.assertEquals(op5, op6);
 
     Assert.assertFalse(op5.equals("some-string"));
@@ -59,7 +58,7 @@ public class InsertOrReplaceRequestOptionsTest {
   @Test
   public void setWriteOptionTest() {
     InsertOrReplaceRequestOptions op1 = new InsertOrReplaceRequestOptions();
-    WriteOptions writeOptions = new WriteOptions();
+    WriteOptions writeOptions = WriteOptions.DEFAULT_INSTANCE;
     op1.setWriteOptions(writeOptions);
     Assert.assertEquals(op1.getWriteOptions(), writeOptions);
   }

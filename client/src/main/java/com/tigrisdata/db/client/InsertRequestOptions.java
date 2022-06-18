@@ -19,7 +19,7 @@ public class InsertRequestOptions {
   private WriteOptions writeOptions;
 
   public InsertRequestOptions() {
-    this.writeOptions = new WriteOptions();
+    this.writeOptions = WriteOptions.DEFAULT_INSTANCE;
   }
 
   public InsertRequestOptions(WriteOptions writeOptions) {

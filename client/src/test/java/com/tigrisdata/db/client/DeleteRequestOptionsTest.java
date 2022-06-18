@@ -25,19 +25,18 @@ public class DeleteRequestOptionsTest {
 
     Assert.assertEquals(op1, op1);
     Assert.assertEquals(op1, op2);
+    //noinspection ConstantConditions
     Assert.assertFalse(op1.equals(null));
 
-    DeleteRequestOptions op3 = new DeleteRequestOptions(new WriteOptions());
-    DeleteRequestOptions op4 = new DeleteRequestOptions(new WriteOptions());
+    DeleteRequestOptions op3 = new DeleteRequestOptions(WriteOptions.DEFAULT_INSTANCE);
+    DeleteRequestOptions op4 = new DeleteRequestOptions(WriteOptions.DEFAULT_INSTANCE);
     Assert.assertEquals(op3, op4);
 
-    TransactionCtx transactionCtx5 = new TransactionCtx("id", "origin");
-    TransactionCtx transactionCtx6 = new TransactionCtx("id", "origin");
-
-    DeleteRequestOptions op5 = new DeleteRequestOptions(new WriteOptions(transactionCtx5));
-    DeleteRequestOptions op6 = new DeleteRequestOptions(new WriteOptions(transactionCtx6));
+    DeleteRequestOptions op5 = new DeleteRequestOptions(WriteOptions.DEFAULT_INSTANCE);
+    DeleteRequestOptions op6 = new DeleteRequestOptions(WriteOptions.DEFAULT_INSTANCE);
     Assert.assertEquals(op5, op6);
 
+    //noinspection EqualsBetweenInconvertibleTypes
     Assert.assertFalse(op5.equals("some-string"));
   }
 
@@ -56,7 +55,7 @@ public class DeleteRequestOptionsTest {
   @Test
   public void testAccessors() {
     DeleteRequestOptions op = new DeleteRequestOptions();
-    WriteOptions writeOptions = new WriteOptions();
+    WriteOptions writeOptions = WriteOptions.DEFAULT_INSTANCE;
     op.setWriteOptions(writeOptions);
     Assert.assertEquals(writeOptions, op.getWriteOptions());
   }

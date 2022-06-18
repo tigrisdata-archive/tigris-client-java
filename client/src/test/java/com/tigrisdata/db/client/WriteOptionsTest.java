@@ -20,27 +20,19 @@ public class WriteOptionsTest {
 
   @Test
   public void testEquals() {
-    WriteOptions writeOptions1 = new WriteOptions();
-    WriteOptions writeOptions2 = new WriteOptions();
+    WriteOptions writeOptions1 = WriteOptions.DEFAULT_INSTANCE;
+    WriteOptions writeOptions2 = WriteOptions.DEFAULT_INSTANCE;
     Assert.assertEquals(writeOptions1, writeOptions1);
     Assert.assertEquals(writeOptions1, writeOptions2);
 
     Assert.assertFalse(writeOptions1.equals(null));
     Assert.assertFalse(writeOptions1.equals("some-string"));
-
-    Assert.assertFalse(
-        new WriteOptions(new TransactionCtx("id1", "orig1"))
-            .equals(new WriteOptions(new TransactionCtx("id2", "orig2"))));
   }
 
   @Test
   public void testHashCode() {
-    WriteOptions writeOptions1 = new WriteOptions();
-    WriteOptions writeOptions2 = new WriteOptions();
+    WriteOptions writeOptions1 = WriteOptions.DEFAULT_INSTANCE;
+    WriteOptions writeOptions2 = WriteOptions.DEFAULT_INSTANCE;
     Assert.assertEquals(writeOptions1.hashCode(), writeOptions2.hashCode());
-
-    WriteOptions writeOptions3 = new WriteOptions(new TransactionCtx("id", "orig"));
-    WriteOptions writeOptions4 = new WriteOptions(new TransactionCtx("id", "orig"));
-    Assert.assertEquals(writeOptions3.hashCode(), writeOptions4.hashCode());
   }
 }

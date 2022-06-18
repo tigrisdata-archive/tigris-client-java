@@ -20,37 +20,11 @@ public class ReadOptionsTest {
 
   @Test
   public void testEquals() {
-    ReadOptions readOptions1 = new ReadOptions();
-    ReadOptions readOptions2 = new ReadOptions();
-    Assert.assertEquals(readOptions1, readOptions1);
+    ReadOptions readOptions1 = ReadOptions.DEFAULT_INSTANCE;
+    ReadOptions readOptions2 = ReadOptions.DEFAULT_INSTANCE;
     Assert.assertEquals(readOptions1, readOptions2);
 
     Assert.assertFalse(readOptions1.equals(null));
     Assert.assertFalse(readOptions1.equals("some-string"));
-
-    Assert.assertFalse(
-        new ReadOptions(new TransactionCtx("id1", "orig1"))
-            .equals(new ReadOptions(new TransactionCtx("id2", "orig2"))));
-  }
-
-  @Test
-  public void testHashCode() {
-    ReadOptions readOptions1 = new ReadOptions();
-    ReadOptions readOptions2 = new ReadOptions();
-    Assert.assertEquals(readOptions1.hashCode(), readOptions2.hashCode());
-
-    ReadOptions readOptions3 = new ReadOptions(new TransactionCtx("id", "orig"));
-    ReadOptions readOptions4 = new ReadOptions(new TransactionCtx("id", "orig"));
-    Assert.assertEquals(readOptions3.hashCode(), readOptions4.hashCode());
-  }
-
-  @Test
-  public void testGetTransactionCtxTest() {
-    ReadOptions readOptions1 = new ReadOptions();
-    Assert.assertNull(readOptions1.getTransactionCtx());
-
-    TransactionCtx transactionCtx = new TransactionCtx("id", "orig");
-    ReadOptions readOptions2 = new ReadOptions(transactionCtx);
-    Assert.assertEquals(transactionCtx, readOptions2.getTransactionCtx());
   }
 }

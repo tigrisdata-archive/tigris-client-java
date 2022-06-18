@@ -133,8 +133,7 @@ class StandardTigrisAsyncDatabase extends AbstractTigrisDatabase implements Tigr
             toDropCollectionRequest(
                 db,
                 Utilities.getCollectionName(collectionTypeClass),
-                CollectionOptions.DEFAULT_INSTANCE,
-                Optional.empty()));
+                CollectionOptions.DEFAULT_INSTANCE));
     return Utilities.transformFuture(
         dropCollectionResponseListenableFuture,
         response -> new DropCollectionResponse(response.getStatus(), response.getMessage()),

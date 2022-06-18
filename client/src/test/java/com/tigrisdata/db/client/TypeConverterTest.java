@@ -25,8 +25,6 @@ import io.grpc.protobuf.StatusProto;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Optional;
-
 public class TypeConverterTest {
   @Test
   public void apiDatabaseInfoToModelTest() {
@@ -48,10 +46,7 @@ public class TypeConverterTest {
   public void unreadableSchemaCreateCollectionRequestConversionTest() {
     try {
       TypeConverter.toCreateCollectionRequest(
-          "db1",
-          new TigrisJSONSchema("invalid-schema"),
-          CollectionOptions.DEFAULT_INSTANCE,
-          Optional.empty());
+          "db1", new TigrisJSONSchema("invalid-schema"), CollectionOptions.DEFAULT_INSTANCE);
       Assert.fail("This must fail");
     } catch (TigrisException ignore) {
     }

@@ -19,8 +19,6 @@ import static com.tigrisdata.db.client.TypeConverter.toCreateCollectionRequest;
 import com.tigrisdata.db.client.error.TigrisException;
 import io.grpc.StatusRuntimeException;
 
-import java.util.Optional;
-
 abstract class AbstractTigrisDatabase {
   protected final String db;
   protected final TigrisGrpc.TigrisBlockingStub blockingStub;
@@ -35,12 +33,9 @@ abstract class AbstractTigrisDatabase {
       throws TigrisException {
     try {
       Api.CreateOrUpdateCollectionResponse response =
-          blockingStub.createOrUpdateCollection(
-              toCreateCollectionRequest(
-                  db,
-                  schema,
-                  collectionOptions,
-                  Optional.of(((StandardTransactionSession) session).getTransactionCtx())));
+          TypeConverter.transactionAwareStub(
+                  blockingStub, ((StandardTransactionSession) session).getTransactionCtx())
+              .createOrUpdateCollection(toCreateCollectionRequest(db, schema, collectionOptions));
       return new CreateOrUpdateCollectionsResponse(response.getStatus(), response.getMessage());
     } catch (StatusRuntimeException statusRuntimeException) {
       throw new TigrisException(

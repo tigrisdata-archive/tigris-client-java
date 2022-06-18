@@ -14,13 +14,14 @@
 package com.tigrisdata.db.client;
 
 import com.google.protobuf.Timestamp;
+import com.tigrisdata.db.type.TigrisCollectionType;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 /** Represents Server response for Insert operation */
-public class InsertResponse<T> extends DMLResponse {
+public class InsertResponse<T extends TigrisCollectionType> extends DMLResponse {
   private final Map<String, Object>[] generatedKeys;
 
   InsertResponse(
@@ -50,7 +51,7 @@ public class InsertResponse<T> extends DMLResponse {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     if (!super.equals(o)) return false;
-    InsertResponse that = (InsertResponse) o;
+    InsertResponse<?> that = (InsertResponse<?>) o;
     return Arrays.equals(generatedKeys, that.generatedKeys);
   }
 

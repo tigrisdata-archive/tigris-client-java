@@ -19,6 +19,7 @@ import com.tigrisdata.db.type.TigrisCollectionType;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /** Represents Server response for InsertOrReplace operation */
 public class InsertOrReplaceResponse<T extends TigrisCollectionType> extends DMLResponse {
@@ -60,13 +61,13 @@ public class InsertOrReplaceResponse<T extends TigrisCollectionType> extends DML
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     if (!super.equals(o)) return false;
-    InsertOrReplaceResponse that = (InsertOrReplaceResponse) o;
-    return Arrays.equals(generatedKeys, that.generatedKeys);
+    InsertOrReplaceResponse<?> that = (InsertOrReplaceResponse<?>) o;
+    return Arrays.equals(generatedKeys, that.generatedKeys) && Objects.equals(docs, that.docs);
   }
 
   @Override
   public int hashCode() {
-    int result = super.hashCode();
+    int result = Objects.hash(super.hashCode(), docs);
     result = 31 * result + Arrays.hashCode(generatedKeys);
     return result;
   }

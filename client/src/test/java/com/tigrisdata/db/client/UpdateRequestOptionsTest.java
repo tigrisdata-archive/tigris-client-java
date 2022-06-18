@@ -27,18 +27,11 @@ public class UpdateRequestOptionsTest {
     Assert.assertEquals(op1, op2);
     Assert.assertFalse(op1.equals(null));
 
-    UpdateRequestOptions op3 = new UpdateRequestOptions(new WriteOptions());
-    UpdateRequestOptions op4 = new UpdateRequestOptions(new WriteOptions());
+    UpdateRequestOptions op3 = new UpdateRequestOptions(WriteOptions.DEFAULT_INSTANCE);
+    UpdateRequestOptions op4 = new UpdateRequestOptions(WriteOptions.DEFAULT_INSTANCE);
     Assert.assertEquals(op3, op4);
 
-    TransactionCtx transactionCtx5 = new TransactionCtx("id", "origin");
-    TransactionCtx transactionCtx6 = new TransactionCtx("id", "origin");
-
-    UpdateRequestOptions op5 = new UpdateRequestOptions(new WriteOptions(transactionCtx5));
-    UpdateRequestOptions op6 = new UpdateRequestOptions(new WriteOptions(transactionCtx6));
-    Assert.assertEquals(op5, op6);
-
-    Assert.assertFalse(op5.equals("some-string"));
+    Assert.assertFalse(op1.equals("some-string"));
   }
 
   @Test

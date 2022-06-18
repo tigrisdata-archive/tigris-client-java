@@ -20,7 +20,7 @@ public class UpdateRequestOptions {
   private WriteOptions writeOptions;
 
   public UpdateRequestOptions() {
-    this.writeOptions = new WriteOptions();
+    this.writeOptions = WriteOptions.DEFAULT_INSTANCE;
   }
 
   public UpdateRequestOptions(WriteOptions writeOptions) {

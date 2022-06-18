@@ -13,37 +13,6 @@
  */
 package com.tigrisdata.db.client;
 
-import java.util.Objects;
-
 class WriteOptions {
-  private TransactionCtx transactionCtx;
-
-  public WriteOptions() {}
-
-  public WriteOptions(TransactionCtx transactionCtx) {
-    this.transactionCtx = transactionCtx;
-  }
-
-  public TransactionCtx getTransactionCtx() {
-    return transactionCtx;
-  }
-
-  public void setTransactionCtx(TransactionCtx transactionCtx) {
-    this.transactionCtx = transactionCtx;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-
-    WriteOptions that = (WriteOptions) o;
-
-    return Objects.equals(transactionCtx, that.transactionCtx);
-  }
-
-  @Override
-  public int hashCode() {
-    return transactionCtx != null ? transactionCtx.hashCode() : 0;
-  }
+  public static final WriteOptions DEFAULT_INSTANCE = new WriteOptions();
 }

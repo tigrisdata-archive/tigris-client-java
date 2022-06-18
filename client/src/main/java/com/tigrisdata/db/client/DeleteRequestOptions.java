@@ -20,7 +20,7 @@ public class DeleteRequestOptions {
   private WriteOptions writeOptions;
 
   public DeleteRequestOptions() {
-    this.writeOptions = new WriteOptions();
+    this.writeOptions = WriteOptions.DEFAULT_INSTANCE;
   }
 
   public DeleteRequestOptions(WriteOptions writeOptions) {

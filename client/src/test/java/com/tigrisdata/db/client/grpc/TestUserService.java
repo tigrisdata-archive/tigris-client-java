@@ -96,8 +96,9 @@ public class TestUserService extends TigrisGrpc.TigrisImplBase {
   public void commitTransaction(
       Api.CommitTransactionRequest request,
       StreamObserver<Api.CommitTransactionResponse> responseObserver) {
-    if (!request.getTxCtx().getId().equals(txId)
-        || !request.getTxCtx().getOrigin().equals(txOrigin)) {
+    String incomingTxId = ContextSettingServerInterceptor.TX_ID_CONTEXT_KEY.get();
+    String incomingTxOrigin = ContextSettingServerInterceptor.TX_ORIGIN_CONTEXT_KEY.get();
+    if (!incomingTxId.equals(txId) || !incomingTxOrigin.equals(txOrigin)) {
       responseObserver.onError(new IllegalArgumentException("Unexpected transaction"));
       responseObserver.onCompleted();
     }
@@ -110,8 +111,9 @@ public class TestUserService extends TigrisGrpc.TigrisImplBase {
   public void rollbackTransaction(
       Api.RollbackTransactionRequest request,
       StreamObserver<Api.RollbackTransactionResponse> responseObserver) {
-    if (!request.getTxCtx().getId().equals(txId)
-        || !request.getTxCtx().getOrigin().equals(txOrigin)) {
+    String incomingTxId = ContextSettingServerInterceptor.TX_ID_CONTEXT_KEY.get();
+    String incomingTxOrigin = ContextSettingServerInterceptor.TX_ORIGIN_CONTEXT_KEY.get();
+    if (!incomingTxId.equals(txId) || !incomingTxOrigin.equals(txOrigin)) {
       responseObserver.onError(new IllegalArgumentException("Unexpected transaction"));
       responseObserver.onCompleted();
     }

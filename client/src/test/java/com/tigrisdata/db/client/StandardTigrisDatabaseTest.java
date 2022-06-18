@@ -18,6 +18,7 @@ import com.tigrisdata.db.client.collection.DB1_C5;
 import com.tigrisdata.db.client.collection.User;
 import com.tigrisdata.db.client.collection.collection2.DB1_C3;
 import com.tigrisdata.db.client.error.TigrisException;
+import com.tigrisdata.db.client.grpc.ContextSettingServerInterceptor;
 import com.tigrisdata.db.client.grpc.TestUserService;
 import com.tigrisdata.db.type.TigrisCollectionType;
 import io.grpc.inprocess.InProcessServerBuilder;
@@ -49,6 +50,7 @@ public class StandardTigrisDatabaseTest {
             InProcessServerBuilder.forName(SERVER_NAME)
                 .directExecutor()
                 .addService(TEST_USER_SERVICE)
+                .intercept(new ContextSettingServerInterceptor())
                 .build())
         .start();
   }

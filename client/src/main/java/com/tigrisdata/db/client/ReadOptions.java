@@ -13,38 +13,7 @@
  */
 package com.tigrisdata.db.client;
 
-import java.util.Objects;
-
 /** Represents options related to Read operations */
 class ReadOptions {
-  private TransactionCtx transactionCtx;
-
-  public ReadOptions() {}
-
-  public ReadOptions(TransactionCtx transactionCtx) {
-    this.transactionCtx = transactionCtx;
-  }
-
-  public TransactionCtx getTransactionCtx() {
-    return transactionCtx;
-  }
-
-  public void setTransactionCtx(TransactionCtx transactionCtx) {
-    this.transactionCtx = transactionCtx;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-
-    ReadOptions that = (ReadOptions) o;
-
-    return Objects.equals(transactionCtx, that.transactionCtx);
-  }
-
-  @Override
-  public int hashCode() {
-    return transactionCtx != null ? transactionCtx.hashCode() : 0;
-  }
+  public static final ReadOptions DEFAULT_INSTANCE = new ReadOptions();
 }

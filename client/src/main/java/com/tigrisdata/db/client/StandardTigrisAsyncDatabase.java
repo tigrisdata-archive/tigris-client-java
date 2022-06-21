@@ -180,12 +180,12 @@ class StandardTigrisAsyncDatabase extends AbstractTigrisDatabase implements Tigr
 
   @Override
   public void stream(TigrisAsyncStreamer streamer) {
-    Api.StreamRequest streamRequest = Api.StreamRequest.newBuilder().setDb(db).build();
-    stub.stream(
+    Api.EventsRequest streamRequest = Api.EventsRequest.newBuilder().setDb(db).build();
+    stub.events(
         streamRequest,
-        new StreamObserver<Api.StreamResponse>() {
+        new StreamObserver<Api.EventsResponse>() {
           @Override
-          public void onNext(Api.StreamResponse streamResponse) {
+          public void onNext(Api.EventsResponse streamResponse) {
             try {
               streamer.onNext(StreamEvent.from(streamResponse.getEvent(), objectMapper));
             } catch (IOException e) {

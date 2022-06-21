@@ -179,9 +179,9 @@ class StandardTigrisDatabase extends AbstractTigrisDatabase implements TigrisDat
   @Override
   public Iterator<StreamEvent> stream() throws TigrisException {
     try {
-      Api.StreamRequest streamRequest = Api.StreamRequest.newBuilder().setDb(db).build();
-      Iterator<Api.StreamResponse> streamResponseIterator = blockingStub.stream(streamRequest);
-      Function<Api.StreamResponse, StreamEvent> converter =
+      Api.EventsRequest streamRequest = Api.EventsRequest.newBuilder().setDb(db).build();
+      Iterator<Api.EventsResponse> streamResponseIterator = blockingStub.events(streamRequest);
+      Function<Api.EventsResponse, StreamEvent> converter =
           streamResponse -> {
             try {
               return StreamEvent.from(streamResponse.getEvent(), objectMapper);

@@ -19,10 +19,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /** Represents a facet query input for /search */
 public final class FacetFieldsQuery implements FacetQuery {
+
   private static final FacetFieldsQuery EMPTY = newBuilder().build();
 
   private final Map<String, FacetQueryOptions> internalMap;
@@ -60,8 +64,20 @@ public final class FacetFieldsQuery implements FacetQuery {
 
   @Override
   public String toJSON(ObjectMapper objectMapper) {
+    Function<FacetQueryOptions, Map<String, String>> toOptionsMap =
+        o ->
+            new HashMap<String, String>() {
+              {
+                put("size", String.valueOf(o.getSize()));
+                put("type", o.getType().toString());
+              }
+            };
+
+    Map<String, Map<String, String>> fieldOptionsMap =
+        internalMap.entrySet().stream()
+            .collect(Collectors.toMap(Entry::getKey, e -> toOptionsMap.apply(e.getValue())));
     try {
-      return objectMapper.writeValueAsString(internalMap);
+      return objectMapper.writeValueAsString(fieldOptionsMap);
     } catch (JsonProcessingException ex) {
       throw new IllegalArgumentException("Failed to serialize FacetFields to JSON", ex);
     }

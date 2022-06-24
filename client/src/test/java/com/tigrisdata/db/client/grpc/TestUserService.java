@@ -19,18 +19,25 @@ import com.google.gson.JsonParser;
 import com.google.protobuf.ByteString;
 import com.google.rpc.ErrorInfo;
 import com.tigrisdata.db.api.v1.grpc.Api;
+import com.tigrisdata.db.api.v1.grpc.Api.FacetCount;
+import com.tigrisdata.db.api.v1.grpc.Api.FacetStats;
+import com.tigrisdata.db.api.v1.grpc.Api.Page;
+import com.tigrisdata.db.api.v1.grpc.Api.SearchFacet;
+import com.tigrisdata.db.api.v1.grpc.Api.SearchHit;
+import com.tigrisdata.db.api.v1.grpc.Api.SearchMetadata;
 import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import io.grpc.Metadata;
 import io.grpc.protobuf.ProtoUtils;
 import io.grpc.stub.StreamObserver;
-
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class TestUserService extends TigrisGrpc.TigrisImplBase {
 
@@ -305,6 +312,55 @@ public class TestUserService extends TigrisGrpc.TigrisImplBase {
                   .setData(ByteString.copyFromUtf8(jsonObject.toString()))
                   .build());
         }
+      }
+    }
+    responseObserver.onCompleted();
+  }
+
+  @Override
+  public void search(
+      Api.SearchRequest request, StreamObserver<Api.SearchResponse> responseObserver) {
+    // returns all collection documents batched by a single document per Search hit in Response
+
+    if (dbToCollectionsMap.get(request.getDb()).contains(request.getCollection())) {
+      List<JsonObject> documents = collectionToDocumentsMap.get(request.getCollection());
+      // start off with current page and increment before sending response
+
+      List<Api.FacetCount> nameCounts =
+          documents.stream()
+              .map(
+                  d ->
+                      FacetCount.newBuilder()
+                          .setValue(d.get("name").getAsString())
+                          .setCount(1)
+                          .build())
+              .collect(Collectors.toList());
+      Api.SearchFacet facet =
+          SearchFacet.newBuilder()
+              .addAllCounts(nameCounts)
+              .setStats(FacetStats.newBuilder().setCount(nameCounts.size()).build())
+              .build();
+      for (int i = 0; i < documents.size(); i++) {
+        Api.SearchMetadata searchMeta =
+            SearchMetadata.newBuilder()
+                .setFound(documents.size())
+                .setPage(
+                    Page.newBuilder()
+                        .setTotal(documents.size())
+                        .setPerPage(1)
+                        .setCurrent(i + 1)
+                        .build())
+                .build();
+        Api.SearchHit hit =
+            SearchHit.newBuilder()
+                .setData(ByteString.copyFromUtf8(documents.get(i).toString()))
+                .build();
+        responseObserver.onNext(
+            Api.SearchResponse.newBuilder()
+                .addHits(hit)
+                .putAllFacets(Collections.singletonMap("name", facet))
+                .setMeta(searchMeta)
+                .build());
       }
     }
     responseObserver.onCompleted();

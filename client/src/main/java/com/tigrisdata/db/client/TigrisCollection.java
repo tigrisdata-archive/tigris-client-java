@@ -14,8 +14,10 @@
 package com.tigrisdata.db.client;
 
 import com.tigrisdata.db.client.error.TigrisException;
+import com.tigrisdata.db.client.search.SearchRequest;
+import com.tigrisdata.db.client.search.SearchRequestOptions;
+import com.tigrisdata.db.client.search.SearchResult;
 import com.tigrisdata.db.type.TigrisCollectionType;
-
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -75,6 +77,27 @@ public interface TigrisCollection<T extends TigrisCollectionType>
    * @throws TigrisException in case of an error
    */
   Optional<T> readOne(TigrisFilter filter) throws TigrisException;
+
+  /**
+   * Search for documents in a collection. Easily perform sophisticated queries and refine results
+   * using filters with advanced features like faceting and ordering.
+   *
+   * <p>Note: Searching is expensive. If using as a primary key based lookup, use {@code read()}
+   * instead
+   *
+   * @param request search request to execute
+   * @param options search pagination options
+   * @return stream of search results
+   * @throws TigrisException in case of error
+   */
+  Iterator<SearchResult<T>> search(SearchRequest request, SearchRequestOptions options)
+      throws TigrisException;
+
+  /**
+   * @param request search request to execute
+   * @return stream of search results
+   */
+  Iterator<SearchResult<T>> search(SearchRequest request) throws TigrisException;
 
   /**
    * Inserts the documents into collection.

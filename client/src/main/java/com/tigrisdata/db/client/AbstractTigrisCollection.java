@@ -13,24 +13,29 @@
  */
 package com.tigrisdata.db.client;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tigrisdata.db.api.v1.grpc.Api;
-import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import static com.tigrisdata.db.client.Constants.DELETE_FAILED;
 import static com.tigrisdata.db.client.Constants.INSERT_FAILED;
 import static com.tigrisdata.db.client.Constants.INSERT_OR_REPLACE_FAILED;
 import static com.tigrisdata.db.client.Constants.JSON_SER_DE_ERROR;
 import static com.tigrisdata.db.client.Constants.READ_FAILED;
+import static com.tigrisdata.db.client.Constants.SEARCH_FAILED;
 import static com.tigrisdata.db.client.Constants.UPDATE_FAILED;
 import static com.tigrisdata.db.client.TypeConverter.toDeleteRequest;
 import static com.tigrisdata.db.client.TypeConverter.toReadRequest;
 import static com.tigrisdata.db.client.TypeConverter.toReplaceRequest;
 import static com.tigrisdata.db.client.TypeConverter.toUpdateRequest;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tigrisdata.db.api.v1.grpc.Api;
+import com.tigrisdata.db.api.v1.grpc.Api.SearchResponse;
+import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import com.tigrisdata.db.client.error.TigrisException;
+import com.tigrisdata.db.client.search.SearchRequest;
+import com.tigrisdata.db.client.search.SearchRequestOptions;
+import com.tigrisdata.db.client.search.SearchResult;
 import com.tigrisdata.db.type.TigrisCollectionType;
 import io.grpc.StatusRuntimeException;
-
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
@@ -89,6 +94,20 @@ abstract class AbstractTigrisCollection<T extends TigrisCollectionType> {
           READ_FAILED,
           TypeConverter.extractTigrisError(statusRuntimeException),
           statusRuntimeException);
+    }
+  }
+
+  protected Iterator<SearchResult<T>> searchInternal(
+      SearchRequest request, SearchRequestOptions options) throws TigrisException {
+    Api.SearchRequest apiSearchRequest =
+        TypeConverter.toSearchRequest(databaseName, collectionName, request, objectMapper);
+    try {
+      Iterator<Api.SearchResponse> resp = blockingStub.search(apiSearchRequest);
+      Function<SearchResponse, SearchResult<T>> converter =
+          r -> SearchResult.from(r, objectMapper, collectionTypeClass);
+      return Utilities.transformIterator(resp, converter);
+    } catch (StatusRuntimeException ex) {
+      throw new TigrisException(SEARCH_FAILED, ex);
     }
   }
 

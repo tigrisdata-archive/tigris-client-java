@@ -11,7 +11,16 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tigrisdata.db.client;
 
-/** Represents the filter */
-public interface TigrisFilter extends JSONSerializable {}
+package com.tigrisdata.db.client.search;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+public class HitMetaTest {
+
+  @Test
+  public void fromNull() {
+    Assert.assertThrows(NullPointerException.class, () -> HitMeta.from(null));
+  }
+}

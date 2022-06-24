@@ -11,7 +11,9 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tigrisdata.db.client;
 
-/** Represents the filter */
-public interface TigrisFilter extends JSONSerializable {}
+package com.tigrisdata.db.client.search;
+
+import com.tigrisdata.db.client.JSONSerializable;
+
+public interface FacetQuery extends JSONSerializable {}

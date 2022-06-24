@@ -11,7 +11,22 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tigrisdata.db.client;
 
-/** Represents the filter */
-public interface TigrisFilter extends JSONSerializable {}
+package com.tigrisdata.db.client.search;
+
+import com.tigrisdata.db.api.v1.grpc.Api;
+import java.util.Objects;
+
+/**
+ * Representation of {@link Api.SearchHitMeta} exposing relevance information for the matched
+ * document.
+ */
+public final class HitMeta {
+  // TODO: Implement once API structure is finalized
+  private static final HitMeta DEFAULT_INSTANCE = new HitMeta();
+
+  static HitMeta from(Api.SearchHitMeta resp) {
+    Objects.requireNonNull(resp);
+    return DEFAULT_INSTANCE;
+  }
+}

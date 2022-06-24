@@ -25,21 +25,22 @@ import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import com.tigrisdata.db.client.error.TigrisError;
 import com.tigrisdata.db.client.error.TigrisException;
+import com.tigrisdata.db.client.search.SearchRequest;
 import io.grpc.Metadata;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.MetadataUtils;
-
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.UUID;
 
 final class TypeConverter {
+
   private TypeConverter() {}
 
   public static Api.ListDatabasesRequest toListDatabasesRequest(DatabaseOptions databaseOptions) {
@@ -81,7 +82,7 @@ final class TypeConverter {
       return Api.CreateOrUpdateCollectionRequest.newBuilder()
           .setDb(databaseName)
           .setCollection(schema.getName())
-          .setSchema(ByteString.copyFrom(schema.getSchemaContent(), StandardCharsets.UTF_8))
+          .setSchema(ByteString.copyFromUtf8(schema.getSchemaContent()))
           .setOptions(toCollectionOptions(collectionOptions))
           .build();
     } catch (IOException ioException) {
@@ -145,12 +146,37 @@ final class TypeConverter {
         Api.ReadRequest.newBuilder()
             .setDb(databaseName)
             .setCollection(collectionName)
-            .setFilter(ByteString.copyFrom(filter.toJSON(objectMapper), StandardCharsets.UTF_8))
+            .setFilter(ByteString.copyFromUtf8(filter.toJSON(objectMapper)))
             .setOptions(readRequestOptionsAPI);
     if (!fields.isEmpty()) {
       readRequestBuilder.setFields(ByteString.copyFromUtf8(fields.toJSON(objectMapper)));
     }
     return readRequestBuilder.build();
+  }
+
+  public static Api.SearchRequest toSearchRequest(
+      String databaseName, String collectionName, SearchRequest req, ObjectMapper objectMapper) {
+    Api.SearchRequest.Builder builder =
+        Api.SearchRequest.newBuilder()
+            .setDb(databaseName)
+            .setCollection(collectionName)
+            .setQ(req.getQuery().toJSON(objectMapper));
+    if (Objects.nonNull(req.getSearchFields())) {
+      builder.addAllSearchFields(req.getSearchFields().getFields());
+    }
+    if (Objects.nonNull(req.getFilter())) {
+      builder.setFilter(ByteString.copyFromUtf8(req.getFilter().toJSON(objectMapper)));
+    }
+    if (Objects.nonNull(req.getFacetQuery())) {
+      builder.setFacet(ByteString.copyFromUtf8(req.getFacetQuery().toJSON(objectMapper)));
+    }
+    if (Objects.nonNull(req.getSortOrders())) {
+      builder.setSort(ByteString.copyFromUtf8(req.getSortOrders().toJSON(objectMapper)));
+    }
+    if (Objects.nonNull(req.getReadFields())) {
+      builder.setFields(ByteString.copyFromUtf8(req.getReadFields().toJSON(objectMapper)));
+    }
+    return builder.build();
   }
 
   public static <T> Api.InsertRequest toInsertRequest(

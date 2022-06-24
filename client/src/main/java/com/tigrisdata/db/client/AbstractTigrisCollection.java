@@ -106,8 +106,11 @@ abstract class AbstractTigrisCollection<T extends TigrisCollectionType> {
       Function<SearchResponse, SearchResult<T>> converter =
           r -> SearchResult.from(r, objectMapper, collectionTypeClass);
       return Utilities.transformIterator(resp, converter);
-    } catch (StatusRuntimeException ex) {
-      throw new TigrisException(SEARCH_FAILED, ex);
+    } catch (StatusRuntimeException statusRuntimeException) {
+      throw new TigrisException(
+          SEARCH_FAILED,
+          TypeConverter.extractTigrisError(statusRuntimeException),
+          statusRuntimeException);
     }
   }
 

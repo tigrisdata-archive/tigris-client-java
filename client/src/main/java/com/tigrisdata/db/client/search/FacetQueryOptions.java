@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 enum FacetFieldType {
-  value("value");
+  VALUE("value");
   private final String strVal;
 
   FacetFieldType(String v) {
@@ -37,20 +37,20 @@ enum FacetFieldType {
 /** Represents options related to Facet query for /search */
 public final class FacetQueryOptions implements JSONSerializable {
 
-  private static final long DEFAULT_LIMIT = 10;
-  private static final FacetFieldType DEFAULT_TYPE = FacetFieldType.value;
+  private static final long DEFAULT_SIZE = 10;
+  private static final FacetFieldType DEFAULT_TYPE = FacetFieldType.VALUE;
   private static final FacetQueryOptions DEFAULT_INSTANCE = newBuilder().build();
 
   private final FacetFieldType type;
-  private final long limit;
+  private final long size;
 
   private FacetQueryOptions(Builder builder) {
     this.type = builder.type;
-    this.limit = builder.limit;
+    this.size = builder.size;
   }
 
   /**
-   * Default options for a facet query type: value limit: 10
+   * Default options for a facet query type: value, size: 10
    *
    * @return {@link FacetQueryOptions}
    */
@@ -64,8 +64,8 @@ public final class FacetQueryOptions implements JSONSerializable {
   }
 
   /** Maximum number facet results to include in /search response */
-  public long getLimit() {
-    return limit;
+  public long getSize() {
+    return size;
   }
 
   @Override
@@ -74,7 +74,7 @@ public final class FacetQueryOptions implements JSONSerializable {
         new HashMap<String, String>() {
           {
             put("type", type.toString());
-            put("limit", String.valueOf(limit));
+            put("size", String.valueOf(size));
           }
         };
 
@@ -96,7 +96,7 @@ public final class FacetQueryOptions implements JSONSerializable {
 
     FacetQueryOptions that = (FacetQueryOptions) o;
 
-    if (limit != that.limit) {
+    if (size != that.size) {
       return false;
     }
     return type == that.type;
@@ -105,7 +105,7 @@ public final class FacetQueryOptions implements JSONSerializable {
   @Override
   public int hashCode() {
     int result = type != null ? type.hashCode() : 0;
-    result = 31 * result + (int) (limit ^ (limit >>> 32));
+    result = 31 * result + (int) (size ^ (size >>> 32));
     return result;
   }
 
@@ -117,11 +117,11 @@ public final class FacetQueryOptions implements JSONSerializable {
 
     private FacetFieldType type;
 
-    private long limit;
+    private long size;
 
     private Builder() {
       this.type = DEFAULT_TYPE;
-      this.limit = DEFAULT_LIMIT;
+      this.size = DEFAULT_SIZE;
     }
 
     /** Type of schema field */
@@ -131,8 +131,8 @@ public final class FacetQueryOptions implements JSONSerializable {
     }
 
     /** Maximum number facet results to include in /search response */
-    public Builder withLimit(long limit) {
-      this.limit = limit;
+    public Builder withSize(long size) {
+      this.size = size;
       return this;
     }
 

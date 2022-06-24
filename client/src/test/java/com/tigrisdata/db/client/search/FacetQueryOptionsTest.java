@@ -30,16 +30,16 @@ public class FacetQueryOptionsTest {
   @Test
   public void defaultInstance() {
     FacetQueryOptions expected =
-        FacetQueryOptions.newBuilder().withType(FacetFieldType.value).withLimit(10).build();
+        FacetQueryOptions.newBuilder().withType(FacetFieldType.VALUE).withSize(10).build();
     FacetQueryOptions actual = FacetQueryOptions.getDefaultInstance();
     Assert.assertEquals(expected, actual);
   }
 
   @Test
   public void withNullType() {
-    FacetQueryOptions actual = FacetQueryOptions.newBuilder().withType(null).withLimit(20).build();
-    Assert.assertEquals(FacetFieldType.value, actual.getType());
-    Assert.assertEquals(20, actual.getLimit());
+    FacetQueryOptions actual = FacetQueryOptions.newBuilder().withType(null).withSize(20).build();
+    Assert.assertEquals(FacetFieldType.VALUE, actual.getType());
+    Assert.assertEquals(20, actual.getSize());
   }
 
   @Test
@@ -49,8 +49,8 @@ public class FacetQueryOptionsTest {
 
   @Test
   public void toJSONSerialization() {
-    FacetQueryOptions options = FacetQueryOptions.newBuilder().withLimit(20).build();
-    String expected = "{\"limit\":\"20\",\"type\":\"value\"}";
+    FacetQueryOptions options = FacetQueryOptions.newBuilder().withSize(20).build();
+    String expected = "{\"size\":\"20\",\"type\":\"value\"}";
     String actual = options.toJSON(DEFAULT_OBJECT_MAPPER);
     Assert.assertEquals(expected, actual);
   }

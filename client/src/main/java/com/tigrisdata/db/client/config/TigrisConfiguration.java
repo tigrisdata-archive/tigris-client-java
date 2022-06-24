@@ -18,11 +18,11 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.tigrisdata.db.jackson.TigrisAnnotationIntrospector;
-
 import java.time.Duration;
 
 /** Tigris client configuration */
 public class TigrisConfiguration {
+
   private final String serverURL;
   private final TigrisConfiguration.NetworkConfig network;
   private final ObjectMapper objectMapper;
@@ -103,6 +103,7 @@ public class TigrisConfiguration {
 
   /** Tigris network related configuration */
   public static class NetworkConfig {
+
     private final Duration deadline;
     private final boolean usePlainText;
 
@@ -125,6 +126,7 @@ public class TigrisConfiguration {
 
     /** Builder class for {@link NetworkConfig} */
     public static class Builder {
+
       public static final Duration DEFAULT_DEADLINE = Duration.ofSeconds(5);
 
       private Duration deadline;

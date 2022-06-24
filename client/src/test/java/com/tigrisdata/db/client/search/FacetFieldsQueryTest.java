@@ -43,7 +43,7 @@ public class FacetFieldsQueryTest {
   @Test
   public void buildWithFields() {
     Map<String, FacetQueryOptions> optionsMap =
-        Collections.singletonMap("someField", FacetQueryOptions.newBuilder().withLimit(30).build());
+        Collections.singletonMap("someField", FacetQueryOptions.newBuilder().withSize(30).build());
     FacetFieldsQuery fields = FacetFieldsQuery.newBuilder().addAll(optionsMap).build();
     Assert.assertEquals(optionsMap, fields.getFacetFields());
   }
@@ -52,7 +52,7 @@ public class FacetFieldsQueryTest {
   public void buildWithOptions() {
     FacetFieldsQuery query =
         FacetFieldsQuery.newBuilder()
-            .withFieldOptions("name", FacetQueryOptions.newBuilder().withLimit(20).build())
+            .withFieldOptions("name", FacetQueryOptions.newBuilder().withSize(20).build())
             .build();
     Assert.assertTrue(query.getFacetFields().containsKey("name"));
   }
@@ -60,9 +60,9 @@ public class FacetFieldsQueryTest {
   @Test
   public void toJSONSerialization() {
     Map<String, FacetQueryOptions> optionsMap =
-        Collections.singletonMap("someField", FacetQueryOptions.newBuilder().withLimit(30).build());
+        Collections.singletonMap("someField", FacetQueryOptions.newBuilder().withSize(30).build());
     FacetFieldsQuery input = FacetFieldsQuery.newBuilder().addAll(optionsMap).build();
-    String expected = "{\"someField\":{\"type\":\"value\",\"limit\":30}}";
+    String expected = "{\"someField\":{\"size\":\"30\",\"type\":\"value\"}}";
     Assert.assertEquals(expected, input.toJSON(DEFAULT_OBJECT_MAPPER));
   }
 

@@ -19,13 +19,12 @@ import com.tigrisdata.db.client.grpc.FailingTestUserService;
 import io.grpc.Status;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.testing.GrpcCleanupRule;
+import java.util.Collections;
+import java.util.UUID;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.util.Collections;
-import java.util.UUID;
 
 public class StandardTigrisCollectionFailureTest {
 

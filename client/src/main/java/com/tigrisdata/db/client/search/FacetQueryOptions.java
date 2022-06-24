@@ -14,6 +14,7 @@
 
 package com.tigrisdata.db.client.search;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tigrisdata.db.client.JSONSerializable;
@@ -21,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 enum FacetFieldType {
-  value("value");
+  VALUE("value");
   private final String strVal;
 
   FacetFieldType(String v) {
@@ -29,6 +30,7 @@ enum FacetFieldType {
   }
 
   @Override
+  @JsonValue
   public String toString() {
     return this.strVal;
   }
@@ -38,7 +40,7 @@ enum FacetFieldType {
 public final class FacetQueryOptions implements JSONSerializable {
 
   private static final long DEFAULT_LIMIT = 10;
-  private static final FacetFieldType DEFAULT_TYPE = FacetFieldType.value;
+  private static final FacetFieldType DEFAULT_TYPE = FacetFieldType.VALUE;
   private static final FacetQueryOptions DEFAULT_INSTANCE = newBuilder().build();
 
   private final FacetFieldType type;

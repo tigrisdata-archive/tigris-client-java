@@ -113,6 +113,15 @@ public class FailingTestUserService extends TigrisGrpc.TigrisImplBase {
   }
 
   @Override
+  public void search(
+      Api.SearchRequest request, StreamObserver<Api.SearchResponse> responseObserver) {
+    responseObserver.onError(
+        Status.FAILED_PRECONDITION
+            .withDescription("Test failure " + request.getDb())
+            .asRuntimeException());
+  }
+
+  @Override
   public void createOrUpdateCollection(
       Api.CreateOrUpdateCollectionRequest request,
       StreamObserver<Api.CreateOrUpdateCollectionResponse> responseObserver) {

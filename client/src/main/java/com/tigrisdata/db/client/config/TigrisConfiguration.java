@@ -16,13 +16,15 @@ package com.tigrisdata.db.client.config;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.tigrisdata.db.jackson.TigrisAnnotationIntrospector;
-
 import java.time.Duration;
 
 /** Tigris client configuration */
 public class TigrisConfiguration {
+
   private final String serverURL;
   private final TigrisConfiguration.NetworkConfig network;
   private final ObjectMapper objectMapper;
@@ -68,7 +70,9 @@ public class TigrisConfiguration {
       // configure ObjectMapper to work with immutable objects
       this.objectMapper =
           new ObjectMapper()
-              .setAnnotationIntrospector(new TigrisAnnotationIntrospector())
+              .setAnnotationIntrospector(
+                  new AnnotationIntrospectorPair(
+                      new TigrisAnnotationIntrospector(), new JacksonAnnotationIntrospector()))
               .registerModule(new ParameterNamesModule(JsonCreator.Mode.PROPERTIES))
               .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
@@ -103,6 +107,7 @@ public class TigrisConfiguration {
 
   /** Tigris network related configuration */
   public static class NetworkConfig {
+
     private final Duration deadline;
     private final boolean usePlainText;
 
@@ -125,6 +130,7 @@ public class TigrisConfiguration {
 
     /** Builder class for {@link NetworkConfig} */
     public static class Builder {
+
       public static final Duration DEFAULT_DEADLINE = Duration.ofSeconds(5);
 
       private Duration deadline;

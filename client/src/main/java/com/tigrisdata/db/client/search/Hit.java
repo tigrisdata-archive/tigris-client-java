@@ -38,12 +38,20 @@ public final class Hit<T extends TigrisCollectionType> {
     this.meta = meta;
   }
 
-  /** Json deserialized document as its collection class */
+  /**
+   * Json deserialized document as its collection class
+   *
+   * @return {@link TigrisCollectionType}
+   */
   public T getDocument() {
     return document;
   }
 
-  /** Relevance metadata for matched document */
+  /**
+   * Relevance metadata for matched document
+   *
+   * @return {@link HitMeta}
+   */
   public HitMeta getMeta() {
     return meta;
   }
@@ -55,6 +63,7 @@ public final class Hit<T extends TigrisCollectionType> {
    * @param objectMapper JSON deserializer
    * @param collectionClass Deserialize document to this schema class
    * @param <R> Tigris collection class type
+   * @return {@link Hit}
    */
   static <R extends TigrisCollectionType> Hit<R> from(
       Api.SearchHit resp, ObjectMapper objectMapper, Class<R> collectionClass) {

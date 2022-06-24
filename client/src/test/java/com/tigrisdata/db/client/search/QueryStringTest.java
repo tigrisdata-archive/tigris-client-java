@@ -37,9 +37,7 @@ public class QueryStringTest {
 
   @Test
   public void buildWithNull() {
-    QueryString queryString = QueryString.newBuilder(null).build();
-    Assert.assertNotNull(queryString.getQ());
-    Assert.assertEquals("", queryString.getQ());
+    Assert.assertThrows(NullPointerException.class, () -> QueryString.newBuilder(null).build());
   }
 
   @Test

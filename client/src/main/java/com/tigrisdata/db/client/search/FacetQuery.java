@@ -16,4 +16,5 @@ package com.tigrisdata.db.client.search;
 
 import com.tigrisdata.db.client.JSONSerializable;
 
+/** Interface to construct facet queries for search */
 public interface FacetQuery extends JSONSerializable {}

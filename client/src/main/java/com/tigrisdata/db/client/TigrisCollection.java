@@ -94,8 +94,14 @@ public interface TigrisCollection<T extends TigrisCollectionType>
       throws TigrisException;
 
   /**
+   * Search for documents in a collection.
+   *
+   * <p>Wrapper around {@link #search(SearchRequest, SearchRequestOptions)} with default pagination
+   * options
+   *
    * @param request search request to execute
    * @return stream of search results
+   * @throws TigrisException in case of error
    */
   Iterator<SearchResult<T>> search(SearchRequest request) throws TigrisException;
 

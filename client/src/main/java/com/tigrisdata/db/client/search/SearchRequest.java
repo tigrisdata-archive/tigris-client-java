@@ -18,14 +18,14 @@ import com.tigrisdata.db.client.ReadFields;
 import com.tigrisdata.db.client.TigrisFilter;
 import java.util.Objects;
 
-/** Builder to create /search request */
+/** Builder class to create a Search request */
 public final class SearchRequest {
 
   private final Query query;
   private final SearchFields searchFields;
   private final TigrisFilter filter;
   private final FacetQuery facetQuery;
-  private final SortOrders sortOrders;
+  private final SortOrder sortOrder;
   private final ReadFields readFields;
 
   private SearchRequest(Builder builder) {
@@ -33,48 +33,72 @@ public final class SearchRequest {
     this.filter = builder.filter;
     this.searchFields = builder.searchFields;
     this.facetQuery = builder.facetQuery;
-    this.sortOrders = builder.sortOrders;
+    this.sortOrder = builder.sortOrder;
     this.readFields = builder.fields;
+  }
+
+  /**
+   * Gets the search query associated with this request
+   *
+   * @return non-null {@link Query}
+   */
+  public Query getQuery() {
+    return query;
+  }
+
+  /**
+   * Gets Fields on which the search query is projected
+   *
+   * @return {@link SearchFields} or null
+   */
+  public SearchFields getSearchFields() {
+    return this.searchFields;
+  }
+
+  /**
+   * Gets the filters that will be applied to refine search results
+   *
+   * @return {@link TigrisFilter} or null
+   */
+  public TigrisFilter getFilter() {
+    return filter;
+  }
+
+  /**
+   * Gets the facet query to categorically arrange the indexed terms
+   *
+   * @return {@link FacetQuery} or null
+   */
+  public FacetQuery getFacetQuery() {
+    return facetQuery;
+  }
+
+  /**
+   * Gets the Order to sort the search results
+   *
+   * @return {@link SortOrder} or null
+   */
+  public SortOrder getSortOrders() {
+    return sortOrder;
+  }
+
+  /**
+   * Gets the document fields to include/exclude in search results
+   *
+   * @return {@link ReadFields} or null
+   */
+  public ReadFields getReadFields() {
+    return readFields;
   }
 
   /**
    * Builder API for {@link SearchRequest}
    *
-   * @param query - Search query
-   * @return {@link SearchRequest.Builder}
+   * @param query - Search query object
+   * @return {@link SearchRequest.Builder} object
    */
   public static Builder newBuilder(Query query) {
     return new Builder(query);
-  }
-
-  /** Search query */
-  public Query getQuery() {
-    return query;
-  }
-
-  /** Fields on which the search query is projected */
-  public SearchFields getSearchFields() {
-    return this.searchFields;
-  }
-
-  /** Filters to further refine search results */
-  public TigrisFilter getFilter() {
-    return filter;
-  }
-
-  /** Facet query to categorically arrange the indexed terms */
-  public FacetQuery getFacetQuery() {
-    return facetQuery;
-  }
-
-  /** Order for ordering the search results */
-  public SortOrders getSortOrders() {
-    return sortOrders;
-  }
-
-  /** Document fields to include/exclude in search results */
-  public ReadFields getReadFields() {
-    return readFields;
   }
 
   public static final class Builder {
@@ -83,44 +107,71 @@ public final class SearchRequest {
     private TigrisFilter filter;
     private SearchFields searchFields;
     private FacetQuery facetQuery;
-    private SortOrders sortOrders;
+    private SortOrder sortOrder;
     private ReadFields fields;
 
     private Builder(Query query) {
       this.query = query;
     }
 
-    /** Optional fields to project search query */
+    /**
+     * Optional - Sets the fields to project search query on
+     *
+     * @param fields {@link SearchFields}
+     * @return {@link SearchRequest.Builder}
+     */
     public Builder withSearchFields(SearchFields fields) {
       this.searchFields = fields;
       return this;
     }
-    /** Optional filters to further refine search results */
+    /**
+     * Optional - Sets the filter to further refine search results
+     *
+     * @param filter {@link TigrisFilter}
+     * @return {@link SearchRequest.Builder}
+     */
     public Builder withFilter(TigrisFilter filter) {
       this.filter = filter;
       return this;
     }
-    /** Optional facet query to categorically arrange the indexed terms */
+    /**
+     * Optional - Sets the facet query to categorically arrange the indexed terms
+     *
+     * @param facetQuery {@link FacetQuery}
+     * @return {@link SearchRequest.Builder}
+     */
     public Builder withFacetQuery(FacetQuery facetQuery) {
       this.facetQuery = facetQuery;
       return this;
     }
-    /** Optional order for ordering the search results */
-    public Builder withSortOrders(SortOrders sortOrders) {
-      this.sortOrders = sortOrders;
+    /**
+     * Optional - Sets the SortOrder to sorts search results according to specified attributes and
+     * indicated order
+     *
+     * @param sortOrder {@link SortOrder}
+     * @return {@link SearchRequest.Builder}
+     */
+    public Builder withSortOrder(SortOrder sortOrder) {
+      this.sortOrder = sortOrder;
       return this;
     }
 
-    /** Optional document fields to include/exclude in search results */
+    /**
+     * Optional - Sets the document fields to include/exclude in search results
+     *
+     * @param fields {@link ReadFields}
+     * @return {@link SearchRequest.Builder}
+     */
     public Builder withReadFields(ReadFields fields) {
       this.fields = fields;
       return this;
     }
 
     /**
-     * Builds a {@link SearchRequest}
+     * Constructs a {@link SearchRequest}
      *
-     * @throws NullPointerException if query is missing
+     * @throws NullPointerException if query is null
+     * @return {@link SearchRequest}
      */
     public SearchRequest build() {
       Objects.requireNonNull(this.query);

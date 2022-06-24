@@ -34,7 +34,7 @@ enum FacetFieldType {
   }
 }
 
-/** Represents options related to Facet query for /search */
+/** Represents optional information to build facets in search results */
 public final class FacetQueryOptions implements JSONSerializable {
 
   private static final long DEFAULT_SIZE = 10;
@@ -50,20 +50,32 @@ public final class FacetQueryOptions implements JSONSerializable {
   }
 
   /**
-   * Default options for a facet query type: value, size: 10
+   * Default options for a facet field query
+   *
+   * <p>type: value
+   *
+   * <p>size: 10
    *
    * @return {@link FacetQueryOptions}
    */
-  public static FacetQueryOptions getDefaultInstance() {
+  public static FacetQueryOptions getDefault() {
     return DEFAULT_INSTANCE;
   }
 
-  /** Type of schema field */
+  /**
+   * Gets type of facets to build
+   *
+   * @return faceting option type
+   */
   public FacetFieldType getType() {
     return type;
   }
 
-  /** Maximum number facet results to include in /search response */
+  /**
+   * Gets maximum number facets to include in results
+   *
+   * @return maximum number facets to include in results
+   */
   public long getSize() {
     return size;
   }
@@ -109,6 +121,12 @@ public final class FacetQueryOptions implements JSONSerializable {
     return result;
   }
 
+  /**
+   * Builder API for{@link FacetQueryOptions}
+   *
+   * @return {@link FacetQueryOptions.Builder}
+   * @see #getDefault()
+   */
   public static Builder newBuilder() {
     return new Builder();
   }
@@ -124,19 +142,33 @@ public final class FacetQueryOptions implements JSONSerializable {
       this.size = DEFAULT_SIZE;
     }
 
-    /** Type of schema field */
+    /**
+     * Sets type of facets to build
+     *
+     * @param type facet type to build
+     * @return {@link FacetQueryOptions.Builder}
+     */
     public Builder withType(FacetFieldType type) {
       this.type = type;
       return this;
     }
 
-    /** Maximum number facet results to include in /search response */
+    /**
+     * Sets maximum number facets to include in results
+     *
+     * @param size maximum number facets to include in results
+     * @return {@link FacetQueryOptions.Builder}
+     */
     public Builder withSize(long size) {
       this.size = size;
       return this;
     }
 
-    /** Builds {@link FacetQueryOptions} */
+    /**
+     * Constructs {@link FacetQueryOptions}
+     *
+     * @return {@link FacetQueryOptions}
+     */
     public FacetQueryOptions build() {
       if (this.type == null) {
         this.type = DEFAULT_TYPE;

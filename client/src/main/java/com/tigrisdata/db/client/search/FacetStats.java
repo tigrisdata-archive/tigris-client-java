@@ -17,7 +17,7 @@ package com.tigrisdata.db.client.search;
 import com.tigrisdata.db.api.v1.grpc.Api;
 import java.util.Objects;
 
-/** Representation of {@link Api.FacetStats}, summary of Facet results */
+/** Summary of facets in search results */
 public final class FacetStats {
 
   private final double avg;
@@ -34,27 +34,47 @@ public final class FacetStats {
     this.sum = sum;
   }
 
-  /** Number of values in a faceted field */
+  /**
+   * Count of values in faceted field
+   *
+   * @return Count of values in faceted field
+   */
   public long getCount() {
     return count;
   }
 
-  /** Only for numeric fields. Average of values for the field */
+  /**
+   * Only for numeric fields. Average of values for the field
+   *
+   * @return `0` or average of values for the field
+   */
   public double getAvg() {
     return avg;
   }
 
-  /** Only for numeric fields. Maximum numeric value for a field */
+  /**
+   * Only for numeric fields. Maximum numeric value for a field
+   *
+   * @return `0` or maximum numeric value for a field
+   */
   public long getMax() {
     return max;
   }
 
-  /** Only for numeric fields. Minimum numeric value for a field */
+  /**
+   * Only for numeric fields. Minimum numeric value for a field
+   *
+   * @return `0` or minimum numeric value for a field
+   */
   public long getMin() {
     return min;
   }
 
-  /** Only for numeric fields. Sum of values for the field */
+  /**
+   * Only for numeric fields. Sum of numeric values in the field
+   *
+   * @return `0` or sum of numeric values in the field
+   */
   public long getSum() {
     return sum;
   }
@@ -63,6 +83,7 @@ public final class FacetStats {
    * Conversion utility to create {@link FacetStats} from server response
    *
    * @param resp {@link Api.FacetStats}
+   * @return {@link FacetStats}
    */
   static FacetStats from(Api.FacetStats resp) {
     Objects.requireNonNull(resp);

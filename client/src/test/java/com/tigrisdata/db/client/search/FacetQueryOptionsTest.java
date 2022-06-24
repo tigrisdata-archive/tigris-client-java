@@ -31,7 +31,7 @@ public class FacetQueryOptionsTest {
   public void defaultInstance() {
     FacetQueryOptions expected =
         FacetQueryOptions.newBuilder().withType(FacetFieldType.VALUE).withSize(10).build();
-    FacetQueryOptions actual = FacetQueryOptions.getDefaultInstance();
+    FacetQueryOptions actual = FacetQueryOptions.getDefault();
     Assert.assertEquals(expected, actual);
   }
 
@@ -57,7 +57,7 @@ public class FacetQueryOptionsTest {
 
   @Test
   public void toJSONSerializationFailure() {
-    FacetQueryOptions options = FacetQueryOptions.getDefaultInstance();
+    FacetQueryOptions options = FacetQueryOptions.getDefault();
     try {
       options.toJSON(
           new ObjectMapper() {

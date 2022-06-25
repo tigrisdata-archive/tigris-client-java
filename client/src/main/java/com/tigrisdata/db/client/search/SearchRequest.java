@@ -16,6 +16,7 @@ package com.tigrisdata.db.client.search;
 
 import com.tigrisdata.db.client.ReadFields;
 import com.tigrisdata.db.client.TigrisFilter;
+import java.util.Arrays;
 import java.util.Objects;
 
 /** Builder class to create a Search request */
@@ -94,7 +95,17 @@ public final class SearchRequest {
   /**
    * Builder API for {@link SearchRequest}
    *
-   * @param query - Search query object
+   * @param queryString Search query string
+   * @return {@link SearchRequest.Builder} object
+   */
+  public static Builder newBuilder(String queryString) {
+    return new Builder(queryString);
+  }
+
+  /**
+   * Builder API for {@link SearchRequest}
+   *
+   * @param query Search query object
    * @return {@link SearchRequest.Builder} object
    */
   public static Builder newBuilder(Query query) {
@@ -110,8 +121,24 @@ public final class SearchRequest {
     private SortOrder sortOrder;
     private ReadFields fields;
 
+    private Builder(String queryString) {
+      this.query = QueryString.newBuilder(queryString).build();
+    }
+
     private Builder(Query query) {
       this.query = query;
+    }
+
+    /**
+     * Optional - Sets the search fields to project search query on
+     *
+     * @param fields Collection field names
+     * @return {@link SearchRequest.Builder}
+     * @see #withSearchFields(SearchFields)
+     */
+    public Builder withSearchFields(String... fields) {
+      this.searchFields = SearchFields.newBuilder().withFields(Arrays.asList(fields)).build();
+      return this;
     }
 
     /**
@@ -124,6 +151,7 @@ public final class SearchRequest {
       this.searchFields = fields;
       return this;
     }
+
     /**
      * Optional - Sets the filter to further refine search results
      *
@@ -134,6 +162,19 @@ public final class SearchRequest {
       this.filter = filter;
       return this;
     }
+
+    /**
+     * Optional - Sets the facet fields to categorically arrange indexed terms
+     *
+     * @param fields {@link }
+     * @return {@link SearchRequest.Builder}
+     * @see #withFacetQuery(FacetQuery)
+     */
+    public Builder withFacetFields(String... fields) {
+      this.facetQuery = FacetFieldsQuery.newBuilder().withFields(Arrays.asList(fields)).build();
+      return this;
+    }
+
     /**
      * Optional - Sets the facet query to categorically arrange the indexed terms
      *
@@ -144,6 +185,7 @@ public final class SearchRequest {
       this.facetQuery = facetQuery;
       return this;
     }
+
     /**
      * Optional - Sets the SortOrder to sorts search results according to specified attributes and
      * indicated order

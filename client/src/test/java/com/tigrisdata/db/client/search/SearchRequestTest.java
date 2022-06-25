@@ -49,7 +49,24 @@ public class SearchRequestTest {
   }
 
   @Test
+  public void buildWithVarargs() {
+    Query expectedQuery = QueryString.newBuilder("some query").build();
+    SearchFields expectedSearchFields = SearchFields.newBuilder().withField("field_1").build();
+    FacetQuery expectedFacetQuery = FacetFieldsQuery.newBuilder().withField("field_3").build();
+
+    SearchRequest actual =
+        SearchRequest.newBuilder("some query")
+            .withSearchFields("field_1")
+            .withFacetFields("field_3")
+            .build();
+    Assert.assertEquals(expectedQuery, actual.getQuery());
+    Assert.assertEquals(expectedSearchFields, actual.getSearchFields());
+    Assert.assertEquals(expectedFacetQuery, actual.getFacetQuery());
+  }
+
+  @Test
   public void failsWithNullQuery() {
-    Assert.assertThrows(NullPointerException.class, () -> SearchRequest.newBuilder(null).build());
+    Assert.assertThrows(
+        NullPointerException.class, () -> SearchRequest.newBuilder((String) null).build());
   }
 }

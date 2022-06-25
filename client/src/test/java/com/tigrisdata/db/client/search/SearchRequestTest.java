@@ -53,7 +53,6 @@ public class SearchRequestTest {
     Query expectedQuery = QueryString.newBuilder("some query").build();
     SearchFields expectedSearchFields = SearchFields.newBuilder().withField("field_1").build();
     FacetQuery expectedFacetQuery = FacetFieldsQuery.newBuilder().withField("field_3").build();
-
     SearchRequest actual =
         SearchRequest.newBuilder("some query")
             .withSearchFields("field_1")

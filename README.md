@@ -75,6 +75,13 @@ users.delete(
         Filters.eq("id", 2)
     )
 );
+
+// search - search for users with name "Jania"
+users.search(
+    SearchRequest.newBuilder("Jania")
+      .withSearchFields("name")
+      .build()
+    );
 ```
 
 # License

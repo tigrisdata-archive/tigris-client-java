@@ -17,13 +17,16 @@ import com.tigrisdata.db.type.TigrisCollectionType;
 
 /** Test collection model */
 public class User implements TigrisCollectionType {
-  String name;
   int id;
+  String name;
+  double salary;
 
   public User() {}
 
-  public User(String name) {
+  public User(int id, String name, double salary) {
+    this.id = id;
     this.name = name;
+    this.salary = salary;
   }
 
   public String getName() {
@@ -40,5 +43,13 @@ public class User implements TigrisCollectionType {
 
   public void setId(int id) {
     this.id = id;
+  }
+
+  public double getSalary() {
+    return salary;
+  }
+
+  public void setSalary(double salary) {
+    this.salary = salary;
   }
 }

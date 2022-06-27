@@ -14,8 +14,9 @@
 package com.tigrisdata.db.client;
 
 import com.tigrisdata.db.client.error.TigrisException;
+import com.tigrisdata.db.client.search.SearchRequest;
+import com.tigrisdata.db.client.search.SearchRequestOptions;
 import com.tigrisdata.db.type.TigrisCollectionType;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -65,6 +66,32 @@ public interface TigrisAsyncCollection<T extends TigrisCollectionType>
    * @return a future to the document
    */
   CompletableFuture<Optional<T>> readOne(TigrisFilter filter);
+
+  /**
+   * Search for documents in a collection. Easily perform sophisticated queries and refine results
+   * using filters with advanced features like faceting and ordering.
+   *
+   * <p>Note: Searching is expensive. If using as a primary key based lookup, use {@code read()}
+   * instead
+   *
+   * @param request search request to execute
+   * @param options search pagination options
+   * @param reader reader callback
+   * @see #search(SearchRequest, TigrisAsyncSearchReader)
+   */
+  void search(
+      SearchRequest request, SearchRequestOptions options, TigrisAsyncSearchReader<T> reader);
+
+  /**
+   * Search for documents in a collection.
+   *
+   * <p>Wrapper around {@link #search(SearchRequest, SearchRequestOptions, TigrisAsyncSearchReader)}
+   * with default pagination options
+   *
+   * @param request search request to execute
+   * @param reader reader callback
+   */
+  void search(SearchRequest request, TigrisAsyncSearchReader<T> reader);
 
   /**
    * Inserts documents into collection

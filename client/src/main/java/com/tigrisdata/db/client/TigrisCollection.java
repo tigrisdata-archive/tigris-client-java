@@ -89,6 +89,7 @@ public interface TigrisCollection<T extends TigrisCollectionType>
    * @param options search pagination options
    * @return stream of search results
    * @throws TigrisException in case of error
+   * @see #search(SearchRequest)
    */
   Iterator<SearchResult<T>> search(SearchRequest request, SearchRequestOptions options)
       throws TigrisException;

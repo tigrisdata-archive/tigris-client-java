@@ -13,17 +13,13 @@
  */
 package com.tigrisdata.db.client;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.tigrisdata.db.api.v1.grpc.Api;
-import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import static com.tigrisdata.db.client.Constants.DELETE_FAILED;
 import static com.tigrisdata.db.client.Constants.DESCRIBE_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.Constants.INSERT_FAILED;
 import static com.tigrisdata.db.client.Constants.INSERT_OR_REPLACE_FAILED;
 import static com.tigrisdata.db.client.Constants.JSON_SER_DE_ERROR;
 import static com.tigrisdata.db.client.Constants.READ_FAILED;
+import static com.tigrisdata.db.client.Constants.SEARCH_FAILED;
 import static com.tigrisdata.db.client.Constants.UPDATE_FAILED;
 import static com.tigrisdata.db.client.TypeConverter.extractTigrisError;
 import static com.tigrisdata.db.client.TypeConverter.readOneDefaultReadRequestOptions;
@@ -33,13 +29,23 @@ import static com.tigrisdata.db.client.TypeConverter.toDeleteRequest;
 import static com.tigrisdata.db.client.TypeConverter.toInsertRequest;
 import static com.tigrisdata.db.client.TypeConverter.toReadRequest;
 import static com.tigrisdata.db.client.TypeConverter.toReplaceRequest;
+import static com.tigrisdata.db.client.TypeConverter.toSearchRequest;
 import static com.tigrisdata.db.client.TypeConverter.toUpdateRequest;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.tigrisdata.db.api.v1.grpc.Api;
+import com.tigrisdata.db.api.v1.grpc.Api.SearchResponse;
+import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import com.tigrisdata.db.client.error.TigrisException;
+import com.tigrisdata.db.client.search.SearchRequest;
+import com.tigrisdata.db.client.search.SearchRequestOptions;
+import com.tigrisdata.db.client.search.SearchResult;
 import com.tigrisdata.db.type.TigrisCollectionType;
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -55,6 +61,7 @@ import java.util.concurrent.Executor;
  */
 class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
     extends AbstractTigrisCollection<T> implements TigrisAsyncCollection<T> {
+
   private final Executor executor;
   private final TigrisGrpc.TigrisStub stub;
   private final TigrisGrpc.TigrisFutureStub futureStub;
@@ -112,6 +119,22 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
         new ReadSingleResponseObserverAdapter<>(
             completableFuture, collectionTypeClass, objectMapper, READ_FAILED));
     return completableFuture;
+  }
+
+  @Override
+  public void search(
+      SearchRequest request, SearchRequestOptions options, TigrisAsyncSearchReader<T> reader) {
+    Api.SearchRequest searchRequest =
+        toSearchRequest(databaseName, collectionName, request, objectMapper);
+    stub.search(
+        searchRequest,
+        new SearchResponseObserverAdapter<>(
+            reader, collectionTypeClass, objectMapper, SEARCH_FAILED));
+  }
+
+  @Override
+  public void search(SearchRequest request, TigrisAsyncSearchReader<T> reader) {
+    this.search(request, SearchRequestOptions.getDefault(), reader);
   }
 
   @Override
@@ -364,6 +387,7 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
 
   static class ReadManyResponseObserverAdapter<T extends TigrisCollectionType>
       implements StreamObserver<Api.ReadResponse> {
+
     private final TigrisAsyncReader<T> reader;
     private final Class<T> collectionTypeClass;
     private final ObjectMapper objectMapper;
@@ -409,6 +433,7 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
 
   static class ReadSingleResponseObserverAdapter<T extends TigrisCollectionType>
       implements StreamObserver<Api.ReadResponse> {
+
     private final CompletableFuture<Optional<T>> completableFuture;
     private final Class<T> collectionTypeClass;
     private final ObjectMapper objectMapper;
@@ -449,6 +474,48 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
     @Override
     public void onCompleted() {
       // no op
+    }
+  }
+
+  static class SearchResponseObserverAdapter<T extends TigrisCollectionType>
+      implements StreamObserver<Api.SearchResponse> {
+
+    private final TigrisAsyncSearchReader<T> reader;
+    private final Class<T> collectionTypeClass;
+    private final ObjectMapper objectMapper;
+    private final String errorMessage;
+
+    public SearchResponseObserverAdapter(
+        TigrisAsyncSearchReader<T> reader,
+        Class<T> collectionTypeClass,
+        ObjectMapper objectMapper,
+        String errorMessage) {
+      this.reader = reader;
+      this.collectionTypeClass = collectionTypeClass;
+      this.objectMapper = objectMapper;
+      this.errorMessage = errorMessage;
+    }
+
+    @Override
+    public void onNext(SearchResponse response) {
+      SearchResult<T> result = SearchResult.from(response, objectMapper, collectionTypeClass);
+      reader.onNext(result);
+    }
+
+    @Override
+    public void onError(Throwable throwable) {
+      if (throwable instanceof StatusRuntimeException) {
+        reader.onError(
+            new TigrisException(
+                errorMessage, extractTigrisError((StatusRuntimeException) throwable), throwable));
+      } else {
+        reader.onError(new TigrisException(errorMessage, throwable));
+      }
+    }
+
+    @Override
+    public void onCompleted() {
+      reader.onCompleted();
     }
   }
 }

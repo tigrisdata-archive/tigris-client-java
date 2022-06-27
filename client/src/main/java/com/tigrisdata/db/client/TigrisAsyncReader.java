@@ -16,18 +16,8 @@ package com.tigrisdata.db.client;
 import com.tigrisdata.db.type.TigrisCollectionType;
 
 /**
- * A callback that reads the documents
+ * Asynchronous callback to receive collection documents from server
  *
  * @param <T> Collection type
  */
-public interface TigrisAsyncReader<T extends TigrisCollectionType> {
-
-  /** @param document next document */
-  void onNext(T document);
-
-  /** @param t captures the error */
-  void onError(Throwable t);
-
-  /** Gets invoked when read is completed */
-  void onCompleted();
-}
+public interface TigrisAsyncReader<T extends TigrisCollectionType> extends TigrisAsyncCallback<T> {}

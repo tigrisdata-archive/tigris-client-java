@@ -18,16 +18,14 @@ import com.tigrisdata.db.client.collection.DB1_C1;
 import com.tigrisdata.db.client.collection.DB1_C5;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.grpc.TestUserService;
+import com.tigrisdata.db.client.search.FacetCountDistribution;
+import com.tigrisdata.db.client.search.SearchRequest;
+import com.tigrisdata.db.client.search.SearchResult;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.testing.GrpcCleanupRule;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +36,11 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 public class StandardTigrisAsyncCollectionTest {
 
@@ -86,6 +89,20 @@ public class StandardTigrisAsyncCollectionTest {
     //noinspection OptionalGetWithoutIsPresent
     Assert.assertEquals(1L, db1_c1.get().getId());
     Assert.assertEquals("db1_c1_d1", db1_c1.get().getName());
+  }
+
+  @Test
+  public void testSearch() {
+    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
+    inspectSearchDocs(
+        db1,
+        Arrays.asList(
+            new DB1_C1(0L, "db1_c1_d0"),
+            new DB1_C1(1L, "db1_c1_d1"),
+            new DB1_C1(2L, "db1_c1_d2"),
+            new DB1_C1(3L, "db1_c1_d3"),
+            new DB1_C1(4L, "db1_c1_d4")));
   }
 
   @Test
@@ -389,5 +406,56 @@ public class StandardTigrisAsyncCollectionTest {
 
     // there must not be any errors
     Assert.assertEquals(0, errorCount.get());
+  }
+
+  private static void inspectSearchDocs(TigrisAsyncDatabase db1, List<DB1_C1> expectedDocs) {
+    Map<Long, DB1_C1> seenDocsMap = new HashMap<>();
+
+    AtomicInteger errorCount = new AtomicInteger(0);
+    AtomicBoolean completed = new AtomicBoolean(false);
+
+    db1.getCollection(DB1_C1.class)
+        .search(
+            SearchRequest.newBuilder("name").build(),
+            new TigrisAsyncSearchReader<DB1_C1>() {
+              @Override
+              public void onNext(SearchResult<DB1_C1> result) {
+                result
+                    .getHits()
+                    .forEach(h -> seenDocsMap.put(h.getDocument().getId(), h.getDocument()));
+                Assert.assertTrue(result.getFacets().containsKey("name"));
+                FacetCountDistribution facet = result.getFacets().get("name");
+                Assert.assertNotNull(facet.getCounts());
+                Assert.assertEquals(expectedDocs.size(), facet.getStats().getCount());
+                Assert.assertEquals(expectedDocs.size(), result.getMeta().getFound());
+              }
+
+              @Override
+              public void onError(Throwable t) {
+                errorCount.incrementAndGet();
+              }
+
+              @Override
+              public void onCompleted() {
+                completed.set(true);
+              }
+            });
+
+    int timeout = 0;
+    while (!completed.get() && timeout < 20) {
+      timeout++;
+      try {
+        //noinspection BusyWait
+        Thread.sleep(100);
+      } catch (InterruptedException ignore) {
+      }
+    }
+    Assert.assertTrue(completed.get());
+    Assert.assertEquals(0, errorCount.get());
+    expectedDocs.forEach(
+        e -> {
+          Assert.assertTrue(seenDocsMap.containsKey(e.getId()));
+          Assert.assertEquals(e.getName(), seenDocsMap.get(e.getId()).getName());
+        });
   }
 }

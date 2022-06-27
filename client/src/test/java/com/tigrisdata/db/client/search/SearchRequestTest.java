@@ -65,7 +65,9 @@ public class SearchRequestTest {
 
   @Test
   public void failsWithNullQuery() {
-    Assert.assertThrows(
-        NullPointerException.class, () -> SearchRequest.newBuilder((String) null).build());
+    Exception thrown =
+        Assert.assertThrows(
+            IllegalArgumentException.class, () -> SearchRequest.newBuilder((String) null).build());
+    Assert.assertEquals("Query cannot be null", thrown.getMessage());
   }
 }

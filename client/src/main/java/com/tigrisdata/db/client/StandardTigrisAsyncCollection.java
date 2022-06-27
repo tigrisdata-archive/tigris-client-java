@@ -128,8 +128,7 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
         toSearchRequest(databaseName, collectionName, request, objectMapper);
     stub.search(
         searchRequest,
-        new SearchResponseObserverAdapter<>(
-            reader, collectionTypeClass, objectMapper, SEARCH_FAILED));
+        new SearchResponseObserverAdapter<>(reader, collectionTypeClass, objectMapper));
   }
 
   @Override
@@ -483,17 +482,14 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
     private final TigrisAsyncSearchReader<T> reader;
     private final Class<T> collectionTypeClass;
     private final ObjectMapper objectMapper;
-    private final String errorMessage;
 
     public SearchResponseObserverAdapter(
         TigrisAsyncSearchReader<T> reader,
         Class<T> collectionTypeClass,
-        ObjectMapper objectMapper,
-        String errorMessage) {
+        ObjectMapper objectMapper) {
       this.reader = reader;
       this.collectionTypeClass = collectionTypeClass;
       this.objectMapper = objectMapper;
-      this.errorMessage = errorMessage;
     }
 
     @Override
@@ -507,9 +503,9 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
       if (throwable instanceof StatusRuntimeException) {
         reader.onError(
             new TigrisException(
-                errorMessage, extractTigrisError((StatusRuntimeException) throwable), throwable));
+                SEARCH_FAILED, extractTigrisError((StatusRuntimeException) throwable), throwable));
       } else {
-        reader.onError(new TigrisException(errorMessage, throwable));
+        reader.onError(new TigrisException(SEARCH_FAILED, throwable));
       }
     }
 

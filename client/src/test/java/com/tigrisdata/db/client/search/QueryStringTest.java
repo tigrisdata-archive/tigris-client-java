@@ -37,7 +37,10 @@ public class QueryStringTest {
 
   @Test
   public void buildWithNull() {
-    Assert.assertThrows(NullPointerException.class, () -> QueryString.newBuilder(null).build());
+    Exception thrown =
+        Assert.assertThrows(
+            IllegalArgumentException.class, () -> QueryString.newBuilder(null).build());
+    Assert.assertEquals("Query cannot be null", thrown.getMessage());
   }
 
   @Test

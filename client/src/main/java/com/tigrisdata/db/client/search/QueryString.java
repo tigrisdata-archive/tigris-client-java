@@ -94,11 +94,13 @@ public final class QueryString implements Query {
      * Constructs a {@link QueryString}
      *
      * @return {@link QueryString}
-     * @throws NullPointerException if query string is null
+     * @throws IllegalArgumentException if query string is null
      * @see #getMatchAllQuery()
      */
     public QueryString build() {
-      Objects.requireNonNull(this.q);
+      if (this.q == null) {
+        throw new IllegalArgumentException("Query cannot be null");
+      }
       return new QueryString(this.q);
     }
   }

@@ -143,7 +143,7 @@ public final class FacetFieldsQuery implements FacetQuery {
      * @param fields list of field names
      * @return {@link FacetFieldsQuery.Builder}
      */
-    public Builder withFields(Collection<? extends String> fields) {
+    public Builder withFields(Collection<String> fields) {
       if (fieldMap == null) {
         fieldMap = new HashMap<>();
       }

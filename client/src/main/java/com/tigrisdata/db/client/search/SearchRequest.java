@@ -17,7 +17,6 @@ package com.tigrisdata.db.client.search;
 import com.tigrisdata.db.client.ReadFields;
 import com.tigrisdata.db.client.TigrisFilter;
 import java.util.Arrays;
-import java.util.Objects;
 
 /** Builder class to create a Search request */
 public final class SearchRequest {
@@ -212,11 +211,13 @@ public final class SearchRequest {
     /**
      * Constructs a {@link SearchRequest}
      *
-     * @throws NullPointerException if query is null
+     * @throws IllegalArgumentException if query is null
      * @return {@link SearchRequest}
      */
     public SearchRequest build() {
-      Objects.requireNonNull(this.query);
+      if (this.query == null) {
+        throw new IllegalArgumentException("Query cannot be null");
+      }
       return new SearchRequest(this);
     }
   }

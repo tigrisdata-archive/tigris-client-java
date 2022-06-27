@@ -192,7 +192,6 @@ public class StandardTigrisAsyncCollectionFailureTest {
       }
     }
 
-    // there must not be any errors
     Assert.assertEquals(1, errorCount.get());
   }
 }

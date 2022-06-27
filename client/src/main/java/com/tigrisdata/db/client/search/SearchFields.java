@@ -116,7 +116,7 @@ public final class SearchFields implements JSONSerializable {
      * @param fields list of schema field names as string
      * @return {@link SearchFields.Builder}
      */
-    public Builder withFields(Collection<? extends String> fields) {
+    public Builder withFields(Collection<String> fields) {
       if (this.fields == null) {
         this.fields = new ArrayList<>();
       }

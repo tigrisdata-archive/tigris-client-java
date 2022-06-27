@@ -35,13 +35,17 @@ public final class FacetCountDistribution {
   /**
    * List of field values and their aggregated counts
    *
-   * @return immutable {@link List<FacetCount>}
+   * @return immutable {@link List} of {@link FacetCount}
    */
   public List<FacetCount> getCounts() {
     return counts;
   }
 
-  /** Statistics for this particular field */
+  /**
+   * Statistics for this particular field
+   *
+   * @return summary of facets as {@link FacetStats}
+   */
   public FacetStats getStats() {
     return stats;
   }

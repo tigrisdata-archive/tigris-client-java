@@ -24,7 +24,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-/** Represents a facet query input for /search */
+/** Data class to construct facet query for /search */
 public final class FacetFieldsQuery implements FacetQuery {
 
   private static final FacetFieldsQuery EMPTY = newBuilder().build();
@@ -36,7 +36,7 @@ public final class FacetFieldsQuery implements FacetQuery {
   }
 
   /**
-   * This represents empty facet query, server will not return any facet results
+   * Represents empty facet query, server will not return any facet results
    *
    * @return an empty {@link FacetFieldsQuery}
    */
@@ -45,18 +45,18 @@ public final class FacetFieldsQuery implements FacetQuery {
   }
 
   /**
-   * Returns a mapping of field names and facet query options
+   * Gets underlying map of facet field query
    *
-   * @return non-null immutable {@link Map}
+   * @return non-null immutable {@link Map} of facet fields and respective query options
    */
   public Map<String, FacetQueryOptions> getFacetFields() {
     return this.internalMap;
   }
 
   /**
-   * Returns True if there is no entry in facet query, False otherwise
+   * Returns {@code true} if there are no fields in facet query
    *
-   * @return boolean
+   * @return {@code true} if there are no fields in facet query
    */
   public boolean isEmpty() {
     return internalMap.isEmpty();
@@ -102,6 +102,12 @@ public final class FacetFieldsQuery implements FacetQuery {
     return internalMap != null ? internalMap.hashCode() : 0;
   }
 
+  /**
+   * Builder API for {@link FacetFieldsQuery}
+   *
+   * @return {@link FacetFieldsQuery.Builder}
+   * @see #empty()
+   */
   public static Builder newBuilder() {
     return new Builder();
   }
@@ -113,24 +119,28 @@ public final class FacetFieldsQuery implements FacetQuery {
     private Builder() {}
 
     /**
-     * Field to include facet results in /search response Uses default {@link FacetQueryOptions}
-     * options
+     * Sets a collection field name to include facet results in search response
      *
-     * @param field - schema field name as string
+     * <p>Uses default {@link FacetQueryOptions} options
+     *
+     * @param field collection field name as string
+     * @return {@link FacetFieldsQuery.Builder}
      */
     public Builder withField(String field) {
       if (fieldMap == null) {
         fieldMap = new HashMap<>();
       }
-      fieldMap.put(field, FacetQueryOptions.getDefaultInstance());
+      fieldMap.put(field, FacetQueryOptions.getDefault());
       return this;
     }
 
     /**
-     * Fields to include facet results in /search response
+     * Sets a collection field name and query options to include facet results in search response
      *
-     * @param field schema field name as string
-     * @param options Options
+     * @param field collection field name as string
+     * @param options optional information to generate facet results
+     * @return {@link FacetFieldsQuery.Builder}
+     * @see #withField(String)
      */
     public Builder withFieldOptions(String field, FacetQueryOptions options) {
       if (fieldMap == null) {
@@ -140,7 +150,12 @@ public final class FacetFieldsQuery implements FacetQuery {
       return this;
     }
 
-    /** @param fieldOptions Map of schema field names and query options */
+    /**
+     * Add multiple fields to facet query
+     *
+     * @param fieldOptions Map of collection field names and query options
+     * @return {@link FacetFieldsQuery.Builder}
+     */
     public Builder addAll(Map<String, FacetQueryOptions> fieldOptions) {
       if (fieldMap == null) {
         fieldMap = new HashMap<>();
@@ -149,7 +164,11 @@ public final class FacetFieldsQuery implements FacetQuery {
       return this;
     }
 
-    /** Builds a {@link FacetFieldsQuery} */
+    /**
+     * Constructs a {@link FacetFieldsQuery}
+     *
+     * @return {@link FacetFieldsQuery} object
+     */
     public FacetFieldsQuery build() {
       if (fieldMap == null) {
         fieldMap = Collections.emptyMap();

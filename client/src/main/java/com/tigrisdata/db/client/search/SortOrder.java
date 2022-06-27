@@ -16,4 +16,5 @@ package com.tigrisdata.db.client.search;
 
 import com.tigrisdata.db.client.JSONSerializable;
 
-public interface SortOrders extends JSONSerializable {}
+/** Interface to construct sorting order for search results */
+public interface SortOrder extends JSONSerializable {}

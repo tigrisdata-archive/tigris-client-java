@@ -16,4 +16,5 @@ package com.tigrisdata.db.client.search;
 
 import com.tigrisdata.db.client.JSONSerializable;
 
+/** Interface to construct search queries */
 public interface Query extends JSONSerializable {}

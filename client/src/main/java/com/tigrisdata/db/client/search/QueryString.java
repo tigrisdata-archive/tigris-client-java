@@ -17,7 +17,7 @@ package com.tigrisdata.db.client.search;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Objects;
 
-/** Data class for "string" based /search queries */
+/** Data class to construct "string" based search queries */
 public final class QueryString implements Query {
   private static final String MATCH_ALL_STRING = "";
   private static final QueryString MATCH_ALL_QUERY = new QueryString(MATCH_ALL_STRING);
@@ -31,12 +31,18 @@ public final class QueryString implements Query {
   /**
    * Perform a placeholder search. Returns all searchable documents, modified by any other search
    * parameters used.
+   *
+   * @return placeholder search query
    */
   public static QueryString getMatchAllQuery() {
     return MATCH_ALL_QUERY;
   }
 
-  /** Get query string */
+  /**
+   * Gets query string
+   *
+   * @return {@link String} query
+   */
   public String getQ() {
     return q;
   }
@@ -66,9 +72,11 @@ public final class QueryString implements Query {
   }
 
   /**
-   * Builder object to build {@link QueryString}
+   * Builder API for {@link QueryString}
    *
-   * @param q Query string
+   * @param q string query to search for
+   * @return {@link QueryString.Builder} object
+   * @see #getMatchAllQuery()
    */
   public static Builder newBuilder(String q) {
     return new Builder(q);
@@ -76,17 +84,21 @@ public final class QueryString implements Query {
 
   public static final class Builder {
 
-    private String q;
+    private final String q;
 
-    private Builder(String searchString) {
-      this.q = searchString;
+    private Builder(String queryString) {
+      this.q = queryString;
     }
 
-    /** Builds a {@link QueryString} */
+    /**
+     * Constructs a {@link QueryString}
+     *
+     * @return {@link QueryString}
+     * @throws NullPointerException if query string is null
+     * @see #getMatchAllQuery()
+     */
     public QueryString build() {
-      if (q == null) {
-        q = MATCH_ALL_STRING;
-      }
+      Objects.requireNonNull(this.q);
       return new QueryString(this.q);
     }
   }

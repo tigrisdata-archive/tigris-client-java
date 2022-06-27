@@ -32,22 +32,38 @@ public final class SearchMeta {
     this.perPage = perPage;
   }
 
-  /** Total number of matches for the search query */
+  /**
+   * Gets total number of matches for the search query
+   *
+   * @return total number of matches for the search query
+   */
   public long getFound() {
     return found;
   }
 
-  /** Current page number for the paginated search results */
+  /**
+   * Gets current page number for the paginated search results
+   *
+   * @return current page number for the paginated search results
+   */
   public long getCurrentPage() {
     return currentPage;
   }
 
-  /** Total number pages for the search results */
+  /**
+   * Gets total number of pages for the search results
+   *
+   * @return total number of pages for the search results
+   */
   public long getTotalPages() {
     return totalPages;
   }
 
-  /** Number of search results displayed per page */
+  /**
+   * Gets number of search results displayed per page
+   *
+   * @return number of search results displayed per page
+   */
   public int getPerPage() {
     return perPage;
   }
@@ -56,6 +72,7 @@ public final class SearchMeta {
    * Conversion utility to create {@link SearchMeta} from server response
    *
    * @param resp {@link Api.SearchMetadata}
+   * @return {@link SearchMeta}
    */
   static SearchMeta from(Api.SearchMetadata resp) {
     Objects.requireNonNull(resp);

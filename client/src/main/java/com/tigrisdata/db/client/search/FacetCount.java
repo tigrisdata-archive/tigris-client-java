@@ -28,12 +28,20 @@ public final class FacetCount {
     this.count = count;
   }
 
-  /** Field value */
+  /**
+   * Field's attribute value
+   *
+   * @return Field's attribute value
+   */
   public String getValue() {
     return value;
   }
 
-  /** Number of field values in the dataset */
+  /**
+   * Count of field values in the search results
+   *
+   * @return count of field values in the search results
+   */
   public long getCount() {
     return count;
   }

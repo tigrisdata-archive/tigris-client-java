@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-/** Container for schema fields to project the search query */
+/** Data class for collection fields to project the search query on */
 public final class SearchFields implements JSONSerializable {
 
   private static final SearchFields EMPTY = newBuilder().build();
@@ -43,7 +43,11 @@ public final class SearchFields implements JSONSerializable {
     return EMPTY;
   }
 
-  /** @return non-null immutable {@link List} of fields in this object */
+  /**
+   * Gets list of collection fields
+   *
+   * @return non-null immutable {@link List}
+   */
   public List<String> getFields() {
     return this.fields;
   }
@@ -76,6 +80,12 @@ public final class SearchFields implements JSONSerializable {
     return Objects.hash(fields);
   }
 
+  /**
+   * Builder API for {@link SearchFields}
+   *
+   * @return {@link SearchFields.Builder}
+   * @see #empty()
+   */
   public static Builder newBuilder() {
     return new Builder();
   }
@@ -90,6 +100,7 @@ public final class SearchFields implements JSONSerializable {
      * Field to project search query against
      *
      * @param field schema field name as string
+     * @return {@link SearchFields.Builder}
      */
     public Builder withField(String field) {
       if (this.fields == null) {
@@ -103,6 +114,7 @@ public final class SearchFields implements JSONSerializable {
      * Schema fields to project search query against
      *
      * @param fields list of schema field names as string
+     * @return {@link SearchFields.Builder}
      */
     public Builder withFields(Collection<? extends String> fields) {
       if (this.fields == null) {
@@ -112,7 +124,11 @@ public final class SearchFields implements JSONSerializable {
       return this;
     }
 
-    /** Builds a {@link SearchFields} */
+    /**
+     * Constructs a {@link SearchFields}
+     *
+     * @return {@link SearchFields}
+     */
     public SearchFields build() {
       if (this.fields == null) {
         this.fields = Collections.emptyList();

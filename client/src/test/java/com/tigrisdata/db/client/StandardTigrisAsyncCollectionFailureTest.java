@@ -16,19 +16,20 @@ package com.tigrisdata.db.client;
 import com.tigrisdata.db.client.collection.DB1_C1;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.grpc.FailingTestUserService;
+import com.tigrisdata.db.client.search.SearchRequest;
+import com.tigrisdata.db.client.search.SearchResult;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.testing.GrpcCleanupRule;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-
 import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 public class StandardTigrisAsyncCollectionFailureTest {
 
@@ -52,6 +53,12 @@ public class StandardTigrisAsyncCollectionFailureTest {
   public void testRead() {
     TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     readAndExpectError(asyncClient.getDatabase("db1"));
+  }
+
+  @Test
+  public void testSearch() {
+    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    searchAndExpectError(asyncClient.getDatabase("db1"));
   }
 
   @Test
@@ -150,6 +157,41 @@ public class StandardTigrisAsyncCollectionFailureTest {
     }
 
     // there must not be any errors
+    Assert.assertEquals(1, errorCount.get());
+  }
+
+  private static void searchAndExpectError(TigrisAsyncDatabase db1) {
+    AtomicInteger errorCount = new AtomicInteger();
+    AtomicBoolean completed = new AtomicBoolean(false);
+    db1.getCollection(DB1_C1.class)
+        .search(
+            SearchRequest.newBuilder("").build(),
+            new TigrisAsyncSearchReader<DB1_C1>() {
+              @Override
+              public void onNext(SearchResult<DB1_C1> result) {
+                Assert.fail("This must fail");
+              }
+
+              @Override
+              public void onError(Throwable t) {
+                errorCount.incrementAndGet();
+              }
+
+              @Override
+              public void onCompleted() {
+                completed.set(true);
+              }
+            });
+    int timeout = 0;
+    while (!completed.get() && timeout < 20) {
+      timeout++;
+      try {
+        //noinspection BusyWait
+        Thread.sleep(100);
+      } catch (InterruptedException ignore) {
+      }
+    }
+
     Assert.assertEquals(1, errorCount.get());
   }
 }

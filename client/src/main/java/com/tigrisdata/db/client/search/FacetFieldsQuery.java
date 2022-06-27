@@ -16,6 +16,7 @@ package com.tigrisdata.db.client.search;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +37,7 @@ public final class FacetFieldsQuery implements FacetQuery {
   }
 
   /**
-   * Represents empty facet query, server will not return any facet results
+   * Represents empty facet query, server will not return any facets
    *
    * @return an empty {@link FacetFieldsQuery}
    */
@@ -119,7 +120,7 @@ public final class FacetFieldsQuery implements FacetQuery {
     private Builder() {}
 
     /**
-     * Sets a collection field name to include facet results in search response
+     * Sets a collection field name to include facets in search results
      *
      * <p>Uses default {@link FacetQueryOptions} options
      *
@@ -131,6 +132,22 @@ public final class FacetFieldsQuery implements FacetQuery {
         fieldMap = new HashMap<>();
       }
       fieldMap.put(field, FacetQueryOptions.getDefault());
+      return this;
+    }
+
+    /**
+     * Sets collection field names to include in facets in search results
+     *
+     * <p>Uses default {@link FacetQueryOptions} options
+     *
+     * @param fields list of field names
+     * @return {@link FacetFieldsQuery.Builder}
+     */
+    public Builder withFields(Collection<String> fields) {
+      if (fieldMap == null) {
+        fieldMap = new HashMap<>();
+      }
+      fields.forEach(f -> fieldMap.put(f, FacetQueryOptions.getDefault()));
       return this;
     }
 

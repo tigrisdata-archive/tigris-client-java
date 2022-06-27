@@ -18,7 +18,9 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tigrisdata.db.client.config.TigrisConfiguration;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Assert;
@@ -41,11 +43,18 @@ public class FacetFieldsQueryTest {
   }
 
   @Test
-  public void buildWithFields() {
+  public void buildWithFieldOptions() {
     Map<String, FacetQueryOptions> optionsMap =
         Collections.singletonMap("someField", FacetQueryOptions.newBuilder().withSize(30).build());
     FacetFieldsQuery fields = FacetFieldsQuery.newBuilder().addAll(optionsMap).build();
     Assert.assertEquals(optionsMap, fields.getFacetFields());
+  }
+
+  @Test
+  public void buildWithFields() {
+    List<String> expected = Arrays.asList("field1", "field2", "field3");
+    FacetFieldsQuery fields = FacetFieldsQuery.newBuilder().withFields(expected).build();
+    expected.forEach(e -> Assert.assertTrue(fields.getFacetFields().containsKey(e)));
   }
 
   @Test

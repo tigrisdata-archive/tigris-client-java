@@ -11,7 +11,16 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tigrisdata.db.client;
 
-/** Asynchronous callback to receive events */
-public interface TigrisAsyncStreamer extends TigrisAsyncCallback<StreamEvent> {}
+import com.tigrisdata.db.client.search.SearchResult;
+import com.tigrisdata.db.type.TigrisCollectionType;
+
+/**
+ * Asynchronous callback to receive {@link SearchResult} from server
+ *
+ * @param <T> Collection type
+ */
+public interface TigrisAsyncSearchReader<T extends TigrisCollectionType>
+    extends TigrisAsyncCallback<SearchResult<T>> {}

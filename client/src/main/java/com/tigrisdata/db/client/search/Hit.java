@@ -71,7 +71,7 @@ public final class Hit<T extends TigrisCollectionType> {
     try {
       return new Hit<>(
           objectMapper.readValue(resp.getData().toStringUtf8(), collectionClass),
-          HitMeta.from(resp.getMeta()));
+          HitMeta.from(resp.getMetadata()));
     } catch (JsonProcessingException e) {
       throw new IllegalArgumentException(
           format("Failed to convert response to %s.class", collectionClass.getSimpleName()), e);

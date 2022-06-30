@@ -23,11 +23,11 @@ public class SearchMetaTest {
 
   @Test
   public void convert() {
-    Api.Page page = Api.Page.newBuilder().setPerPage(21).setCurrent(2).setTotal(90).build();
+    Api.Page page = Api.Page.newBuilder().setSize(21).setCurrent(2).setTotal(90).build();
     Api.SearchMetadata resp = Api.SearchMetadata.newBuilder().setFound(1900).setPage(page).build();
     SearchMeta actual = SearchMeta.from(resp);
     Assert.assertEquals(resp.getFound(), actual.getFound());
-    Assert.assertEquals(page.getPerPage(), actual.getPerPage());
+    Assert.assertEquals(page.getSize(), actual.getSize());
     Assert.assertEquals(page.getCurrent(), actual.getCurrentPage());
     Assert.assertEquals(page.getTotal(), actual.getTotalPages());
   }

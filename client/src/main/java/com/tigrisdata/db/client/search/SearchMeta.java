@@ -21,15 +21,15 @@ import java.util.Objects;
 public final class SearchMeta {
 
   private final long found;
-  private final long currentPage;
-  private final long totalPages;
-  private final int perPage;
+  private final int currentPage;
+  private final int totalPages;
+  private final int size;
 
-  private SearchMeta(long found, long currentPage, long totalPages, int perPage) {
+  private SearchMeta(long found, int currentPage, int totalPages, int size) {
     this.found = found;
     this.currentPage = currentPage;
     this.totalPages = totalPages;
-    this.perPage = perPage;
+    this.size = size;
   }
 
   /**
@@ -64,8 +64,8 @@ public final class SearchMeta {
    *
    * @return number of search results displayed per page
    */
-  public int getPerPage() {
-    return perPage;
+  public int getSize() {
+    return size;
   }
 
   /**
@@ -77,7 +77,7 @@ public final class SearchMeta {
   static SearchMeta from(Api.SearchMetadata resp) {
     Objects.requireNonNull(resp);
     Api.Page page = resp.getPage();
-    return new SearchMeta(resp.getFound(), page.getCurrent(), page.getTotal(), page.getPerPage());
+    return new SearchMeta(resp.getFound(), page.getCurrent(), page.getTotal(), page.getSize());
   }
 
   @Override
@@ -100,15 +100,15 @@ public final class SearchMeta {
     if (totalPages != that.totalPages) {
       return false;
     }
-    return perPage == that.perPage;
+    return size == that.size;
   }
 
   @Override
   public int hashCode() {
     int result = (int) (found ^ (found >>> 32));
-    result = 31 * result + (int) (currentPage ^ (currentPage >>> 32));
-    result = 31 * result + (int) (totalPages ^ (totalPages >>> 32));
-    result = 31 * result + perPage;
+    result = 31 * result + currentPage;
+    result = 31 * result + totalPages;
+    result = 31 * result + size;
     return result;
   }
 }

@@ -347,7 +347,7 @@ public class TestUserService extends TigrisGrpc.TigrisImplBase {
                 .setPage(
                     Page.newBuilder()
                         .setTotal(documents.size())
-                        .setPerPage(1)
+                        .setSize(1)
                         .setCurrent(i + 1)
                         .build())
                 .build();

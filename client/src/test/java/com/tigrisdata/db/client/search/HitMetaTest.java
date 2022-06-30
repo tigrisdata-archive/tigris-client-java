@@ -14,13 +14,42 @@
 
 package com.tigrisdata.db.client.search;
 
+import com.google.protobuf.Timestamp;
+import com.tigrisdata.db.api.v1.grpc.Api.SearchHitMeta;
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class HitMetaTest {
 
   @Test
+  public void fromTs() {
+    // June 30, 2022 12:00:00 AM GMT
+    Timestamp june30 = Timestamp.newBuilder().setSeconds(1656547200).build();
+    SearchHitMeta apiResponse = SearchHitMeta.newBuilder().setCreatedAt(june30).build();
+    HitMeta generated = HitMeta.from(apiResponse);
+
+    Assert.assertEquals(june30.getNanos(), generated.getCreatedAt().toInstant().getNano());
+    Assert.assertNull(generated.getUpdatedAt());
+  }
+
+  @Test
+  public void fromDefault() {
+    SearchHitMeta apiResponse = SearchHitMeta.newBuilder().build();
+    HitMeta generated = HitMeta.from(apiResponse);
+    Assert.assertNull(generated.getCreatedAt());
+    Assert.assertNull(generated.getUpdatedAt());
+  }
+
+  @Test
   public void fromNull() {
-    Assert.assertThrows(NullPointerException.class, () -> HitMeta.from(null));
+    HitMeta meta = HitMeta.from(null);
+    Assert.assertNull(meta.getCreatedAt());
+    Assert.assertNull(meta.getUpdatedAt());
+  }
+
+  @Test
+  public void equalsContract() {
+    EqualsVerifier.forClass(HitMeta.class).verify();
   }
 }

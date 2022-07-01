@@ -25,10 +25,11 @@ public class HitMetaTest {
   @Test
   public void fromTs() {
     // June 30, 2022 12:00:00 AM GMT
-    Timestamp june30 = Timestamp.newBuilder().setSeconds(1656547200).build();
+    Timestamp june30 = Timestamp.newBuilder().setSeconds(1656547200).setNanos(12345667).build();
     SearchHitMeta apiResponse = SearchHitMeta.newBuilder().setCreatedAt(june30).build();
     HitMeta generated = HitMeta.from(apiResponse);
 
+    Assert.assertEquals(june30.getSeconds(), generated.getCreatedAt().getEpochSecond());
     Assert.assertEquals(june30.getNanos(), generated.getCreatedAt().getNano());
     Assert.assertNull(generated.getUpdatedAt());
   }

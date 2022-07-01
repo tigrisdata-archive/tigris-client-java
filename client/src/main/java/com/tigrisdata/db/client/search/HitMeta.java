@@ -19,7 +19,6 @@ import com.tigrisdata.db.api.v1.grpc.Api;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Representation of {@link Api.SearchHitMeta} exposing relevance information for the matched
@@ -71,7 +70,7 @@ public final class HitMeta {
     if (ts == null || Timestamp.getDefaultInstance().equals(ts)) {
       return Optional.empty();
     }
-    return Optional.of(Instant.ofEpochMilli(TimeUnit.NANOSECONDS.toMillis(ts.getNanos())));
+    return Optional.of(Instant.ofEpochSecond(ts.getSeconds(), ts.getNanos()));
   }
 
   @Override

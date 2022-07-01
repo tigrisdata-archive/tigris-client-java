@@ -29,7 +29,7 @@ public class HitMetaTest {
     SearchHitMeta apiResponse = SearchHitMeta.newBuilder().setCreatedAt(june30).build();
     HitMeta generated = HitMeta.from(apiResponse);
 
-    Assert.assertEquals(june30.getNanos(), generated.getCreatedAt().toInstant().getNano());
+    Assert.assertEquals(june30.getNanos(), generated.getCreatedAt().getNano());
     Assert.assertNull(generated.getUpdatedAt());
   }
 

@@ -15,11 +15,13 @@ package com.tigrisdata.db.client;
 
 import static com.tigrisdata.db.client.Constants.DESCRIBE_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.Constants.READ_FAILED;
+import static com.tigrisdata.db.client.Constants.SEARCH_FAILED;
 import static com.tigrisdata.db.client.TypeConverter.toCollectionDescription;
 import static com.tigrisdata.db.client.TypeConverter.toCollectionOptions;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tigrisdata.db.api.v1.grpc.Api;
+import com.tigrisdata.db.api.v1.grpc.Api.SearchResponse;
 import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.search.SearchRequest;
@@ -31,6 +33,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 /** Tigris collection implementation */
 class StandardTigrisCollection<T extends TigrisCollectionType> extends AbstractTigrisCollection<T>
@@ -113,7 +116,19 @@ class StandardTigrisCollection<T extends TigrisCollectionType> extends AbstractT
   @Override
   public Iterator<SearchResult<T>> search(SearchRequest request, SearchRequestOptions options)
       throws TigrisException {
-    return this.searchInternal(request, options);
+    Api.SearchRequest apiSearchRequest =
+        TypeConverter.toSearchRequest(databaseName, collectionName, request, options, objectMapper);
+    try {
+      Iterator<Api.SearchResponse> resp = blockingStub.search(apiSearchRequest);
+      Function<SearchResponse, SearchResult<T>> converter =
+          r -> SearchResult.from(r, objectMapper, collectionTypeClass);
+      return Utilities.transformIterator(resp, converter);
+    } catch (StatusRuntimeException statusRuntimeException) {
+      throw new TigrisException(
+          SEARCH_FAILED,
+          TypeConverter.extractTigrisError(statusRuntimeException),
+          statusRuntimeException);
+    }
   }
 
   @Override

@@ -17,8 +17,6 @@ package com.tigrisdata.db.client.search;
 import com.google.protobuf.Timestamp;
 import com.tigrisdata.db.api.v1.grpc.Api;
 import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -28,31 +26,29 @@ import java.util.concurrent.TimeUnit;
  * document.
  */
 public final class HitMeta {
-  private final OffsetDateTime createdAt;
-  private final OffsetDateTime updatedAt;
+  private final Instant createdAt;
+  private final Instant updatedAt;
 
-  private HitMeta(OffsetDateTime createdAt, OffsetDateTime updatedAt) {
+  private HitMeta(Instant createdAt, Instant updatedAt) {
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
   }
 
   /**
-   * Gets the time at which document was inserted/replaced to a precision of milliseconds in {@code
-   * ZoneOffset.UTC}
+   * Gets the Instant in time at which document was inserted/replaced to a precision of milliseconds
    *
-   * @return time in UTC or null
+   * @return time as {@link Instant} or null
    */
-  public OffsetDateTime getCreatedAt() {
+  public Instant getCreatedAt() {
     return createdAt;
   }
 
   /**
-   * Gets the time at which document was updated to a precision of milliseconds in {@code
-   * ZoneOffset.UTC}
+   * Gets the Instant in time at which document was updated to a precision of milliseconds
    *
-   * @return time in UTC or null
+   * @return time as {@link Instant} or null
    */
-  public OffsetDateTime getUpdatedAt() {
+  public Instant getUpdatedAt() {
     return updatedAt;
   }
 
@@ -66,19 +62,16 @@ public final class HitMeta {
     if (resp == null) {
       return new HitMeta(null, null);
     }
-    OffsetDateTime createdAt = protoTsToOffsetDateTime(resp.getCreatedAt()).orElse(null);
-    OffsetDateTime updatedAt = protoTsToOffsetDateTime(resp.getUpdatedAt()).orElse(null);
+    Instant createdAt = protoTsToInstant(resp.getCreatedAt()).orElse(null);
+    Instant updatedAt = protoTsToInstant(resp.getUpdatedAt()).orElse(null);
     return new HitMeta(createdAt, updatedAt);
   }
 
-  private static Optional<OffsetDateTime> protoTsToOffsetDateTime(Timestamp ts) {
+  private static Optional<Instant> protoTsToInstant(Timestamp ts) {
     if (ts == null || Timestamp.getDefaultInstance().equals(ts)) {
       return Optional.empty();
     }
-
-    return Optional.of(
-        OffsetDateTime.ofInstant(
-            Instant.ofEpochMilli(TimeUnit.NANOSECONDS.toMillis(ts.getNanos())), ZoneOffset.UTC));
+    return Optional.of(Instant.ofEpochMilli(TimeUnit.NANOSECONDS.toMillis(ts.getNanos())));
   }
 
   @Override

@@ -23,16 +23,16 @@ public class SearchRequestOptionsTest {
   @Test
   public void build() {
     SearchRequestOptions options =
-        SearchRequestOptions.newBuilder().withPage(5).withPerPage(20).build();
+        SearchRequestOptions.newBuilder().withPage(5).withPerPage(32).build();
     Assert.assertEquals(5, options.getPage());
-    Assert.assertEquals(20, options.getPerPage());
+    Assert.assertEquals(32, options.getPerPage());
   }
 
   @Test
   public void getDefault() {
     SearchRequestOptions options = SearchRequestOptions.getDefault();
     Assert.assertEquals(1, options.getPage());
-    Assert.assertEquals(10, options.getPerPage());
+    Assert.assertEquals(20, options.getPerPage());
   }
 
   @Test

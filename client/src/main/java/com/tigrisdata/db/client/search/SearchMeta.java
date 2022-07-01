@@ -33,18 +33,18 @@ public final class SearchMeta {
   }
 
   /**
-   * Gets total number of matches for the search query
+   * Gets total number of results for the search query
    *
-   * @return total number of matches for the search query
+   * @return total number of results for the search query
    */
   public long getFound() {
     return found;
   }
 
   /**
-   * Gets total number of pages for the search results
+   * Gets total number of pages of the search results
    *
-   * @return total number of pages for the search results
+   * @return total number of pages of the search results
    */
   public int getTotalPages() {
     return totalPages;

@@ -100,7 +100,7 @@ abstract class AbstractTigrisCollection<T extends TigrisCollectionType> {
   protected Iterator<SearchResult<T>> searchInternal(
       SearchRequest request, SearchRequestOptions options) throws TigrisException {
     Api.SearchRequest apiSearchRequest =
-        TypeConverter.toSearchRequest(databaseName, collectionName, request, objectMapper);
+        TypeConverter.toSearchRequest(databaseName, collectionName, request, options, objectMapper);
     try {
       Iterator<Api.SearchResponse> resp = blockingStub.search(apiSearchRequest);
       Function<SearchResponse, SearchResult<T>> converter =

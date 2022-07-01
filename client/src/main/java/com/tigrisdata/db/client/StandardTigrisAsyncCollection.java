@@ -125,7 +125,7 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
   public void search(
       SearchRequest request, SearchRequestOptions options, TigrisAsyncSearchReader<T> reader) {
     Api.SearchRequest searchRequest =
-        toSearchRequest(databaseName, collectionName, request, objectMapper);
+        toSearchRequest(databaseName, collectionName, request, options, objectMapper);
     stub.search(
         searchRequest,
         new SearchResponseObserverAdapter<>(reader, collectionTypeClass, objectMapper));

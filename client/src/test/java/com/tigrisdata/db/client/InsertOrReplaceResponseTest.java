@@ -14,6 +14,7 @@
 package com.tigrisdata.db.client;
 
 import com.google.protobuf.Timestamp;
+import java.time.Instant;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -70,15 +71,18 @@ public class InsertOrReplaceResponseTest {
   @Test
   public void accessorTest() {
     final String status = UUID.randomUUID().toString();
+    final Instant now = Instant.now();
     Timestamp createdAt =
-        Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
+        Timestamp.newBuilder().setSeconds(now.getEpochSecond()).setNanos(now.getNano()).build();
     Timestamp updatedAt =
-        Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
+        Timestamp.newBuilder().setSeconds(now.getEpochSecond()).setNanos(now.getNano()).build();
     InsertOrReplaceResponse ob =
         new InsertOrReplaceResponse(
             status, createdAt, updatedAt, new TreeMap[0], Collections.emptyList());
     Assert.assertEquals(status, ob.getStatus());
-    Assert.assertEquals(createdAt, ob.getMetadata().getCreatedAt());
-    Assert.assertEquals(updatedAt, ob.getMetadata().getUpdatedAt());
+    Assert.assertEquals(createdAt.getNanos(), ob.getMetadata().getCreatedAt().getNano());
+    Assert.assertEquals(createdAt.getSeconds(), ob.getMetadata().getCreatedAt().getEpochSecond());
+    Assert.assertEquals(updatedAt.getNanos(), ob.getMetadata().getUpdatedAt().getNano());
+    Assert.assertEquals(updatedAt.getSeconds(), ob.getMetadata().getUpdatedAt().getEpochSecond());
   }
 }

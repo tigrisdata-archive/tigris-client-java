@@ -15,14 +15,15 @@ package com.tigrisdata.db.client;
 
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
-import org.junit.Assert;
-import org.junit.Test;
-
+import com.google.protobuf.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class UtilitiesTest {
 
@@ -105,5 +106,18 @@ public class UtilitiesTest {
         });
     listenableFuture.setException(testException);
     Assert.assertTrue(completed.get());
+  }
+
+  @Test
+  public void testTsToInstantConversion() {
+    Timestamp expected = Timestamp.newBuilder().setSeconds(1640995200).setNanos(12345123).build();
+    Instant actual = Utilities.protoTimestampToInstant(expected);
+    Assert.assertEquals(expected.getSeconds(), actual.getEpochSecond());
+    Assert.assertEquals(expected.getNanos(), actual.getNano());
+  }
+
+  @Test
+  public void testTimestampConversionThrowsException() {
+    Assert.assertThrows(NullPointerException.class, () -> Utilities.protoTimestampToInstant(null));
   }
 }

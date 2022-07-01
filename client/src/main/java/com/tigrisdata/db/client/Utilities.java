@@ -18,11 +18,14 @@ import com.google.common.reflect.ClassPath;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.protobuf.Timestamp;
 import com.tigrisdata.db.annotation.TigrisCollection;
 import com.tigrisdata.db.annotation.TigrisPrimaryKey;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisCollectionType;
 import io.grpc.StatusRuntimeException;
+import java.time.Instant;
+import java.util.Objects;
 import org.atteo.evo.inflector.English;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -190,6 +193,18 @@ final class Utilities {
         },
         executor);
     return result;
+  }
+
+  /**
+   * Converts a {@code protobuf.Timestamp} to {@link Instant}
+   *
+   * @param ts non null {@code protobuf.Timestamp}
+   * @return {@link Instant}
+   * @throws NullPointerException if given timestamp is null
+   */
+  static Instant protoTimestampToInstant(Timestamp ts) {
+    Objects.requireNonNull(ts);
+    return Instant.ofEpochSecond(ts.getSeconds(), ts.getNanos());
   }
 
   static class ConvertedIterator<F, T> implements Iterator<T> {

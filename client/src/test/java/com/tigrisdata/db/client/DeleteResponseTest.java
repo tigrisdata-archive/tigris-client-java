@@ -14,6 +14,7 @@
 package com.tigrisdata.db.client;
 
 import com.google.protobuf.Timestamp;
+import java.time.Instant;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -58,14 +59,12 @@ public class DeleteResponseTest {
   @Test
   public void accessorTest() {
     final String status = UUID.randomUUID().toString();
-
-    final Timestamp createdAt =
-        Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
-    final Timestamp updatedAt =
-        Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
+    final Instant now = Instant.now();
+    final Timestamp createdAt = Timestamp.newBuilder().setSeconds(now.getEpochSecond()).build();
+    final Timestamp updatedAt = Timestamp.newBuilder().setSeconds(now.getEpochSecond()).build();
     DeleteResponse ob = new DeleteResponse(status, createdAt, updatedAt);
     Assert.assertEquals(status, ob.getStatus());
-    Assert.assertEquals(createdAt, ob.getMetadata().getCreatedAt());
-    Assert.assertEquals(updatedAt, ob.getMetadata().getUpdatedAt());
+    Assert.assertEquals(createdAt.getSeconds(), ob.getMetadata().getCreatedAt().getEpochSecond());
+    Assert.assertEquals(updatedAt.getSeconds(), ob.getMetadata().getUpdatedAt().getEpochSecond());
   }
 }

@@ -14,7 +14,7 @@
 package com.tigrisdata.db.client;
 
 import com.google.protobuf.Timestamp;
-
+import java.time.Instant;
 import java.util.Objects;
 
 class DMLResponse extends TigrisResponse {
@@ -23,7 +23,7 @@ class DMLResponse extends TigrisResponse {
 
   DMLResponse(String status, Timestamp createdAt, Timestamp updatedAt) {
     super(status);
-    this.metadata = new Metadata(createdAt, updatedAt);
+    this.metadata = Metadata.from(createdAt, updatedAt);
   }
 
   /** @return metadata about this operation */
@@ -36,26 +36,31 @@ class DMLResponse extends TigrisResponse {
   }
 
   static class Metadata {
-    private final Timestamp createdAt;
-    private final Timestamp updatedAt;
+    private final Instant createdAt;
+    private final Instant updatedAt;
 
-    public Metadata(Timestamp createdAt, Timestamp updatedAt) {
+    public Metadata(Instant createdAt, Instant updatedAt) {
       this.createdAt = createdAt;
       this.updatedAt = updatedAt;
     }
 
+    private static Metadata from(Timestamp createdAt, Timestamp updatedAt) {
+      Instant _created = Utilities.protoTimestampToInstant(createdAt);
+      Instant _updated = Utilities.protoTimestampToInstant(updatedAt);
+      return new Metadata(_created, _updated);
+    }
+
     /**
-     * @return Time at which the document was inserted/replaced. Measured in nano-seconds since the
-     *     Unix epoch.
+     * @return Instant in time at which the document was inserted/replaced. Measured in nanoseconds
+     *     since the Unix epoch.
      */
-    public Timestamp getCreatedAt() {
+    public Instant getCreatedAt() {
       return createdAt;
     }
     /**
-     * @return Time at which the document was updated. Measured in nano-seconds since the Unix
-     *     epoch.
+     * @return Time at which the document was updated. Measured in nanoseconds since the Unix epoch.
      */
-    public Timestamp getUpdatedAt() {
+    public Instant getUpdatedAt() {
       return updatedAt;
     }
 

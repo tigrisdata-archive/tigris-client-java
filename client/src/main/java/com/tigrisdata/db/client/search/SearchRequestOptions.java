@@ -16,12 +16,12 @@ package com.tigrisdata.db.client.search;
 
 /** Builder class for pagination options for search request */
 public final class SearchRequestOptions {
-  private static final long CURRENT_PAGE = 1;
-  private static final long DEFAULT_PER_PAGE = 10;
+  private static final int CURRENT_PAGE = 1;
+  private static final int DEFAULT_PER_PAGE = 20;
   private static final SearchRequestOptions DEFAULT_INSTANCE = newBuilder().build();
 
-  private final long page;
-  private final long perPage;
+  private final int page;
+  private final int perPage;
 
   private SearchRequestOptions(Builder builder) {
     this.page = builder.page;
@@ -33,7 +33,7 @@ public final class SearchRequestOptions {
    *
    * @return page number to fetch search results
    */
-  public long getPage() {
+  public int getPage() {
     return page;
   }
 
@@ -42,7 +42,7 @@ public final class SearchRequestOptions {
    *
    * @return number of results to fetch per page
    */
-  public long getPerPage() {
+  public int getPerPage() {
     return perPage;
   }
 
@@ -68,18 +68,18 @@ public final class SearchRequestOptions {
       return false;
     }
 
-    SearchRequestOptions that = (SearchRequestOptions) o;
+    SearchRequestOptions options = (SearchRequestOptions) o;
 
-    if (page != that.page) {
+    if (page != options.page) {
       return false;
     }
-    return perPage == that.perPage;
+    return perPage == options.perPage;
   }
 
   @Override
   public int hashCode() {
-    int result = (int) (page ^ (page >>> 32));
-    result = 31 * result + (int) (perPage ^ (perPage >>> 32));
+    int result = page;
+    result = 31 * result + perPage;
     return result;
   }
 
@@ -93,8 +93,8 @@ public final class SearchRequestOptions {
   }
 
   public static final class Builder {
-    private long page;
-    private long perPage;
+    private int page;
+    private int perPage;
 
     private Builder() {
       this.page = CURRENT_PAGE;
@@ -102,12 +102,12 @@ public final class SearchRequestOptions {
     }
 
     /**
-     * Sets the page number to fetch search results
+     * Sets the page number to fetch search results for
      *
      * @param page number
      * @return {@link SearchRequestOptions.Builder}
      */
-    public Builder withPage(long page) {
+    public Builder withPage(int page) {
       this.page = page;
       return this;
     }
@@ -118,7 +118,7 @@ public final class SearchRequestOptions {
      * @param perPage number of results to fetch per page
      * @return {@link SearchRequestOptions.Builder}
      */
-    public Builder withPerPage(long perPage) {
+    public Builder withPerPage(int perPage) {
       this.perPage = perPage;
       return this;
     }

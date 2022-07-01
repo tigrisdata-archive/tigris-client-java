@@ -344,12 +344,8 @@ public class TestUserService extends TigrisGrpc.TigrisImplBase {
         Api.SearchMetadata searchMeta =
             SearchMetadata.newBuilder()
                 .setFound(documents.size())
-                .setPage(
-                    Page.newBuilder()
-                        .setTotal(documents.size())
-                        .setPerPage(1)
-                        .setCurrent(i + 1)
-                        .build())
+                .setTotalPages(documents.size())
+                .setPage(Page.newBuilder().setSize(1).setCurrent(i + 1).build())
                 .build();
         Api.SearchHit hit =
             SearchHit.newBuilder()

@@ -26,6 +26,7 @@ import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import com.tigrisdata.db.client.error.TigrisError;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.search.SearchRequest;
+import com.tigrisdata.db.client.search.SearchRequestOptions;
 import io.grpc.Metadata;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.MetadataUtils;
@@ -155,7 +156,11 @@ final class TypeConverter {
   }
 
   public static Api.SearchRequest toSearchRequest(
-      String databaseName, String collectionName, SearchRequest req, ObjectMapper objectMapper) {
+      String databaseName,
+      String collectionName,
+      SearchRequest req,
+      SearchRequestOptions options,
+      ObjectMapper objectMapper) {
     Api.SearchRequest.Builder builder =
         Api.SearchRequest.newBuilder()
             .setDb(databaseName)
@@ -175,6 +180,10 @@ final class TypeConverter {
     }
     if (Objects.nonNull(req.getReadFields())) {
       builder.setFields(ByteString.copyFromUtf8(req.getReadFields().toJSON(objectMapper)));
+    }
+    if (Objects.nonNull(options)) {
+      builder.setPage(options.getPage());
+      builder.setPageSize(options.getPerPage());
     }
     return builder.build();
   }

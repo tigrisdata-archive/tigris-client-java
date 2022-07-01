@@ -25,6 +25,7 @@ import com.tigrisdata.db.client.error.TigrisError;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.search.QueryString;
 import com.tigrisdata.db.client.search.SearchRequest;
+import com.tigrisdata.db.client.search.SearchRequestOptions;
 import io.grpc.StatusRuntimeException;
 import io.grpc.protobuf.StatusProto;
 import org.junit.Assert;
@@ -84,8 +85,11 @@ public class TypeConverterTest {
   public void toSearchRequest() {
     SearchRequest input =
         SearchRequest.newBuilder(QueryString.newBuilder("search str").build()).build();
+    SearchRequestOptions options =
+        SearchRequestOptions.newBuilder().withPage(8).withPerPage(30).build();
     Api.SearchRequest apiSearchRequest =
-        TypeConverter.toSearchRequest(DB_NAME, COLLECTION_NAME, input, DEFAULT_OBJECT_MAPPER);
+        TypeConverter.toSearchRequest(
+            DB_NAME, COLLECTION_NAME, input, options, DEFAULT_OBJECT_MAPPER);
 
     Assert.assertEquals(input.getQuery().toJSON(DEFAULT_OBJECT_MAPPER), apiSearchRequest.getQ());
     Assert.assertNotNull(apiSearchRequest.getSearchFieldsList());
@@ -93,5 +97,7 @@ public class TypeConverterTest {
     Assert.assertNotNull(apiSearchRequest.getFilter());
     Assert.assertNotNull(apiSearchRequest.getSort());
     Assert.assertNotNull(apiSearchRequest.getFields());
+    Assert.assertEquals(options.getPage(), apiSearchRequest.getPage());
+    Assert.assertEquals(options.getPerPage(), apiSearchRequest.getPageSize());
   }
 }

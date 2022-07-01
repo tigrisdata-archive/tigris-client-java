@@ -14,6 +14,7 @@
 package com.tigrisdata.db.client;
 
 import com.google.protobuf.Timestamp;
+import java.time.Instant;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -55,14 +56,15 @@ public class UpdateResponseTest {
   @Test
   public void testAccessor() {
     final String status = UUID.randomUUID().toString();
+    final Instant now = Instant.now();
     Timestamp createdAt =
-        Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
+        Timestamp.newBuilder().setSeconds(now.getEpochSecond()).setNanos(now.getNano()).build();
     Timestamp updatedAt =
-        Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
+        Timestamp.newBuilder().setSeconds(now.getEpochSecond()).setNanos(now.getNano()).build();
     UpdateResponse ob = new UpdateResponse(status, createdAt, updatedAt, 1);
     Assert.assertEquals(1L, ob.getModifiedCount());
     Assert.assertEquals(status, ob.getStatus());
-    Assert.assertEquals(createdAt, ob.getMetadata().getCreatedAt());
-    Assert.assertEquals(updatedAt, ob.getMetadata().getUpdatedAt());
+    Assert.assertEquals(now, ob.getMetadata().getCreatedAt());
+    Assert.assertEquals(now, ob.getMetadata().getUpdatedAt());
   }
 }

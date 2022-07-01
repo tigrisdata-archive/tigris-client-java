@@ -14,14 +14,15 @@
 package com.tigrisdata.db.client;
 
 import com.google.protobuf.Timestamp;
-import org.junit.Assert;
-import org.junit.Test;
-
+import java.time.Instant;
 import java.util.Collections;
 import java.util.TreeMap;
 import java.util.UUID;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class InsertResponseTest {
+
   @Test
   public void equalsTest() {
     Timestamp createdAt =
@@ -63,15 +64,22 @@ public class InsertResponseTest {
   @Test
   public void accessorTest() {
     final String status = UUID.randomUUID().toString();
-
+    final Instant createdInstant = Instant.now();
     Timestamp createdAt =
-        Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
+        Timestamp.newBuilder()
+            .setSeconds(createdInstant.getEpochSecond())
+            .setNanos(createdInstant.getNano())
+            .build();
+    final Instant updatedInstant = Instant.now();
     Timestamp updatedAt =
-        Timestamp.newBuilder().setSeconds(System.currentTimeMillis() / 1000).build();
+        Timestamp.newBuilder()
+            .setSeconds(updatedInstant.getEpochSecond())
+            .setNanos(updatedInstant.getNano())
+            .build();
     InsertResponse ob =
         new InsertResponse(status, createdAt, updatedAt, new TreeMap[0], Collections.emptyList());
     Assert.assertEquals(status, ob.getStatus());
-    Assert.assertEquals(ob.getMetadata().getCreatedAt(), createdAt);
-    Assert.assertEquals(ob.getMetadata().getCreatedAt(), updatedAt);
+    Assert.assertEquals(ob.getMetadata().getCreatedAt(), createdInstant);
+    Assert.assertEquals(ob.getMetadata().getCreatedAt(), updatedInstant);
   }
 }

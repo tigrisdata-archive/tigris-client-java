@@ -80,6 +80,6 @@ public class InsertResponseTest {
         new InsertResponse(status, createdAt, updatedAt, new TreeMap[0], Collections.emptyList());
     Assert.assertEquals(status, ob.getStatus());
     Assert.assertEquals(ob.getMetadata().getCreatedAt(), createdInstant);
-    Assert.assertEquals(ob.getMetadata().getCreatedAt(), updatedInstant);
+    Assert.assertEquals(ob.getMetadata().getUpdatedAt(), updatedInstant);
   }
 }

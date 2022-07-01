@@ -37,8 +37,8 @@ public final class HitMeta {
   }
 
   /**
-   * Gets the time at which document was inserted/replaced to a precision of milliseconds
-   * in {@code ZoneOffset.UTC}
+   * Gets the time at which document was inserted/replaced to a precision of milliseconds in {@code
+   * ZoneOffset.UTC}
    *
    * @return time in UTC or null
    */
@@ -47,8 +47,8 @@ public final class HitMeta {
   }
 
   /**
-   * Gets the time at which document was updated to a precision of milliseconds
-   * in {@code ZoneOffset.UTC}
+   * Gets the time at which document was updated to a precision of milliseconds in {@code
+   * ZoneOffset.UTC}
    *
    * @return time in UTC or null
    */
@@ -77,9 +77,8 @@ public final class HitMeta {
     }
 
     return Optional.of(
-        OffsetDateTime.ofInstant(Instant.ofEpochMilli(
-            TimeUnit.NANOSECONDS.toMillis(ts.getNanos())
-        ), ZoneOffset.UTC));
+        OffsetDateTime.ofInstant(
+            Instant.ofEpochMilli(TimeUnit.NANOSECONDS.toMillis(ts.getNanos())), ZoneOffset.UTC));
   }
 
   @Override

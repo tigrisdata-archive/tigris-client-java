@@ -21,14 +21,14 @@ import java.util.Objects;
 public final class SearchMeta {
 
   private final long found;
-  private final int currentPage;
   private final int totalPages;
+  private final int currentPage;
   private final int size;
 
-  private SearchMeta(long found, int currentPage, int totalPages, int size) {
+  private SearchMeta(long found, int totalPages, int currentPage, int size) {
     this.found = found;
-    this.currentPage = currentPage;
     this.totalPages = totalPages;
+    this.currentPage = currentPage;
     this.size = size;
   }
 
@@ -42,21 +42,21 @@ public final class SearchMeta {
   }
 
   /**
-   * Gets current page number for the paginated search results
-   *
-   * @return current page number for the paginated search results
-   */
-  public long getCurrentPage() {
-    return currentPage;
-  }
-
-  /**
    * Gets total number of pages for the search results
    *
    * @return total number of pages for the search results
    */
-  public long getTotalPages() {
+  public int getTotalPages() {
     return totalPages;
+  }
+
+  /**
+   * Gets current page number for the paginated search results
+   *
+   * @return current page number for the paginated search results
+   */
+  public int getCurrentPage() {
+    return currentPage;
   }
 
   /**
@@ -77,7 +77,7 @@ public final class SearchMeta {
   static SearchMeta from(Api.SearchMetadata resp) {
     Objects.requireNonNull(resp);
     Api.Page page = resp.getPage();
-    return new SearchMeta(resp.getFound(), page.getCurrent(), page.getTotal(), page.getSize());
+    return new SearchMeta(resp.getFound(), resp.getTotalPages(), page.getCurrent(), page.getSize());
   }
 
   @Override

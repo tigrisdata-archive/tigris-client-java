@@ -23,13 +23,13 @@ public final class SearchMeta {
   private final long found;
   private final int totalPages;
   private final int currentPage;
-  private final int size;
+  private final int perPage;
 
-  private SearchMeta(long found, int totalPages, int currentPage, int size) {
+  private SearchMeta(long found, int totalPages, int currentPage, int perPage) {
     this.found = found;
     this.totalPages = totalPages;
     this.currentPage = currentPage;
-    this.size = size;
+    this.perPage = perPage;
   }
 
   /**
@@ -64,8 +64,8 @@ public final class SearchMeta {
    *
    * @return number of search results displayed per page
    */
-  public int getSize() {
-    return size;
+  public int getPerPage() {
+    return perPage;
   }
 
   /**
@@ -100,7 +100,7 @@ public final class SearchMeta {
     if (totalPages != that.totalPages) {
       return false;
     }
-    return size == that.size;
+    return perPage == that.perPage;
   }
 
   @Override
@@ -108,7 +108,7 @@ public final class SearchMeta {
     int result = (int) (found ^ (found >>> 32));
     result = 31 * result + currentPage;
     result = 31 * result + totalPages;
-    result = 31 * result + size;
+    result = 31 * result + perPage;
     return result;
   }
 }

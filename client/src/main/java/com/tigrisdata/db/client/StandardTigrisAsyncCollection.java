@@ -133,7 +133,7 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
 
   @Override
   public void search(SearchRequest request, TigrisAsyncSearchReader<T> reader) {
-    this.search(request, SearchRequestOptions.getDefault(), reader);
+    this.search(request, null, reader);
   }
 
   @Override

@@ -133,7 +133,7 @@ class StandardTigrisCollection<T extends TigrisCollectionType> extends AbstractT
 
   @Override
   public Iterator<SearchResult<T>> search(SearchRequest request) throws TigrisException {
-    return this.search(request, SearchRequestOptions.getDefault());
+    return this.search(request, null);
   }
 
   @Override

@@ -19,27 +19,31 @@ import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class SearchMetaTest {
+public class PageTest {
 
   @Test
   public void convert() {
-    Api.Page page = Api.Page.newBuilder().setSize(21).setCurrent(2).build();
-    Api.SearchMetadata resp =
-        Api.SearchMetadata.newBuilder().setFound(1900).setTotalPages(90).setPage(page).build();
-    SearchMeta actual = SearchMeta.from(resp);
-    Assert.assertEquals(resp.getFound(), actual.getFound());
-    Assert.assertEquals(page.getSize(), actual.getPage().getSize());
-    Assert.assertEquals(page.getCurrent(), actual.getPage().getCurrent());
-    Assert.assertEquals(resp.getTotalPages(), actual.getTotalPages());
+    Api.Page page = Api.Page.newBuilder().setCurrent(12).setSize(19).build();
+    Page actual = Page.from(page);
+    Assert.assertEquals(12, actual.getCurrent());
+    Assert.assertEquals(19, actual.getSize());
+  }
+
+  @Test
+  public void convertFromDefault() {
+    Api.Page page = Api.Page.newBuilder().build();
+    Page actual = Page.from(page);
+    Assert.assertEquals(0, actual.getCurrent());
+    Assert.assertEquals(0, actual.getSize());
   }
 
   @Test
   public void convertFromNull() {
-    Assert.assertThrows(NullPointerException.class, () -> SearchMeta.from(null));
+    Assert.assertThrows(NullPointerException.class, () -> Page.from(null));
   }
 
   @Test
   public void equalsContract() {
-    EqualsVerifier.forClass(SearchMeta.class).verify();
+    EqualsVerifier.forClass(Page.class).verify();
   }
 }

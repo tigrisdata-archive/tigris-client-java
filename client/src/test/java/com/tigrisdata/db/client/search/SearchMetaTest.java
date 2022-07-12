@@ -28,8 +28,8 @@ public class SearchMetaTest {
         Api.SearchMetadata.newBuilder().setFound(1900).setTotalPages(90).setPage(page).build();
     SearchMeta actual = SearchMeta.from(resp);
     Assert.assertEquals(resp.getFound(), actual.getFound());
-    Assert.assertEquals(page.getSize(), actual.getPerPage());
-    Assert.assertEquals(page.getCurrent(), actual.getCurrentPage());
+    Assert.assertEquals(page.getSize(), actual.getPage().getSize());
+    Assert.assertEquals(page.getCurrent(), actual.getPage().getCurrent());
     Assert.assertEquals(resp.getTotalPages(), actual.getTotalPages());
   }
 

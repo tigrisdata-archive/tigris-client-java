@@ -22,11 +22,11 @@ public final class FacetStats {
 
   private final double avg;
   private final long count;
-  private final long max;
-  private final long min;
-  private final long sum;
+  private final double max;
+  private final double min;
+  private final double sum;
 
-  private FacetStats(double avg, long count, long max, long min, long sum) {
+  private FacetStats(double avg, long count, double max, double min, double sum) {
     this.avg = avg;
     this.count = count;
     this.max = max;
@@ -57,7 +57,7 @@ public final class FacetStats {
    *
    * @return `0` or maximum numeric value for a field
    */
-  public long getMax() {
+  public double getMax() {
     return max;
   }
 
@@ -66,7 +66,7 @@ public final class FacetStats {
    *
    * @return `0` or minimum numeric value for a field
    */
-  public long getMin() {
+  public double getMin() {
     return min;
   }
 
@@ -75,7 +75,7 @@ public final class FacetStats {
    *
    * @return `0` or sum of numeric values in the field
    */
-  public long getSum() {
+  public double getSum() {
     return sum;
   }
 
@@ -109,13 +109,13 @@ public final class FacetStats {
     if (count != that.count) {
       return false;
     }
-    if (max != that.max) {
+    if (Double.compare(that.max, max) != 0) {
       return false;
     }
-    if (min != that.min) {
+    if (Double.compare(that.min, min) != 0) {
       return false;
     }
-    return sum == that.sum;
+    return Double.compare(that.sum, sum) == 0;
   }
 
   @Override
@@ -125,9 +125,12 @@ public final class FacetStats {
     temp = Double.doubleToLongBits(avg);
     result = (int) (temp ^ (temp >>> 32));
     result = 31 * result + (int) (count ^ (count >>> 32));
-    result = 31 * result + (int) (max ^ (max >>> 32));
-    result = 31 * result + (int) (min ^ (min >>> 32));
-    result = 31 * result + (int) (sum ^ (sum >>> 32));
+    temp = Double.doubleToLongBits(max);
+    result = 31 * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(min);
+    result = 31 * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(sum);
+    result = 31 * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
 }

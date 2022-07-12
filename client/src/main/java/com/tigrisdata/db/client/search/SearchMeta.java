@@ -22,14 +22,12 @@ public final class SearchMeta {
 
   private final long found;
   private final int totalPages;
-  private final int currentPage;
-  private final int perPage;
+  private final Page page;
 
-  private SearchMeta(long found, int totalPages, int currentPage, int perPage) {
+  private SearchMeta(long found, int totalPages, Page page) {
     this.found = found;
     this.totalPages = totalPages;
-    this.currentPage = currentPage;
-    this.perPage = perPage;
+    this.page = page;
   }
 
   /**
@@ -51,21 +49,12 @@ public final class SearchMeta {
   }
 
   /**
-   * Gets current page number for the paginated search results
+   * Gets current page information
    *
-   * @return current page number for the paginated search results
+   * @return current page
    */
-  public int getCurrentPage() {
-    return currentPage;
-  }
-
-  /**
-   * Gets number of search results displayed per page
-   *
-   * @return number of search results displayed per page
-   */
-  public int getPerPage() {
-    return perPage;
+  public Page getPage() {
+    return page;
   }
 
   /**
@@ -76,8 +65,8 @@ public final class SearchMeta {
    */
   static SearchMeta from(Api.SearchMetadata resp) {
     Objects.requireNonNull(resp);
-    Api.Page page = resp.getPage();
-    return new SearchMeta(resp.getFound(), resp.getTotalPages(), page.getCurrent(), page.getSize());
+    Page page = Page.from(resp.getPage());
+    return new SearchMeta(resp.getFound(), resp.getTotalPages(), page);
   }
 
   @Override
@@ -94,21 +83,17 @@ public final class SearchMeta {
     if (found != that.found) {
       return false;
     }
-    if (currentPage != that.currentPage) {
-      return false;
-    }
     if (totalPages != that.totalPages) {
       return false;
     }
-    return perPage == that.perPage;
+    return Objects.equals(page, that.page);
   }
 
   @Override
   public int hashCode() {
     int result = (int) (found ^ (found >>> 32));
-    result = 31 * result + currentPage;
     result = 31 * result + totalPages;
-    result = 31 * result + perPage;
+    result = 31 * result + (page != null ? page.hashCode() : 0);
     return result;
   }
 }

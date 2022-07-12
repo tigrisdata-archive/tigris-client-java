@@ -19,33 +19,31 @@ import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class FacetStatsTest {
+public class PageTest {
 
   @Test
   public void convert() {
-    Api.FacetStats resp =
-        Api.FacetStats.newBuilder()
-            .setCount(12)
-            .setAvg(8.2f)
-            .setMax(40)
-            .setMin(2)
-            .setSum(120)
-            .build();
-    FacetStats actual = FacetStats.from(resp);
-    Assert.assertEquals(resp.getAvg(), actual.getAvg(), 0);
-    Assert.assertEquals(resp.getCount(), actual.getCount());
-    Assert.assertEquals(resp.getSum(), actual.getSum(), 0);
-    Assert.assertEquals(resp.getMax(), actual.getMax(), 0);
-    Assert.assertEquals(resp.getMin(), actual.getMin(), 0);
+    Api.Page page = Api.Page.newBuilder().setCurrent(12).setSize(19).build();
+    Page actual = Page.from(page);
+    Assert.assertEquals(12, actual.getCurrent());
+    Assert.assertEquals(19, actual.getSize());
+  }
+
+  @Test
+  public void convertFromDefault() {
+    Api.Page page = Api.Page.newBuilder().build();
+    Page actual = Page.from(page);
+    Assert.assertEquals(0, actual.getCurrent());
+    Assert.assertEquals(0, actual.getSize());
   }
 
   @Test
   public void convertFromNull() {
-    Assert.assertThrows(NullPointerException.class, () -> FacetStats.from(null));
+    Assert.assertThrows(NullPointerException.class, () -> Page.from(null));
   }
 
   @Test
   public void equalsContract() {
-    EqualsVerifier.forClass(FacetStats.class).verify();
+    EqualsVerifier.forClass(Page.class).verify();
   }
 }

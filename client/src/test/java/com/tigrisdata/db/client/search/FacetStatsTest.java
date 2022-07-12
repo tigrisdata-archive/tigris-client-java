@@ -34,9 +34,9 @@ public class FacetStatsTest {
     FacetStats actual = FacetStats.from(resp);
     Assert.assertEquals(resp.getAvg(), actual.getAvg(), 0);
     Assert.assertEquals(resp.getCount(), actual.getCount());
-    Assert.assertEquals(resp.getSum(), actual.getSum());
-    Assert.assertEquals(resp.getMax(), actual.getMax());
-    Assert.assertEquals(resp.getMin(), actual.getMin());
+    Assert.assertEquals(resp.getSum(), actual.getSum(), 0);
+    Assert.assertEquals(resp.getMax(), actual.getMax(), 0);
+    Assert.assertEquals(resp.getMin(), actual.getMin(), 0);
   }
 
   @Test

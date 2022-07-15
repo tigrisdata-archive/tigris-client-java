@@ -13,7 +13,7 @@ public class ReadFieldsTest {
 
   @Test
   public void emptyReadFields() {
-    ReadFields emptyReadFields = ReadFields.empty();
+    ReadFields emptyReadFields = ReadFields.all();
     Assert.assertTrue(emptyReadFields.isEmpty());
   }
 

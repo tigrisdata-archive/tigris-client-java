@@ -13,22 +13,22 @@
  */
 package com.tigrisdata.db.client;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tigrisdata.db.api.v1.grpc.Api;
+import com.tigrisdata.db.api.v1.grpc.Api.SearchResponse;
+import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import static com.tigrisdata.db.client.Constants.DESCRIBE_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.Constants.READ_FAILED;
 import static com.tigrisdata.db.client.Constants.SEARCH_FAILED;
 import static com.tigrisdata.db.client.TypeConverter.toCollectionDescription;
 import static com.tigrisdata.db.client.TypeConverter.toCollectionOptions;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tigrisdata.db.api.v1.grpc.Api;
-import com.tigrisdata.db.api.v1.grpc.Api.SearchResponse;
-import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.search.SearchRequest;
 import com.tigrisdata.db.client.search.SearchRequestOptions;
 import com.tigrisdata.db.client.search.SearchResult;
 import com.tigrisdata.db.type.TigrisCollectionType;
 import io.grpc.StatusRuntimeException;
+
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -57,12 +57,12 @@ class StandardTigrisCollection<T extends TigrisCollectionType> extends AbstractT
   @Override
   public Iterator<T> read(TigrisFilter filter, ReadRequestOptions readRequestOptions)
       throws TigrisException {
-    return this.read(filter, ReadFields.empty(), readRequestOptions);
+    return this.read(filter, ReadFields.all(), readRequestOptions);
   }
 
   @Override
   public Iterator<T> read(TigrisFilter filter) throws TigrisException {
-    return this.read(filter, ReadFields.empty(), new ReadRequestOptions());
+    return this.read(filter, ReadFields.all(), new ReadRequestOptions());
   }
 
   @Override
@@ -77,7 +77,7 @@ class StandardTigrisCollection<T extends TigrisCollectionType> extends AbstractT
 
   @Override
   public Iterator<T> read(TransactionSession tx, TigrisFilter filter) throws TigrisException {
-    return this.read(tx, filter, ReadFields.empty(), new ReadRequestOptions());
+    return this.read(tx, filter, ReadFields.all(), new ReadRequestOptions());
   }
 
   @Override
@@ -89,6 +89,16 @@ class StandardTigrisCollection<T extends TigrisCollectionType> extends AbstractT
   public Iterator<T> read(TransactionSession session, TigrisFilter filter, ReadFields fields)
       throws TigrisException {
     return this.read(session, filter, fields, new ReadRequestOptions());
+  }
+
+  @Override
+  public Iterator<T> readAll() throws TigrisException {
+    return this.read(Filters.nothing(), ReadFields.all(), new ReadRequestOptions());
+  }
+
+  @Override
+  public Iterator<T> readAll(ReadFields readFields) throws TigrisException {
+    return this.read(Filters.nothing(), readFields, new ReadRequestOptions());
   }
 
   @Override

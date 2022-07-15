@@ -63,7 +63,8 @@ public class FiltersTest {
         Filters.and(Filters.eq("k1", 456), Filters.eq("k2", false), Filters.eq("k3", "val4"));
 
     Assert.assertEquals(
-        "{\"$or\":[{\"$and\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}]},{\"$and\":[{\"k1\":456},{\"k2\":false},"
+        "{\"$or\":[{\"$and\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}]},{\"$and\":[{\"k1\":456},"
+            + "{\"k2\":false},"
             + "{\"k3\":\"val4\"}]}]}",
         Filters.or(filter1, filter2).toJSON(DEFAULT_OBJECT_MAPPER));
   }
@@ -89,7 +90,8 @@ public class FiltersTest {
         Filters.or(Filters.eq("k1", 456), Filters.eq("k2", false), Filters.eq("k3", "val4"));
 
     Assert.assertEquals(
-        "{\"$and\":[{\"$or\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}]},{\"$or\":[{\"k1\":456},{\"k2\":false},"
+        "{\"$and\":[{\"$or\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}]},{\"$or\":[{\"k1\":456},"
+            + "{\"k2\":false},"
             + "{\"k3\":\"val4\"}]}]}",
         Filters.and(filter1, filter2).toJSON(DEFAULT_OBJECT_MAPPER));
   }
@@ -102,7 +104,8 @@ public class FiltersTest {
         Filters.or(Filters.eq("k4", 456), Filters.eq("k5", false), Filters.eq("k6", "val4"));
 
     Assert.assertEquals(
-        "{\"$and\":[{\"$or\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}]},{\"$or\":[{\"k4\":456},{\"k5\":false},"
+        "{\"$and\":[{\"$or\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}]},{\"$or\":[{\"k4\":456},"
+            + "{\"k5\":false},"
             + "{\"k6\":\"val4\"}]}]}",
         Filters.and(filter1, filter2).toJSON(DEFAULT_OBJECT_MAPPER));
   }
@@ -177,5 +180,10 @@ public class FiltersTest {
     SelectorFilter<String> filter51 = new SelectorFilter<>(ComparisonOperator.EQUALS, "id5", null);
     SelectorFilter<String> filter52 = new SelectorFilter<>(ComparisonOperator.EQUALS, "id5", null);
     Assert.assertEquals(filter51.hashCode(), filter52.hashCode());
+  }
+
+  @Test
+  public void testFilterNothing() {
+    Assert.assertEquals("{}", Filters.nothing().toJSON(DEFAULT_OBJECT_MAPPER));
   }
 }

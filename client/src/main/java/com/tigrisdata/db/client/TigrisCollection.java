@@ -18,6 +18,7 @@ import com.tigrisdata.db.client.search.SearchRequest;
 import com.tigrisdata.db.client.search.SearchRequestOptions;
 import com.tigrisdata.db.client.search.SearchResult;
 import com.tigrisdata.db.type.TigrisCollectionType;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -67,6 +68,23 @@ public interface TigrisCollection<T extends TigrisCollectionType>
    * @throws TigrisException in case of an error
    */
   Iterator<T> read(TigrisFilter filter) throws TigrisException;
+
+  /**
+   * Reads all the documents
+   *
+   * @return stream of documents
+   * @throws TigrisException in case of an error
+   */
+  Iterator<T> readAll() throws TigrisException;
+
+  /**
+   * Reads all the documents
+   *
+   * @param readFields select what fields to read from all the documents
+   * @return stream of documents
+   * @throws TigrisException in case of an error
+   */
+  Iterator<T> readAll(ReadFields readFields) throws TigrisException;
 
   /**
    * Reads a single document. This method is generally recommended for point lookup, if used for

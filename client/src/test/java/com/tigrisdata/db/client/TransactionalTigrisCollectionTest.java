@@ -314,7 +314,7 @@ public class TransactionalTigrisCollectionTest {
       throws TigrisException {
     Iterator<DB1_C1> c1Iterator =
         transactionalTigrisCollection.read(
-            session, Filters.eq("ignore", "ignore"), ReadFields.empty());
+            session, Filters.eq("ignore", "ignore"), ReadFields.all());
     Assert.assertTrue(c1Iterator.hasNext());
     for (DB1_C1 expectedDoc : expectedDocs) {
       DB1_C1 db1_c1 = c1Iterator.next();

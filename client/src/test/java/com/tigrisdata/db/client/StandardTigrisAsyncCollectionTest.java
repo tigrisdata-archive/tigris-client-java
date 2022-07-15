@@ -23,6 +23,12 @@ import com.tigrisdata.db.client.search.SearchRequest;
 import com.tigrisdata.db.client.search.SearchResult;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.testing.GrpcCleanupRule;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,11 +42,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
 
 public class StandardTigrisAsyncCollectionTest {
 
@@ -71,6 +72,20 @@ public class StandardTigrisAsyncCollectionTest {
     TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
     TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
     inspectDocs(
+        db1,
+        new DB1_C1(0L, "db1_c1_d0"),
+        new DB1_C1(1L, "db1_c1_d1"),
+        new DB1_C1(2L, "db1_c1_d2"),
+        new DB1_C1(3L, "db1_c1_d3"),
+        new DB1_C1(4L, "db1_c1_d4"));
+  }
+
+  @Test
+  public void testReadAll() {
+    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
+    inspectDocs(
+        true,
         db1,
         new DB1_C1(0L, "db1_c1_d0"),
         new DB1_C1(1L, "db1_c1_d1"),
@@ -356,6 +371,11 @@ public class StandardTigrisAsyncCollectionTest {
   }
 
   private static void inspectDocs(TigrisAsyncDatabase db1, DB1_C1... expectedDocs) {
+    inspectDocs(false, db1, expectedDocs);
+  }
+
+  private static void inspectDocs(
+      boolean readAll, TigrisAsyncDatabase db1, DB1_C1... expectedDocs) {
     Map<Long, DB1_C1> expectedDocsMap = new HashMap<>();
     Map<Long, Boolean> seenDocsMap = new HashMap<>();
 
@@ -366,28 +386,52 @@ public class StandardTigrisAsyncCollectionTest {
       seenDocsMap.put(expectedDoc.getId(), false);
     }
 
-    db1.getCollection(DB1_C1.class)
-        .read(
-            Filters.eq("ignore", "ignore"),
-            ReadFields.empty(),
-            new TigrisAsyncReader<DB1_C1>() {
-              @Override
-              public void onNext(DB1_C1 document) {
-                if (expectedDocsMap.get(document.getId()).getName().equals(document.getName())) {
-                  seenDocsMap.put(document.getId(), true);
+    if (readAll) {
+      db1.getCollection(DB1_C1.class)
+          .readAll(
+              new TigrisAsyncReader<DB1_C1>() {
+                @Override
+                public void onNext(DB1_C1 document) {
+                  if (expectedDocsMap.get(document.getId()).getName().equals(document.getName())) {
+                    seenDocsMap.put(document.getId(), true);
+                  }
                 }
-              }
 
-              @Override
-              public void onError(Throwable t) {
-                errorCount.incrementAndGet();
-              }
+                @Override
+                public void onError(Throwable t) {
+                  errorCount.incrementAndGet();
+                }
 
-              @Override
-              public void onCompleted() {
-                completed.set(true);
-              }
-            });
+                @Override
+                public void onCompleted() {
+                  completed.set(true);
+                }
+              });
+    } else {
+      db1.getCollection(DB1_C1.class)
+          .read(
+              Filters.eq("ignore", "ignore"),
+              ReadFields.all(),
+              new TigrisAsyncReader<DB1_C1>() {
+                @Override
+                public void onNext(DB1_C1 document) {
+                  if (expectedDocsMap.get(document.getId()).getName().equals(document.getName())) {
+                    seenDocsMap.put(document.getId(), true);
+                  }
+                }
+
+                @Override
+                public void onError(Throwable t) {
+                  errorCount.incrementAndGet();
+                }
+
+                @Override
+                public void onCompleted() {
+                  completed.set(true);
+                }
+              });
+    }
+
     int timeout = 0;
     while (!completed.get() && timeout < 20) {
       timeout++;

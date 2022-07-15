@@ -25,6 +25,12 @@ import com.tigrisdata.db.client.search.SearchRequest;
 import com.tigrisdata.db.client.search.SearchResult;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.testing.GrpcCleanupRule;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,11 +38,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
 
 public class StandardTigrisCollectionTest {
 
@@ -67,6 +68,20 @@ public class StandardTigrisCollectionTest {
     TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
     inspectDocs(
+        db1,
+        new DB1_C1(0L, "db1_c1_d0"),
+        new DB1_C1(1L, "db1_c1_d1"),
+        new DB1_C1(2L, "db1_c1_d2"),
+        new DB1_C1(3L, "db1_c1_d3"),
+        new DB1_C1(4L, "db1_c1_d4"));
+  }
+
+  @Test
+  public void testReadAll() throws TigrisException {
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+    TigrisDatabase db1 = client.getDatabase("db1");
+    inspectDocs(
+        true,
         db1,
         new DB1_C1(0L, "db1_c1_d0"),
         new DB1_C1(1L, "db1_c1_d1"),
@@ -393,10 +408,14 @@ public class StandardTigrisCollectionTest {
     Assert.assertNotNull(description.getMetadata());
   }
 
-  private static void inspectDocs(TigrisDatabase db1, DB1_C1... expectedDocs)
+  private static void inspectDocs(boolean readAll, TigrisDatabase db1, DB1_C1... expectedDocs)
       throws TigrisException {
-    Iterator<DB1_C1> c1Iterator =
-        db1.getCollection(DB1_C1.class).read(Filters.eq("ignore", "ignore"));
+    Iterator<DB1_C1> c1Iterator = null;
+    if (readAll) {
+      c1Iterator = db1.getCollection(DB1_C1.class).readAll();
+    } else {
+      c1Iterator = db1.getCollection(DB1_C1.class).read(Filters.eq("ignore", "ignore"));
+    }
     Assert.assertTrue(c1Iterator.hasNext());
     for (DB1_C1 expectedDoc : expectedDocs) {
       DB1_C1 db1_c1 = c1Iterator.next();
@@ -404,5 +423,10 @@ public class StandardTigrisCollectionTest {
       Assert.assertEquals(expectedDoc.getName(), db1_c1.getName());
     }
     Assert.assertFalse(c1Iterator.hasNext());
+  }
+
+  private static void inspectDocs(TigrisDatabase db1, DB1_C1... expectedDocs)
+      throws TigrisException {
+    inspectDocs(false, db1, expectedDocs);
   }
 }

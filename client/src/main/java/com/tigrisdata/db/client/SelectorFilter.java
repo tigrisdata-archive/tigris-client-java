@@ -34,6 +34,10 @@ class SelectorFilter<T> implements TigrisFilter {
 
   @Override
   public String toJSON(ObjectMapper objectMapper) {
+    if (comparisonOperator == ComparisonOperator.NONE) {
+      // filters nothing
+      return "{}";
+    }
     Map<String, Object> map = new LinkedHashMap<>();
     map.put(key, val);
     try {

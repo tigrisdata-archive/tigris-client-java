@@ -42,7 +42,7 @@ public final class ReadFields implements JSONSerializable {
    *
    * @return an empty {@link ReadFields}.
    */
-  public static ReadFields empty() {
+  public static ReadFields all() {
     return EMPTY;
   }
 

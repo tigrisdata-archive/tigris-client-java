@@ -29,6 +29,7 @@ import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import io.grpc.Metadata;
 import io.grpc.protobuf.ProtoUtils;
 import io.grpc.stub.StreamObserver;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -74,11 +75,8 @@ public class TestUserService extends TigrisGrpc.TigrisImplBase {
 
     for (String db : dbs) {
       for (String collection : dbToCollectionsMap.get(db)) {
-        List<JsonObject> documents = collectionToDocumentsMap.get(collection);
-        if (documents == null) {
-          documents = new ArrayList<>();
-          collectionToDocumentsMap.put(collection, documents);
-        }
+        List<JsonObject> documents =
+            collectionToDocumentsMap.computeIfAbsent(collection, k -> new ArrayList<>());
         for (int i = 0; i < 5; i++) {
           documents.add(getDocument(i, collection));
         }
@@ -148,7 +146,7 @@ public class TestUserService extends TigrisGrpc.TigrisImplBase {
                     + (char) ('a' + i)
                     + "\",\n"
                     + "  \"uuidPKey\": \""
-                    + UUID.randomUUID().toString()
+                    + UUID.randomUUID()
                     + "\""
                     + "}"));
       }
@@ -189,7 +187,7 @@ public class TestUserService extends TigrisGrpc.TigrisImplBase {
                     + (char) ('a' + i)
                     + "\",\n"
                     + "  \"uuidPKey\": \""
-                    + UUID.randomUUID().toString()
+                    + UUID.randomUUID()
                     + "\""
                     + "}"));
       }
@@ -294,27 +292,41 @@ public class TestUserService extends TigrisGrpc.TigrisImplBase {
     JsonObject filterJsonObject =
         JsonParser.parseString(request.getFilter().toStringUtf8()).getAsJsonObject();
     // for test assume there is only one key
-    String filterKey = filterJsonObject.keySet().stream().findAny().get();
-    if (dbToCollectionsMap.get(request.getDb()).contains(request.getCollection())) {
-      for (JsonObject jsonObject : collectionToDocumentsMap.get(request.getCollection())) {
-        // if field exists in the doc, then filter
-        if (jsonObject.keySet().contains(filterKey)) {
-          if (filterJsonObject.get(filterKey).equals(jsonObject.get(filterKey))) {
-            responseObserver.onNext(
-                Api.ReadResponse.newBuilder()
-                    .setData(ByteString.copyFromUtf8(jsonObject.toString()))
-                    .build());
-          }
-        } else {
-          // if the key is not present then allow for "test" purpose.
+    boolean filterNothing = filterJsonObject.toString().equals("{}");
+    if (filterNothing) {
+      if (dbToCollectionsMap.get(request.getDb()).contains(request.getCollection())) {
+        for (JsonObject jsonObject : collectionToDocumentsMap.get(request.getCollection())) {
           responseObserver.onNext(
               Api.ReadResponse.newBuilder()
                   .setData(ByteString.copyFromUtf8(jsonObject.toString()))
                   .build());
         }
       }
+      responseObserver.onCompleted();
+    } else {
+      @SuppressWarnings("OptionalGetWithoutIsPresent")
+      String filterKey = filterJsonObject.keySet().stream().findAny().get();
+      if (dbToCollectionsMap.get(request.getDb()).contains(request.getCollection())) {
+        for (JsonObject jsonObject : collectionToDocumentsMap.get(request.getCollection())) {
+          // if field exists in the doc, then filter
+          if (jsonObject.keySet().contains(filterKey)) {
+            if (filterJsonObject.get(filterKey).equals(jsonObject.get(filterKey))) {
+              responseObserver.onNext(
+                  Api.ReadResponse.newBuilder()
+                      .setData(ByteString.copyFromUtf8(jsonObject.toString()))
+                      .build());
+            }
+          } else {
+            // if the key is not present then allow for "test" purpose.
+            responseObserver.onNext(
+                Api.ReadResponse.newBuilder()
+                    .setData(ByteString.copyFromUtf8(jsonObject.toString()))
+                    .build());
+          }
+        }
+      }
+      responseObserver.onCompleted();
     }
-    responseObserver.onCompleted();
   }
 
   @Override

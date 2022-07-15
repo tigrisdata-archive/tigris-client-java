@@ -30,6 +30,7 @@ public final class Filters {
   public static SelectorFilter<Integer> eq(String key, int value) {
     return new SelectorFilter<>(ComparisonOperator.EQUALS, key, value);
   }
+
   /**
    * Creates equals filter for given key and value
    *
@@ -40,6 +41,7 @@ public final class Filters {
   public static SelectorFilter<Boolean> eq(String key, boolean value) {
     return new SelectorFilter<>(ComparisonOperator.EQUALS, key, value);
   }
+
   /**
    * Creates equals filter for given key and value
    *
@@ -82,6 +84,7 @@ public final class Filters {
   public static LogicalFilter or(TigrisFilter... filters) {
     return new LogicalFilter(LogicalFilterOperator.OR, filters);
   }
+
   /**
    * Creates a composite logical AND filter from input filters
    *
@@ -90,5 +93,14 @@ public final class Filters {
    */
   public static LogicalFilter and(TigrisFilter... filters) {
     return new LogicalFilter(LogicalFilterOperator.AND, filters);
+  }
+
+  /**
+   * Filters nothing, this is useful to read all the data
+   *
+   * @return a special filter that filters nothing.
+   */
+  public static SelectorFilter<String> nothing() {
+    return new SelectorFilter<>(ComparisonOperator.NONE, "", "");
   }
 }

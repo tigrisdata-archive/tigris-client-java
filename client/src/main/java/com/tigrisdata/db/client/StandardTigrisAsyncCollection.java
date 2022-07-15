@@ -13,6 +13,12 @@
  */
 package com.tigrisdata.db.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.tigrisdata.db.api.v1.grpc.Api;
+import com.tigrisdata.db.api.v1.grpc.Api.SearchResponse;
+import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import static com.tigrisdata.db.client.Constants.DELETE_FAILED;
 import static com.tigrisdata.db.client.Constants.DESCRIBE_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.Constants.INSERT_FAILED;
@@ -31,13 +37,6 @@ import static com.tigrisdata.db.client.TypeConverter.toReadRequest;
 import static com.tigrisdata.db.client.TypeConverter.toReplaceRequest;
 import static com.tigrisdata.db.client.TypeConverter.toSearchRequest;
 import static com.tigrisdata.db.client.TypeConverter.toUpdateRequest;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.tigrisdata.db.api.v1.grpc.Api;
-import com.tigrisdata.db.api.v1.grpc.Api.SearchResponse;
-import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.search.SearchRequest;
 import com.tigrisdata.db.client.search.SearchRequestOptions;
@@ -46,6 +45,7 @@ import com.tigrisdata.db.type.TigrisCollectionType;
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -100,7 +100,17 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
 
   @Override
   public void read(TigrisFilter filter, TigrisAsyncReader<T> reader) {
-    this.read(filter, ReadFields.empty(), new ReadRequestOptions(), reader);
+    this.read(filter, ReadFields.all(), new ReadRequestOptions(), reader);
+  }
+
+  @Override
+  public void readAll(TigrisAsyncReader<T> reader) {
+    this.read(Filters.nothing(), ReadFields.all(), new ReadRequestOptions(), reader);
+  }
+
+  @Override
+  public void readAll(ReadFields readFields, TigrisAsyncReader<T> reader) {
+    this.read(Filters.nothing(), readFields, new ReadRequestOptions(), reader);
   }
 
   @Override
@@ -110,7 +120,7 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
             databaseName,
             collectionName,
             filter,
-            ReadFields.empty(),
+            ReadFields.all(),
             readOneDefaultReadRequestOptions(),
             objectMapper);
     CompletableFuture<Optional<T>> completableFuture = new CompletableFuture<>();
@@ -292,7 +302,7 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
 
   @Override
   public Iterator<T> read(TransactionSession tx, TigrisFilter filter) throws TigrisException {
-    return this.read(tx, filter, ReadFields.empty(), new ReadRequestOptions());
+    return this.read(tx, filter, ReadFields.all(), new ReadRequestOptions());
   }
 
   @Override
@@ -305,7 +315,7 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
   public Optional<T> readOne(TransactionSession session, TigrisFilter filter)
       throws TigrisException {
     Iterator<T> iterator =
-        this.readInternal(filter, ReadFields.empty(), readOneDefaultReadRequestOptions(), session);
+        this.readInternal(filter, ReadFields.all(), readOneDefaultReadRequestOptions(), session);
     try {
       if (iterator.hasNext()) {
         return Optional.of(iterator.next());

@@ -129,7 +129,7 @@ public class StandardTigrisAsyncCollectionFailureTest {
     db1.getCollection(DB1_C1.class)
         .read(
             Filters.eq("ignore", "ignore"),
-            ReadFields.empty(),
+            ReadFields.all(),
             new TigrisAsyncReader<DB1_C1>() {
               @Override
               public void onNext(DB1_C1 document) {

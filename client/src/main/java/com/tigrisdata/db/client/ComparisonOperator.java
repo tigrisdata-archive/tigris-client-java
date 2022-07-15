@@ -14,7 +14,8 @@
 package com.tigrisdata.db.client;
 
 enum ComparisonOperator {
-  EQUALS("$eq");
+  EQUALS("$eq"),
+  NONE("");
 
   private final String operator;
 

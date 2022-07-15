@@ -59,6 +59,21 @@ public interface TigrisAsyncCollection<T extends TigrisCollectionType>
   void read(TigrisFilter filter, TigrisAsyncReader<T> reader);
 
   /**
+   * Reads all the documents
+   *
+   * @param reader reader callback
+   */
+  void readAll(TigrisAsyncReader<T> reader);
+
+  /**
+   * Reads all the documents
+   *
+   * @param readFields select what fields to read from all the documents
+   * @param reader reader callback
+   */
+  void readAll(ReadFields readFields, TigrisAsyncReader<T> reader);
+
+  /**
    * Reads a single document. This method is generally recommended for point lookup, if used for
    * non-point lookup any arbitrary matching document will be returned.
    *

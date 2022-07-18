@@ -94,38 +94,34 @@ public final class SearchRequest {
   /**
    * Builder API for {@link SearchRequest}
    *
-   * @param queryString Search query string
    * @return {@link SearchRequest.Builder} object
    */
-  public static Builder newBuilder(String queryString) {
-    return new Builder(queryString);
-  }
-
-  /**
-   * Builder API for {@link SearchRequest}
-   *
-   * @param query Search query object
-   * @return {@link SearchRequest.Builder} object
-   */
-  public static Builder newBuilder(Query query) {
-    return new Builder(query);
+  public static Builder newBuilder() {
+    return new Builder();
   }
 
   public static final class Builder {
 
-    private final Query query;
+    private Query query;
     private TigrisFilter filter;
     private SearchFields searchFields;
     private FacetQuery facetQuery;
     private SortOrder sortOrder;
     private ReadFields fields;
 
-    private Builder(String queryString) {
-      this.query = QueryString.newBuilder(queryString).build();
+    private Builder() {
+      this.query = QueryString.getMatchAllQuery();
     }
 
-    private Builder(Query query) {
-      this.query = query;
+    /**
+     * Optional - Sets the query text. Defaults to {@code QueryString.getMatchAllQuery()}
+     *
+     * @param q the query term
+     * @return {@link SearchRequest.Builder}
+     */
+    public Builder withQuery(String q) {
+      this.query = QueryString.newBuilder(q).build();
+      return this;
     }
 
     /**

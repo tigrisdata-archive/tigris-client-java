@@ -25,14 +25,15 @@ public class SearchRequestTest {
   // TODO: Add sort orders to this test
   @Test
   public void build() {
-    Query expectedQuery = QueryString.getMatchAllQuery();
+    QueryString expectedQuery = QueryString.getMatchAllQuery();
     SearchFields expectedSearchFields = SearchFields.newBuilder().withField("field_1").build();
     TigrisFilter expectedFilter = Filters.eq("field_2", "otherValue");
     FacetQuery expectedFacetQuery = FacetFieldsQuery.newBuilder().withField("field_3").build();
     ReadFields expectedReadFields = ReadFields.newBuilder().includeField("field_1").build();
 
     SearchRequest actual =
-        SearchRequest.newBuilder(expectedQuery)
+        SearchRequest.newBuilder()
+            .withQuery(expectedQuery.getQ())
             .withSearchFields(expectedSearchFields)
             .withFacetQuery(expectedFacetQuery)
             .withFilter(expectedFilter)
@@ -54,7 +55,8 @@ public class SearchRequestTest {
     SearchFields expectedSearchFields = SearchFields.newBuilder().withField("field_1").build();
     FacetQuery expectedFacetQuery = FacetFieldsQuery.newBuilder().withField("field_3").build();
     SearchRequest actual =
-        SearchRequest.newBuilder("some query")
+        SearchRequest.newBuilder()
+            .withQuery("some query")
             .withSearchFields("field_1")
             .withFacetFields("field_3")
             .build();
@@ -64,10 +66,17 @@ public class SearchRequestTest {
   }
 
   @Test
+  public void emptyBuild() {
+    SearchRequest built = SearchRequest.newBuilder().build();
+    Assert.assertEquals(built.getQuery(), QueryString.getMatchAllQuery());
+  }
+
+  @Test
   public void failsWithNullQuery() {
     Exception thrown =
         Assert.assertThrows(
-            IllegalArgumentException.class, () -> SearchRequest.newBuilder((String) null).build());
+            IllegalArgumentException.class,
+            () -> SearchRequest.newBuilder().withQuery(null).build());
     Assert.assertEquals("Query cannot be null", thrown.getMessage());
   }
 }

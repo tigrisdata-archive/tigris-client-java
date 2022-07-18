@@ -13,10 +13,10 @@ Tigris provides an easy-to-use and intuitive interface for Java combined with da
 The Tigris Java client libraries offer both asynchronous and synchronous clients.
 
 # Documentation
-- [Quickstart](https://docs.tigrisdata.com/quickstart/with-java)
-- [Java Sync Client](https://docs.tigrisdata.com/client-libraries/java/sync-client)
-- [Java Async Client](https://docs.tigrisdata.com/client-libraries/java/async-client)
-- [Data Modeling Using Java](https://docs.tigrisdata.com/datamodels/using-java)
+- [Quickstart](https://docs.tigrisdata.com/quickstart)
+- [Java Sync Client](https://docs.tigrisdata.com/java/sync-client)
+- [Java Async Client](https://docs.tigrisdata.com/java/async-client)
+- [Data Modeling Using Java](https://docs.tigrisdata.com/java/datamodel/overview)
 
 # Maven Configuration
 
@@ -78,7 +78,8 @@ users.delete(
 
 // search - search for users with name "Jania"
 users.search(
-    SearchRequest.newBuilder("Jania")
+    SearchRequest.newBuilder()
+      .withQuery("Jania")
       .withSearchFields("name")
       .build()
     );

@@ -460,7 +460,7 @@ public class StandardTigrisAsyncCollectionTest {
 
     db1.getCollection(DB1_C1.class)
         .search(
-            SearchRequest.newBuilder("name").build(),
+            SearchRequest.newBuilder().build(),
             new TigrisAsyncSearchReader<DB1_C1>() {
               @Override
               public void onNext(SearchResult<DB1_C1> result) {

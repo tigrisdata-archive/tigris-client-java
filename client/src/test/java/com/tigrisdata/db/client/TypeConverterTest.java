@@ -23,7 +23,6 @@ import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.client.config.TigrisConfiguration;
 import com.tigrisdata.db.client.error.TigrisError;
 import com.tigrisdata.db.client.error.TigrisException;
-import com.tigrisdata.db.client.search.QueryString;
 import com.tigrisdata.db.client.search.SearchRequest;
 import com.tigrisdata.db.client.search.SearchRequestOptions;
 import io.grpc.StatusRuntimeException;
@@ -83,8 +82,7 @@ public class TypeConverterTest {
 
   @Test
   public void toSearchRequest() {
-    SearchRequest input =
-        SearchRequest.newBuilder(QueryString.newBuilder("search str").build()).build();
+    SearchRequest input = SearchRequest.newBuilder().withQuery("search str").build();
     SearchRequestOptions options =
         SearchRequestOptions.newBuilder().withPage(8).withPerPage(30).build();
     Api.SearchRequest apiSearchRequest =

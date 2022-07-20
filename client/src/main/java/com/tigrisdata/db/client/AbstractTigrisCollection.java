@@ -28,6 +28,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
+import com.tigrisdata.db.client.config.TigrisConfiguration;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisCollectionType;
 import io.grpc.StatusRuntimeException;
@@ -42,17 +43,20 @@ abstract class AbstractTigrisCollection<T extends TigrisCollectionType> {
   protected final Class<T> collectionTypeClass;
   protected final TigrisGrpc.TigrisBlockingStub blockingStub;
   protected final ObjectMapper objectMapper;
+  protected final TigrisConfiguration configuration;
 
   public AbstractTigrisCollection(
       String databaseName,
       Class<T> collectionTypeClass,
       TigrisGrpc.TigrisBlockingStub blockingStub,
-      ObjectMapper objectMapper) {
+      ObjectMapper objectMapper,
+      TigrisConfiguration configuration) {
     this.databaseName = databaseName;
     this.collectionTypeClass = collectionTypeClass;
     this.collectionName = Utilities.getCollectionName(collectionTypeClass);
     this.blockingStub = blockingStub;
     this.objectMapper = objectMapper;
+    this.configuration = configuration;
   }
 
   protected Iterator<T> readInternal(

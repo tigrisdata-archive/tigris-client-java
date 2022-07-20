@@ -16,16 +16,20 @@ package com.tigrisdata.db.client;
 import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import static com.tigrisdata.db.client.TypeConverter.toCreateCollectionRequest;
+import com.tigrisdata.db.client.config.TigrisConfiguration;
 import com.tigrisdata.db.client.error.TigrisException;
 import io.grpc.StatusRuntimeException;
 
 abstract class AbstractTigrisDatabase {
   protected final String db;
   protected final TigrisGrpc.TigrisBlockingStub blockingStub;
+  protected final TigrisConfiguration configuration;
 
-  public AbstractTigrisDatabase(String db, TigrisGrpc.TigrisBlockingStub blockingStub) {
+  AbstractTigrisDatabase(
+      String db, TigrisGrpc.TigrisBlockingStub blockingStub, TigrisConfiguration configuration) {
     this.db = db;
     this.blockingStub = blockingStub;
+    this.configuration = configuration;
   }
 
   protected CreateOrUpdateCollectionsResponse createOrUpdateCollections(

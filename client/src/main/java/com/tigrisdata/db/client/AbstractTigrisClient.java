@@ -1,7 +1,6 @@
 package com.tigrisdata.db.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tigrisdata.db.client.auth.AuthorizationToken;
 import com.tigrisdata.db.client.config.TigrisConfiguration;
 import com.tigrisdata.tools.schema.core.ModelToJsonSchema;
 import io.grpc.ManagedChannel;
@@ -11,13 +10,11 @@ import io.grpc.stub.MetadataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Optional;
-
 abstract class AbstractTigrisClient {
   protected final ManagedChannel channel;
   protected final ObjectMapper objectMapper;
   protected final ModelToJsonSchema modelToJsonSchema;
-
+  protected final TigrisConfiguration configuration;
   private static final Metadata.Key<String> USER_AGENT_KEY =
       Metadata.Key.of("user-agent", Metadata.ASCII_STRING_MARSHALLER);
   private static final Metadata.Key<String> CLIENT_VERSION_KEY =
@@ -29,38 +26,34 @@ abstract class AbstractTigrisClient {
   private static final Logger log = LoggerFactory.getLogger(AbstractTigrisClient.class);
 
   protected AbstractTigrisClient(
-      TigrisConfiguration configuration,
-      Optional<AuthorizationToken> authorizationToken,
-      ModelToJsonSchema modelToJsonSchema) {
+      TigrisConfiguration configuration, ModelToJsonSchema modelToJsonSchema) {
 
     ManagedChannelBuilder channelBuilder =
         ManagedChannelBuilder.forTarget(configuration.getServerURL())
             .intercept(MetadataUtils.newAttachHeadersInterceptor(getDefaultHeaders(configuration)));
-    if (authorizationToken.isPresent()) {
-      channelBuilder.intercept(new AuthHeaderInterceptor(authorizationToken.get()));
-    }
     if (configuration.getNetwork().isUsePlainText()) {
       log.warn(
-          "Client is configured to use plaintext communication. It is advised to not use plaintext communication");
+          "Client is configured to use plaintext communication. It is advised to not use plaintext "
+              + "communication");
       channelBuilder.usePlaintext();
     }
     this.channel = channelBuilder.build();
     this.objectMapper = configuration.getObjectMapper();
     this.modelToJsonSchema = modelToJsonSchema;
+    this.configuration = configuration;
   }
 
   protected AbstractTigrisClient(
-      AuthorizationToken authorizationToken,
       TigrisConfiguration configuration,
       ManagedChannelBuilder<? extends ManagedChannelBuilder> managedChannelBuilder,
       ModelToJsonSchema modelToJsonSchema) {
     this.channel =
         managedChannelBuilder
-            .intercept(new AuthHeaderInterceptor(authorizationToken))
             .intercept(MetadataUtils.newAttachHeadersInterceptor(getDefaultHeaders(configuration)))
             .build();
     this.objectMapper = configuration.getObjectMapper();
     this.modelToJsonSchema = modelToJsonSchema;
+    this.configuration = configuration;
   }
 
   private static Metadata getDefaultHeaders(TigrisConfiguration configuration) {

@@ -15,7 +15,7 @@ package com.tigrisdata.db.client;
 
 import com.tigrisdata.db.client.collection.DB1_C1;
 import com.tigrisdata.db.client.error.TigrisException;
-import com.tigrisdata.db.client.grpc.FailingTestUserService;
+import com.tigrisdata.db.client.grpc.FailingTestTigrisService;
 import io.grpc.Status;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.testing.GrpcCleanupRule;
@@ -39,7 +39,7 @@ public class StandardTigrisCollectionFailureTest {
         .register(
             InProcessServerBuilder.forName(SERVER_NAME)
                 .directExecutor()
-                .addService(new FailingTestUserService())
+                .addService(new FailingTestTigrisService())
                 .build())
         .start();
   }

@@ -18,7 +18,7 @@ import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 
-public class FailingTestUserService extends TigrisGrpc.TigrisImplBase {
+public class FailingTestTigrisService extends TigrisGrpc.TigrisImplBase {
 
   public static final String ALLOW_BEGIN_TRANSACTION_DB_NAME = "pass-begin";
   public static final String ALLOW_ROLLBACK_TRANSACTION_DB_NAME = "pass-rollback";

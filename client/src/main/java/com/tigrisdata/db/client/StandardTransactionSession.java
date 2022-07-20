@@ -15,6 +15,7 @@ package com.tigrisdata.db.client;
 
 import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
+import com.tigrisdata.db.client.config.TigrisConfiguration;
 import com.tigrisdata.db.client.error.TigrisException;
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
@@ -28,7 +29,10 @@ class StandardTransactionSession implements TransactionSession {
   private final TigrisGrpc.TigrisBlockingStub stub;
 
   StandardTransactionSession(
-      String databaseName, Api.TransactionCtx transactionCtx, ManagedChannel managedChannel) {
+      String databaseName,
+      Api.TransactionCtx transactionCtx,
+      ManagedChannel managedChannel,
+      TigrisConfiguration configuration) {
     this.databaseName = databaseName;
     this.transactionCtx = transactionCtx;
 
@@ -42,7 +46,7 @@ class StandardTransactionSession implements TransactionSession {
         transactionCtx.getId());
     // attach headers
     this.stub =
-        TigrisGrpc.newBlockingStub(managedChannel)
+        Utilities.newBlockingStub(managedChannel, configuration)
             .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(transactionHeaders));
   }
 

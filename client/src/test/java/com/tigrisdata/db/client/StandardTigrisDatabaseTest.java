@@ -19,7 +19,7 @@ import com.tigrisdata.db.client.collection.User;
 import com.tigrisdata.db.client.collection.collection2.DB1_C3;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.grpc.ContextSettingServerInterceptor;
-import com.tigrisdata.db.client.grpc.TestUserService;
+import com.tigrisdata.db.client.grpc.TestTigrisService;
 import com.tigrisdata.db.type.TigrisCollectionType;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.testing.GrpcCleanupRule;
@@ -38,13 +38,13 @@ import java.util.function.Predicate;
 
 public class StandardTigrisDatabaseTest {
   private static String SERVER_NAME;
-  private static TestUserService TEST_USER_SERVICE;
+  private static TestTigrisService TEST_USER_SERVICE;
   @ClassRule public static final GrpcCleanupRule grpcCleanup = new GrpcCleanupRule();
 
   @BeforeClass
   public static void setup() throws Exception {
     SERVER_NAME = InProcessServerBuilder.generateName();
-    TEST_USER_SERVICE = new TestUserService();
+    TEST_USER_SERVICE = new TestTigrisService();
     grpcCleanup
         .register(
             InProcessServerBuilder.forName(SERVER_NAME)
@@ -255,13 +255,14 @@ public class StandardTigrisDatabaseTest {
     Assert.assertEquals(db11.hashCode(), db12.hashCode());
 
     // null dbName resolves to 0 hashcode
-    Assert.assertEquals(0, new StandardTigrisDatabase(null, null, null, null, null).hashCode());
+    Assert.assertEquals(
+        0, new StandardTigrisDatabase(null, null, null, null, null, null).hashCode());
   }
 
   @Test
   public void testEquals() {
-    TigrisDatabase db1 = new StandardTigrisDatabase("db1", null, null, null, null);
-    TigrisDatabase db2 = new StandardTigrisDatabase("db1", null, null, null, null);
+    TigrisDatabase db1 = new StandardTigrisDatabase("db1", null, null, null, null, null);
+    TigrisDatabase db2 = new StandardTigrisDatabase("db1", null, null, null, null, null);
     Assert.assertEquals(db1, db2);
     Assert.assertEquals(db1, db1);
 

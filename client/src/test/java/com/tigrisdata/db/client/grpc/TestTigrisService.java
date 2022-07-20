@@ -40,7 +40,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class TestUserService extends TigrisGrpc.TigrisImplBase {
+public class TestTigrisService extends TigrisGrpc.TigrisImplBase {
 
   private Set<String> dbs;
   private Map<String, Set<String>> dbToCollectionsMap;
@@ -48,7 +48,7 @@ public class TestUserService extends TigrisGrpc.TigrisImplBase {
   private String txId;
   private String txOrigin;
 
-  public TestUserService() {
+  public TestTigrisService() {
     this.reset();
   }
 

@@ -16,7 +16,7 @@ package com.tigrisdata.db.client;
 import com.tigrisdata.db.client.collection.DB1_C1;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.grpc.ContextSettingServerInterceptor;
-import com.tigrisdata.db.client.grpc.TransactionTestUserService;
+import com.tigrisdata.db.client.grpc.TransactionTestTigrisService;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.testing.GrpcCleanupRule;
 import org.junit.After;
@@ -34,8 +34,8 @@ import java.util.Optional;
 public class TransactionalTigrisCollectionTest {
 
   private static String SERVER_NAME;
-  private static final TransactionTestUserService TEST_TRANSACTION_USER_SERVICE =
-      new TransactionTestUserService();
+  private static final TransactionTestTigrisService TEST_TRANSACTION_USER_SERVICE =
+      new TransactionTestTigrisService();
   @ClassRule public static final GrpcCleanupRule grpcCleanup = new GrpcCleanupRule();
 
   @BeforeClass

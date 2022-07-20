@@ -24,6 +24,7 @@ import static com.tigrisdata.db.client.Constants.LIST_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.TypeConverter.toBeginTransactionRequest;
 import static com.tigrisdata.db.client.TypeConverter.toDatabaseDescription;
 import static com.tigrisdata.db.client.TypeConverter.toDropCollectionRequest;
+import com.tigrisdata.db.client.config.TigrisConfiguration;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisCollectionType;
 import com.tigrisdata.tools.schema.core.ModelToJsonSchema;
@@ -45,6 +46,7 @@ class StandardTigrisAsyncDatabase extends AbstractTigrisDatabase implements Tigr
   private final Executor executor;
   private final ObjectMapper objectMapper;
   private final ModelToJsonSchema modelToJsonSchema;
+  private final TigrisConfiguration configuration;
 
   StandardTigrisAsyncDatabase(
       String databaseName,
@@ -54,14 +56,16 @@ class StandardTigrisAsyncDatabase extends AbstractTigrisDatabase implements Tigr
       ManagedChannel channel,
       Executor executor,
       ObjectMapper objectMapper,
-      ModelToJsonSchema modelToJsonSchema) {
-    super(databaseName, blockingStub);
+      ModelToJsonSchema modelToJsonSchema,
+      TigrisConfiguration configuration) {
+    super(databaseName, blockingStub, configuration);
     this.stub = stub;
     this.futureStub = futureStub;
     this.channel = channel;
     this.executor = executor;
     this.objectMapper = objectMapper;
     this.modelToJsonSchema = modelToJsonSchema;
+    this.configuration = configuration;
   }
 
   @Override
@@ -140,7 +144,7 @@ class StandardTigrisAsyncDatabase extends AbstractTigrisDatabase implements Tigr
   public <C extends TigrisCollectionType> TigrisAsyncCollection<C> getCollection(
       Class<C> collectionTypeClass) {
     return new StandardTigrisAsyncCollection<>(
-        db, collectionTypeClass, channel, executor, objectMapper);
+        db, collectionTypeClass, channel, executor, objectMapper, configuration);
   }
 
   @Override
@@ -150,7 +154,7 @@ class StandardTigrisAsyncDatabase extends AbstractTigrisDatabase implements Tigr
         futureStub.beginTransaction(toBeginTransactionRequest(db, transactionOptions));
     return Utilities.transformFuture(
         beginTransactionResponseListenableFuture,
-        response -> new StandardTransactionSession(db, response.getTxCtx(), channel),
+        response -> new StandardTransactionSession(db, response.getTxCtx(), channel, configuration),
         executor,
         BEGIN_TRANSACTION_FAILED);
   }

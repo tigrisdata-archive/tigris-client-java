@@ -13,10 +13,9 @@
  */
 package com.tigrisdata.db.client;
 
-import com.tigrisdata.db.client.auth.TigrisAuthorizationToken;
 import com.tigrisdata.db.client.config.TigrisConfiguration;
 import com.tigrisdata.db.client.error.TigrisException;
-import com.tigrisdata.db.client.grpc.TestUserService;
+import com.tigrisdata.db.client.grpc.TestTigrisService;
 import io.grpc.ClientInterceptor;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -37,13 +36,13 @@ import java.util.List;
 public class StandardTigrisClientTest {
 
   private static String SERVER_NAME;
-  private static TestUserService TEST_USER_SERVICE;
+  private static TestTigrisService TEST_USER_SERVICE;
   @ClassRule public static final GrpcCleanupRule grpcCleanup = new GrpcCleanupRule();
 
   @BeforeClass
   public static void setup() throws Exception {
     SERVER_NAME = InProcessServerBuilder.generateName();
-    TEST_USER_SERVICE = new TestUserService();
+    TEST_USER_SERVICE = new TestTigrisService();
     grpcCleanup
         .register(
             InProcessServerBuilder.forName(SERVER_NAME)
@@ -75,9 +74,9 @@ public class StandardTigrisClientTest {
     MatcherAssert.assertThat(
         databases,
         Matchers.containsInAnyOrder(
-            new StandardTigrisDatabase("db1", null, null, null, null),
-            new StandardTigrisDatabase("db2", null, null, null, null),
-            new StandardTigrisDatabase("db3", null, null, null, null)));
+            new StandardTigrisDatabase("db1", null, null, null, null, null),
+            new StandardTigrisDatabase("db2", null, null, null, null, null),
+            new StandardTigrisDatabase("db3", null, null, null, null, null)));
   }
 
   @Test
@@ -101,8 +100,8 @@ public class StandardTigrisClientTest {
     MatcherAssert.assertThat(
         client.listDatabases(DatabaseOptions.DEFAULT_INSTANCE),
         Matchers.containsInAnyOrder(
-            new StandardTigrisDatabase("db1", null, null, null, null),
-            new StandardTigrisDatabase("db3", null, null, null, null)));
+            new StandardTigrisDatabase("db1", null, null, null, null, null),
+            new StandardTigrisDatabase("db3", null, null, null, null, null)));
   }
 
   @Test
@@ -115,9 +114,7 @@ public class StandardTigrisClientTest {
 
     TigrisClient client =
         new StandardTigrisClient(
-            new TigrisAuthorizationToken("some.test.token"),
-            TigrisConfiguration.newBuilder("some-url").build(),
-            mockedChannelBuilder);
+            TigrisConfiguration.newBuilder("some-url").build(), mockedChannelBuilder);
     client.close();
     Mockito.verify(mockedChannel, Mockito.times(1)).shutdown();
   }

@@ -22,7 +22,6 @@ import static com.tigrisdata.db.client.Constants.LIST_DBS_FAILED;
 import static com.tigrisdata.db.client.TypeConverter.toCreateDatabaseRequest;
 import static com.tigrisdata.db.client.TypeConverter.toDropDatabaseRequest;
 import static com.tigrisdata.db.client.TypeConverter.toServerMetadata;
-import com.tigrisdata.db.client.auth.AuthorizationToken;
 import com.tigrisdata.db.client.config.TigrisConfiguration;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.tools.schema.core.StandardModelToTigrisJsonSchema;
@@ -35,7 +34,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /** Client for Tigris */
 public class StandardTigrisClient extends AbstractTigrisClient implements TigrisClient {
@@ -43,22 +41,17 @@ public class StandardTigrisClient extends AbstractTigrisClient implements Tigris
   private final TigrisGrpc.TigrisBlockingStub stub;
   private static final Logger log = LoggerFactory.getLogger(StandardTigrisClient.class);
 
-  private StandardTigrisClient(TigrisConfiguration clientConfiguration) {
-    super(clientConfiguration, Optional.empty(), new StandardModelToTigrisJsonSchema());
-    this.stub = TigrisGrpc.newBlockingStub(channel);
+  private StandardTigrisClient(TigrisConfiguration configuration) {
+    super(configuration, new StandardModelToTigrisJsonSchema());
+    this.stub = Utilities.newBlockingStub(channel, configuration);
   }
 
   @VisibleForTesting
   StandardTigrisClient(
-      AuthorizationToken authorizationToken,
       TigrisConfiguration configuration,
       ManagedChannelBuilder<? extends ManagedChannelBuilder> managedChannelBuilder) {
-    super(
-        authorizationToken,
-        configuration,
-        managedChannelBuilder,
-        new StandardModelToTigrisJsonSchema());
-    this.stub = TigrisGrpc.newBlockingStub(channel);
+    super(configuration, managedChannelBuilder, new StandardModelToTigrisJsonSchema());
+    this.stub = Utilities.newBlockingStub(channel, configuration);
   }
 
   /**
@@ -73,7 +66,8 @@ public class StandardTigrisClient extends AbstractTigrisClient implements Tigris
 
   @Override
   public TigrisDatabase getDatabase(String databaseName) {
-    return new StandardTigrisDatabase(databaseName, stub, channel, objectMapper, modelToJsonSchema);
+    return new StandardTigrisDatabase(
+        databaseName, stub, channel, objectMapper, modelToJsonSchema, configuration);
   }
 
   @Override
@@ -86,7 +80,12 @@ public class StandardTigrisClient extends AbstractTigrisClient implements Tigris
       for (Api.DatabaseInfo databaseInfo : listDatabasesResponse.getDatabasesList()) {
         dbs.add(
             new StandardTigrisDatabase(
-                databaseInfo.getDb(), stub, channel, objectMapper, modelToJsonSchema));
+                databaseInfo.getDb(),
+                stub,
+                channel,
+                objectMapper,
+                modelToJsonSchema,
+                configuration));
       }
       return dbs;
     } catch (StatusRuntimeException statusRuntimeException) {
@@ -103,7 +102,7 @@ public class StandardTigrisClient extends AbstractTigrisClient implements Tigris
       stub.createDatabase(toCreateDatabaseRequest(databaseName, DatabaseOptions.DEFAULT_INSTANCE));
       log.info("database created: {}", databaseName);
       return new StandardTigrisDatabase(
-          databaseName, stub, channel, objectMapper, modelToJsonSchema);
+          databaseName, stub, channel, objectMapper, modelToJsonSchema, configuration);
     } catch (StatusRuntimeException statusRuntimeException) {
       // ignore the error if the database is already exists
       if (statusRuntimeException.getStatus().getCode() != Status.ALREADY_EXISTS.getCode()) {
@@ -114,7 +113,7 @@ public class StandardTigrisClient extends AbstractTigrisClient implements Tigris
       }
       log.info("database already exists: {}", databaseName);
       return new StandardTigrisDatabase(
-          databaseName, stub, channel, objectMapper, modelToJsonSchema);
+          databaseName, stub, channel, objectMapper, modelToJsonSchema, configuration);
     }
   }
 

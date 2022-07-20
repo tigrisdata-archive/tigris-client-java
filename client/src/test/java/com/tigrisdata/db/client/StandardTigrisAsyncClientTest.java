@@ -13,9 +13,8 @@
  */
 package com.tigrisdata.db.client;
 
-import com.tigrisdata.db.client.auth.TigrisAuthorizationToken;
 import com.tigrisdata.db.client.config.TigrisConfiguration;
-import com.tigrisdata.db.client.grpc.TestUserService;
+import com.tigrisdata.db.client.grpc.TestTigrisService;
 import io.grpc.ClientInterceptor;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -38,14 +37,14 @@ import java.util.concurrent.ExecutionException;
 public class StandardTigrisAsyncClientTest {
 
   private static String SERVER_NAME;
-  private static TestUserService TEST_USER_SERVICE;
+  private static TestTigrisService TEST_USER_SERVICE;
 
   @ClassRule public static final GrpcCleanupRule grpcCleanup = new GrpcCleanupRule();
 
   @BeforeClass
   public static void setup() throws Exception {
     SERVER_NAME = InProcessServerBuilder.generateName();
-    TEST_USER_SERVICE = new TestUserService();
+    TEST_USER_SERVICE = new TestTigrisService();
     grpcCleanup
         .register(
             InProcessServerBuilder.forName(SERVER_NAME)
@@ -78,9 +77,10 @@ public class StandardTigrisAsyncClientTest {
     MatcherAssert.assertThat(
         databases,
         Matchers.containsInAnyOrder(
-            new StandardTigrisAsyncDatabase("db1", null, null, null, null, null, null, null),
-            new StandardTigrisAsyncDatabase("db2", null, null, null, null, null, null, null),
-            new StandardTigrisAsyncDatabase("db3", null, null, null, null, null, null, null)));
+            new StandardTigrisAsyncDatabase("db1", null, null, null, null, null, null, null, null),
+            new StandardTigrisAsyncDatabase("db2", null, null, null, null, null, null, null, null),
+            new StandardTigrisAsyncDatabase(
+                "db3", null, null, null, null, null, null, null, null)));
   }
 
   @Test
@@ -112,8 +112,9 @@ public class StandardTigrisAsyncClientTest {
     MatcherAssert.assertThat(
         asyncClient.listDatabases(DatabaseOptions.DEFAULT_INSTANCE).get(),
         Matchers.containsInAnyOrder(
-            new StandardTigrisAsyncDatabase("db1", null, null, null, null, null, null, null),
-            new StandardTigrisAsyncDatabase("db3", null, null, null, null, null, null, null)));
+            new StandardTigrisAsyncDatabase("db1", null, null, null, null, null, null, null, null),
+            new StandardTigrisAsyncDatabase(
+                "db3", null, null, null, null, null, null, null, null)));
   }
 
   @Test
@@ -133,9 +134,7 @@ public class StandardTigrisAsyncClientTest {
 
     TigrisAsyncClient asyncClient =
         new StandardTigrisAsyncClient(
-            new TigrisAuthorizationToken("some.test.token"),
-            TigrisConfiguration.newBuilder("some-url").build(),
-            mockedChannelBuilder);
+            TigrisConfiguration.newBuilder("some-url").build(), mockedChannelBuilder);
     asyncClient.close();
     Mockito.verify(mockedChannel, Mockito.times(1)).shutdown();
   }

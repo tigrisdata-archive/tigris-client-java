@@ -18,19 +18,23 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.tigrisdata.db.jackson.TigrisAnnotationIntrospector;
+
 import java.time.Duration;
+import java.util.Objects;
 
 /** Tigris client configuration */
 public class TigrisConfiguration {
 
   private final String serverURL;
   private final TigrisConfiguration.NetworkConfig network;
+  private final TigrisConfiguration.OAuth2Config oAuth2Config;
   private final ObjectMapper objectMapper;
 
   private TigrisConfiguration(Builder builder) {
     this.serverURL = builder.baseURL;
     this.network = builder.network;
     this.objectMapper = builder.objectMapper;
+    this.oAuth2Config = builder.oAuth2Config;
   }
 
   /**
@@ -55,11 +59,16 @@ public class TigrisConfiguration {
     return objectMapper;
   }
 
+  public OAuth2Config getoAuth2Config() {
+    return oAuth2Config;
+  }
+
   /** Builder class for {@link TigrisConfiguration} */
   public static final class Builder {
 
     private final String baseURL;
     private TigrisConfiguration.NetworkConfig network;
+    private TigrisConfiguration.OAuth2Config oAuth2Config;
     private ObjectMapper objectMapper;
 
     private Builder(String baseURL) {
@@ -71,6 +80,7 @@ public class TigrisConfiguration {
               .setAnnotationIntrospector(new TigrisAnnotationIntrospector())
               .registerModule(new ParameterNamesModule(JsonCreator.Mode.PROPERTIES))
               .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+      this.oAuth2Config = null;
     }
 
     /**
@@ -86,7 +96,7 @@ public class TigrisConfiguration {
 
     /**
      * This will customize {@link ObjectMapper} instance used internally. It is highly recommended
-     * to customize this instance with extra care
+     * customizing this instance with extra care
      *
      * @param objectMapper customized object mapper
      * @return ongoing builder
@@ -96,8 +106,44 @@ public class TigrisConfiguration {
       return this;
     }
 
+    /**
+     * This will enable and customize {@link OAuth2Config}.
+     *
+     * @param oAuth2Config oauth2 config
+     * @return ongoing builder
+     */
+    public Builder withOAuth2(OAuth2Config oAuth2Config) {
+      this.oAuth2Config = oAuth2Config;
+      return this;
+    }
+
     public TigrisConfiguration build() {
       return new TigrisConfiguration(this);
+    }
+  }
+
+  public static class OAuth2Config {
+    private final String refreshToken;
+
+    public OAuth2Config(String refreshToken) {
+      this.refreshToken = refreshToken;
+    }
+
+    public String getRefreshToken() {
+      return refreshToken;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      OAuth2Config that = (OAuth2Config) o;
+      return Objects.equals(refreshToken, that.refreshToken);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(refreshToken);
     }
   }
 

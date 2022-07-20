@@ -21,21 +21,24 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.Timestamp;
 import com.tigrisdata.db.annotation.TigrisCollection;
 import com.tigrisdata.db.annotation.TigrisPrimaryKey;
+import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
+import com.tigrisdata.db.client.config.TigrisConfiguration;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisCollectionType;
+import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
-import java.time.Instant;
-import java.util.Objects;
 import org.atteo.evo.inflector.English;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -49,6 +52,7 @@ final class Utilities {
   private Utilities() {}
 
   private static final Logger log = LoggerFactory.getLogger(Utilities.class);
+
   /**
    * Scans the classpath for the given packages and searches for all the top level classes that are
    * of type {@link TigrisCollectionType} and optionally filters them using user supplied filter.
@@ -205,6 +209,38 @@ final class Utilities {
   static Instant protoTimestampToInstant(Timestamp ts) {
     Objects.requireNonNull(ts);
     return Instant.ofEpochSecond(ts.getSeconds(), ts.getNanos());
+  }
+
+  static TigrisGrpc.TigrisStub newStub(ManagedChannel channel, TigrisConfiguration configuration) {
+    TigrisGrpc.TigrisStub result = TigrisGrpc.newStub(channel);
+    if (configuration.getoAuth2Config() != null) {
+      result =
+          result.withCallCredentials(
+              TigrisCallCredentialOauth2.getInstance(configuration, channel));
+    }
+    return result;
+  }
+
+  static TigrisGrpc.TigrisBlockingStub newBlockingStub(
+      ManagedChannel channel, TigrisConfiguration configuration) {
+    TigrisGrpc.TigrisBlockingStub result = TigrisGrpc.newBlockingStub(channel);
+    if (configuration.getoAuth2Config() != null) {
+      result =
+          result.withCallCredentials(
+              TigrisCallCredentialOauth2.getInstance(configuration, channel));
+    }
+    return result;
+  }
+
+  static TigrisGrpc.TigrisFutureStub newFutureStub(
+      ManagedChannel channel, TigrisConfiguration configuration) {
+    TigrisGrpc.TigrisFutureStub result = TigrisGrpc.newFutureStub(channel);
+    if (configuration.getoAuth2Config() != null) {
+      result =
+          result.withCallCredentials(
+              TigrisCallCredentialOauth2.getInstance(configuration, channel));
+    }
+    return result;
   }
 
   static class ConvertedIterator<F, T> implements Iterator<T> {

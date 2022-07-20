@@ -22,6 +22,7 @@ import static com.tigrisdata.db.client.Constants.DESCRIBE_DB_FAILED;
 import static com.tigrisdata.db.client.Constants.DROP_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.Constants.LIST_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.Constants.TRANSACTION_FAILED;
+import com.tigrisdata.db.client.config.TigrisConfiguration;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisCollectionType;
 import com.tigrisdata.tools.schema.core.ModelToJsonSchema;
@@ -47,8 +48,9 @@ class StandardTigrisDatabase extends AbstractTigrisDatabase implements TigrisDat
       TigrisGrpc.TigrisBlockingStub blockingStub,
       ManagedChannel managedChannel,
       ObjectMapper objectMapper,
-      ModelToJsonSchema modelToJsonSchema) {
-    super(dbName, blockingStub);
+      ModelToJsonSchema modelToJsonSchema,
+      TigrisConfiguration configuration) {
+    super(dbName, blockingStub, configuration);
     this.managedChannel = managedChannel;
     this.objectMapper = objectMapper;
     this.modelToJsonSchema = modelToJsonSchema;
@@ -94,7 +96,8 @@ class StandardTigrisDatabase extends AbstractTigrisDatabase implements TigrisDat
   @Override
   public <C extends TigrisCollectionType> TigrisCollection<C> getCollection(
       Class<C> collectionTypeClass) {
-    return new StandardTigrisCollection<>(db, collectionTypeClass, blockingStub, objectMapper);
+    return new StandardTigrisCollection<>(
+        db, collectionTypeClass, blockingStub, objectMapper, configuration);
   }
 
   @Override
@@ -109,7 +112,7 @@ class StandardTigrisDatabase extends AbstractTigrisDatabase implements TigrisDat
       Api.BeginTransactionResponse beginTransactionResponse =
           blockingStub.beginTransaction(beginTransactionRequest);
       Api.TransactionCtx transactionCtx = beginTransactionResponse.getTxCtx();
-      return new StandardTransactionSession(db, transactionCtx, managedChannel);
+      return new StandardTransactionSession(db, transactionCtx, managedChannel, configuration);
     } catch (StatusRuntimeException statusRuntimeException) {
       throw new TigrisException(
           BEGIN_TRANSACTION_FAILED,

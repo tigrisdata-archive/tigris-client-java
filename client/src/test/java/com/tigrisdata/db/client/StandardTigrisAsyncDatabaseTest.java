@@ -18,7 +18,7 @@ import com.tigrisdata.db.client.collection.DB1_C5;
 import com.tigrisdata.db.client.collection.User;
 import com.tigrisdata.db.client.collection.collection2.DB1_C3;
 import com.tigrisdata.db.client.error.TigrisException;
-import com.tigrisdata.db.client.grpc.TestUserService;
+import com.tigrisdata.db.client.grpc.TestTigrisService;
 import com.tigrisdata.db.type.TigrisCollectionType;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.testing.GrpcCleanupRule;
@@ -39,13 +39,13 @@ import java.util.function.Predicate;
 
 public class StandardTigrisAsyncDatabaseTest {
   private static String SERVER_NAME;
-  private static TestUserService TEST_USER_SERVICE;
+  private static TestTigrisService TEST_USER_SERVICE;
   @ClassRule public static final GrpcCleanupRule grpcCleanup = new GrpcCleanupRule();
 
   @BeforeClass
   public static void setup() throws Exception {
     SERVER_NAME = InProcessServerBuilder.generateName();
-    TEST_USER_SERVICE = new TestUserService();
+    TEST_USER_SERVICE = new TestTigrisService();
     grpcCleanup
         .register(
             InProcessServerBuilder.forName(SERVER_NAME)
@@ -218,15 +218,16 @@ public class StandardTigrisAsyncDatabaseTest {
     // null dbName resolves to 0 hashcode
     Assert.assertEquals(
         0,
-        new StandardTigrisAsyncDatabase(null, null, null, null, null, null, null, null).hashCode());
+        new StandardTigrisAsyncDatabase(null, null, null, null, null, null, null, null, null)
+            .hashCode());
   }
 
   @Test
   public void testEquals() {
     TigrisAsyncDatabase db1 =
-        new StandardTigrisAsyncDatabase("db1", null, null, null, null, null, null, null);
+        new StandardTigrisAsyncDatabase("db1", null, null, null, null, null, null, null, null);
     TigrisAsyncDatabase db2 =
-        new StandardTigrisAsyncDatabase("db1", null, null, null, null, null, null, null);
+        new StandardTigrisAsyncDatabase("db1", null, null, null, null, null, null, null, null);
     Assert.assertTrue(db1.equals(db2));
     Assert.assertTrue(db1.equals(db1));
 

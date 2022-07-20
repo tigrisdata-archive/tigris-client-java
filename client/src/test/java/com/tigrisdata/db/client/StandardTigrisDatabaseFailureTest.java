@@ -15,7 +15,7 @@ package com.tigrisdata.db.client;
 
 import com.tigrisdata.db.client.collection.collection2.DB1_C3;
 import com.tigrisdata.db.client.error.TigrisException;
-import com.tigrisdata.db.client.grpc.FailingTestUserService;
+import com.tigrisdata.db.client.grpc.FailingTestTigrisService;
 import io.grpc.Status;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.testing.GrpcCleanupRule;
@@ -37,7 +37,7 @@ public class StandardTigrisDatabaseFailureTest {
         .register(
             InProcessServerBuilder.forName(SERVER_NAME)
                 .directExecutor()
-                .addService(new FailingTestUserService())
+                .addService(new FailingTestTigrisService())
                 .build())
         .start();
   }
@@ -100,7 +100,7 @@ public class StandardTigrisDatabaseFailureTest {
 
   @Test
   public void testCommitTransaction() {
-    String dbName = FailingTestUserService.ALLOW_BEGIN_TRANSACTION_DB_NAME;
+    String dbName = FailingTestTigrisService.ALLOW_BEGIN_TRANSACTION_DB_NAME;
     TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db = client.getDatabase(dbName);
     try {
@@ -121,7 +121,7 @@ public class StandardTigrisDatabaseFailureTest {
 
   @Test
   public void testRollbackTransaction() {
-    String dbName = FailingTestUserService.ALLOW_BEGIN_TRANSACTION_DB_NAME;
+    String dbName = FailingTestTigrisService.ALLOW_BEGIN_TRANSACTION_DB_NAME;
     TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db = client.getDatabase(dbName);
     try {

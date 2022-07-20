@@ -39,6 +39,7 @@ import static com.tigrisdata.db.client.TypeConverter.toReadRequest;
 import static com.tigrisdata.db.client.TypeConverter.toReplaceRequest;
 import static com.tigrisdata.db.client.TypeConverter.toSearchRequest;
 import static com.tigrisdata.db.client.TypeConverter.toUpdateRequest;
+import com.tigrisdata.db.client.config.TigrisConfiguration;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.search.SearchRequest;
 import com.tigrisdata.db.client.search.SearchRequestOptions;
@@ -74,11 +75,17 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
       Class<T> collectionTypeClass,
       ManagedChannel channel,
       Executor executor,
-      ObjectMapper objectMapper) {
-    super(databaseName, collectionTypeClass, TigrisGrpc.newBlockingStub(channel), objectMapper);
+      ObjectMapper objectMapper,
+      TigrisConfiguration configuration) {
+    super(
+        databaseName,
+        collectionTypeClass,
+        Utilities.newBlockingStub(channel, configuration),
+        objectMapper,
+        configuration);
     this.executor = executor;
-    this.stub = TigrisGrpc.newStub(channel);
-    this.futureStub = TigrisGrpc.newFutureStub(channel);
+    this.stub = Utilities.newStub(channel, configuration);
+    this.futureStub = Utilities.newFutureStub(channel, configuration);
   }
 
   @Override

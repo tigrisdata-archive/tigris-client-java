@@ -17,7 +17,7 @@ import com.tigrisdata.db.client.collection.AutoGeneratingPKeysModel;
 import com.tigrisdata.db.client.collection.DB1_C1;
 import com.tigrisdata.db.client.collection.DB1_C5;
 import com.tigrisdata.db.client.error.TigrisException;
-import com.tigrisdata.db.client.grpc.TestUserService;
+import com.tigrisdata.db.client.grpc.TestTigrisService;
 import com.tigrisdata.db.client.search.FacetCountDistribution;
 import com.tigrisdata.db.client.search.SearchRequest;
 import com.tigrisdata.db.client.search.SearchResult;
@@ -46,7 +46,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class StandardTigrisAsyncCollectionTest {
 
   private static String SERVER_NAME;
-  private static final TestUserService TEST_USER_SERVICE = new TestUserService();
+  private static final TestTigrisService TEST_USER_SERVICE = new TestTigrisService();
   @ClassRule public static final GrpcCleanupRule grpcCleanup = new GrpcCleanupRule();
 
   @BeforeClass

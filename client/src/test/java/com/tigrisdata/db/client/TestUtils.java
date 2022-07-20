@@ -13,7 +13,6 @@
  */
 package com.tigrisdata.db.client;
 
-import com.tigrisdata.db.client.auth.TigrisAuthorizationToken;
 import com.tigrisdata.db.client.config.TigrisConfiguration;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.inprocess.InProcessChannelBuilder;
@@ -29,8 +28,20 @@ public final class TestUtils {
         InProcessChannelBuilder.forName(grpcServerName);
     StandardTigrisClient client =
         new StandardTigrisClient(
-            new TigrisAuthorizationToken("some.dummy.token"),
-            TigrisConfiguration.newBuilder("some-url").build(),
+            TigrisConfiguration.newBuilder("some-url").build(), channelBuilder);
+    grpcCleanupRule.register(client.getChannel());
+    return client;
+  }
+
+  public static StandardTigrisClient getTestAuthEnabledClient(
+      String grpcServerName, GrpcCleanupRule grpcCleanupRule) {
+    ManagedChannelBuilder<InProcessChannelBuilder> channelBuilder =
+        InProcessChannelBuilder.forName(grpcServerName);
+    StandardTigrisClient client =
+        new StandardTigrisClient(
+            TigrisConfiguration.newBuilder("some-url")
+                .withOAuth2(new TigrisConfiguration.OAuth2Config("test-refresh-token"))
+                .build(),
             channelBuilder);
     grpcCleanupRule.register(client.getChannel());
     return client;
@@ -42,9 +53,7 @@ public final class TestUtils {
         InProcessChannelBuilder.forName(grpcServerName);
     StandardTigrisAsyncClient client =
         new StandardTigrisAsyncClient(
-            new TigrisAuthorizationToken("some.dummy.token"),
-            TigrisConfiguration.newBuilder("some-url").build(),
-            channelBuilder);
+            TigrisConfiguration.newBuilder("some-url").build(), channelBuilder);
     grpcCleanupRule.register(client.getChannel());
     return client;
   }

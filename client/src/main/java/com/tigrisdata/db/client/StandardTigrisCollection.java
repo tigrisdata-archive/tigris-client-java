@@ -23,6 +23,7 @@ import static com.tigrisdata.db.client.Constants.SEARCH_FAILED;
 import static com.tigrisdata.db.client.Constants.EVENTS_FAILED;
 import static com.tigrisdata.db.client.TypeConverter.toCollectionDescription;
 import static com.tigrisdata.db.client.TypeConverter.toCollectionOptions;
+import com.tigrisdata.db.client.config.TigrisConfiguration;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.search.SearchRequest;
 import com.tigrisdata.db.client.search.SearchRequestOptions;
@@ -45,8 +46,9 @@ class StandardTigrisCollection<T extends TigrisCollectionType> extends AbstractT
       String databaseName,
       Class<T> collectionTypeClass,
       TigrisGrpc.TigrisBlockingStub stub,
-      ObjectMapper objectMapper) {
-    super(databaseName, collectionTypeClass, stub, objectMapper);
+      ObjectMapper objectMapper,
+      TigrisConfiguration configuration) {
+    super(databaseName, collectionTypeClass, stub, objectMapper, configuration);
   }
 
   @Override

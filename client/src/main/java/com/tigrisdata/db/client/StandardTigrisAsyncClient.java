@@ -26,7 +26,6 @@ import static com.tigrisdata.db.client.TypeConverter.toCreateDatabaseRequest;
 import static com.tigrisdata.db.client.TypeConverter.toDropDatabaseRequest;
 import static com.tigrisdata.db.client.TypeConverter.toListDatabasesRequest;
 import static com.tigrisdata.db.client.TypeConverter.toServerMetadata;
-import com.tigrisdata.db.client.auth.AuthorizationToken;
 import com.tigrisdata.db.client.config.TigrisConfiguration;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.tools.schema.core.ModelToJsonSchema;
@@ -59,28 +58,22 @@ public class StandardTigrisAsyncClient extends AbstractTigrisClient implements T
     this(clientConfiguration, Executors.newCachedThreadPool());
   }
 
-  StandardTigrisAsyncClient(TigrisConfiguration clientConfiguration, Executor executor) {
-    // TODO: authorization token injection
-    super(clientConfiguration, Optional.empty(), new StandardModelToTigrisJsonSchema());
-    this.stub = TigrisGrpc.newStub(channel);
-    this.futureStub = TigrisGrpc.newFutureStub(channel);
-    this.blockingStub = TigrisGrpc.newBlockingStub(channel);
+  StandardTigrisAsyncClient(TigrisConfiguration configuration, Executor executor) {
+    super(configuration, new StandardModelToTigrisJsonSchema());
+    this.stub = Utilities.newStub(channel, configuration);
+    this.futureStub = Utilities.newFutureStub(channel, configuration);
+    this.blockingStub = Utilities.newBlockingStub(channel, configuration);
     this.executor = executor;
   }
 
   @VisibleForTesting
   StandardTigrisAsyncClient(
-      AuthorizationToken authorizationToken,
       TigrisConfiguration configuration,
       ManagedChannelBuilder<? extends ManagedChannelBuilder> managedChannelBuilder) {
-    super(
-        authorizationToken,
-        configuration,
-        managedChannelBuilder,
-        new StandardModelToTigrisJsonSchema());
-    this.stub = TigrisGrpc.newStub(channel);
-    this.futureStub = TigrisGrpc.newFutureStub(channel);
-    this.blockingStub = TigrisGrpc.newBlockingStub(channel);
+    super(configuration, managedChannelBuilder, new StandardModelToTigrisJsonSchema());
+    this.stub = Utilities.newStub(channel, configuration);
+    this.futureStub = Utilities.newFutureStub(channel, configuration);
+    this.blockingStub = Utilities.newBlockingStub(channel, configuration);
     this.executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
   }
 
@@ -116,7 +109,8 @@ public class StandardTigrisAsyncClient extends AbstractTigrisClient implements T
         channel,
         executor,
         objectMapper,
-        modelToJsonSchema);
+        modelToJsonSchema,
+        configuration);
   }
 
   @Override
@@ -139,7 +133,8 @@ public class StandardTigrisAsyncClient extends AbstractTigrisClient implements T
                     channel,
                     executor,
                     objectMapper,
-                    modelToJsonSchema));
+                    modelToJsonSchema,
+                    configuration));
           }
           return tigrisAsyncDatabases;
         },
@@ -163,7 +158,8 @@ public class StandardTigrisAsyncClient extends AbstractTigrisClient implements T
                 channel,
                 executor,
                 objectMapper,
-                modelToJsonSchema),
+                modelToJsonSchema,
+                configuration),
         executor,
         CREATE_DB_FAILED,
         Optional.of(
@@ -175,7 +171,8 @@ public class StandardTigrisAsyncClient extends AbstractTigrisClient implements T
                 executor,
                 channel,
                 objectMapper,
-                modelToJsonSchema)));
+                modelToJsonSchema,
+                configuration)));
   }
 
   @Override
@@ -223,6 +220,7 @@ public class StandardTigrisAsyncClient extends AbstractTigrisClient implements T
     private final ManagedChannel channel;
     private final ObjectMapper objectMapper;
     private final ModelToJsonSchema modelToJsonSchema;
+    private final TigrisConfiguration configuration;
 
     public CreateDatabaseExceptionHandler(
         String dbName,
@@ -232,7 +230,8 @@ public class StandardTigrisAsyncClient extends AbstractTigrisClient implements T
         Executor executor,
         ManagedChannel channel,
         ObjectMapper objectMapper,
-        ModelToJsonSchema modelToJsonSchema) {
+        ModelToJsonSchema modelToJsonSchema,
+        TigrisConfiguration configuration) {
       this.dbName = dbName;
       this.stub = stub;
       this.futureStub = futureStub;
@@ -241,6 +240,7 @@ public class StandardTigrisAsyncClient extends AbstractTigrisClient implements T
       this.channel = channel;
       this.objectMapper = objectMapper;
       this.modelToJsonSchema = modelToJsonSchema;
+      this.configuration = configuration;
     }
 
     @Override
@@ -260,7 +260,8 @@ public class StandardTigrisAsyncClient extends AbstractTigrisClient implements T
                   channel,
                   executor,
                   objectMapper,
-                  modelToJsonSchema));
+                  modelToJsonSchema,
+                  configuration));
           return;
         }
       }

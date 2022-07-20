@@ -100,6 +100,18 @@ public final class SearchRequest {
     return new Builder();
   }
 
+  /**
+   * Builder object that matches all documents in the collection
+   *
+   * <p>Note: Avoid using {@code withQuery()} construct with this builder, it may override pre-built
+   * match all query syntax and may not function as expected.
+   *
+   * @return {@link SearchRequest.Builder} object that includes a match all {@code query}
+   */
+  public static Builder matchAll() {
+    return newBuilder();
+  }
+
   public static final class Builder {
 
     private Query query;

@@ -72,6 +72,12 @@ public class SearchRequestTest {
   }
 
   @Test
+  public void matchAllBuild() {
+    SearchRequest built = SearchRequest.matchAll().build();
+    Assert.assertEquals(built.getQuery(), QueryString.getMatchAllQuery());
+  }
+
+  @Test
   public void failsWithNullQuery() {
     Exception thrown =
         Assert.assertThrows(

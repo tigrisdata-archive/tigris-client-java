@@ -17,9 +17,12 @@ import static com.tigrisdata.db.client.Constants.DELETE_FAILED;
 import static com.tigrisdata.db.client.Constants.INSERT_FAILED;
 import static com.tigrisdata.db.client.Constants.INSERT_OR_REPLACE_FAILED;
 import static com.tigrisdata.db.client.Constants.JSON_SER_DE_ERROR;
+import static com.tigrisdata.db.client.Constants.PUBLISH_FAILED;
 import static com.tigrisdata.db.client.Constants.READ_FAILED;
+import static com.tigrisdata.db.client.Constants.SUBSCRIBE_FAILED;
 import static com.tigrisdata.db.client.Constants.UPDATE_FAILED;
 import static com.tigrisdata.db.client.TypeConverter.toDeleteRequest;
+import static com.tigrisdata.db.client.TypeConverter.toPublishRequest;
 import static com.tigrisdata.db.client.TypeConverter.toReadRequest;
 import static com.tigrisdata.db.client.TypeConverter.toReplaceRequest;
 import static com.tigrisdata.db.client.TypeConverter.toUpdateRequest;
@@ -31,6 +34,7 @@ import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisCollectionType;
 import io.grpc.StatusRuntimeException;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
@@ -220,6 +224,56 @@ abstract class AbstractTigrisCollection<T extends TigrisCollectionType> {
     } catch (StatusRuntimeException statusRuntimeException) {
       throw new TigrisException(
           INSERT_OR_REPLACE_FAILED,
+          TypeConverter.extractTigrisError(statusRuntimeException),
+          statusRuntimeException);
+    }
+  }
+
+  protected PublishResponse<T> publishInternal(List<T> messages) throws TigrisException {
+    try {
+      Api.PublishRequest publishRequest =
+          toPublishRequest(databaseName, collectionName, messages, objectMapper);
+
+      Api.PublishResponse response = blockingStub.publish(publishRequest);
+
+      return new PublishResponse<>(
+          response.getStatus(),
+          response.getMetadata().getCreatedAt(),
+          response.getMetadata().getUpdatedAt(),
+          TypeConverter.toArrayOfMap(response.getKeysList(), objectMapper),
+          messages);
+    } catch (JsonProcessingException ex) {
+      throw new TigrisException(JSON_SER_DE_ERROR, ex);
+    } catch (StatusRuntimeException statusRuntimeException) {
+      throw new TigrisException(
+          PUBLISH_FAILED,
+          TypeConverter.extractTigrisError(statusRuntimeException),
+          statusRuntimeException);
+    }
+  }
+
+  public Iterator<T> subscribeInternal() throws TigrisException {
+    try {
+      Api.SubscribeRequest subscribeRequest =
+          Api.SubscribeRequest.newBuilder()
+              .setDb(databaseName)
+              .setCollection(collectionName)
+              .build();
+      Iterator<Api.SubscribeResponse> subscribeResponseIterator =
+          blockingStub.subscribe(subscribeRequest);
+      Function<Api.SubscribeResponse, T> converter =
+          subscribeResponse -> {
+            try {
+              return objectMapper.readValue(
+                  subscribeResponse.getMessage().toStringUtf8(), collectionTypeClass);
+            } catch (JsonProcessingException e) {
+              throw new IllegalArgumentException("Failed to convert response to  the user type", e);
+            }
+          };
+      return Utilities.transformIterator(subscribeResponseIterator, converter);
+    } catch (StatusRuntimeException statusRuntimeException) {
+      throw new TigrisException(
+          SUBSCRIBE_FAILED,
           TypeConverter.extractTigrisError(statusRuntimeException),
           statusRuntimeException);
     }

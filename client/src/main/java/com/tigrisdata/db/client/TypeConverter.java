@@ -341,6 +341,30 @@ final class TypeConverter {
         new TigrisJSONSchema(collectionDescription.getSchema().toStringUtf8()));
   }
 
+  public static <T> Api.PublishRequest toPublishRequest(
+      String databaseName, String collectionName, List<T> messages, ObjectMapper objectMapper)
+      throws JsonProcessingException {
+    Api.PublishRequest.Builder publishRequestBuilder =
+        Api.PublishRequest.newBuilder().setDb(databaseName).setCollection(collectionName);
+    for (T message : messages) {
+      publishRequestBuilder.addMessages(
+          ByteString.copyFromUtf8(objectMapper.writeValueAsString(message)));
+    }
+    return publishRequestBuilder.build();
+  }
+
+  public static Api.SubscribeRequest toSubscribeRequest(
+      String databaseName, String collectionName) {
+    Api.SubscribeRequestOptions subscribeRequestOptionsAPI =
+        Api.SubscribeRequestOptions.newBuilder().build();
+    Api.SubscribeRequest.Builder subscribeRequestBuilder =
+        Api.SubscribeRequest.newBuilder()
+            .setDb(databaseName)
+            .setCollection(collectionName)
+            .setOptions(subscribeRequestOptionsAPI);
+    return subscribeRequestBuilder.build();
+  }
+
   static Optional<TigrisError> extractTigrisError(StatusRuntimeException statusRuntimeException) {
     Optional<ErrorInfo> errorInfo = extract(statusRuntimeException, ErrorInfo.class);
     return errorInfo.map(info -> new TigrisError(Api.Code.valueOf(info.getReason())));

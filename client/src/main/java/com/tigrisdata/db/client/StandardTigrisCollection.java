@@ -280,6 +280,16 @@ class StandardTigrisCollection<T extends TigrisCollectionType> extends AbstractT
   }
 
   @Override
+  public PublishResponse<T> publish(List<T> messages) throws TigrisException {
+    return this.publishInternal(messages);
+  }
+
+  @Override
+  public Iterator<T> subscribe() throws TigrisException {
+    return this.subscribeInternal();
+  }
+
+  @Override
   public String name() {
     return collectionName;
   }

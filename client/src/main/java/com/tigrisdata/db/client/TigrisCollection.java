@@ -242,6 +242,21 @@ public interface TigrisCollection<T extends TigrisCollectionType>
    */
   CollectionDescription describe(CollectionOptions collectionOptions) throws TigrisException;
 
+  /**
+   * Publishes messages into the collection.
+   *
+   * @param messages list of messages to publish
+   * @return an instance of {@link PublishResponse} from server
+   * @throws TigrisException in case of an error
+   */
+  PublishResponse<T> publish(List<T> messages) throws TigrisException;
+
+  /**
+   * @return stream of messages published
+   * @throws TigrisException in case of an error
+   */
+  Iterator<T> subscribe() throws TigrisException;
+
   /** @return Name of the collection */
   String name();
 }

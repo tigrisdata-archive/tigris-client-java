@@ -51,8 +51,10 @@ final class Constants {
   public static final String READ_FAILED = "Failed to read";
   public static final String SEARCH_FAILED = "Failed to search";
   public static final String STREAM_FAILED = "Failed to stream events";
+  public static final String SUBSCRIBE_FAILED = "Failed to stream messages";
   public static final String STREAM_CONVERT_FAILED = "Failed to convert event data";
   public static final String DESCRIBE_COLLECTION_FAILED = "Failed to describe collection";
+  public static final String PUBLISH_FAILED = "Failed to publish";
 
   // JSON
   public static final String JSON_SER_DE_ERROR =

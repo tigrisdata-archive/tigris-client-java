@@ -24,8 +24,10 @@ import static com.tigrisdata.db.client.Constants.DESCRIBE_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.Constants.INSERT_FAILED;
 import static com.tigrisdata.db.client.Constants.INSERT_OR_REPLACE_FAILED;
 import static com.tigrisdata.db.client.Constants.JSON_SER_DE_ERROR;
+import static com.tigrisdata.db.client.Constants.PUBLISH_FAILED;
 import static com.tigrisdata.db.client.Constants.READ_FAILED;
 import static com.tigrisdata.db.client.Constants.SEARCH_FAILED;
+import static com.tigrisdata.db.client.Constants.SUBSCRIBE_FAILED;
 import static com.tigrisdata.db.client.Constants.UPDATE_FAILED;
 import static com.tigrisdata.db.client.TypeConverter.extractTigrisError;
 import static com.tigrisdata.db.client.TypeConverter.readOneDefaultReadRequestOptions;
@@ -33,9 +35,11 @@ import static com.tigrisdata.db.client.TypeConverter.toCollectionDescription;
 import static com.tigrisdata.db.client.TypeConverter.toCollectionOptions;
 import static com.tigrisdata.db.client.TypeConverter.toDeleteRequest;
 import static com.tigrisdata.db.client.TypeConverter.toInsertRequest;
+import static com.tigrisdata.db.client.TypeConverter.toPublishRequest;
 import static com.tigrisdata.db.client.TypeConverter.toReadRequest;
 import static com.tigrisdata.db.client.TypeConverter.toReplaceRequest;
 import static com.tigrisdata.db.client.TypeConverter.toSearchRequest;
+import static com.tigrisdata.db.client.TypeConverter.toSubscribeRequest;
 import static com.tigrisdata.db.client.TypeConverter.toUpdateRequest;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.search.SearchRequest;
@@ -394,6 +398,43 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
         filter, new DeleteRequestOptions(WriteOptions.DEFAULT_INSTANCE), session);
   }
 
+  @Override
+  public CompletableFuture<PublishResponse<T>> publish(List<T> messages) throws TigrisException {
+    try {
+      Api.PublishRequest publishRequest =
+          toPublishRequest(databaseName, collectionName, messages, objectMapper);
+      ListenableFuture<Api.PublishResponse> publishResponseListenableFuture =
+          futureStub.publish(publishRequest);
+      return Utilities.transformFuture(
+          publishResponseListenableFuture,
+          input ->
+              new PublishResponse<>(
+                  input.getStatus(),
+                  input.getMetadata().getCreatedAt(),
+                  input.getMetadata().getUpdatedAt(),
+                  TypeConverter.toArrayOfMap(input.getKeysList(), objectMapper),
+                  new ArrayList<>(messages)),
+          executor,
+          PUBLISH_FAILED);
+    } catch (JsonProcessingException jsonProcessingException) {
+      throw new TigrisException(JSON_SER_DE_ERROR, jsonProcessingException);
+    }
+  }
+
+  @Override
+  public CompletableFuture<PublishResponse<T>> publish(T message) throws TigrisException {
+    return this.publish(Collections.singletonList(message));
+  }
+
+  @Override
+  public void subscribe(TigrisAsyncReader<T> reader) {
+    Api.SubscribeRequest subscribeRequest = toSubscribeRequest(databaseName, collectionName);
+    stub.subscribe(
+        subscribeRequest,
+        new SubscribeResponseObserverAdapter<>(
+            reader, collectionTypeClass, objectMapper, SUBSCRIBE_FAILED));
+  }
+
   static class ReadManyResponseObserverAdapter<T extends TigrisCollectionType>
       implements StreamObserver<Api.ReadResponse> {
 
@@ -516,6 +557,54 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
                 SEARCH_FAILED, extractTigrisError((StatusRuntimeException) throwable), throwable));
       } else {
         reader.onError(new TigrisException(SEARCH_FAILED, throwable));
+      }
+    }
+
+    @Override
+    public void onCompleted() {
+      reader.onCompleted();
+    }
+  }
+
+  static class SubscribeResponseObserverAdapter<T extends TigrisCollectionType>
+      implements StreamObserver<Api.SubscribeResponse> {
+
+    private final TigrisAsyncReader<T> reader;
+    private final Class<T> collectionTypeClass;
+    private final ObjectMapper objectMapper;
+    private final String errorMessage;
+
+    public SubscribeResponseObserverAdapter(
+        TigrisAsyncReader<T> reader,
+        Class<T> collectionTypeClass,
+        ObjectMapper objectMapper,
+        String errorMessage) {
+      this.reader = reader;
+      this.collectionTypeClass = collectionTypeClass;
+      this.objectMapper = objectMapper;
+      this.errorMessage = errorMessage;
+    }
+
+    @Override
+    public void onNext(Api.SubscribeResponse subscribeResponse) {
+      try {
+        T doc =
+            objectMapper.readValue(
+                subscribeResponse.getMessage().toStringUtf8(), collectionTypeClass);
+        reader.onNext(doc);
+      } catch (JsonProcessingException ex) {
+        reader.onError(new TigrisException(JSON_SER_DE_ERROR, ex));
+      }
+    }
+
+    @Override
+    public void onError(Throwable throwable) {
+      if (throwable instanceof StatusRuntimeException) {
+        reader.onError(
+            new TigrisException(
+                errorMessage, extractTigrisError((StatusRuntimeException) throwable), throwable));
+      } else {
+        reader.onError(new TigrisException(errorMessage, throwable));
       }
     }
 

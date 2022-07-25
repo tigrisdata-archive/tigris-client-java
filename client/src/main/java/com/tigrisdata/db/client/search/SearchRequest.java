@@ -18,7 +18,9 @@ import com.tigrisdata.db.client.TigrisFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /** Builder class to create a Search request */
 public final class SearchRequest {
@@ -37,8 +39,10 @@ public final class SearchRequest {
     this.searchFields = builder.searchFields;
     this.facetQuery = builder.facetQuery;
     this.sortOrder = builder.sortOrder;
-    this.includeFields = Collections.unmodifiableList(builder.includeFields);
-    this.excludeFields = Collections.unmodifiableList(builder.excludeFields);
+    ArrayList<String> includeFields = new ArrayList<>(builder.includeFields);
+    this.includeFields = Collections.unmodifiableList(includeFields);
+    ArrayList<String> excludeFields = new ArrayList<>(builder.excludeFields);
+    this.excludeFields = Collections.unmodifiableList(excludeFields);
   }
 
   /**
@@ -132,13 +136,13 @@ public final class SearchRequest {
     private SearchFields searchFields;
     private FacetQuery facetQuery;
     private SortOrder sortOrder;
-    private final List<String> includeFields;
-    private final List<String> excludeFields;
+    private final Set<String> includeFields;
+    private final Set<String> excludeFields;
 
     private Builder() {
       this.query = QueryString.getMatchAllQuery();
-      this.includeFields = new ArrayList<>();
-      this.excludeFields = new ArrayList<>();
+      this.includeFields = new LinkedHashSet<>();
+      this.excludeFields = new LinkedHashSet<>();
     }
 
     /**

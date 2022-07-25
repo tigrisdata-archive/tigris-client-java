@@ -26,6 +26,8 @@ import static com.tigrisdata.db.client.Constants.INSERT_OR_REPLACE_FAILED;
 import static com.tigrisdata.db.client.Constants.JSON_SER_DE_ERROR;
 import static com.tigrisdata.db.client.Constants.READ_FAILED;
 import static com.tigrisdata.db.client.Constants.SEARCH_FAILED;
+import static com.tigrisdata.db.client.Constants.EVENTS_CONVERT_FAILED;
+import static com.tigrisdata.db.client.Constants.EVENTS_FAILED;
 import static com.tigrisdata.db.client.Constants.UPDATE_FAILED;
 import static com.tigrisdata.db.client.TypeConverter.extractTigrisError;
 import static com.tigrisdata.db.client.TypeConverter.readOneDefaultReadRequestOptions;
@@ -46,6 +48,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -283,6 +286,42 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
         },
         executor,
         DESCRIBE_COLLECTION_FAILED);
+  }
+
+  @Override
+  public void events(TigrisAsyncEventer eventer) {
+    Api.EventsRequest streamRequest =
+        Api.EventsRequest.newBuilder().setDb(databaseName).setCollection(collectionName).build();
+    stub.events(
+        streamRequest,
+        new StreamObserver<Api.EventsResponse>() {
+          @Override
+          public void onNext(Api.EventsResponse streamResponse) {
+            try {
+              eventer.onNext(StreamEvent.from(streamResponse.getEvent(), objectMapper));
+            } catch (IOException e) {
+              eventer.onError(new TigrisException(EVENTS_CONVERT_FAILED, e));
+            }
+          }
+
+          @Override
+          public void onError(Throwable throwable) {
+            if (throwable instanceof StatusRuntimeException) {
+              eventer.onError(
+                  new TigrisException(
+                      EVENTS_FAILED,
+                      TypeConverter.extractTigrisError((StatusRuntimeException) throwable),
+                      throwable));
+            } else {
+              eventer.onError(new TigrisException(EVENTS_FAILED, throwable));
+            }
+          }
+
+          @Override
+          public void onCompleted() {
+            eventer.onCompleted();
+          }
+        });
   }
 
   @Override

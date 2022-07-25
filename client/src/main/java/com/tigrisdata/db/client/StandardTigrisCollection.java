@@ -20,6 +20,7 @@ import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import static com.tigrisdata.db.client.Constants.DESCRIBE_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.Constants.READ_FAILED;
 import static com.tigrisdata.db.client.Constants.SEARCH_FAILED;
+import static com.tigrisdata.db.client.Constants.EVENTS_FAILED;
 import static com.tigrisdata.db.client.TypeConverter.toCollectionDescription;
 import static com.tigrisdata.db.client.TypeConverter.toCollectionOptions;
 import com.tigrisdata.db.client.error.TigrisException;
@@ -29,6 +30,7 @@ import com.tigrisdata.db.client.search.SearchResult;
 import com.tigrisdata.db.type.TigrisCollectionType;
 import io.grpc.StatusRuntimeException;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -274,6 +276,29 @@ class StandardTigrisCollection<T extends TigrisCollectionType> extends AbstractT
     } catch (StatusRuntimeException statusRuntimeException) {
       throw new TigrisException(
           DESCRIBE_COLLECTION_FAILED,
+          TypeConverter.extractTigrisError(statusRuntimeException),
+          statusRuntimeException);
+    }
+  }
+
+  @Override
+  public Iterator<StreamEvent> events() throws TigrisException {
+    try {
+      Api.EventsRequest streamRequest =
+          Api.EventsRequest.newBuilder().setDb(databaseName).setCollection(collectionName).build();
+      Iterator<Api.EventsResponse> streamResponseIterator = blockingStub.events(streamRequest);
+      Function<Api.EventsResponse, StreamEvent> converter =
+          streamResponse -> {
+            try {
+              return StreamEvent.from(streamResponse.getEvent(), objectMapper);
+            } catch (IOException e) {
+              throw new IllegalArgumentException("Failed to convert event data to JSON", e);
+            }
+          };
+      return Utilities.transformIterator(streamResponseIterator, converter);
+    } catch (StatusRuntimeException statusRuntimeException) {
+      throw new TigrisException(
+          EVENTS_FAILED,
           TypeConverter.extractTigrisError(statusRuntimeException),
           statusRuntimeException);
     }

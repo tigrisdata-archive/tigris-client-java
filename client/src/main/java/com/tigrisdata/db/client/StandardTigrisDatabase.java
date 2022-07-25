@@ -21,7 +21,6 @@ import static com.tigrisdata.db.client.Constants.CREATE_OR_UPDATE_COLLECTION_FAI
 import static com.tigrisdata.db.client.Constants.DESCRIBE_DB_FAILED;
 import static com.tigrisdata.db.client.Constants.DROP_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.Constants.LIST_COLLECTION_FAILED;
-import static com.tigrisdata.db.client.Constants.STREAM_FAILED;
 import static com.tigrisdata.db.client.Constants.TRANSACTION_FAILED;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisCollectionType;
@@ -29,13 +28,10 @@ import com.tigrisdata.tools.schema.core.ModelToJsonSchema;
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
 
-import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -171,28 +167,6 @@ class StandardTigrisDatabase extends AbstractTigrisDatabase implements TigrisDat
     } catch (StatusRuntimeException statusRuntimeException) {
       throw new TigrisException(
           DESCRIBE_DB_FAILED,
-          TypeConverter.extractTigrisError(statusRuntimeException),
-          statusRuntimeException);
-    }
-  }
-
-  @Override
-  public Iterator<StreamEvent> stream() throws TigrisException {
-    try {
-      Api.EventsRequest streamRequest = Api.EventsRequest.newBuilder().setDb(db).build();
-      Iterator<Api.EventsResponse> streamResponseIterator = blockingStub.events(streamRequest);
-      Function<Api.EventsResponse, StreamEvent> converter =
-          streamResponse -> {
-            try {
-              return StreamEvent.from(streamResponse.getEvent(), objectMapper);
-            } catch (IOException e) {
-              throw new IllegalArgumentException("Failed to convert event data to JSON", e);
-            }
-          };
-      return Utilities.transformIterator(streamResponseIterator, converter);
-    } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisException(
-          STREAM_FAILED,
           TypeConverter.extractTigrisError(statusRuntimeException),
           statusRuntimeException);
     }

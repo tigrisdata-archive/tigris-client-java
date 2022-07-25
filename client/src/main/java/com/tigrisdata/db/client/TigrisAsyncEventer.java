@@ -14,4 +14,14 @@
 package com.tigrisdata.db.client;
 
 /** Asynchronous callback to receive events */
-public interface TigrisAsyncStreamer extends TigrisAsyncCallback<StreamEvent> {}
+public interface TigrisAsyncEventer extends TigrisAsyncCallback<StreamEvent> {
+
+  /** @param event next event */
+  void onNext(StreamEvent event);
+
+  /** @param t captures the error */
+  void onError(Throwable t);
+
+  /** Gets invoked when read is completed */
+  void onCompleted();
+}

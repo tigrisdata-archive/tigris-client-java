@@ -94,7 +94,8 @@ public class TypeConverterTest {
     Assert.assertNotNull(apiSearchRequest.getFacet());
     Assert.assertNotNull(apiSearchRequest.getFilter());
     Assert.assertNotNull(apiSearchRequest.getSort());
-    Assert.assertNotNull(apiSearchRequest.getFields());
+    Assert.assertNotNull(apiSearchRequest.getIncludeFieldsList());
+    Assert.assertNotNull(apiSearchRequest.getExcludeFieldsList());
     Assert.assertEquals(options.getPage(), apiSearchRequest.getPage());
     Assert.assertEquals(options.getPerPage(), apiSearchRequest.getPageSize());
   }

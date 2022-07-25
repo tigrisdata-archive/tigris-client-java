@@ -14,9 +14,11 @@
 
 package com.tigrisdata.db.client.search;
 
-import com.tigrisdata.db.client.ReadFields;
 import com.tigrisdata.db.client.TigrisFilter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /** Builder class to create a Search request */
 public final class SearchRequest {
@@ -26,7 +28,8 @@ public final class SearchRequest {
   private final TigrisFilter filter;
   private final FacetQuery facetQuery;
   private final SortOrder sortOrder;
-  private final ReadFields readFields;
+  private final List<String> includeFields;
+  private final List<String> excludeFields;
 
   private SearchRequest(Builder builder) {
     this.query = builder.query;
@@ -34,7 +37,8 @@ public final class SearchRequest {
     this.searchFields = builder.searchFields;
     this.facetQuery = builder.facetQuery;
     this.sortOrder = builder.sortOrder;
-    this.readFields = builder.fields;
+    this.includeFields = Collections.unmodifiableList(builder.includeFields);
+    this.excludeFields = Collections.unmodifiableList(builder.excludeFields);
   }
 
   /**
@@ -83,12 +87,21 @@ public final class SearchRequest {
   }
 
   /**
-   * Gets the document fields to include/exclude in search results
+   * Gets list of fields to include in returned documents
    *
-   * @return {@link ReadFields} or null
+   * @return non-null immutable {@link List}
    */
-  public ReadFields getReadFields() {
-    return readFields;
+  public List<String> getIncludeFields() {
+    return includeFields;
+  }
+
+  /**
+   * Gets list of fields to exclude from returned documents
+   *
+   * @return non-null immutable {@link List}
+   */
+  public List<String> getExcludeFields() {
+    return excludeFields;
   }
 
   /**
@@ -119,10 +132,13 @@ public final class SearchRequest {
     private SearchFields searchFields;
     private FacetQuery facetQuery;
     private SortOrder sortOrder;
-    private ReadFields fields;
+    private final List<String> includeFields;
+    private final List<String> excludeFields;
 
     private Builder() {
       this.query = QueryString.getMatchAllQuery();
+      this.includeFields = new ArrayList<>();
+      this.excludeFields = new ArrayList<>();
     }
 
     /**
@@ -173,7 +189,7 @@ public final class SearchRequest {
     /**
      * Optional - Sets the facet fields to categorically arrange indexed terms
      *
-     * @param fields {@link }
+     * @param fields Collection field names
      * @return {@link SearchRequest.Builder}
      * @see #withFacetQuery(FacetQuery)
      */
@@ -206,13 +222,24 @@ public final class SearchRequest {
     }
 
     /**
-     * Optional - Sets the document fields to include/exclude in search results
+     * Optional - Sets collection fields to include in returned documents
      *
-     * @param fields {@link ReadFields}
+     * @param fields Collection field names
      * @return {@link SearchRequest.Builder}
      */
-    public Builder withReadFields(ReadFields fields) {
-      this.fields = fields;
+    public Builder withIncludeFields(String... fields) {
+      this.includeFields.addAll(Arrays.asList(fields));
+      return this;
+    }
+
+    /**
+     * Optional - Sets collection fields to exclude from returned documents
+     *
+     * @param fields Collection field names
+     * @return {@link SearchRequest.Builder}
+     */
+    public Builder withExcludeFields(String... fields) {
+      this.excludeFields.addAll(Arrays.asList(fields));
       return this;
     }
 

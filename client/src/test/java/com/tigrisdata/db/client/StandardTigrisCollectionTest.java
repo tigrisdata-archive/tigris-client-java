@@ -135,7 +135,7 @@ public class StandardTigrisCollectionTest {
         SearchRequest.newBuilder()
             .withQuery("my search string")
             .withFacetQuery(FacetFieldsQuery.newBuilder().withField("name").build())
-            .withReadFields(ReadFields.newBuilder().includeField("other_field").build())
+            .withIncludeFields("other_field")
             .withFilter(
                 Filters.and(
                     Filters.eq("first_key", "first_value"), Filters.eq("some_key", "some value")))

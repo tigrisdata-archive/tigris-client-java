@@ -15,8 +15,10 @@
 package com.tigrisdata.db.client.search;
 
 import com.tigrisdata.db.client.Filters;
-import com.tigrisdata.db.client.ReadFields;
 import com.tigrisdata.db.client.TigrisFilter;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -29,7 +31,7 @@ public class SearchRequestTest {
     SearchFields expectedSearchFields = SearchFields.newBuilder().withField("field_1").build();
     TigrisFilter expectedFilter = Filters.eq("field_2", "otherValue");
     FacetQuery expectedFacetQuery = FacetFieldsQuery.newBuilder().withField("field_3").build();
-    ReadFields expectedReadFields = ReadFields.newBuilder().includeField("field_1").build();
+    List<String> expectedIncludeFields = Collections.singletonList("field_1");
 
     SearchRequest actual =
         SearchRequest.newBuilder()
@@ -37,7 +39,7 @@ public class SearchRequestTest {
             .withSearchFields(expectedSearchFields)
             .withFacetQuery(expectedFacetQuery)
             .withFilter(expectedFilter)
-            .withReadFields(expectedReadFields)
+            .withIncludeFields(expectedIncludeFields.get(0))
             .build();
 
     Assert.assertNotNull(actual);
@@ -45,7 +47,8 @@ public class SearchRequestTest {
     Assert.assertEquals(expectedSearchFields, actual.getSearchFields());
     Assert.assertEquals(expectedFacetQuery, actual.getFacetQuery());
     Assert.assertEquals(expectedFilter, actual.getFilter());
-    Assert.assertEquals(expectedReadFields, actual.getReadFields());
+    Assert.assertEquals(expectedIncludeFields, actual.getIncludeFields());
+    Assert.assertEquals(0, actual.getExcludeFields().size());
     Assert.assertNull(actual.getSortOrders());
   }
 
@@ -59,10 +62,14 @@ public class SearchRequestTest {
             .withQuery("some query")
             .withSearchFields("field_1")
             .withFacetFields("field_3")
+            .withExcludeFields("field_4", "field_5")
+            .withIncludeFields("field_6")
             .build();
     Assert.assertEquals(expectedQuery, actual.getQuery());
     Assert.assertEquals(expectedSearchFields, actual.getSearchFields());
     Assert.assertEquals(expectedFacetQuery, actual.getFacetQuery());
+    Assert.assertEquals(Arrays.asList("field_6"), actual.getIncludeFields());
+    Assert.assertEquals(Arrays.asList("field_4", "field_5"), actual.getExcludeFields());
   }
 
   @Test

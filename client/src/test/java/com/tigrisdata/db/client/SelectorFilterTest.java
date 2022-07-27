@@ -11,23 +11,15 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tigrisdata.db.client;
 
-enum ComparisonOperator {
-  EQUALS("$eq"),
-  LT("$lt"),
-  LTE("$lte"),
-  GT("$gt"),
-  GTE("$gte"),
-  NONE("");
+import nl.jqno.equalsverifier.EqualsVerifier;
+import org.junit.Test;
 
-  private final String operator;
-
-  ComparisonOperator(String operator) {
-    this.operator = operator;
-  }
-
-  public String getOperator() {
-    return operator;
+public class SelectorFilterTest {
+  @Test
+  public void equalsContract() {
+    EqualsVerifier.forClass(SelectorFilter.class).verify();
   }
 }

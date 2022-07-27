@@ -76,6 +76,182 @@ public final class Filters {
   }
 
   /**
+   * Creates less than filter for given key and value
+   *
+   * @param key field key
+   * @param value field value
+   * @return constructed {@link SelectorFilter} of type {@link Integer}
+   */
+  public static SelectorFilter<Integer> lt(String key, int value) {
+    return new SelectorFilter<>(ComparisonOperator.LT, key, value);
+  }
+
+  /**
+   * Creates less than filter for given key and value
+   *
+   * @param key field key
+   * @param value field value
+   * @return constructed {@link SelectorFilter} of type {@link Long}
+   */
+  public static SelectorFilter<Long> lt(String key, long value) {
+    return new SelectorFilter<>(ComparisonOperator.LT, key, value);
+  }
+
+  /**
+   * Creates less than filter for given key and value
+   *
+   * @param key field key
+   * @param value field value
+   * @return constructed {@link SelectorFilter} of type {@link Integer}
+   */
+  public static SelectorFilter<Float> lt(String key, float value) {
+    return new SelectorFilter<>(ComparisonOperator.LT, key, value);
+  }
+
+  /**
+   * Creates less than filter for given key and value
+   *
+   * @param key field key
+   * @param value field value
+   * @return constructed {@link SelectorFilter} of type {@link Long}
+   */
+  public static SelectorFilter<Double> lt(String key, double value) {
+    return new SelectorFilter<>(ComparisonOperator.LT, key, value);
+  }
+
+  /**
+   * Creates less than equals filter for given key and value
+   *
+   * @param key field key
+   * @param value field value
+   * @return constructed {@link SelectorFilter} of type {@link Integer}
+   */
+  public static SelectorFilter<Integer> lte(String key, int value) {
+    return new SelectorFilter<>(ComparisonOperator.LTE, key, value);
+  }
+
+  /**
+   * Creates less than equals filter for given key and value
+   *
+   * @param key field key
+   * @param value field value
+   * @return constructed {@link SelectorFilter} of type {@link Long}
+   */
+  public static SelectorFilter<Long> lte(String key, long value) {
+    return new SelectorFilter<>(ComparisonOperator.LTE, key, value);
+  }
+
+  /**
+   * Creates less than equals filter for given key and value
+   *
+   * @param key field key
+   * @param value field value
+   * @return constructed {@link SelectorFilter} of type {@link Integer}
+   */
+  public static SelectorFilter<Float> lte(String key, float value) {
+    return new SelectorFilter<>(ComparisonOperator.LTE, key, value);
+  }
+
+  /**
+   * Creates less than equals filter for given key and value
+   *
+   * @param key field key
+   * @param value field value
+   * @return constructed {@link SelectorFilter} of type {@link Long}
+   */
+  public static SelectorFilter<Double> lte(String key, double value) {
+    return new SelectorFilter<>(ComparisonOperator.LTE, key, value);
+  }
+
+  /**
+   * Creates greater than filter for given key and value
+   *
+   * @param key field key
+   * @param value field value
+   * @return constructed {@link SelectorFilter} of type {@link Integer}
+   */
+  public static SelectorFilter<Integer> gt(String key, int value) {
+    return new SelectorFilter<>(ComparisonOperator.GT, key, value);
+  }
+
+  /**
+   * Creates greater than filter for given key and value
+   *
+   * @param key field key
+   * @param value field value
+   * @return constructed {@link SelectorFilter} of type {@link Long}
+   */
+  public static SelectorFilter<Long> gt(String key, long value) {
+    return new SelectorFilter<>(ComparisonOperator.GT, key, value);
+  }
+
+  /**
+   * Creates greater than filter for given key and value
+   *
+   * @param key field key
+   * @param value field value
+   * @return constructed {@link SelectorFilter} of type {@link Integer}
+   */
+  public static SelectorFilter<Float> gt(String key, float value) {
+    return new SelectorFilter<>(ComparisonOperator.GT, key, value);
+  }
+
+  /**
+   * Creates greater than filter for given key and value
+   *
+   * @param key field key
+   * @param value field value
+   * @return constructed {@link SelectorFilter} of type {@link Long}
+   */
+  public static SelectorFilter<Double> gt(String key, double value) {
+    return new SelectorFilter<>(ComparisonOperator.GT, key, value);
+  }
+
+  /**
+   * Creates greater than equals filter for given key and value
+   *
+   * @param key field key
+   * @param value field value
+   * @return constructed {@link SelectorFilter} of type {@link Integer}
+   */
+  public static SelectorFilter<Integer> gte(String key, int value) {
+    return new SelectorFilter<>(ComparisonOperator.GTE, key, value);
+  }
+
+  /**
+   * Creates greater than equals filter for given key and value
+   *
+   * @param key field key
+   * @param value field value
+   * @return constructed {@link SelectorFilter} of type {@link Long}
+   */
+  public static SelectorFilter<Long> gte(String key, long value) {
+    return new SelectorFilter<>(ComparisonOperator.GTE, key, value);
+  }
+
+  /**
+   * Creates greater than equals filter for given key and value
+   *
+   * @param key field key
+   * @param value field value
+   * @return constructed {@link SelectorFilter} of type {@link Integer}
+   */
+  public static SelectorFilter<Float> gte(String key, float value) {
+    return new SelectorFilter<>(ComparisonOperator.GTE, key, value);
+  }
+
+  /**
+   * Creates greater than equals filter for given key and value
+   *
+   * @param key field key
+   * @param value field value
+   * @return constructed {@link SelectorFilter} of type {@link Long}
+   */
+  public static SelectorFilter<Double> gte(String key, double value) {
+    return new SelectorFilter<>(ComparisonOperator.GTE, key, value);
+  }
+
+  /**
    * Creates a composite logical OR filter from input filters
    *
    * @param filters one or more filters

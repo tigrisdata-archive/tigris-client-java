@@ -21,8 +21,6 @@ import static com.tigrisdata.db.client.Constants.BEGIN_TRANSACTION_FAILED;
 import static com.tigrisdata.db.client.Constants.DESCRIBE_DB_FAILED;
 import static com.tigrisdata.db.client.Constants.DROP_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.Constants.LIST_COLLECTION_FAILED;
-import static com.tigrisdata.db.client.Constants.STREAM_CONVERT_FAILED;
-import static com.tigrisdata.db.client.Constants.STREAM_FAILED;
 import static com.tigrisdata.db.client.TypeConverter.toBeginTransactionRequest;
 import static com.tigrisdata.db.client.TypeConverter.toDatabaseDescription;
 import static com.tigrisdata.db.client.TypeConverter.toDropCollectionRequest;
@@ -30,10 +28,7 @@ import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisCollectionType;
 import com.tigrisdata.tools.schema.core.ModelToJsonSchema;
 import io.grpc.ManagedChannel;
-import io.grpc.StatusRuntimeException;
-import io.grpc.stub.StreamObserver;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -176,41 +171,6 @@ class StandardTigrisAsyncDatabase extends AbstractTigrisDatabase implements Tigr
         },
         executor,
         DESCRIBE_DB_FAILED);
-  }
-
-  @Override
-  public void stream(TigrisAsyncStreamer streamer) {
-    Api.EventsRequest streamRequest = Api.EventsRequest.newBuilder().setDb(db).build();
-    stub.events(
-        streamRequest,
-        new StreamObserver<Api.EventsResponse>() {
-          @Override
-          public void onNext(Api.EventsResponse streamResponse) {
-            try {
-              streamer.onNext(StreamEvent.from(streamResponse.getEvent(), objectMapper));
-            } catch (IOException e) {
-              streamer.onError(new TigrisException(STREAM_CONVERT_FAILED, e));
-            }
-          }
-
-          @Override
-          public void onError(Throwable throwable) {
-            if (throwable instanceof StatusRuntimeException) {
-              streamer.onError(
-                  new TigrisException(
-                      STREAM_FAILED,
-                      TypeConverter.extractTigrisError((StatusRuntimeException) throwable),
-                      throwable));
-            } else {
-              streamer.onError(new TigrisException(STREAM_FAILED, throwable));
-            }
-          }
-
-          @Override
-          public void onCompleted() {
-            streamer.onCompleted();
-          }
-        });
   }
 
   @Override

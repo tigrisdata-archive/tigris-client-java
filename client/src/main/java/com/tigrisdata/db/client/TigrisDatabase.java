@@ -16,7 +16,6 @@ package com.tigrisdata.db.client;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisCollectionType;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -91,12 +90,6 @@ public interface TigrisDatabase {
    * @throws TigrisException in case of an error.
    */
   DatabaseDescription describe() throws TigrisException;
-
-  /**
-   * @return stream of events.
-   * @throws TigrisException in case of an error.
-   */
-  Iterator<StreamEvent> stream() throws TigrisException;
 
   /** @return name of the current database */
   String name();

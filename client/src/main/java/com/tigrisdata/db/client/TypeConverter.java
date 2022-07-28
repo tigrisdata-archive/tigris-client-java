@@ -165,7 +165,9 @@ final class TypeConverter {
         Api.SearchRequest.newBuilder()
             .setDb(databaseName)
             .setCollection(collectionName)
-            .setQ(req.getQuery().toJSON(objectMapper));
+            .setQ(req.getQuery().toJSON(objectMapper))
+            .addAllIncludeFields(req.getIncludeFields())
+            .addAllExcludeFields(req.getExcludeFields());
     if (Objects.nonNull(req.getSearchFields())) {
       builder.addAllSearchFields(req.getSearchFields().getFields());
     }
@@ -177,9 +179,6 @@ final class TypeConverter {
     }
     if (Objects.nonNull(req.getSortOrders())) {
       builder.setSort(ByteString.copyFromUtf8(req.getSortOrders().toJSON(objectMapper)));
-    }
-    if (Objects.nonNull(req.getReadFields())) {
-      builder.setFields(ByteString.copyFromUtf8(req.getReadFields().toJSON(objectMapper)));
     }
     if (Objects.nonNull(options)) {
       builder.setPage(options.getPage());

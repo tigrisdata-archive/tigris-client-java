@@ -16,11 +16,12 @@ package com.tigrisdata.db.client;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
-class SelectorFilter<T> implements TigrisFilter {
+final class SelectorFilter<T> implements TigrisFilter {
 
   private final ComparisonOperator comparisonOperator;
   private final String key;
@@ -34,12 +35,23 @@ class SelectorFilter<T> implements TigrisFilter {
 
   @Override
   public String toJSON(ObjectMapper objectMapper) {
-    if (comparisonOperator == ComparisonOperator.NONE) {
-      // filters nothing
-      return "{}";
-    }
     Map<String, Object> map = new LinkedHashMap<>();
-    map.put(key, val);
+    switch (comparisonOperator) {
+      case NONE:
+        return "{}";
+      case EQUALS:
+        map.put(key, val);
+        break;
+      default:
+        Map<String, Object> nestedMap =
+            new HashMap<String, Object>() {
+              {
+                put(comparisonOperator.getOperator(), val);
+              }
+            };
+        map.put(key, nestedMap);
+    }
+
     try {
       return objectMapper.writeValueAsString(map);
     } catch (JsonProcessingException e) {

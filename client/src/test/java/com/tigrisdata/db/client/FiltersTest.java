@@ -13,101 +13,99 @@
  */
 package com.tigrisdata.db.client;
 
+import static java.lang.String.format;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tigrisdata.db.client.config.TigrisConfiguration;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.UUID;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameter;
+import org.junit.runners.Parameterized.Parameters;
 
-import java.util.UUID;
-
+@RunWith(Parameterized.class)
 public class FiltersTest {
-  private static ObjectMapper DEFAULT_OBJECT_MAPPER =
+
+  private static final ObjectMapper DEFAULT_OBJECT_MAPPER =
       TigrisConfiguration.newBuilder("test").build().getObjectMapper();
 
+  @Parameter(0)
+  public String testCaseLabel;
+
+  @Parameter(1)
+  public TigrisFilter filterInput;
+
+  @Parameter(2)
+  public String expectedJSON;
+
   @Test
-  public void equalFilterTest() {
-    Assert.assertEquals("{\"k1\":123}", Filters.eq("k1", 123).toJSON(DEFAULT_OBJECT_MAPPER));
-    Assert.assertEquals("{\"k2\":false}", Filters.eq("k2", false).toJSON(DEFAULT_OBJECT_MAPPER));
-    Assert.assertEquals("{\"k3\":true}", Filters.eq("k3", true).toJSON(DEFAULT_OBJECT_MAPPER));
-    Assert.assertEquals(
-        "{\"k4\":\"val1\"}", Filters.eq("k4", "val1").toJSON(DEFAULT_OBJECT_MAPPER));
-    UUID uuid = UUID.fromString("aa8f8da5-5fd6-4660-a348-9ed7fe96253a");
-    Assert.assertEquals(
-        "{\"uuidField\":\"aa8f8da5-5fd6-4660-a348-9ed7fe96253a\"}",
-        Filters.eq("uuidField", uuid).toJSON(DEFAULT_OBJECT_MAPPER));
+  public void filterToJSON() {
+    Assert.assertEquals(expectedJSON, filterInput.toJSON(DEFAULT_OBJECT_MAPPER));
   }
 
-  @Test
-  public void orFilterTest() {
-    Assert.assertEquals(
-        "{\"$or\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}]}",
-        Filters.or(Filters.eq("k1", 123), Filters.eq("k2", false), Filters.eq("k3", "val3"))
-            .toJSON(DEFAULT_OBJECT_MAPPER));
-  }
+  @Parameters(name = "{index}: {0}")
+  public static Collection<Object[]> filters() {
+    TigrisFilter orFilter =
+        Filters.or(Filters.lt("k1", 123), Filters.eq("k2", false), Filters.gt("k3", 45.0));
+    String orFilterSerialized =
+        "{\"$or\":[{\"k1\":{\"$lt\":123}},{\"k2\":false},{\"k3\":{\"$gt\":45.0}}]}";
 
-  @Test
-  public void andFilterTest() {
-    Assert.assertEquals(
-        "{\"$and\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}]}",
-        Filters.and(Filters.eq("k1", 123), Filters.eq("k2", false), Filters.eq("k3", "val3"))
-            .toJSON(DEFAULT_OBJECT_MAPPER));
-  }
+    TigrisFilter andFilter =
+        Filters.and(
+            Filters.gte("k1", 24.56f), Filters.lte("k3", 29.56f), Filters.eq("k2", "label"));
+    String andFilterSerialized =
+        "{\"$and\":[{\"k1\":{\"$gte\":24.56}},{\"k3\":{\"$lte\":29.56}},{\"k2\":\"label\"}]}";
 
-  @Test
-  public void nestedFilterTest1() {
-    TigrisFilter filter1 =
-        Filters.and(Filters.eq("k1", 123), Filters.eq("k2", false), Filters.eq("k3", "val3"));
-    TigrisFilter filter2 =
-        Filters.and(Filters.eq("k1", 456), Filters.eq("k2", false), Filters.eq("k3", "val4"));
+    TigrisFilter nestedOr = Filters.or(orFilter, andFilter);
+    String nestedOrSerialized =
+        format("{\"$or\":[%s,%s]}", orFilterSerialized, andFilterSerialized);
 
-    Assert.assertEquals(
-        "{\"$or\":[{\"$and\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}]},{\"$and\":[{\"k1\":456},"
-            + "{\"k2\":false},"
-            + "{\"k3\":\"val4\"}]}]}",
-        Filters.or(filter1, filter2).toJSON(DEFAULT_OBJECT_MAPPER));
-  }
+    TigrisFilter nestedAnd =
+        Filters.and(
+            andFilter, orFilter, Filters.and(Filters.gt("k1", 10), Filters.lte("k1", 18.5f)));
+    String nestedAndSerialized =
+        format(
+            "{\"$and\":[%s,%s,{\"$and\":[{\"k1\":{\"$gt\":10}},{\"k1\":{\"$lte\":18.5}}]}]}",
+            andFilterSerialized, orFilterSerialized);
 
-  @Test
-  public void nestedFilterTest2() {
-    TigrisFilter filter1 =
-        Filters.and(Filters.eq("k1", 123), Filters.eq("k2", false), Filters.eq("k3", "val3"));
-    TigrisFilter filter2 =
-        Filters.and(Filters.eq("k4", 456), Filters.eq("k5", false), Filters.eq("k6", "val4"));
-
-    Assert.assertEquals(
-        "{\"$and\":[{\"$and\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}]},{\"$and\":[{\"k4\":456},"
-            + "{\"k5\":false},{\"k6\":\"val4\"}]}]}",
-        Filters.and(filter1, filter2).toJSON(DEFAULT_OBJECT_MAPPER));
-  }
-
-  @Test
-  public void nestedFilterTest3() {
-    TigrisFilter filter1 =
-        Filters.or(Filters.eq("k1", 123), Filters.eq("k2", false), Filters.eq("k3", "val3"));
-    TigrisFilter filter2 =
-        Filters.or(Filters.eq("k1", 456), Filters.eq("k2", false), Filters.eq("k3", "val4"));
-
-    Assert.assertEquals(
-        "{\"$and\":[{\"$or\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}]},{\"$or\":[{\"k1\":456},"
-            + "{\"k2\":false},"
-            + "{\"k3\":\"val4\"}]}]}",
-        Filters.and(filter1, filter2).toJSON(DEFAULT_OBJECT_MAPPER));
-  }
-
-  @Test
-  public void nestedFilterTest4() {
-    TigrisFilter filter1 =
-        Filters.or(Filters.eq("k1", 123), Filters.eq("k2", false), Filters.eq("k3", "val3"));
-    TigrisFilter filter2 =
-        Filters.or(Filters.eq("k4", 456), Filters.eq("k5", false), Filters.eq("k6", "val4"));
-
-    Assert.assertEquals(
-        "{\"$and\":[{\"$or\":[{\"k1\":123},{\"k2\":false},{\"k3\":\"val3\"}]},{\"$or\":[{\"k4\":456},"
-            + "{\"k5\":false},"
-            + "{\"k6\":\"val4\"}]}]}",
-        Filters.and(filter1, filter2).toJSON(DEFAULT_OBJECT_MAPPER));
+    return Arrays.asList(
+        new Object[][] {
+          {"Nothing filter", Filters.nothing(), "{}"},
+          {"Eq - number", Filters.eq("k1", 123), "{\"k1\":123}"},
+          {"Eq - boolean", Filters.eq("k1", false), "{\"k1\":false}"},
+          {"Eq - string", Filters.eq("k4", "val1"), "{\"k4\":\"val1\"}"},
+          {
+            "Eq - UUID",
+            Filters.eq("uuidField", UUID.fromString("aa8f8da5-5fd6-4660-a348-9ed7fe96253a")),
+            "{\"uuidField\":\"aa8f8da5-5fd6-4660-a348-9ed7fe96253a\"}"
+          },
+          {"Lt - integer", Filters.lt("k1", 123), "{\"k1\":{\"$lt\":123}}"},
+          {"Lt - long", Filters.lt("k1", 123L), "{\"k1\":{\"$lt\":123}}"},
+          {"Lt - float", Filters.lt("k1", 123.01f), "{\"k1\":{\"$lt\":123.01}}"},
+          {"Lt - double", Filters.lt("k1", 123.05), "{\"k1\":{\"$lt\":123.05}}"},
+          {"Lte - integer", Filters.lte("k1", 123), "{\"k1\":{\"$lte\":123}}"},
+          {"Lte - long", Filters.lte("k1", 123L), "{\"k1\":{\"$lte\":123}}"},
+          {"Lte - float", Filters.lte("k1", 123.01f), "{\"k1\":{\"$lte\":123.01}}"},
+          {"Lte - double", Filters.lte("k1", 123.05), "{\"k1\":{\"$lte\":123.05}}"},
+          {"Gt - integer", Filters.gt("k1", 123), "{\"k1\":{\"$gt\":123}}"},
+          {"Gt - long", Filters.gt("k1", 123L), "{\"k1\":{\"$gt\":123}}"},
+          {"Gt - float", Filters.gt("k1", 123.01f), "{\"k1\":{\"$gt\":123.01}}"},
+          {"Gt - double", Filters.gt("k1", 123.05), "{\"k1\":{\"$gt\":123.05}}"},
+          {"Gte - integer", Filters.gte("k1", 123), "{\"k1\":{\"$gte\":123}}"},
+          {"Gte - long", Filters.gte("k1", 123L), "{\"k1\":{\"$gte\":123}}"},
+          {"Gte - float", Filters.gte("k1", 123.01f), "{\"k1\":{\"$gte\":123.01}}"},
+          {"Gte - double", Filters.gte("k1", 123.05), "{\"k1\":{\"$gte\":123.05}}"},
+          {"OR - eq, lt, gt", orFilter, orFilterSerialized},
+          {"AND - gte, lte, eq", andFilter, andFilterSerialized},
+          {"Nested - OR", nestedOr, nestedOrSerialized},
+          {"Nested - AND", nestedAnd, nestedAndSerialized},
+        });
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -143,47 +141,5 @@ public class FiltersTest {
           "This was caused because the SelectorFilter's JSON serialization raised errors",
           illegalStateException.getMessage());
     }
-  }
-
-  @Test
-  public void equalsTest() {
-    SelectorFilter<String> filter1 = Filters.eq("id", "val1");
-    SelectorFilter<String> filter2 = Filters.eq("id", "val1");
-    Assert.assertEquals(filter1, filter1);
-    Assert.assertEquals(filter1, filter2);
-    Assert.assertFalse(filter1.equals(null));
-    Assert.assertFalse(filter1.equals("some-string"));
-
-    SelectorFilter<String> filter3 = Filters.eq("id3", "val3");
-    SelectorFilter<String> filter4 = Filters.eq("id4", "val4");
-    Assert.assertFalse(filter3.equals(filter4));
-
-    SelectorFilter<String> filter5 = new SelectorFilter<>(null, "id5", "Val5");
-    SelectorFilter<String> filter6 = new SelectorFilter<>(ComparisonOperator.EQUALS, "id6", "Val6");
-    Assert.assertFalse(filter5.equals(filter6));
-  }
-
-  @Test
-  public void hashCodeTest() {
-    SelectorFilter<String> filter1 = Filters.eq("id", "val1");
-    SelectorFilter<String> filter2 = Filters.eq("id", "val1");
-    Assert.assertEquals(filter1.hashCode(), filter2.hashCode());
-
-    SelectorFilter<String> filter31 = new SelectorFilter<>(null, "id3", "val3");
-    SelectorFilter<String> filter32 = new SelectorFilter<>(null, "id3", "val3");
-    Assert.assertEquals(filter31.hashCode(), filter32.hashCode());
-
-    SelectorFilter<String> filter41 = new SelectorFilter<>(ComparisonOperator.EQUALS, null, "val4");
-    SelectorFilter<String> filter42 = new SelectorFilter<>(ComparisonOperator.EQUALS, null, "val4");
-    Assert.assertEquals(filter41.hashCode(), filter42.hashCode());
-
-    SelectorFilter<String> filter51 = new SelectorFilter<>(ComparisonOperator.EQUALS, "id5", null);
-    SelectorFilter<String> filter52 = new SelectorFilter<>(ComparisonOperator.EQUALS, "id5", null);
-    Assert.assertEquals(filter51.hashCode(), filter52.hashCode());
-  }
-
-  @Test
-  public void testFilterNothing() {
-    Assert.assertEquals("{}", Filters.nothing().toJSON(DEFAULT_OBJECT_MAPPER));
   }
 }

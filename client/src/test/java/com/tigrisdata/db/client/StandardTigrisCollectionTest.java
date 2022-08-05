@@ -21,6 +21,7 @@ import com.tigrisdata.db.client.grpc.TestTigrisService;
 import com.tigrisdata.db.client.search.FacetCountDistribution;
 import com.tigrisdata.db.client.search.FacetFieldsQuery;
 import com.tigrisdata.db.client.search.SearchRequest;
+import com.tigrisdata.db.client.search.SearchRequestOptions;
 import com.tigrisdata.db.client.search.SearchResult;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.testing.GrpcCleanupRule;
@@ -149,21 +150,38 @@ public class StandardTigrisCollectionTest {
     long foundResults = 0;
     while (resultIterator.hasNext()) {
       SearchResult<DB1_C1> result = resultIterator.next();
-      result
-          .getHits()
-          .forEach(
-              hit -> {
-                Assert.assertNotNull(hit.getDocument());
-                Assert.assertEquals(DB1_C1.class, hit.getDocument().getClass());
-              });
+      validateSearchResult(result);
       recvdHits += result.getHits().size();
-      Assert.assertTrue(result.getFacets().containsKey("name"));
-      FacetCountDistribution facet = result.getFacets().get("name");
-      Assert.assertNotNull(facet.getStats());
-      Assert.assertNotNull(facet.getCounts());
       foundResults = result.getMeta().getFound();
     }
     Assert.assertEquals(foundResults, recvdHits);
+  }
+
+  @Test
+  public void testPaginatedSearch() throws TigrisException {
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+    TigrisDatabase db1 = client.getDatabase("db1");
+    TigrisCollection<DB1_C1> collection = db1.getCollection(DB1_C1.class);
+    SearchRequest searchRequest = SearchRequest.matchAll().build();
+    SearchRequestOptions paginationParams = SearchRequestOptions.getDefault();
+
+    Optional<SearchResult<DB1_C1>> result = collection.search(searchRequest, paginationParams);
+    Assert.assertTrue(result.isPresent());
+    validateSearchResult(result.get());
+  }
+
+  private void validateSearchResult(SearchResult<DB1_C1> result) {
+    result
+        .getHits()
+        .forEach(
+            hit -> {
+              Assert.assertNotNull(hit.getDocument());
+              Assert.assertEquals(DB1_C1.class, hit.getDocument().getClass());
+            });
+    Assert.assertTrue(result.getFacets().containsKey("name"));
+    FacetCountDistribution facet = result.getFacets().get("name");
+    Assert.assertNotNull(facet.getStats());
+    Assert.assertNotNull(facet.getCounts());
   }
 
   @Test

@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Base64;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -36,7 +37,7 @@ class OAuth2TokenService implements TokenService {
   private final AtomicLong nextRefreshTime;
   private final Object lock;
   private final AuthGrpc.AuthBlockingStub authBlockingStub;
-
+  private final Random random;
   private static final Logger log = LoggerFactory.getLogger(OAuth2TokenService.class);
 
   OAuth2TokenService(TigrisConfiguration.OAuth2Config oAuth2Config, ManagedChannel channel) {
@@ -46,6 +47,7 @@ class OAuth2TokenService implements TokenService {
     this.lock = new Object();
     this.lastRefreshed = new AtomicLong(0L);
     this.nextRefreshTime = new AtomicLong(0L);
+    this.random = new Random();
   }
 
   @Override
@@ -77,8 +79,12 @@ class OAuth2TokenService implements TokenService {
           refreshToken.set(response.getRefreshToken());
           lastRefreshed.set(System.currentTimeMillis());
           // refresh before 5 minute of expiry
+          // add 1-5 min (i.e. 60_000 - 300_000 ms) of random jitter
           nextRefreshTime.set(
-              getExpirationTimeInMillis(accessToken.get()) - TimeUnit.MINUTES.toMillis(5));
+              getExpirationTimeInMillis(accessToken.get())
+                  - TimeUnit.MINUTES.toMillis(5)
+                  - random.nextInt(300_000)
+                  + 60_000);
         } catch (IOException ioException) {
           log.error("Failed to refresh access token", ioException);
         }

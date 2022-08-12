@@ -177,8 +177,8 @@ final class TypeConverter {
     if (Objects.nonNull(req.getFacetQuery())) {
       builder.setFacet(ByteString.copyFromUtf8(req.getFacetQuery().toJSON(objectMapper)));
     }
-    if (Objects.nonNull(req.getSortOrders())) {
-      builder.setSort(ByteString.copyFromUtf8(req.getSortOrders().toJSON(objectMapper)));
+    if (Objects.nonNull(req.getSortingOrder())) {
+      builder.setSort(ByteString.copyFromUtf8(req.getSortingOrder().toJSON(objectMapper)));
     }
     if (Objects.nonNull(options)) {
       builder.setPage(options.getPage());

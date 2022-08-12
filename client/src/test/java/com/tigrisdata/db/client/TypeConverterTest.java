@@ -99,4 +99,14 @@ public class TypeConverterTest {
     Assert.assertEquals(options.getPage(), apiSearchRequest.getPage());
     Assert.assertEquals(options.getPerPage(), apiSearchRequest.getPageSize());
   }
+
+  @Test
+  public void toSearchRequest_withSortOrder() {
+    SearchRequest input =
+        SearchRequest.newBuilder().withSortingOrders(Sort.descending("field_1")).build();
+    Api.SearchRequest apiSearchRequest =
+        TypeConverter.toSearchRequest(DB_NAME, COLLECTION_NAME, input, null, DEFAULT_OBJECT_MAPPER);
+    Assert.assertNotNull(apiSearchRequest.getSort());
+    Assert.assertEquals("[{\"field_1\":\"$desc\"}]", apiSearchRequest.getSort().toStringUtf8());
+  }
 }

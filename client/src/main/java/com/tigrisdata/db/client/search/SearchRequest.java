@@ -15,6 +15,7 @@
 package com.tigrisdata.db.client.search;
 
 import com.tigrisdata.db.client.TigrisFilter;
+import com.tigrisdata.db.client.TigrisSort;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,7 +30,7 @@ public final class SearchRequest {
   private final SearchFields searchFields;
   private final TigrisFilter filter;
   private final FacetQuery facetQuery;
-  private final SortOrder sortOrder;
+  private final SortingOrder sortOrder;
   private final List<String> includeFields;
   private final List<String> excludeFields;
 
@@ -84,9 +85,9 @@ public final class SearchRequest {
   /**
    * Gets the Order to sort the search results
    *
-   * @return {@link SortOrder} or null
+   * @return {@link SortingOrder} or null
    */
-  public SortOrder getSortOrders() {
+  public SortingOrder getSortingOrder() {
     return sortOrder;
   }
 
@@ -135,7 +136,7 @@ public final class SearchRequest {
     private TigrisFilter filter;
     private SearchFields searchFields;
     private FacetQuery facetQuery;
-    private SortOrder sortOrder;
+    private SortingOrder sortOrder;
     private final Set<String> includeFields;
     private final Set<String> excludeFields;
 
@@ -214,14 +215,26 @@ public final class SearchRequest {
     }
 
     /**
-     * Optional - Sets the SortOrder to sorts search results according to specified attributes and
+     * Optional - Sets the SortingOrder to sort search results according to specified attributes and
      * indicated order
      *
-     * @param sortOrder {@link SortOrder}
+     * @param sortOrder {@link SortingOrder}
      * @return {@link SearchRequest.Builder}
      */
-    public Builder withSortOrder(SortOrder sortOrder) {
+    public Builder withSortingOrder(SortingOrder sortOrder) {
       this.sortOrder = sortOrder;
+      return this;
+    }
+
+    /**
+     * Optional - Sets the SortingOrder to sort search results according to specified attributes and
+     * indicated order
+     *
+     * @param orders {@link TigrisSort}
+     * @return {@link SearchRequest.Builder}
+     */
+    public Builder withSortingOrders(TigrisSort... orders) {
+      this.sortOrder = SortingOrder.newBuilder().withOrder(orders).build();
       return this;
     }
 

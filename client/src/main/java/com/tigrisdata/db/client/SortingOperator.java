@@ -12,9 +12,19 @@
  * limitations under the License.
  */
 
-package com.tigrisdata.db.client.search;
+package com.tigrisdata.db.client;
 
-import com.tigrisdata.db.client.JSONSerializable;
+enum SortingOperator {
+  ASC("$asc"),
+  DESC("$desc");
 
-/** Interface to construct sorting order for search results */
-public interface SortOrder extends JSONSerializable {}
+  private final String operator;
+
+  SortingOperator(String operator) {
+    this.operator = operator;
+  }
+
+  public String getOperator() {
+    return operator;
+  }
+}

@@ -39,7 +39,7 @@ public class FacetFieldsQueryTest {
 
   @Test
   public void equalsContract() {
-    EqualsVerifier.forClass(FacetFieldsQuery.class).verify();
+    EqualsVerifier.forClass(FacetFieldsQuery.class).withIgnoredFields("cachedJSON").verify();
   }
 
   @Test

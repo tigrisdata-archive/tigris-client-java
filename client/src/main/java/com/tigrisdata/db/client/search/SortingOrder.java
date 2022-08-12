@@ -54,7 +54,7 @@ public final class SortingOrder implements JSONSerializable {
 
     List<Map<String, Object>> list = new ArrayList<>();
     for (TigrisSort sort : orders) {
-      list.add(sort.toMap());
+      list.add(sort.getOrder());
     }
     try {
       cachedJSON = objectMapper.writeValueAsString(list);

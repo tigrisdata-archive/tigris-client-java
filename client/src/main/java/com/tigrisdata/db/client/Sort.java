@@ -19,22 +19,22 @@ public final class Sort {
   private Sort() {}
 
   /**
-   * Creates ascending sort order for given key
+   * Creates ascending sort order for given field name
    *
-   * @param key collection field name
+   * @param fieldName collection field name
    * @return constructed {@link FieldSort} of ascending order
    */
-  public static FieldSort ascending(String key) {
-    return new FieldSort(key, SortingOperator.ASC);
+  public static FieldSort ascending(String fieldName) {
+    return new FieldSort(fieldName, SortOrder.ASC);
   }
 
   /**
-   * Creates descending sort order for given key
+   * Creates descending sort order for given field name
    *
-   * @param key collection field name
+   * @param fieldName collection field name
    * @return constructed {@link FieldSort} of descending order
    */
-  public static FieldSort descending(String key) {
-    return new FieldSort(key, SortingOperator.DESC);
+  public static FieldSort descending(String fieldName) {
+    return new FieldSort(fieldName, SortOrder.DESC);
   }
 }

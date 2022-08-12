@@ -27,11 +27,11 @@ public class SortTest {
     Map<String, String> expected =
         new HashMap<String, String>() {
           {
-            put("field_1", SortingOperator.ASC.getOperator());
+            put("field_1", SortOrder.ASC.getOperator());
           }
         };
 
-    Assert.assertEquals(expected, sort.toMap());
+    Assert.assertEquals(expected, sort.getOrder());
   }
 
   @Test
@@ -40,10 +40,10 @@ public class SortTest {
     Map<String, String> expected =
         new HashMap<String, String>() {
           {
-            put("field_1", SortingOperator.DESC.getOperator());
+            put("field_1", SortOrder.DESC.getOperator());
           }
         };
 
-    Assert.assertEquals(expected, sort.toMap());
+    Assert.assertEquals(expected, sort.getOrder());
   }
 }

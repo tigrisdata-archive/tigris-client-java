@@ -23,10 +23,10 @@ public class FieldSortTest {
   @Test
   public void testToMap() {
     String expectedFieldName = "parent.nested_field";
-    FieldSort fs = new FieldSort(expectedFieldName, SortingOperator.DESC);
+    FieldSort fs = new FieldSort(expectedFieldName, SortOrder.DESC);
     Assert.assertEquals(expectedFieldName, fs.getFieldName());
-    Assert.assertEquals(1, fs.toMap().size());
-    Assert.assertEquals(SortingOperator.DESC.getOperator(), fs.toMap().get(expectedFieldName));
+    Assert.assertEquals(1, fs.getOrder().size());
+    Assert.assertEquals(SortOrder.DESC.getOperator(), fs.getOrder().get(expectedFieldName));
   }
 
   @Test

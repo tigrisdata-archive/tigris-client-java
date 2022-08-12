@@ -14,13 +14,13 @@
 
 package com.tigrisdata.db.client;
 
-enum SortingOperator {
+enum SortOrder {
   ASC("$asc"),
   DESC("$desc");
 
   private final String operator;
 
-  SortingOperator(String operator) {
+  SortOrder(String operator) {
     this.operator = operator;
   }
 

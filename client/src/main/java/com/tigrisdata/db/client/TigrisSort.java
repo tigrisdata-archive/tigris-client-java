@@ -24,12 +24,12 @@ public interface TigrisSort {
    *
    * @return non-null immutable {@link Map}
    */
-  public Map<String, Object> toMap();
+  Map<String, Object> getOrder();
 
   /**
    * Gets collection field name that this order represents
    *
    * @return {@link String}
    */
-  public String getFieldName();
+  String getFieldName();
 }

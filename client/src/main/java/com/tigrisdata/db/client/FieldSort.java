@@ -23,17 +23,17 @@ import java.util.Objects;
 public final class FieldSort implements TigrisSort {
 
   private final String fieldName;
-  private final SortingOperator operator;
+  private final SortOrder operator;
   private Map<String, Object> cachedMap;
 
-  FieldSort(String fieldName, SortingOperator op) {
+  FieldSort(String fieldName, SortOrder op) {
     this.fieldName = fieldName;
     this.operator = op;
   }
 
   /** {@inheritDoc} */
   @Override
-  public Map<String, Object> toMap() {
+  public Map<String, Object> getOrder() {
     if (cachedMap == null) {
       cachedMap =
           Collections.unmodifiableMap(

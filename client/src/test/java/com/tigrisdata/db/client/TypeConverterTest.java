@@ -102,8 +102,7 @@ public class TypeConverterTest {
 
   @Test
   public void toSearchRequest_withSortOrder() {
-    SearchRequest input =
-        SearchRequest.newBuilder().withSortingOrders(Sort.descending("field_1")).build();
+    SearchRequest input = SearchRequest.newBuilder().withSort(Sort.descending("field_1")).build();
     Api.SearchRequest apiSearchRequest =
         TypeConverter.toSearchRequest(DB_NAME, COLLECTION_NAME, input, null, DEFAULT_OBJECT_MAPPER);
     Assert.assertNotNull(apiSearchRequest.getSort());

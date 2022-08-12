@@ -221,7 +221,7 @@ public final class SearchRequest {
      * @param sortOrder {@link SortingOrder}
      * @return {@link SearchRequest.Builder}
      */
-    public Builder withSortingOrder(SortingOrder sortOrder) {
+    public Builder withSort(SortingOrder sortOrder) {
       this.sortOrder = sortOrder;
       return this;
     }
@@ -233,7 +233,7 @@ public final class SearchRequest {
      * @param orders {@link TigrisSort}
      * @return {@link SearchRequest.Builder}
      */
-    public Builder withSortingOrders(TigrisSort... orders) {
+    public Builder withSort(TigrisSort... orders) {
       this.sortOrder = SortingOrder.newBuilder().withOrder(orders).build();
       return this;
     }

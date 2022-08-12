@@ -43,7 +43,7 @@ public class SearchRequestTest {
             .withFacetQuery(expectedFacetQuery)
             .withFilter(expectedFilter)
             .withIncludeFields(expectedIncludeFields.get(0))
-            .withSortingOrder(expectedSortingOrder)
+            .withSort(expectedSortingOrder)
             .build();
 
     Assert.assertNotNull(actual);
@@ -69,7 +69,7 @@ public class SearchRequestTest {
             .withFacetFields("field_3")
             .withExcludeFields("field_4", "field_5")
             .withIncludeFields("field_6")
-            .withSortingOrders(expectedSort)
+            .withSort(expectedSort)
             .build();
     Assert.assertEquals(expectedQuery, actual.getQuery());
     Assert.assertEquals(expectedSearchFields, actual.getSearchFields());

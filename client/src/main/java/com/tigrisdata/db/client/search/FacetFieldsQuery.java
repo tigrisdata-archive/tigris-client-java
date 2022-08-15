@@ -31,6 +31,7 @@ public final class FacetFieldsQuery implements FacetQuery {
   private static final FacetFieldsQuery EMPTY = newBuilder().build();
 
   private final Map<String, FacetQueryOptions> internalMap;
+  private String cachedJSON;
 
   private FacetFieldsQuery(Builder builder) {
     this.internalMap = Collections.unmodifiableMap(builder.fieldMap);
@@ -65,6 +66,9 @@ public final class FacetFieldsQuery implements FacetQuery {
 
   @Override
   public String toJSON(ObjectMapper objectMapper) {
+    if (Objects.nonNull(cachedJSON)) {
+      return cachedJSON;
+    }
     Function<FacetQueryOptions, Map<String, String>> toOptionsMap =
         o ->
             new HashMap<String, String>() {
@@ -78,7 +82,8 @@ public final class FacetFieldsQuery implements FacetQuery {
         internalMap.entrySet().stream()
             .collect(Collectors.toMap(Entry::getKey, e -> toOptionsMap.apply(e.getValue())));
     try {
-      return objectMapper.writeValueAsString(fieldOptionsMap);
+      cachedJSON = objectMapper.writeValueAsString(fieldOptionsMap);
+      return cachedJSON;
     } catch (JsonProcessingException ex) {
       throw new IllegalArgumentException("Failed to serialize FacetFields to JSON", ex);
     }

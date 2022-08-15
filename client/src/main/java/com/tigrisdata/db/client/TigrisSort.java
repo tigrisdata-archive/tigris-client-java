@@ -12,9 +12,24 @@
  * limitations under the License.
  */
 
-package com.tigrisdata.db.client.search;
+package com.tigrisdata.db.client;
 
-import com.tigrisdata.db.client.JSONSerializable;
+import java.util.Map;
 
-/** Interface to construct sorting order for search results */
-public interface SortOrder extends JSONSerializable {}
+/** Represents the sorting order */
+public interface TigrisSort {
+
+  /**
+   * Sort order representation as Key, Value pairs
+   *
+   * @return non-null immutable {@link Map}
+   */
+  Map<String, Object> getOrder();
+
+  /**
+   * Gets collection field name that this order represents
+   *
+   * @return {@link String}
+   */
+  String getFieldName();
+}

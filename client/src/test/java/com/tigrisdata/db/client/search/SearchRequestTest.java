@@ -14,7 +14,9 @@
 
 package com.tigrisdata.db.client.search;
 
+import com.tigrisdata.db.client.FieldSort;
 import com.tigrisdata.db.client.Filters;
+import com.tigrisdata.db.client.Sort;
 import com.tigrisdata.db.client.TigrisFilter;
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,13 +26,14 @@ import org.junit.Test;
 
 public class SearchRequestTest {
 
-  // TODO: Add sort orders to this test
   @Test
   public void build() {
     QueryString expectedQuery = QueryString.getMatchAllQuery();
     SearchFields expectedSearchFields = SearchFields.newBuilder().withField("field_1").build();
     TigrisFilter expectedFilter = Filters.eq("field_2", "otherValue");
     FacetQuery expectedFacetQuery = FacetFieldsQuery.newBuilder().withField("field_3").build();
+    SortingOrder expectedSortingOrder =
+        SortingOrder.newBuilder().withOrder(Sort.ascending("field_4")).build();
     List<String> expectedIncludeFields = Collections.singletonList("field_1");
 
     SearchRequest actual =
@@ -40,6 +43,7 @@ public class SearchRequestTest {
             .withFacetQuery(expectedFacetQuery)
             .withFilter(expectedFilter)
             .withIncludeFields(expectedIncludeFields.get(0))
+            .withSort(expectedSortingOrder)
             .build();
 
     Assert.assertNotNull(actual);
@@ -49,7 +53,7 @@ public class SearchRequestTest {
     Assert.assertEquals(expectedFilter, actual.getFilter());
     Assert.assertEquals(expectedIncludeFields, actual.getIncludeFields());
     Assert.assertEquals(0, actual.getExcludeFields().size());
-    Assert.assertNull(actual.getSortOrders());
+    Assert.assertEquals(expectedSortingOrder, actual.getSortingOrder());
   }
 
   @Test
@@ -57,6 +61,7 @@ public class SearchRequestTest {
     Query expectedQuery = QueryString.newBuilder("some query").build();
     SearchFields expectedSearchFields = SearchFields.newBuilder().withField("field_1").build();
     FacetQuery expectedFacetQuery = FacetFieldsQuery.newBuilder().withField("field_3").build();
+    FieldSort expectedSort = Sort.descending("field_4");
     SearchRequest actual =
         SearchRequest.newBuilder()
             .withQuery("some query")
@@ -64,12 +69,14 @@ public class SearchRequestTest {
             .withFacetFields("field_3")
             .withExcludeFields("field_4", "field_5")
             .withIncludeFields("field_6")
+            .withSort(expectedSort)
             .build();
     Assert.assertEquals(expectedQuery, actual.getQuery());
     Assert.assertEquals(expectedSearchFields, actual.getSearchFields());
     Assert.assertEquals(expectedFacetQuery, actual.getFacetQuery());
     Assert.assertEquals(Arrays.asList("field_6"), actual.getIncludeFields());
     Assert.assertEquals(Arrays.asList("field_4", "field_5"), actual.getExcludeFields());
+    Assert.assertEquals(Collections.singletonList(expectedSort), actual.getSortingOrder().get());
   }
 
   @Test

@@ -26,12 +26,16 @@ import com.tigrisdata.db.client.config.TigrisConfiguration;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisCollectionType;
 import com.tigrisdata.tools.schema.core.ModelToJsonSchema;
+import io.grpc.ClientInterceptor;
 import io.grpc.ManagedChannel;
+import io.grpc.Metadata;
 import io.grpc.StatusRuntimeException;
+import io.grpc.stub.MetadataUtils;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -109,10 +113,21 @@ class StandardTigrisDatabase extends AbstractTigrisDatabase implements TigrisDat
               .setDb(db)
               .setOptions(Api.TransactionOptions.newBuilder().build())
               .build();
+      AtomicReference<Metadata> headersCapturer = new AtomicReference<>();
+      AtomicReference<Metadata> trailersCapturer = new AtomicReference<>();
+      ClientInterceptor headerCapturerInterceptor =
+          MetadataUtils.newCaptureMetadataInterceptor(headersCapturer, trailersCapturer);
+      TigrisGrpc.TigrisBlockingStub interceptedStub =
+          blockingStub.withInterceptors(headerCapturerInterceptor);
       Api.BeginTransactionResponse beginTransactionResponse =
-          blockingStub.beginTransaction(beginTransactionRequest);
+          interceptedStub.beginTransaction(beginTransactionRequest);
       Api.TransactionCtx transactionCtx = beginTransactionResponse.getTxCtx();
-      return new StandardTransactionSession(db, transactionCtx, managedChannel, configuration);
+      return new StandardTransactionSession(
+          db,
+          transactionCtx,
+          managedChannel,
+          configuration,
+          TypeConverter.getCookie(headersCapturer.get()));
     } catch (StatusRuntimeException statusRuntimeException) {
       throw new TigrisException(
           BEGIN_TRANSACTION_FAILED,

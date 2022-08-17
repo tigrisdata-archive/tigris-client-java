@@ -29,6 +29,7 @@ public class TransactionTestTigrisService extends TestTigrisService {
       StreamObserver<Api.BeginTransactionResponse> responseObserver) {
     txId = UUID.randomUUID().toString();
     txOrigin = txId + "_origin";
+
     responseObserver.onNext(
         Api.BeginTransactionResponse.newBuilder()
             .setTxCtx(Api.TransactionCtx.newBuilder().setId(txId).setOrigin(txOrigin).build())
@@ -181,6 +182,9 @@ public class TransactionTestTigrisService extends TestTigrisService {
   private boolean isValidTransactionState() {
     String incomingTxId = ContextSettingServerInterceptor.TX_ID_CONTEXT_KEY.get();
     String incomingTxOrigin = ContextSettingServerInterceptor.TX_ORIGIN_CONTEXT_KEY.get();
-    return !txId.equals(incomingTxId) || !txOrigin.equals(incomingTxOrigin);
+    String incomingCookie = ContextSettingServerInterceptor.COOKIE_CONTEXT_KEY.get();
+    return !txId.equals(incomingTxId)
+        || !txOrigin.equals(incomingTxOrigin)
+        || !incomingCookie.contains("Tigris-Tx-Id=");
   }
 }

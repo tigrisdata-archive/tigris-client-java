@@ -16,6 +16,7 @@ package com.tigrisdata.db.client;
 import com.tigrisdata.db.client.collection.DB1_C1;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.grpc.ContextSettingServerInterceptor;
+import com.tigrisdata.db.client.grpc.CookieSetterServerInterceptor;
 import com.tigrisdata.db.client.grpc.TransactionTestTigrisService;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.testing.GrpcCleanupRule;
@@ -46,6 +47,7 @@ public class TransactionalTigrisCollectionTest {
         .register(
             InProcessServerBuilder.forName(SERVER_NAME)
                 .directExecutor()
+                .intercept(new CookieSetterServerInterceptor())
                 .intercept(new ContextSettingServerInterceptor())
                 .addService(TEST_TRANSACTION_USER_SERVICE)
                 .build())

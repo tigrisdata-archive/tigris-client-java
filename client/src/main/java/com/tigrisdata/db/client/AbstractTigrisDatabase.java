@@ -37,8 +37,7 @@ abstract class AbstractTigrisDatabase {
       throws TigrisException {
     try {
       Api.CreateOrUpdateCollectionResponse response =
-          TypeConverter.transactionAwareStub(
-                  blockingStub, ((StandardTransactionSession) session).getTransactionCtx())
+          TypeConverter.transactionAwareStub(blockingStub, ((StandardTransactionSession) session))
               .createOrUpdateCollection(toCreateCollectionRequest(db, schema, collectionOptions));
       return new CreateOrUpdateCollectionsResponse(response.getStatus(), response.getMessage());
     } catch (StatusRuntimeException statusRuntimeException) {

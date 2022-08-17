@@ -21,6 +21,7 @@ import static com.tigrisdata.db.client.Constants.BEGIN_TRANSACTION_FAILED;
 import static com.tigrisdata.db.client.Constants.DESCRIBE_DB_FAILED;
 import static com.tigrisdata.db.client.Constants.DROP_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.Constants.LIST_COLLECTION_FAILED;
+import static com.tigrisdata.db.client.TypeConverter.getCookie;
 import static com.tigrisdata.db.client.TypeConverter.toBeginTransactionRequest;
 import static com.tigrisdata.db.client.TypeConverter.toDatabaseDescription;
 import static com.tigrisdata.db.client.TypeConverter.toDropCollectionRequest;
@@ -28,19 +29,22 @@ import com.tigrisdata.db.client.config.TigrisConfiguration;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisCollectionType;
 import com.tigrisdata.tools.schema.core.ModelToJsonSchema;
+import io.grpc.ClientInterceptor;
 import io.grpc.ManagedChannel;
+import io.grpc.Metadata;
+import io.grpc.stub.MetadataUtils;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /** Async implementation of Tigris database */
 class StandardTigrisAsyncDatabase extends AbstractTigrisDatabase implements TigrisAsyncDatabase {
-  private final TigrisGrpc.TigrisStub stub;
   private final TigrisGrpc.TigrisFutureStub futureStub;
   private final ManagedChannel channel;
   private final Executor executor;
@@ -50,7 +54,6 @@ class StandardTigrisAsyncDatabase extends AbstractTigrisDatabase implements Tigr
 
   StandardTigrisAsyncDatabase(
       String databaseName,
-      TigrisGrpc.TigrisStub stub,
       TigrisGrpc.TigrisFutureStub futureStub,
       TigrisGrpc.TigrisBlockingStub blockingStub,
       ManagedChannel channel,
@@ -59,7 +62,6 @@ class StandardTigrisAsyncDatabase extends AbstractTigrisDatabase implements Tigr
       ModelToJsonSchema modelToJsonSchema,
       TigrisConfiguration configuration) {
     super(databaseName, blockingStub, configuration);
-    this.stub = stub;
     this.futureStub = futureStub;
     this.channel = channel;
     this.executor = executor;
@@ -150,11 +152,22 @@ class StandardTigrisAsyncDatabase extends AbstractTigrisDatabase implements Tigr
   @Override
   public CompletableFuture<TransactionSession> beginTransaction(
       TransactionOptions transactionOptions) {
+    AtomicReference<Metadata> headersCapturer = new AtomicReference<>();
+    AtomicReference<Metadata> trailersCapturer = new AtomicReference<>();
+
+    ClientInterceptor headerCapturerInterceptor =
+        MetadataUtils.newCaptureMetadataInterceptor(headersCapturer, trailersCapturer);
+
     ListenableFuture<Api.BeginTransactionResponse> beginTransactionResponseListenableFuture =
-        futureStub.beginTransaction(toBeginTransactionRequest(db, transactionOptions));
+        futureStub
+            .withInterceptors(headerCapturerInterceptor)
+            .beginTransaction(toBeginTransactionRequest(db, transactionOptions));
+
     return Utilities.transformFuture(
         beginTransactionResponseListenableFuture,
-        response -> new StandardTransactionSession(db, response.getTxCtx(), channel, configuration),
+        response ->
+            new StandardTransactionSession(
+                db, response.getTxCtx(), channel, configuration, getCookie(headersCapturer.get())),
         executor,
         BEGIN_TRANSACTION_FAILED);
   }

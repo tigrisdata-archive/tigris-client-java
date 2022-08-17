@@ -27,15 +27,18 @@ class StandardTransactionSession implements TransactionSession {
   private final Api.TransactionCtx transactionCtx;
   private final String databaseName;
   private final TigrisGrpc.TigrisBlockingStub stub;
+  private final String cookie;
+  private static final String COOKIE_HEADER = "set-cookie";
 
   StandardTransactionSession(
       String databaseName,
       Api.TransactionCtx transactionCtx,
       ManagedChannel managedChannel,
-      TigrisConfiguration configuration) {
+      TigrisConfiguration configuration,
+      String cookie) {
     this.databaseName = databaseName;
     this.transactionCtx = transactionCtx;
-
+    this.cookie = cookie;
     // prepare headers
     Metadata transactionHeaders = new Metadata();
     transactionHeaders.put(
@@ -56,7 +59,7 @@ class StandardTransactionSession implements TransactionSession {
       Api.CommitTransactionRequest commitTransactionRequest =
           Api.CommitTransactionRequest.newBuilder().setDb(databaseName).build();
       Api.CommitTransactionResponse response =
-          TypeConverter.transactionAwareStub(stub, transactionCtx)
+          TypeConverter.transactionAwareStub(stub, this)
               .commitTransaction(commitTransactionRequest);
       return new CommitTransactionResponse(response.getStatus());
     } catch (StatusRuntimeException statusRuntimeException) {
@@ -73,7 +76,7 @@ class StandardTransactionSession implements TransactionSession {
       Api.RollbackTransactionRequest rollbackTransactionRequest =
           Api.RollbackTransactionRequest.newBuilder().setDb(databaseName).build();
       Api.RollbackTransactionResponse response =
-          TypeConverter.transactionAwareStub(stub, transactionCtx)
+          TypeConverter.transactionAwareStub(stub, this)
               .rollbackTransaction(rollbackTransactionRequest);
       return new RollbackTransactionResponse(response.getStatus());
     } catch (StatusRuntimeException statusRuntimeException) {
@@ -86,5 +89,9 @@ class StandardTransactionSession implements TransactionSession {
 
   Api.TransactionCtx getTransactionCtx() {
     return transactionCtx;
+  }
+
+  public String getCookie() {
+    return this.cookie;
   }
 }

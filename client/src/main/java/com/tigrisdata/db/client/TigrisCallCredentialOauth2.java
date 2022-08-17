@@ -27,7 +27,7 @@ class TigrisCallCredentialOauth2 extends CallCredentials {
       Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER);
 
   private final TokenService tokenService;
-  private static TigrisCallCredentialOauth2 INSTANCE;
+  private static volatile TigrisCallCredentialOauth2 INSTANCE;
   private static final Object lock = new Object();
   private static final String BEARER = "bearer";
 

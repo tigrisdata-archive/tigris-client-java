@@ -26,10 +26,12 @@ public class ContextSettingServerInterceptor implements ServerInterceptor {
       Metadata.Key.of("Tigris-Tx-Id", Metadata.ASCII_STRING_MARSHALLER);
   private static final Metadata.Key<String> TX_ORIGIN =
       Metadata.Key.of("Tigris-Tx-Origin", Metadata.ASCII_STRING_MARSHALLER);
-
+  private static final Metadata.Key<String> COOKIE =
+      Metadata.Key.of("Cookie", Metadata.ASCII_STRING_MARSHALLER);
   private static final Metadata.Key<String> AUTHORIZATION =
       Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER);
 
+  public static final Context.Key<String> COOKIE_CONTEXT_KEY = Context.key("Cookie");
   public static final Context.Key<String> TX_ID_CONTEXT_KEY = Context.key("Tigris-Tx-Id");
   public static final Context.Key<String> TX_ORIGIN_CONTEXT_KEY = Context.key("Tigris-Tx-Origin");
   public static final Context.Key<String> AUTHORIZATION_CONTEXT_KEY = Context.key("authorization");
@@ -47,7 +49,9 @@ public class ContextSettingServerInterceptor implements ServerInterceptor {
                 TX_ORIGIN_CONTEXT_KEY,
                 metadata.get(TX_ORIGIN),
                 AUTHORIZATION_CONTEXT_KEY,
-                metadata.get(AUTHORIZATION));
+                metadata.get(AUTHORIZATION),
+                COOKIE_CONTEXT_KEY,
+                metadata.get(COOKIE));
     return Contexts.interceptCall(current, serverCall, metadata, serverCallHandler);
   }
 }

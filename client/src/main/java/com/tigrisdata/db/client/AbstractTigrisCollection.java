@@ -77,8 +77,7 @@ abstract class AbstractTigrisCollection<T extends TigrisCollectionType> {
       Iterator<Api.ReadResponse> readResponseIterator;
       if (tx != null) {
         readResponseIterator =
-            TypeConverter.transactionAwareStub(
-                    blockingStub, ((StandardTransactionSession) tx).getTransactionCtx())
+            TypeConverter.transactionAwareStub(blockingStub, ((StandardTransactionSession) tx))
                 .read(readRequest);
       } else {
         readResponseIterator = blockingStub.read(readRequest);
@@ -128,8 +127,7 @@ abstract class AbstractTigrisCollection<T extends TigrisCollectionType> {
       Api.InsertResponse response;
       if (tx != null) {
         response =
-            TypeConverter.transactionAwareStub(
-                    blockingStub, ((StandardTransactionSession) tx).getTransactionCtx())
+            TypeConverter.transactionAwareStub(blockingStub, ((StandardTransactionSession) tx))
                 .insert(insertRequest);
       } else {
         response = blockingStub.insert(insertRequest);
@@ -169,8 +167,7 @@ abstract class AbstractTigrisCollection<T extends TigrisCollectionType> {
       Api.UpdateResponse updateResponse;
       if (tx != null) {
         updateResponse =
-            TypeConverter.transactionAwareStub(
-                    blockingStub, ((StandardTransactionSession) tx).getTransactionCtx())
+            TypeConverter.transactionAwareStub(blockingStub, ((StandardTransactionSession) tx))
                 .update(updateRequest);
       } else {
         updateResponse = blockingStub.update(updateRequest);
@@ -198,8 +195,7 @@ abstract class AbstractTigrisCollection<T extends TigrisCollectionType> {
       Api.DeleteResponse response;
       if (tx != null) {
         response =
-            TypeConverter.transactionAwareStub(
-                    blockingStub, ((StandardTransactionSession) tx).getTransactionCtx())
+            TypeConverter.transactionAwareStub(blockingStub, ((StandardTransactionSession) tx))
                 .delete(deleteRequest);
       } else {
         response = blockingStub.delete(deleteRequest);
@@ -229,8 +225,7 @@ abstract class AbstractTigrisCollection<T extends TigrisCollectionType> {
       Api.ReplaceResponse response;
       if (tx != null) {
         response =
-            TypeConverter.transactionAwareStub(
-                    blockingStub, ((StandardTransactionSession) tx).getTransactionCtx())
+            TypeConverter.transactionAwareStub(blockingStub, ((StandardTransactionSession) tx))
                 .replace(replaceRequest);
       } else {
         response = blockingStub.replace(replaceRequest);

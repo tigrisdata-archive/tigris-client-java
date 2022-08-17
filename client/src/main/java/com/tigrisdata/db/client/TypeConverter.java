@@ -30,6 +30,7 @@ import com.tigrisdata.db.client.search.SearchRequestOptions;
 import io.grpc.Metadata;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.MetadataUtils;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -43,6 +44,12 @@ import java.util.UUID;
 final class TypeConverter {
 
   private TypeConverter() {}
+
+  static final Metadata.Key<String> INBOUND_COOKIE_KEY =
+      Metadata.Key.of("Set-Cookie", Metadata.ASCII_STRING_MARSHALLER);
+
+  static final Metadata.Key<String> OUTBOUND_COOKIE_KEY =
+      Metadata.Key.of("Cookie", Metadata.ASCII_STRING_MARSHALLER);
 
   public static Api.ListDatabasesRequest toListDatabasesRequest(DatabaseOptions databaseOptions) {
     return Api.ListDatabasesRequest.newBuilder().build();
@@ -91,16 +98,32 @@ final class TypeConverter {
     }
   }
 
-  public static TigrisGrpc.TigrisBlockingStub transactionAwareStub(
-      TigrisGrpc.TigrisBlockingStub blockingStub, Api.TransactionCtx transactionCtx) {
+  static String getCookie(Metadata metadata) {
+    final StringBuilder cookie = new StringBuilder();
+    if (metadata != null) {
+      Iterable<String> inboundCookies = metadata.getAll(TypeConverter.INBOUND_COOKIE_KEY);
+      if (inboundCookies != null) {
+        inboundCookies.forEach(inboundCookie -> cookie.append(";").append(inboundCookie));
+      }
+    }
+    return cookie.toString();
+  }
+
+  static TigrisGrpc.TigrisBlockingStub transactionAwareStub(
+      TigrisGrpc.TigrisBlockingStub blockingStub,
+      StandardTransactionSession standardTransactionSession) {
     // prepare headers
     Metadata transactionHeaders = new Metadata();
     transactionHeaders.put(
         Metadata.Key.of(Constants.TRANSACTION_HEADER_ORIGIN_KEY, Metadata.ASCII_STRING_MARSHALLER),
-        transactionCtx.getOrigin());
+        standardTransactionSession.getTransactionCtx().getOrigin());
     transactionHeaders.put(
         Metadata.Key.of(Constants.TRANSACTION_HEADER_ID_KEY, Metadata.ASCII_STRING_MARSHALLER),
-        transactionCtx.getId());
+        standardTransactionSession.getTransactionCtx().getId());
+    if (standardTransactionSession.getCookie() != null
+        || !standardTransactionSession.getCookie().isEmpty()) {
+      transactionHeaders.put(OUTBOUND_COOKIE_KEY, standardTransactionSession.getCookie());
+    }
     // attach headers
     return blockingStub.withInterceptors(
         MetadataUtils.newAttachHeadersInterceptor(transactionHeaders));

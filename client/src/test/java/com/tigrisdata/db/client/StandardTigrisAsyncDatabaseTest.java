@@ -218,16 +218,15 @@ public class StandardTigrisAsyncDatabaseTest {
     // null dbName resolves to 0 hashcode
     Assert.assertEquals(
         0,
-        new StandardTigrisAsyncDatabase(null, null, null, null, null, null, null, null, null)
-            .hashCode());
+        new StandardTigrisAsyncDatabase(null, null, null, null, null, null, null, null).hashCode());
   }
 
   @Test
   public void testEquals() {
     TigrisAsyncDatabase db1 =
-        new StandardTigrisAsyncDatabase("db1", null, null, null, null, null, null, null, null);
+        new StandardTigrisAsyncDatabase("db1", null, null, null, null, null, null, null);
     TigrisAsyncDatabase db2 =
-        new StandardTigrisAsyncDatabase("db1", null, null, null, null, null, null, null, null);
+        new StandardTigrisAsyncDatabase("db1", null, null, null, null, null, null, null);
     Assert.assertTrue(db1.equals(db2));
     Assert.assertTrue(db1.equals(db1));
 

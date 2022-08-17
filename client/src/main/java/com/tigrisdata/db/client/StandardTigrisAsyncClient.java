@@ -103,7 +103,6 @@ public class StandardTigrisAsyncClient extends AbstractTigrisClient implements T
   public TigrisAsyncDatabase getDatabase(String databaseName) {
     return new StandardTigrisAsyncDatabase(
         databaseName,
-        stub,
         futureStub,
         blockingStub,
         channel,
@@ -127,7 +126,6 @@ public class StandardTigrisAsyncClient extends AbstractTigrisClient implements T
             tigrisAsyncDatabases.add(
                 new StandardTigrisAsyncDatabase(
                     databaseInfo.getDb(),
-                    stub,
                     futureStub,
                     blockingStub,
                     channel,
@@ -152,7 +150,6 @@ public class StandardTigrisAsyncClient extends AbstractTigrisClient implements T
         response ->
             new StandardTigrisAsyncDatabase(
                 databaseName,
-                stub,
                 futureStub,
                 blockingStub,
                 channel,
@@ -254,7 +251,6 @@ public class StandardTigrisAsyncClient extends AbstractTigrisClient implements T
           completableFuture.complete(
               new StandardTigrisAsyncDatabase(
                   dbName,
-                  stub,
                   futureStub,
                   blockingStub,
                   channel,

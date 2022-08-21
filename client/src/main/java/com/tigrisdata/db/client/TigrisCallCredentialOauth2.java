@@ -33,7 +33,7 @@ class TigrisCallCredentialOauth2 extends CallCredentials {
 
   private TigrisCallCredentialOauth2(
       TigrisConfiguration tigrisConfiguration, ManagedChannel channel) {
-    this.tokenService = new OAuth2TokenService(tigrisConfiguration.getoAuth2Config(), channel);
+    this.tokenService = new OAuth2TokenService(tigrisConfiguration.getAuthConfig(), channel);
   }
 
   @VisibleForTesting

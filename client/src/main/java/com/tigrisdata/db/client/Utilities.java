@@ -213,7 +213,7 @@ final class Utilities {
 
   static TigrisGrpc.TigrisStub newStub(ManagedChannel channel, TigrisConfiguration configuration) {
     TigrisGrpc.TigrisStub result = TigrisGrpc.newStub(channel);
-    if (configuration.getoAuth2Config() != null) {
+    if (configuration.getAuthConfig() != null) {
       result =
           result.withCallCredentials(
               TigrisCallCredentialOauth2.getInstance(configuration, channel));
@@ -224,7 +224,7 @@ final class Utilities {
   static TigrisGrpc.TigrisBlockingStub newBlockingStub(
       ManagedChannel channel, TigrisConfiguration configuration) {
     TigrisGrpc.TigrisBlockingStub result = TigrisGrpc.newBlockingStub(channel);
-    if (configuration.getoAuth2Config() != null) {
+    if (configuration.getAuthConfig() != null) {
       result =
           result.withCallCredentials(
               TigrisCallCredentialOauth2.getInstance(configuration, channel));
@@ -235,7 +235,7 @@ final class Utilities {
   static TigrisGrpc.TigrisFutureStub newFutureStub(
       ManagedChannel channel, TigrisConfiguration configuration) {
     TigrisGrpc.TigrisFutureStub result = TigrisGrpc.newFutureStub(channel);
-    if (configuration.getoAuth2Config() != null) {
+    if (configuration.getAuthConfig() != null) {
       result =
           result.withCallCredentials(
               TigrisCallCredentialOauth2.getInstance(configuration, channel));

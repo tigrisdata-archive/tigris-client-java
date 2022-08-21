@@ -20,21 +20,21 @@ import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.tigrisdata.db.jackson.TigrisAnnotationIntrospector;
 
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.Objects;
 
 /** Tigris client configuration */
 public class TigrisConfiguration {
-
   private final String serverURL;
   private final TigrisConfiguration.NetworkConfig network;
-  private final TigrisConfiguration.OAuth2Config oAuth2Config;
+  private final TigrisConfiguration.AuthConfig authConfig;
   private final ObjectMapper objectMapper;
 
   private TigrisConfiguration(Builder builder) {
     this.serverURL = builder.baseURL;
     this.network = builder.network;
     this.objectMapper = builder.objectMapper;
-    this.oAuth2Config = builder.oAuth2Config;
+    this.authConfig = builder.authConfig;
   }
 
   /**
@@ -59,8 +59,24 @@ public class TigrisConfiguration {
     return objectMapper;
   }
 
-  public OAuth2Config getoAuth2Config() {
-    return oAuth2Config;
+  public AuthConfig getAuthConfig() {
+    return authConfig;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    TigrisConfiguration that = (TigrisConfiguration) o;
+    return Objects.equals(serverURL, that.serverURL)
+        && Objects.equals(network, that.network)
+        && Objects.equals(authConfig, that.authConfig)
+        && Objects.equals(objectMapper, that.objectMapper);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(serverURL, network, authConfig, objectMapper);
   }
 
   /** Builder class for {@link TigrisConfiguration} */
@@ -68,7 +84,7 @@ public class TigrisConfiguration {
 
     private final String baseURL;
     private TigrisConfiguration.NetworkConfig network;
-    private TigrisConfiguration.OAuth2Config oAuth2Config;
+    private TigrisConfiguration.AuthConfig authConfig;
     private ObjectMapper objectMapper;
 
     private Builder(String baseURL) {
@@ -80,7 +96,7 @@ public class TigrisConfiguration {
               .setAnnotationIntrospector(new TigrisAnnotationIntrospector())
               .registerModule(new ParameterNamesModule(JsonCreator.Mode.PROPERTIES))
               .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-      this.oAuth2Config = null;
+      this.authConfig = null;
     }
 
     /**
@@ -107,43 +123,68 @@ public class TigrisConfiguration {
     }
 
     /**
-     * This will enable and customize {@link OAuth2Config}.
+     * This will enable and customize {@link AuthConfig}.
      *
-     * @param oAuth2Config oauth2 config
+     * @param authConfig auth config
      * @return ongoing builder
      */
-    public Builder withOAuth2(OAuth2Config oAuth2Config) {
-      this.oAuth2Config = oAuth2Config;
+    public Builder withAuthConfig(AuthConfig authConfig) {
+      this.authConfig = authConfig;
       return this;
     }
 
     public TigrisConfiguration build() {
       return new TigrisConfiguration(this);
     }
-  }
 
-  public static class OAuth2Config {
-    private final String refreshToken;
-
-    public OAuth2Config(String refreshToken) {
-      this.refreshToken = refreshToken;
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      Builder builder = (Builder) o;
+      return Objects.equals(baseURL, builder.baseURL)
+          && Objects.equals(network, builder.network)
+          && Objects.equals(authConfig, builder.authConfig)
+          && Objects.equals(objectMapper, builder.objectMapper);
     }
 
-    public String getRefreshToken() {
-      return refreshToken;
+    @Override
+    public int hashCode() {
+      return Objects.hash(baseURL, network, authConfig, objectMapper);
+    }
+  }
+
+  public static class AuthConfig {
+    private final String applicationId;
+    private final char[] applicationSecret;
+
+    public AuthConfig(String applicationId, String applicationSecret) {
+      this.applicationId = applicationId;
+      this.applicationSecret = applicationSecret.toCharArray();
+    }
+
+    public String getApplicationId() {
+      return applicationId;
+    }
+
+    public char[] getApplicationSecret() {
+      return applicationSecret;
     }
 
     @Override
     public boolean equals(Object o) {
       if (this == o) return true;
       if (o == null || getClass() != o.getClass()) return false;
-      OAuth2Config that = (OAuth2Config) o;
-      return Objects.equals(refreshToken, that.refreshToken);
+      AuthConfig that = (AuthConfig) o;
+      return Objects.equals(applicationId, that.applicationId)
+          && Arrays.equals(applicationSecret, that.applicationSecret);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(refreshToken);
+      int result = Objects.hash(applicationId);
+      result = 31 * result + Arrays.hashCode(applicationSecret);
+      return result;
     }
   }
 
@@ -168,6 +209,19 @@ public class TigrisConfiguration {
 
     public boolean isUsePlainText() {
       return usePlainText;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      NetworkConfig that = (NetworkConfig) o;
+      return usePlainText == that.usePlainText && Objects.equals(deadline, that.deadline);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(deadline, usePlainText);
     }
 
     /** Builder class for {@link NetworkConfig} */

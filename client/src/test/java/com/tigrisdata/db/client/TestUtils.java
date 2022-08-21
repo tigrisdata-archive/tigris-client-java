@@ -40,7 +40,8 @@ public final class TestUtils {
     StandardTigrisClient client =
         new StandardTigrisClient(
             TigrisConfiguration.newBuilder("some-url")
-                .withOAuth2(new TigrisConfiguration.OAuth2Config("test-refresh-token"))
+                .withAuthConfig(
+                    new TigrisConfiguration.AuthConfig("test-app-id", "test-app-secret"))
                 .build(),
             channelBuilder);
     grpcCleanupRule.register(client.getChannel());

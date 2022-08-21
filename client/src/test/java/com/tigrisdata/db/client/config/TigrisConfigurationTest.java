@@ -14,6 +14,7 @@
 package com.tigrisdata.db.client.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -31,7 +32,7 @@ public class TigrisConfigurationTest {
     assertNotNull(defaultConfiguration.getObjectMapper());
 
     assertEquals(Duration.ofSeconds(5), defaultConfiguration.getNetwork().getDeadline());
-    assertNull(defaultConfiguration.getoAuth2Config());
+    assertNull(defaultConfiguration.getAuthConfig());
   }
 
   @Test
@@ -44,7 +45,7 @@ public class TigrisConfigurationTest {
                     .usePlainText()
                     .withDeadline(Duration.ofSeconds(50))
                     .build())
-            .withOAuth2(new TigrisConfiguration.OAuth2Config("test-refresh-token"))
+            .withAuthConfig(new TigrisConfiguration.AuthConfig("test-app-id", "test-app-secret"))
             .withObjectMapper(objectMapper)
             .build();
 
@@ -55,6 +56,37 @@ public class TigrisConfigurationTest {
 
     assertEquals(Duration.ofSeconds(50), customConfiguration.getNetwork().getDeadline());
 
-    assertEquals("test-refresh-token", customConfiguration.getoAuth2Config().getRefreshToken());
+    assertEquals("test-app-id", customConfiguration.getAuthConfig().getApplicationId());
+    assertArrayEquals(
+        "test-app-secret".toCharArray(),
+        customConfiguration.getAuthConfig().getApplicationSecret());
+  }
+
+  @Test
+  public void testEqualsAndHashCode() {
+    ObjectMapper objectMapper = new ObjectMapper();
+    TigrisConfiguration ob1 =
+        TigrisConfiguration.newBuilder("some-host:443")
+            .withNetwork(
+                TigrisConfiguration.NetworkConfig.newBuilder()
+                    .usePlainText()
+                    .withDeadline(Duration.ofSeconds(50))
+                    .build())
+            .withAuthConfig(new TigrisConfiguration.AuthConfig("test-app-id", "test-app-secret"))
+            .withObjectMapper(objectMapper)
+            .build();
+    TigrisConfiguration ob2 =
+        TigrisConfiguration.newBuilder("some-host:443")
+            .withNetwork(
+                TigrisConfiguration.NetworkConfig.newBuilder()
+                    .usePlainText()
+                    .withDeadline(Duration.ofSeconds(50))
+                    .build())
+            .withAuthConfig(new TigrisConfiguration.AuthConfig("test-app-id", "test-app-secret"))
+            .withObjectMapper(objectMapper)
+            .build();
+    assertEquals(ob1, ob2);
+    assertEquals(ob2, ob1);
+    assertEquals(ob1.hashCode(), ob2.hashCode());
   }
 }

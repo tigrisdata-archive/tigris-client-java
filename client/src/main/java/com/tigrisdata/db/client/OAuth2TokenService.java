@@ -32,17 +32,17 @@ import java.util.concurrent.atomic.AtomicReference;
 
 class OAuth2TokenService implements TokenService {
   private final AtomicReference<String> accessToken;
-  private final AtomicReference<String> refreshToken;
   private final AtomicLong lastRefreshed;
   private final AtomicLong nextRefreshTime;
   private final Object lock;
   private final AuthGrpc.AuthBlockingStub authBlockingStub;
   private final Random random;
+  private final TigrisConfiguration.AuthConfig authConfig;
   private static final Logger log = LoggerFactory.getLogger(OAuth2TokenService.class);
 
-  OAuth2TokenService(TigrisConfiguration.OAuth2Config oAuth2Config, ManagedChannel channel) {
+  OAuth2TokenService(TigrisConfiguration.AuthConfig authConfig, ManagedChannel channel) {
     this.authBlockingStub = AuthGrpc.newBlockingStub(channel);
-    this.refreshToken = new AtomicReference<>(oAuth2Config.getRefreshToken());
+    this.authConfig = authConfig;
     this.accessToken = new AtomicReference<>("");
     this.lock = new Object();
     this.lastRefreshed = new AtomicLong(0L);
@@ -72,11 +72,12 @@ class OAuth2TokenService implements TokenService {
           AuthOuterClass.GetAccessTokenResponse response =
               authBlockingStub.getAccessToken(
                   AuthOuterClass.GetAccessTokenRequest.newBuilder()
-                      .setRefreshToken(refreshToken.get())
+                      .setGrantType(AuthOuterClass.GrantType.CLIENT_CREDENTIALS)
+                      .setClientId(authConfig.getApplicationId())
+                      .setClientSecret(String.valueOf(authConfig.getApplicationSecret()))
                       .build());
 
           accessToken.set(response.getAccessToken());
-          refreshToken.set(response.getRefreshToken());
           lastRefreshed.set(System.currentTimeMillis());
           // refresh before 5 minute of expiry
           // add 1-5 min (i.e. 60_000 - 300_000 ms) of random jitter

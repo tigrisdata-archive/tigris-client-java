@@ -5,12 +5,12 @@
     <parent>
         <groupId>com.tigrisdata.tools</groupId>
         <artifactId>schema-generator</artifactId>
-        <version>1.0.0-alpha.23-SNAPSHOT</version>
+        <version>1.0.0-alpha.23</version>
     </parent>
 
     <groupId>com.tigrisdata.tools.schema-generator</groupId>
     <artifactId>schema-generator-core</artifactId>
-    <version>1.0.0-alpha.23-SNAPSHOT</version>
+    <version>1.0.0-alpha.23</version>
     <packaging>jar</packaging>
 
     <dependencies>

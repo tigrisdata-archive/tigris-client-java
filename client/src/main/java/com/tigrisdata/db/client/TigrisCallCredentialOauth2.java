@@ -51,6 +51,9 @@ class TigrisCallCredentialOauth2 extends CallCredentials {
    */
   static TigrisCallCredentialOauth2 getInstance(
       TigrisConfiguration configuration, ManagedChannel channel) {
+    if (configuration.getNetwork() != null && configuration.getNetwork().isUsePlainText()) {
+      throw new RuntimeException("credentials over plaintext communication is discouraged");
+    }
     if (INSTANCE == null) {
       synchronized (lock) {
         if (INSTANCE == null) {

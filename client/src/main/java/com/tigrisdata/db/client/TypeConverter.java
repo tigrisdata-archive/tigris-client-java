@@ -22,6 +22,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.rpc.ErrorInfo;
 import com.google.rpc.RetryInfo;
 import com.tigrisdata.db.api.v1.grpc.Api;
+import com.tigrisdata.db.api.v1.grpc.ObservabilityOuterClass;
 import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import com.tigrisdata.db.client.error.TigrisError;
 import com.tigrisdata.db.client.error.TigrisException;
@@ -71,7 +72,8 @@ final class TypeConverter {
         .build();
   }
 
-  public static ServerMetadata toServerMetadata(Api.GetInfoResponse apiGetInfoResponse) {
+  public static ServerMetadata toServerMetadata(
+      ObservabilityOuterClass.GetInfoResponse apiGetInfoResponse) {
     return new ServerMetadata(apiGetInfoResponse.getServerVersion());
   }
 
@@ -365,7 +367,8 @@ final class TypeConverter {
 
   static Optional<TigrisError> extractTigrisError(StatusRuntimeException statusRuntimeException) {
     Optional<ErrorInfo> errorInfo = extract(statusRuntimeException, ErrorInfo.class);
-    return errorInfo.map(info -> new TigrisError(Api.Code.valueOf(info.getReason())));
+    return errorInfo.map(
+        info -> new TigrisError(ObservabilityOuterClass.Code.valueOf(info.getReason())));
   }
 
   static Optional<RetryInfo> extractRetryInfo(StatusRuntimeException statusRuntimeException) {

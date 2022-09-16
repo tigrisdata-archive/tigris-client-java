@@ -14,6 +14,7 @@
 package com.tigrisdata.db.client;
 
 import com.tigrisdata.db.client.config.TigrisConfiguration;
+import com.tigrisdata.db.client.grpc.TestObservabilityService;
 import com.tigrisdata.db.client.grpc.TestTigrisService;
 import io.grpc.ClientInterceptor;
 import io.grpc.ManagedChannel;
@@ -50,6 +51,7 @@ public class StandardTigrisAsyncClientTest {
             InProcessServerBuilder.forName(SERVER_NAME)
                 .directExecutor()
                 .addService(TEST_USER_SERVICE)
+                .addService(new TestObservabilityService())
                 .build())
         .start();
   }

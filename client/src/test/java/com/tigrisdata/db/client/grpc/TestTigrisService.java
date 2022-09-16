@@ -513,14 +513,6 @@ public class TestTigrisService extends TigrisGrpc.TigrisImplBase {
     responseObserver.onCompleted();
   }
 
-  @Override
-  public void getInfo(
-      Api.GetInfoRequest request, StreamObserver<Api.GetInfoResponse> responseObserver) {
-    responseObserver.onNext(
-        Api.GetInfoResponse.newBuilder().setServerVersion("1.2.3-alpha.4").build());
-    responseObserver.onCompleted();
-  }
-
   private void resetTx() {
     this.txOrigin = "";
     this.txId = "";

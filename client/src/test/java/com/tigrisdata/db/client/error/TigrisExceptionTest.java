@@ -13,7 +13,7 @@
  */
 package com.tigrisdata.db.client.error;
 
-import com.tigrisdata.db.api.v1.grpc.Api;
+import com.tigrisdata.db.api.v1.grpc.ObservabilityOuterClass;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -44,8 +44,9 @@ public class TigrisExceptionTest {
     TigrisException ex =
         new TigrisException(
             "Exception message",
-            Optional.of(new TigrisError(Api.Code.BAD_GATEWAY)),
+            Optional.of(new TigrisError(ObservabilityOuterClass.Code.BAD_GATEWAY)),
             new Exception());
-    Assert.assertEquals(Api.Code.BAD_GATEWAY, ex.getTigrisErrorOptional().get().getCode());
+    Assert.assertEquals(
+        ObservabilityOuterClass.Code.BAD_GATEWAY, ex.getTigrisErrorOptional().get().getCode());
   }
 }

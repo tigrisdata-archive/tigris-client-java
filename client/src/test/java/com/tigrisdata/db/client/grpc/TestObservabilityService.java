@@ -11,33 +11,22 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tigrisdata.db.client.error;
+package com.tigrisdata.db.client.grpc;
 
+import com.tigrisdata.db.api.v1.grpc.ObservabilityGrpc;
 import com.tigrisdata.db.api.v1.grpc.ObservabilityOuterClass;
+import io.grpc.stub.StreamObserver;
 
-import java.util.Objects;
-
-public class TigrisError {
-  private final ObservabilityOuterClass.Code code;
-
-  public TigrisError(ObservabilityOuterClass.Code code) {
-    this.code = code;
-  }
-
-  public ObservabilityOuterClass.Code getCode() {
-    return code;
-  }
+public class TestObservabilityService extends ObservabilityGrpc.ObservabilityImplBase {
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    TigrisError that = (TigrisError) o;
-    return code == that.code;
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(code);
+  public void getInfo(
+      ObservabilityOuterClass.GetInfoRequest request,
+      StreamObserver<ObservabilityOuterClass.GetInfoResponse> responseObserver) {
+    responseObserver.onNext(
+        ObservabilityOuterClass.GetInfoResponse.newBuilder()
+            .setServerVersion("1.2.3-alpha.4")
+            .build());
+    responseObserver.onCompleted();
   }
 }

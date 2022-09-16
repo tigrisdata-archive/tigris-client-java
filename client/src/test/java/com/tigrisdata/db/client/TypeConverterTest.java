@@ -20,6 +20,7 @@ import com.google.rpc.Code;
 import com.google.rpc.ErrorInfo;
 import com.google.rpc.Status;
 import com.tigrisdata.db.api.v1.grpc.Api;
+import com.tigrisdata.db.api.v1.grpc.ObservabilityOuterClass;
 import com.tigrisdata.db.client.config.TigrisConfiguration;
 import com.tigrisdata.db.client.error.TigrisError;
 import com.tigrisdata.db.client.error.TigrisException;
@@ -72,12 +73,14 @@ public class TypeConverterTest {
             .setMessage("Test message")
             .addDetails(
                 Any.pack(
-                    ErrorInfo.newBuilder().setReason(Api.Code.DEADLINE_EXCEEDED.name()).build()))
+                    ErrorInfo.newBuilder()
+                        .setReason(ObservabilityOuterClass.Code.DEADLINE_EXCEEDED.name())
+                        .build()))
             .build();
 
     StatusRuntimeException statusRuntimeException = StatusProto.toStatusRuntimeException(status);
     TigrisError tigrisError = TypeConverter.extractTigrisError(statusRuntimeException).get();
-    Assert.assertEquals(Api.Code.DEADLINE_EXCEEDED, tigrisError.getCode());
+    Assert.assertEquals(ObservabilityOuterClass.Code.DEADLINE_EXCEEDED, tigrisError.getCode());
   }
 
   @Test

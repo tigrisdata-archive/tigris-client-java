@@ -21,6 +21,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.Timestamp;
 import com.tigrisdata.db.annotation.TigrisCollection;
 import com.tigrisdata.db.annotation.TigrisPrimaryKey;
+import com.tigrisdata.db.api.v1.grpc.ObservabilityGrpc;
 import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import com.tigrisdata.db.client.config.TigrisConfiguration;
 import com.tigrisdata.db.client.error.TigrisException;
@@ -232,9 +233,31 @@ final class Utilities {
     return result;
   }
 
+  static ObservabilityGrpc.ObservabilityBlockingStub newObservabilityBlockingStub(
+      ManagedChannel channel, TigrisConfiguration configuration) {
+    ObservabilityGrpc.ObservabilityBlockingStub result = ObservabilityGrpc.newBlockingStub(channel);
+    if (configuration.getAuthConfig() != null) {
+      result =
+          result.withCallCredentials(
+              TigrisCallCredentialOauth2.getInstance(configuration, channel));
+    }
+    return result;
+  }
+
   static TigrisGrpc.TigrisFutureStub newFutureStub(
       ManagedChannel channel, TigrisConfiguration configuration) {
     TigrisGrpc.TigrisFutureStub result = TigrisGrpc.newFutureStub(channel);
+    if (configuration.getAuthConfig() != null) {
+      result =
+          result.withCallCredentials(
+              TigrisCallCredentialOauth2.getInstance(configuration, channel));
+    }
+    return result;
+  }
+
+  static ObservabilityGrpc.ObservabilityFutureStub newObservabilityFutureStub(
+      ManagedChannel channel, TigrisConfiguration configuration) {
+    ObservabilityGrpc.ObservabilityFutureStub result = ObservabilityGrpc.newFutureStub(channel);
     if (configuration.getAuthConfig() != null) {
       result =
           result.withCallCredentials(

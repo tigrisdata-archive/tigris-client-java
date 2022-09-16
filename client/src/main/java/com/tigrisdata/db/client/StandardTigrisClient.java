@@ -15,6 +15,8 @@ package com.tigrisdata.db.client;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.tigrisdata.db.api.v1.grpc.Api;
+import com.tigrisdata.db.api.v1.grpc.ObservabilityGrpc;
+import com.tigrisdata.db.api.v1.grpc.ObservabilityOuterClass;
 import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import static com.tigrisdata.db.client.Constants.CREATE_DB_FAILED;
 import static com.tigrisdata.db.client.Constants.DROP_DB_FAILED;
@@ -39,11 +41,14 @@ import java.util.List;
 public class StandardTigrisClient extends AbstractTigrisClient implements TigrisClient {
 
   private final TigrisGrpc.TigrisBlockingStub stub;
+  private final ObservabilityGrpc.ObservabilityBlockingStub observabilityBlockingStub;
+
   private static final Logger log = LoggerFactory.getLogger(StandardTigrisClient.class);
 
   private StandardTigrisClient(TigrisConfiguration configuration) {
     super(configuration, new StandardModelToTigrisJsonSchema());
     this.stub = Utilities.newBlockingStub(channel, configuration);
+    this.observabilityBlockingStub = Utilities.newObservabilityBlockingStub(channel, configuration);
   }
 
   @VisibleForTesting
@@ -52,6 +57,7 @@ public class StandardTigrisClient extends AbstractTigrisClient implements Tigris
       ManagedChannelBuilder<? extends ManagedChannelBuilder> managedChannelBuilder) {
     super(configuration, managedChannelBuilder, new StandardModelToTigrisJsonSchema());
     this.stub = Utilities.newBlockingStub(channel, configuration);
+    this.observabilityBlockingStub = Utilities.newObservabilityBlockingStub(channel, configuration);
   }
 
   /**
@@ -135,7 +141,9 @@ public class StandardTigrisClient extends AbstractTigrisClient implements Tigris
   @Override
   public ServerMetadata getServerMetadata() throws TigrisException {
     try {
-      Api.GetInfoResponse apiResponse = stub.getInfo(Api.GetInfoRequest.newBuilder().build());
+      ObservabilityOuterClass.GetInfoResponse apiResponse =
+          observabilityBlockingStub.getInfo(
+              ObservabilityOuterClass.GetInfoRequest.newBuilder().build());
       return toServerMetadata(apiResponse);
     } catch (StatusRuntimeException statusRuntimeException) {
       throw new TigrisException(

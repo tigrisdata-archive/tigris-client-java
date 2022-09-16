@@ -17,6 +17,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.tigrisdata.db.api.v1.grpc.Api;
+import com.tigrisdata.db.api.v1.grpc.ObservabilityGrpc;
+import com.tigrisdata.db.api.v1.grpc.ObservabilityOuterClass;
 import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import static com.tigrisdata.db.client.Constants.CREATE_DB_FAILED;
 import static com.tigrisdata.db.client.Constants.DROP_DB_FAILED;
@@ -50,6 +52,7 @@ public class StandardTigrisAsyncClient extends AbstractTigrisClient implements T
 
   private final TigrisGrpc.TigrisStub stub;
   private final TigrisGrpc.TigrisFutureStub futureStub;
+  private final ObservabilityGrpc.ObservabilityFutureStub observabilityFutureStub;
   private final TigrisGrpc.TigrisBlockingStub blockingStub;
   private final Executor executor;
   private static final Logger log = LoggerFactory.getLogger(StandardTigrisAsyncClient.class);
@@ -62,6 +65,7 @@ public class StandardTigrisAsyncClient extends AbstractTigrisClient implements T
     super(configuration, new StandardModelToTigrisJsonSchema());
     this.stub = Utilities.newStub(channel, configuration);
     this.futureStub = Utilities.newFutureStub(channel, configuration);
+    this.observabilityFutureStub = Utilities.newObservabilityFutureStub(channel, configuration);
     this.blockingStub = Utilities.newBlockingStub(channel, configuration);
     this.executor = executor;
   }
@@ -73,6 +77,7 @@ public class StandardTigrisAsyncClient extends AbstractTigrisClient implements T
     super(configuration, managedChannelBuilder, new StandardModelToTigrisJsonSchema());
     this.stub = Utilities.newStub(channel, configuration);
     this.futureStub = Utilities.newFutureStub(channel, configuration);
+    this.observabilityFutureStub = Utilities.newObservabilityFutureStub(channel, configuration);
     this.blockingStub = Utilities.newBlockingStub(channel, configuration);
     this.executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
   }
@@ -186,8 +191,9 @@ public class StandardTigrisAsyncClient extends AbstractTigrisClient implements T
 
   @Override
   public CompletableFuture<ServerMetadata> getServerMetadata() {
-    ListenableFuture<Api.GetInfoResponse> infoResponse =
-        futureStub.getInfo(Api.GetInfoRequest.newBuilder().build());
+    ListenableFuture<ObservabilityOuterClass.GetInfoResponse> infoResponse =
+        observabilityFutureStub.getInfo(
+            ObservabilityOuterClass.GetInfoRequest.newBuilder().build());
     return Utilities.transformFuture(
         infoResponse, response -> toServerMetadata(response), executor, SERVER_METADATA_FAILED);
   }

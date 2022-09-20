@@ -14,11 +14,11 @@
 package com.tigrisdata.db.client.collection;
 
 import com.tigrisdata.db.annotation.TigrisPrimaryKey;
-import com.tigrisdata.db.type.TigrisCollectionType;
+import com.tigrisdata.db.type.TigrisDocumentCollectionType;
 
 import java.util.UUID;
 
-public class AutoGeneratingPKeysModel implements TigrisCollectionType {
+public class AutoGeneratingPKeysModel implements TigrisDocumentCollectionType {
   @TigrisPrimaryKey(order = 1, autoGenerate = true)
   int intPKey;
 

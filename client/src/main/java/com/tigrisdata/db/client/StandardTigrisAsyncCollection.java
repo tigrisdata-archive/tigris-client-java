@@ -44,7 +44,7 @@ import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.search.SearchRequest;
 import com.tigrisdata.db.client.search.SearchRequestOptions;
 import com.tigrisdata.db.client.search.SearchResult;
-import com.tigrisdata.db.type.TigrisCollectionType;
+import com.tigrisdata.db.type.TigrisDocumentCollectionType;
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
@@ -63,7 +63,7 @@ import java.util.concurrent.Executor;
  *
  * @param <T> type of the collection
  */
-class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
+class StandardTigrisAsyncCollection<T extends TigrisDocumentCollectionType>
     extends AbstractTigrisCollection<T> implements TigrisAsyncCollection<T> {
 
   private final Executor executor;
@@ -72,14 +72,14 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
 
   StandardTigrisAsyncCollection(
       String databaseName,
-      Class<T> collectionTypeClass,
+      Class<T> documentCollectionTypeClass,
       ManagedChannel channel,
       Executor executor,
       ObjectMapper objectMapper,
       TigrisConfiguration configuration) {
     super(
         databaseName,
-        collectionTypeClass,
+        documentCollectionTypeClass,
         Utilities.newBlockingStub(channel, configuration),
         objectMapper,
         configuration);
@@ -100,7 +100,7 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
     stub.read(
         readRequest,
         new ReadManyResponseObserverAdapter<>(
-            reader, collectionTypeClass, objectMapper, READ_FAILED));
+            reader, documentCollectionTypeClass, objectMapper, READ_FAILED));
   }
 
   @Override
@@ -137,7 +137,7 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
     stub.read(
         readRequest,
         new ReadSingleResponseObserverAdapter<>(
-            completableFuture, collectionTypeClass, objectMapper, READ_FAILED));
+            completableFuture, documentCollectionTypeClass, objectMapper, READ_FAILED));
     return completableFuture;
   }
 
@@ -148,7 +148,7 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
         toSearchRequest(databaseName, collectionName, request, options, objectMapper);
     stub.search(
         searchRequest,
-        new SearchResponseObserverAdapter<>(reader, collectionTypeClass, objectMapper));
+        new SearchResponseObserverAdapter<>(reader, documentCollectionTypeClass, objectMapper));
   }
 
   @Override
@@ -440,21 +440,21 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
         filter, new DeleteRequestOptions(WriteOptions.DEFAULT_INSTANCE), session);
   }
 
-  static class ReadManyResponseObserverAdapter<T extends TigrisCollectionType>
+  static class ReadManyResponseObserverAdapter<T extends TigrisDocumentCollectionType>
       implements StreamObserver<Api.ReadResponse> {
 
     private final TigrisAsyncReader<T> reader;
-    private final Class<T> collectionTypeClass;
+    private final Class<T> documentCollectionTypeClass;
     private final ObjectMapper objectMapper;
     private final String errorMessage;
 
     public ReadManyResponseObserverAdapter(
         TigrisAsyncReader<T> reader,
-        Class<T> collectionTypeClass,
+        Class<T> documentCollectionTypeClass,
         ObjectMapper objectMapper,
         String errorMessage) {
       this.reader = reader;
-      this.collectionTypeClass = collectionTypeClass;
+      this.documentCollectionTypeClass = documentCollectionTypeClass;
       this.objectMapper = objectMapper;
       this.errorMessage = errorMessage;
     }
@@ -462,7 +462,9 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
     @Override
     public void onNext(Api.ReadResponse readResponse) {
       try {
-        T doc = objectMapper.readValue(readResponse.getData().toStringUtf8(), collectionTypeClass);
+        T doc =
+            objectMapper.readValue(
+                readResponse.getData().toStringUtf8(), documentCollectionTypeClass);
         reader.onNext(doc);
       } catch (JsonProcessingException ex) {
         reader.onError(new TigrisException(JSON_SER_DE_ERROR, ex));
@@ -486,21 +488,21 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
     }
   }
 
-  static class ReadSingleResponseObserverAdapter<T extends TigrisCollectionType>
+  static class ReadSingleResponseObserverAdapter<T extends TigrisDocumentCollectionType>
       implements StreamObserver<Api.ReadResponse> {
 
     private final CompletableFuture<Optional<T>> completableFuture;
-    private final Class<T> collectionTypeClass;
+    private final Class<T> documentCollectionTypeClass;
     private final ObjectMapper objectMapper;
     private final String errorMessage;
 
     public ReadSingleResponseObserverAdapter(
         CompletableFuture<Optional<T>> completableFuture,
-        Class<T> collectionTypeClass,
+        Class<T> documentCollectionTypeClass,
         ObjectMapper objectMapper,
         String errorMessage) {
       this.completableFuture = completableFuture;
-      this.collectionTypeClass = collectionTypeClass;
+      this.documentCollectionTypeClass = documentCollectionTypeClass;
       this.objectMapper = objectMapper;
       this.errorMessage = errorMessage;
     }
@@ -508,7 +510,9 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
     @Override
     public void onNext(Api.ReadResponse readResponse) {
       try {
-        T doc = objectMapper.readValue(readResponse.getData().toStringUtf8(), collectionTypeClass);
+        T doc =
+            objectMapper.readValue(
+                readResponse.getData().toStringUtf8(), documentCollectionTypeClass);
         completableFuture.complete(Optional.of(doc));
       } catch (JsonProcessingException ex) {
         completableFuture.completeExceptionally(new TigrisException(JSON_SER_DE_ERROR, ex));
@@ -532,25 +536,26 @@ class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
     }
   }
 
-  static class SearchResponseObserverAdapter<T extends TigrisCollectionType>
+  static class SearchResponseObserverAdapter<T extends TigrisDocumentCollectionType>
       implements StreamObserver<Api.SearchResponse> {
 
     private final TigrisAsyncSearchReader<T> reader;
-    private final Class<T> collectionTypeClass;
+    private final Class<T> documentCollectionTypeClass;
     private final ObjectMapper objectMapper;
 
     public SearchResponseObserverAdapter(
         TigrisAsyncSearchReader<T> reader,
-        Class<T> collectionTypeClass,
+        Class<T> documentCollectionTypeClass,
         ObjectMapper objectMapper) {
       this.reader = reader;
-      this.collectionTypeClass = collectionTypeClass;
+      this.documentCollectionTypeClass = documentCollectionTypeClass;
       this.objectMapper = objectMapper;
     }
 
     @Override
     public void onNext(SearchResponse response) {
-      SearchResult<T> result = SearchResult.from(response, objectMapper, collectionTypeClass);
+      SearchResult<T> result =
+          SearchResult.from(response, objectMapper, documentCollectionTypeClass);
       reader.onNext(result);
     }
 

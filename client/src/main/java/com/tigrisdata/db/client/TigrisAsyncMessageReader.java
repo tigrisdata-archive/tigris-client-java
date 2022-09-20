@@ -11,16 +11,15 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tigrisdata.tools.schema.core.testdata;
 
-import com.tigrisdata.db.annotation.TigrisPrimaryKey;
-import com.tigrisdata.db.type.TigrisDocumentCollectionType;
+package com.tigrisdata.db.client;
 
-import java.util.UUID;
+import com.tigrisdata.db.type.TigrisMessageCollectionType;
 
-public class PrimaryKeyWithAutoGeneration3 implements TigrisDocumentCollectionType {
-  @TigrisPrimaryKey(order = 1, autoGenerate = true)
-  private UUID id;
-
-  private String name;
-}
+/**
+ * Asynchronous callback to receive {@link TigrisMessageCollectionType} from server
+ *
+ * @param <T> Topic message type
+ */
+public interface TigrisAsyncMessageReader<T extends TigrisMessageCollectionType>
+    extends TigrisAsyncCallback<T> {}

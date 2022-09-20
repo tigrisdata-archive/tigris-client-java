@@ -13,10 +13,10 @@
  */
 package com.tigrisdata.db.client.collection;
 
-import com.tigrisdata.db.type.TigrisCollectionType;
+import com.tigrisdata.db.type.TigrisDocumentCollectionType;
 
 /** Test collection model */
-public class User implements TigrisCollectionType {
+public class User implements TigrisDocumentCollectionType {
   int id;
   String name;
   double salary;

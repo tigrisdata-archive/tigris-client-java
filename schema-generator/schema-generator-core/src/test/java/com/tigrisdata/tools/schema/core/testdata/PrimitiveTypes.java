@@ -16,10 +16,10 @@ package com.tigrisdata.tools.schema.core.testdata;
 import com.tigrisdata.db.annotation.TigrisCollection;
 import com.tigrisdata.db.annotation.TigrisField;
 import com.tigrisdata.db.annotation.TigrisPrimaryKey;
-import com.tigrisdata.db.type.TigrisCollectionType;
+import com.tigrisdata.db.type.TigrisDocumentCollectionType;
 
 @TigrisCollection("PrimitiveTypesCollection")
-public class PrimitiveTypes implements TigrisCollectionType {
+public class PrimitiveTypes implements TigrisDocumentCollectionType {
   @TigrisField(description = "This is the id field")
   @TigrisPrimaryKey(order = 1)
   private int id;

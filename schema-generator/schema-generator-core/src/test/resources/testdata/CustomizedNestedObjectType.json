@@ -61,5 +61,6 @@
       "format" : "uuid"
     }
   },
+  "collection_type" : "documents",
   "primary_key" : [ "id" ]
 }

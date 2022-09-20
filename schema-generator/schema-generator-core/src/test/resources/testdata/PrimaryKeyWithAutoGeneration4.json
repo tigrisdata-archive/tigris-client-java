@@ -11,5 +11,6 @@
       "type" : "string"
     }
   },
+  "collection_type" : "documents",
   "primary_key" : [ "id" ]
 }

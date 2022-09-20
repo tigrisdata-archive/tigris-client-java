@@ -15,12 +15,12 @@
 package com.tigrisdata.db.client;
 
 import com.tigrisdata.db.client.search.SearchResult;
-import com.tigrisdata.db.type.TigrisCollectionType;
+import com.tigrisdata.db.type.TigrisDocumentCollectionType;
 
 /**
  * Asynchronous callback to receive {@link SearchResult} from server
  *
  * @param <T> Collection type
  */
-public interface TigrisAsyncSearchReader<T extends TigrisCollectionType>
+public interface TigrisAsyncSearchReader<T extends TigrisDocumentCollectionType>
     extends TigrisAsyncCallback<SearchResult<T>> {}

@@ -15,12 +15,12 @@ package com.tigrisdata.tools.schema.core.testdata;
 
 import com.tigrisdata.db.annotation.TigrisCollection;
 import com.tigrisdata.db.annotation.TigrisPrimaryKey;
-import com.tigrisdata.db.type.TigrisCollectionType;
+import com.tigrisdata.db.type.TigrisDocumentCollectionType;
 
 import java.util.Date;
 
 @TigrisCollection(value = "BoxedTypes", description = "Test description for boxed type")
-public class BoxedTypes implements TigrisCollectionType {
+public class BoxedTypes implements TigrisDocumentCollectionType {
 
   @TigrisPrimaryKey(order = 1)
   private Integer aInteger;

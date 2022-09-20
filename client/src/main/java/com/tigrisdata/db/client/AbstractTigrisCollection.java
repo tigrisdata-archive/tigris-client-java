@@ -35,30 +35,30 @@ import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.search.SearchRequest;
 import com.tigrisdata.db.client.search.SearchRequestOptions;
 import com.tigrisdata.db.client.search.SearchResult;
-import com.tigrisdata.db.type.TigrisCollectionType;
+import com.tigrisdata.db.type.TigrisDocumentCollectionType;
 import io.grpc.StatusRuntimeException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
 
-abstract class AbstractTigrisCollection<T extends TigrisCollectionType> {
+abstract class AbstractTigrisCollection<T extends TigrisDocumentCollectionType> {
 
   protected final String databaseName;
   protected final String collectionName;
-  protected final Class<T> collectionTypeClass;
+  protected final Class<T> documentCollectionTypeClass;
   protected final TigrisGrpc.TigrisBlockingStub blockingStub;
   protected final ObjectMapper objectMapper;
   protected final TigrisConfiguration configuration;
 
   public AbstractTigrisCollection(
       String databaseName,
-      Class<T> collectionTypeClass,
+      Class<T> documentCollectionTypeClass,
       TigrisGrpc.TigrisBlockingStub blockingStub,
       ObjectMapper objectMapper,
       TigrisConfiguration configuration) {
     this.databaseName = databaseName;
-    this.collectionTypeClass = collectionTypeClass;
-    this.collectionName = Utilities.getCollectionName(collectionTypeClass);
+    this.documentCollectionTypeClass = documentCollectionTypeClass;
+    this.collectionName = Utilities.getCollectionName(documentCollectionTypeClass);
     this.blockingStub = blockingStub;
     this.objectMapper = objectMapper;
     this.configuration = configuration;
@@ -86,7 +86,7 @@ abstract class AbstractTigrisCollection<T extends TigrisCollectionType> {
           readResponse -> {
             try {
               return objectMapper.readValue(
-                  readResponse.getData().toStringUtf8(), collectionTypeClass);
+                  readResponse.getData().toStringUtf8(), documentCollectionTypeClass);
             } catch (JsonProcessingException e) {
               throw new IllegalArgumentException("Failed to convert response to  the user type", e);
             }
@@ -107,7 +107,7 @@ abstract class AbstractTigrisCollection<T extends TigrisCollectionType> {
     try {
       Iterator<Api.SearchResponse> resp = blockingStub.search(apiSearchRequest);
       Function<SearchResponse, SearchResult<T>> converter =
-          r -> SearchResult.from(r, objectMapper, collectionTypeClass);
+          r -> SearchResult.from(r, objectMapper, documentCollectionTypeClass);
       return Utilities.transformIterator(resp, converter);
     } catch (StatusRuntimeException statusRuntimeException) {
       throw new TigrisException(

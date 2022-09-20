@@ -130,7 +130,9 @@ public class SchemaGenerationTest {
   }
 
   private static String getSchema(Class clazz) {
-    return new StandardModelToTigrisJsonSchema().toJsonSchema(clazz).toPrettyString();
+    return new StandardModelToTigrisJsonSchema()
+        .toJsonSchema(CollectionType.DOCUMENTS, clazz)
+        .toPrettyString();
   }
 
   private static String readExpectedSchema(Class testModel) throws Exception {

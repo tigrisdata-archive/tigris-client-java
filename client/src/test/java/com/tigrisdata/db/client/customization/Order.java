@@ -13,12 +13,12 @@
  */
 package com.tigrisdata.db.client.customization;
 
-import com.tigrisdata.db.type.TigrisCollectionType;
+import com.tigrisdata.db.type.TigrisDocumentCollectionType;
 
 import java.util.Objects;
 import java.util.UUID;
 
-public class Order implements TigrisCollectionType {
+public class Order implements TigrisDocumentCollectionType {
   private UUID _id;
   private long buyerId;
   private long sellerId;

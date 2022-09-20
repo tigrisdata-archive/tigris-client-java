@@ -14,7 +14,8 @@
 package com.tigrisdata.db.client;
 
 import com.tigrisdata.db.client.error.TigrisException;
-import com.tigrisdata.db.type.TigrisCollectionType;
+import com.tigrisdata.db.type.TigrisDocumentCollectionType;
+import com.tigrisdata.db.type.TigrisMessageCollectionType;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,7 +41,17 @@ public interface TigrisDatabase {
    * @throws TigrisException in case of an error.
    */
   CreateOrUpdateCollectionsResponse createOrUpdateCollections(
-      Class<? extends TigrisCollectionType>... collectionModelTypes) throws TigrisException;
+      Class<? extends TigrisDocumentCollectionType>... collectionModelTypes) throws TigrisException;
+
+  /**
+   * Creates or updates topics
+   *
+   * @param topicModelTypes an array of topic model classes
+   * @return response
+   * @throws TigrisException in case of an error.
+   */
+  CreateOrUpdateTopicResponse createOrUpdateTopics(
+      Class<? extends TigrisMessageCollectionType>... topicModelTypes) throws TigrisException;
 
   /**
    * Creates or updates collections by scanning classpath packages and applying user's filter
@@ -53,28 +64,39 @@ public interface TigrisDatabase {
    * @throws TigrisException in case of an error.
    */
   CreateOrUpdateCollectionsResponse createOrUpdateCollections(
-      String[] packagesToScan, Optional<Predicate<Class<? extends TigrisCollectionType>>> filter)
+      String[] packagesToScan,
+      Optional<Predicate<Class<? extends TigrisDocumentCollectionType>>> filter)
       throws TigrisException;
 
   /**
    * Drops the collection.
    *
    * @param collectionType type of the collection
-   * @param <T> type of the collection that is of type {@link TigrisCollectionType}
+   * @param <T> type of the collection that is of type {@link TigrisDocumentCollectionType}
    * @return the instance of {@link DropCollectionResponse} from server
    * @throws TigrisException in case of an error.
    */
-  <T extends TigrisCollectionType> DropCollectionResponse dropCollection(Class<T> collectionType)
-      throws TigrisException;
+  <T extends TigrisDocumentCollectionType> DropCollectionResponse dropCollection(
+      Class<T> collectionType) throws TigrisException;
 
   /**
    * Return an instance of {@link TigrisCollection}
    *
-   * @param collectionTypeClass Class type of the collection
-   * @param <C> type of the collection that is of type {@link TigrisCollectionType}
+   * @param documentCollectionTypeClass Class type of the collection
+   * @param <C> type of the collection that is of type {@link TigrisDocumentCollectionType}
    * @return an instance of {@link TigrisCollection}
    */
-  <C extends TigrisCollectionType> TigrisCollection<C> getCollection(Class<C> collectionTypeClass);
+  <C extends TigrisDocumentCollectionType> TigrisCollection<C> getCollection(
+      Class<C> documentCollectionTypeClass);
+
+  /**
+   * Return an instance of {@link TigrisTopic}
+   *
+   * @param messageTypeClass Class type of the topic
+   * @param <C> type of the message collection that is of type {@link TigrisMessageCollectionType}
+   * @return an instance of {@link TigrisTopic}
+   */
+  <C extends TigrisMessageCollectionType> TigrisTopic<C> getTopic(Class<C> messageTypeClass);
 
   /**
    * Begins the transaction on current database

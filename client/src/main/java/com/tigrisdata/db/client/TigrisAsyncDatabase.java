@@ -14,7 +14,8 @@
 package com.tigrisdata.db.client;
 
 import com.tigrisdata.db.client.error.TigrisException;
-import com.tigrisdata.db.type.TigrisCollectionType;
+import com.tigrisdata.db.type.TigrisDocumentCollectionType;
+import com.tigrisdata.db.type.TigrisMessageCollectionType;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,7 +39,16 @@ public interface TigrisAsyncDatabase {
    * @return future to the {@link CreateOrUpdateCollectionsResponse}
    */
   CompletableFuture<CreateOrUpdateCollectionsResponse> createOrUpdateCollections(
-      Class<? extends TigrisCollectionType>... collectionModelTypes);
+      Class<? extends TigrisDocumentCollectionType>... collectionModelTypes);
+
+  /**
+   * Creates or updates topics
+   *
+   * @param topicModelTypes an array of topic model classes
+   * @return future to the {@link CreateOrUpdateTopicResponse}
+   */
+  CompletableFuture<CreateOrUpdateTopicResponse> createOrUpdateTopics(
+      Class<? extends TigrisMessageCollectionType>... topicModelTypes);
 
   /**
    * Creates or updates collections by scanning classpath packages and applying user's filter *
@@ -50,27 +60,38 @@ public interface TigrisAsyncDatabase {
    * @return future to the {@link CreateOrUpdateCollectionsResponse}
    */
   CompletableFuture<CreateOrUpdateCollectionsResponse> createOrUpdateCollections(
-      String[] packagesToScan, Optional<Predicate<Class<? extends TigrisCollectionType>>> filter);
+      String[] packagesToScan,
+      Optional<Predicate<Class<? extends TigrisDocumentCollectionType>>> filter);
 
   /**
    * Drops the collection.
    *
-   * @param collectionTypeClass Class type of the collection
-   * @param <T> type of the collection that is of type {@link TigrisCollectionType}
+   * @param documentCollectionTypeClass Class type of the collection
+   * @param <T> type of the collection that is of type {@link TigrisDocumentCollectionType}
    * @return the future to the {@link DropCollectionResponse}
    */
-  <T extends TigrisCollectionType> CompletableFuture<DropCollectionResponse> dropCollection(
-      Class<T> collectionTypeClass);
+  <T extends TigrisDocumentCollectionType> CompletableFuture<DropCollectionResponse> dropCollection(
+      Class<T> documentCollectionTypeClass);
 
   /**
    * Return an instance of {@link TigrisCollection}
    *
-   * @param collectionTypeClass Class type of the collection
-   * @param <C> type of the collection that is of type {@link TigrisCollectionType}
+   * @param documentCollectionTypeClass Class type of the collection
+   * @param <C> type of the collection that is of type {@link TigrisDocumentCollectionType}
    * @return an instance of {@link TigrisAsyncCollection}
    */
-  <C extends TigrisCollectionType> TigrisAsyncCollection<C> getCollection(
-      Class<C> collectionTypeClass);
+  <C extends TigrisDocumentCollectionType> TigrisAsyncCollection<C> getCollection(
+      Class<C> documentCollectionTypeClass);
+
+  /**
+   * Return an instance of {@link TigrisAsyncTopic}
+   *
+   * @param messageCollectionTypeClass Class type of the messages collection
+   * @param <C> type of the message collection that is of type {@link TigrisMessageCollectionType}
+   * @return an instance of {@link TigrisAsyncTopic}
+   */
+  <C extends TigrisMessageCollectionType> TigrisAsyncTopic<C> getTopic(
+      Class<C> messageCollectionTypeClass);
 
   /**
    * Begins the transaction on current database

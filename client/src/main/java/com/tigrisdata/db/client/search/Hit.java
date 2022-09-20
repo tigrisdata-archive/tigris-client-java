@@ -19,16 +19,16 @@ import static java.lang.String.format;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tigrisdata.db.api.v1.grpc.Api;
-import com.tigrisdata.db.type.TigrisCollectionType;
+import com.tigrisdata.db.type.TigrisDocumentCollectionType;
 import java.util.Objects;
 
 /**
  * Representation of {@link Api.SearchHit} that provides collection document and associated metadata
  * from /search result
  *
- * @param <T> {@link TigrisCollectionType} type
+ * @param <T> {@link TigrisDocumentCollectionType} type
  */
-public final class Hit<T extends TigrisCollectionType> {
+public final class Hit<T extends TigrisDocumentCollectionType> {
 
   private final T document;
   private final HitMeta meta;
@@ -41,7 +41,7 @@ public final class Hit<T extends TigrisCollectionType> {
   /**
    * Json deserialized document as its collection class
    *
-   * @return {@link TigrisCollectionType}
+   * @return {@link TigrisDocumentCollectionType}
    */
   public T getDocument() {
     return document;
@@ -65,7 +65,7 @@ public final class Hit<T extends TigrisCollectionType> {
    * @param <R> Tigris collection class type
    * @return {@link Hit}
    */
-  static <R extends TigrisCollectionType> Hit<R> from(
+  static <R extends TigrisDocumentCollectionType> Hit<R> from(
       Api.SearchHit resp, ObjectMapper objectMapper, Class<R> collectionClass) {
     Objects.requireNonNull(resp);
     try {

@@ -13,53 +13,54 @@
  */
 package com.tigrisdata.db.client.collection;
 
-import com.tigrisdata.db.annotation.TigrisCollection;
-import com.tigrisdata.db.type.TigrisDocumentCollectionType;
+import com.tigrisdata.db.type.TigrisMessageCollectionType;
 
-/** Test collection type */
-@TigrisCollection("db1_c5")
-public class DB1_C5 implements TigrisDocumentCollectionType {
-  private long id;
-  private String name;
+import java.util.Objects;
 
-  public DB1_C5() {}
+public class ChatMessage implements TigrisMessageCollectionType {
+  private int id;
+  private final String message;
+  private final String from;
+  private final String to;
 
-  public DB1_C5(long id, String name) {
-    this.id = id;
-    this.name = name;
+  public ChatMessage(String message, String from, String to) {
+    this.message = message;
+    this.from = from;
+    this.to = to;
   }
 
-  public long getId() {
+  public String getMessage() {
+    return message;
+  }
+
+  public String getFrom() {
+    return from;
+  }
+
+  public String getTo() {
+    return to;
+  }
+
+  public int getId() {
     return id;
   }
 
-  public void setId(long id) {
+  public void setId(int id) {
     this.id = id;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
   }
 
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
-
-    DB1_C5 db1_c1 = (DB1_C5) o;
-
-    if (id != db1_c1.id) return false;
-    return name != null ? name.equals(db1_c1.name) : db1_c1.name == null;
+    ChatMessage chatTopic = (ChatMessage) o;
+    return Objects.equals(message, chatTopic.message)
+        && Objects.equals(from, chatTopic.from)
+        && Objects.equals(to, chatTopic.to);
   }
 
   @Override
   public int hashCode() {
-    int result = (int) (id ^ (id >>> 32));
-    result = 31 * result + (name != null ? name.hashCode() : 0);
-    return result;
+    return Objects.hash(message, from, to);
   }
 }

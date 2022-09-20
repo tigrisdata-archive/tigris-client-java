@@ -14,7 +14,7 @@
 package com.tigrisdata.db.util;
 
 import com.tigrisdata.db.annotation.TigrisCollection;
-import com.tigrisdata.db.type.TigrisCollectionType;
+import com.tigrisdata.db.type.TigrisDocumentCollectionType;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -30,14 +30,14 @@ public class TypeUtilsTest {
     Assert.assertEquals("customized_name", TypeUtils.getCollectionName(CustomCollectionName.class));
   }
 
-  class User implements TigrisCollectionType {}
+  class User implements TigrisDocumentCollectionType {}
 
   @TigrisCollection("customized_name")
-  class CustomCollectionName implements TigrisCollectionType {}
+  class CustomCollectionName implements TigrisDocumentCollectionType {}
 
-  class UserType implements TigrisCollectionType {}
+  class UserType implements TigrisDocumentCollectionType {}
 
-  class AbCdEfGh implements TigrisCollectionType {}
+  class AbCdEfGh implements TigrisDocumentCollectionType {}
 
-  class UserShoppingPreference implements TigrisCollectionType {}
+  class UserShoppingPreference implements TigrisDocumentCollectionType {}
 }

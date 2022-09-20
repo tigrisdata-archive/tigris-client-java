@@ -15,14 +15,14 @@ package com.tigrisdata.tools.schema.core.testdata;
 
 import com.tigrisdata.db.annotation.TigrisCollection;
 import com.tigrisdata.db.annotation.TigrisPrimaryKey;
-import com.tigrisdata.db.type.TigrisCollectionType;
+import com.tigrisdata.db.type.TigrisDocumentCollectionType;
 
 import java.util.UUID;
 
 @TigrisCollection(
     value = "TigrisCustomTypeCollection",
     description = "Test description for TigrisCustomTypes")
-public class TigrisCustomTypes implements TigrisCollectionType {
+public class TigrisCustomTypes implements TigrisDocumentCollectionType {
 
   @TigrisPrimaryKey(order = 1)
   private UUID id;

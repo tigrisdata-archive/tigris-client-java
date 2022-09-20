@@ -14,7 +14,7 @@
 package com.tigrisdata.db.client.collection.collection2;
 
 import com.tigrisdata.db.annotation.TigrisCollection;
-import com.tigrisdata.db.type.TigrisCollectionType;
+import com.tigrisdata.db.type.TigrisDocumentCollectionType;
 
 @TigrisCollection("db1_c3")
-public class DB1_C3 implements TigrisCollectionType {}
+public class DB1_C3 implements TigrisDocumentCollectionType {}

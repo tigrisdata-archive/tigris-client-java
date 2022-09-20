@@ -11,47 +11,35 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tigrisdata.db.client.collection;
-
-import com.tigrisdata.db.annotation.TigrisCollection;
-import com.tigrisdata.db.type.TigrisDocumentCollectionType;
+package com.tigrisdata.db.client;
 
 import java.util.Objects;
 
-/** Test collection type */
-@TigrisCollection("db1_c1")
-public class DB1_C1 implements TigrisDocumentCollectionType {
-  private final long id;
-  private final String name;
+/** Represents Server response for CreateOrUpdateCollections operation */
+public class CreateOrUpdateTopicResponse extends TigrisResponse {
+  private final String message;
 
-  public DB1_C1(long id, String name) {
-    this.id = id;
-    this.name = name;
+  CreateOrUpdateTopicResponse(String status, String message) {
+    super(status);
+    this.message = message;
   }
 
-  public long getId() {
-    return id;
-  }
-
-  public String getName() {
-    return name;
+  /** @return the message from server */
+  public String getMessage() {
+    return message;
   }
 
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
-
-    DB1_C1 db1_c1 = (DB1_C1) o;
-
-    if (id != db1_c1.id) return false;
-    return Objects.equals(name, db1_c1.name);
+    if (!super.equals(o)) return false;
+    CreateOrUpdateTopicResponse that = (CreateOrUpdateTopicResponse) o;
+    return Objects.equals(message, that.message);
   }
 
   @Override
   public int hashCode() {
-    int result = (int) (id ^ (id >>> 32));
-    result = 31 * result + (name != null ? name.hashCode() : 0);
-    return result;
+    return Objects.hash(super.hashCode(), message);
   }
 }

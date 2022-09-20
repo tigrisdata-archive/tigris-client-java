@@ -16,7 +16,7 @@ package com.tigrisdata.db.client;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.search.SearchRequest;
 import com.tigrisdata.db.client.search.SearchRequestOptions;
-import com.tigrisdata.db.type.TigrisCollectionType;
+import com.tigrisdata.db.type.TigrisDocumentCollectionType;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -26,7 +26,7 @@ import java.util.concurrent.CompletableFuture;
  *
  * @param <T> type of collection
  */
-public interface TigrisAsyncCollection<T extends TigrisCollectionType>
+public interface TigrisAsyncCollection<T extends TigrisDocumentCollectionType>
     extends TransactionalCollectionOperation<T> {
 
   /**

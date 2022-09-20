@@ -13,6 +13,7 @@
  */
 package com.tigrisdata.db.client;
 
+import com.tigrisdata.db.client.collection.ChatMessage;
 import com.tigrisdata.db.client.collection.DB1_C1;
 import com.tigrisdata.db.client.collection.DB1_C5;
 import com.tigrisdata.db.client.collection.User;
@@ -20,7 +21,7 @@ import com.tigrisdata.db.client.collection.collection2.DB1_C3;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.grpc.ContextSettingServerInterceptor;
 import com.tigrisdata.db.client.grpc.TestTigrisService;
-import com.tigrisdata.db.type.TigrisCollectionType;
+import com.tigrisdata.db.type.TigrisDocumentCollectionType;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.testing.GrpcCleanupRule;
 import org.hamcrest.MatcherAssert;
@@ -122,7 +123,7 @@ public class StandardTigrisDatabaseTest {
       throws TigrisException {
     TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
     TigrisDatabase db1 = client.getDatabase("db1");
-    Predicate<Class<? extends TigrisCollectionType>> filter =
+    Predicate<Class<? extends TigrisDocumentCollectionType>> filter =
         clazz -> clazz.getSimpleName().startsWith("DB1");
     CreateOrUpdateCollectionsResponse response =
         db1.createOrUpdateCollections(
@@ -138,6 +139,14 @@ public class StandardTigrisDatabaseTest {
             new CollectionInfo("db1_c4"),
             new CollectionInfo("db1_c5"),
             new CollectionInfo("db1_c6")));
+  }
+
+  @Test
+  public void testCreateOrUpdateTopicsFromModel() throws TigrisException {
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+    TigrisDatabase db1 = client.getDatabase("db1");
+    CreateOrUpdateTopicResponse response = db1.createOrUpdateTopics(ChatMessage.class);
+    Assert.assertEquals("Topics created successfully", response.getMessage());
   }
 
   @Test

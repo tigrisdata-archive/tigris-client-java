@@ -11,16 +11,7 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tigrisdata.tools.schema.core.testdata;
+package com.tigrisdata.db.type;
 
-import com.tigrisdata.db.annotation.TigrisPrimaryKey;
-import com.tigrisdata.db.type.TigrisDocumentCollectionType;
-
-import java.util.UUID;
-
-public class PrimaryKeyWithAutoGeneration3 implements TigrisDocumentCollectionType {
-  @TigrisPrimaryKey(order = 1, autoGenerate = true)
-  private UUID id;
-
-  private String name;
-}
+/** Marker interface to define the Tigris messages collection type */
+public interface TigrisMessageCollectionType extends TigrisCollectionType {}

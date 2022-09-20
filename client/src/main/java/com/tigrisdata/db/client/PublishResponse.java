@@ -11,47 +11,40 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tigrisdata.db.client.collection;
+package com.tigrisdata.db.client;
 
-import com.tigrisdata.db.annotation.TigrisCollection;
-import com.tigrisdata.db.type.TigrisDocumentCollectionType;
+import com.google.protobuf.Timestamp;
+import com.tigrisdata.db.type.TigrisMessageCollectionType;
 
+import java.util.List;
 import java.util.Objects;
 
-/** Test collection type */
-@TigrisCollection("db1_c1")
-public class DB1_C1 implements TigrisDocumentCollectionType {
-  private final long id;
-  private final String name;
+/** Represents Server response for Publish operation */
+public class PublishResponse<T extends TigrisMessageCollectionType> extends DMLResponse {
+  private final List<T> messages;
 
-  public DB1_C1(long id, String name) {
-    this.id = id;
-    this.name = name;
+  public PublishResponse(
+      String status, Timestamp createdAt, Timestamp updatedAt, List<T> messages) {
+    super(status, createdAt, updatedAt);
+    this.messages = messages;
   }
 
-  public long getId() {
-    return id;
-  }
-
-  public String getName() {
-    return name;
+  /** @return copy of the messages published */
+  public List<T> getMessages() {
+    return messages;
   }
 
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
-
-    DB1_C1 db1_c1 = (DB1_C1) o;
-
-    if (id != db1_c1.id) return false;
-    return Objects.equals(name, db1_c1.name);
+    if (!super.equals(o)) return false;
+    PublishResponse<?> that = (PublishResponse<?>) o;
+    return Objects.equals(messages, that.messages);
   }
 
   @Override
   public int hashCode() {
-    int result = (int) (id ^ (id >>> 32));
-    result = 31 * result + (name != null ? name.hashCode() : 0);
-    return result;
+    return Objects.hash(super.hashCode(), messages);
   }
 }

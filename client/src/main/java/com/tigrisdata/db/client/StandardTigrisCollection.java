@@ -27,7 +27,7 @@ import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.search.SearchRequest;
 import com.tigrisdata.db.client.search.SearchRequestOptions;
 import com.tigrisdata.db.client.search.SearchResult;
-import com.tigrisdata.db.type.TigrisCollectionType;
+import com.tigrisdata.db.type.TigrisDocumentCollectionType;
 import io.grpc.StatusRuntimeException;
 import java.io.IOException;
 import java.util.Collections;
@@ -37,16 +37,16 @@ import java.util.Optional;
 import java.util.function.Function;
 
 /** Tigris collection implementation */
-class StandardTigrisCollection<T extends TigrisCollectionType> extends AbstractTigrisCollection<T>
-    implements TigrisCollection<T> {
+class StandardTigrisCollection<T extends TigrisDocumentCollectionType>
+    extends AbstractTigrisCollection<T> implements TigrisCollection<T> {
 
   StandardTigrisCollection(
       String databaseName,
-      Class<T> collectionTypeClass,
+      Class<T> documentCollectionTypeClass,
       TigrisGrpc.TigrisBlockingStub stub,
       ObjectMapper objectMapper,
       TigrisConfiguration configuration) {
-    super(databaseName, collectionTypeClass, stub, objectMapper, configuration);
+    super(databaseName, documentCollectionTypeClass, stub, objectMapper, configuration);
   }
 
   @Override

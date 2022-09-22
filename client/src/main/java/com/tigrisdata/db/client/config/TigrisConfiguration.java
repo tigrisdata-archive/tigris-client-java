@@ -155,20 +155,20 @@ public class TigrisConfiguration {
   }
 
   public static class AuthConfig {
-    private final String applicationId;
-    private final char[] applicationSecret;
+    private final String clientId;
+    private final char[] clientSecret;
 
-    public AuthConfig(String applicationId, String applicationSecret) {
-      this.applicationId = applicationId;
-      this.applicationSecret = applicationSecret.toCharArray();
+    public AuthConfig(String clientId, String clientSecret) {
+      this.clientId = clientId;
+      this.clientSecret = clientSecret.toCharArray();
     }
 
-    public String getApplicationId() {
-      return applicationId;
+    public String getClientId() {
+      return clientId;
     }
 
-    public char[] getApplicationSecret() {
-      return applicationSecret;
+    public char[] getClientSecret() {
+      return clientSecret;
     }
 
     @Override
@@ -176,14 +176,14 @@ public class TigrisConfiguration {
       if (this == o) return true;
       if (o == null || getClass() != o.getClass()) return false;
       AuthConfig that = (AuthConfig) o;
-      return Objects.equals(applicationId, that.applicationId)
-          && Arrays.equals(applicationSecret, that.applicationSecret);
+      return Objects.equals(clientId, that.clientId)
+          && Arrays.equals(clientSecret, that.clientSecret);
     }
 
     @Override
     public int hashCode() {
-      int result = Objects.hash(applicationId);
-      result = 31 * result + Arrays.hashCode(applicationSecret);
+      int result = Objects.hash(clientId);
+      result = 31 * result + Arrays.hashCode(clientSecret);
       return result;
     }
   }

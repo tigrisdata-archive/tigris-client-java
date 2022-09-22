@@ -41,7 +41,7 @@ public final class TestUtils {
         new StandardTigrisClient(
             TigrisConfiguration.newBuilder("some-url")
                 .withAuthConfig(
-                    new TigrisConfiguration.AuthConfig("test-app-id", "test-app-secret"))
+                    new TigrisConfiguration.AuthConfig("test-client-id", "test-client-secret"))
                 .build(),
             channelBuilder);
     grpcCleanupRule.register(client.getChannel());

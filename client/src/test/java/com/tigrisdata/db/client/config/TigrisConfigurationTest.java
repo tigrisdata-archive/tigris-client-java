@@ -13,15 +13,15 @@
  */
 package com.tigrisdata.db.client.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import org.junit.Test;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Duration;
+import org.junit.Test;
 
 public class TigrisConfigurationTest {
   @Test
@@ -56,10 +56,9 @@ public class TigrisConfigurationTest {
 
     assertEquals(Duration.ofSeconds(50), customConfiguration.getNetwork().getDeadline());
 
-    assertEquals("test-app-id", customConfiguration.getAuthConfig().getApplicationId());
+    assertEquals("test-app-id", customConfiguration.getAuthConfig().getClientId());
     assertArrayEquals(
-        "test-app-secret".toCharArray(),
-        customConfiguration.getAuthConfig().getApplicationSecret());
+        "test-app-secret".toCharArray(), customConfiguration.getAuthConfig().getClientSecret());
   }
 
   @Test

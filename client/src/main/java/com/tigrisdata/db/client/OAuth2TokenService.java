@@ -73,8 +73,8 @@ class OAuth2TokenService implements TokenService {
               authBlockingStub.getAccessToken(
                   AuthOuterClass.GetAccessTokenRequest.newBuilder()
                       .setGrantType(AuthOuterClass.GrantType.CLIENT_CREDENTIALS)
-                      .setClientId(authConfig.getApplicationId())
-                      .setClientSecret(String.valueOf(authConfig.getApplicationSecret()))
+                      .setClientId(authConfig.getClientId())
+                      .setClientSecret(String.valueOf(authConfig.getClientSecret()))
                       .build());
 
           accessToken.set(response.getAccessToken());

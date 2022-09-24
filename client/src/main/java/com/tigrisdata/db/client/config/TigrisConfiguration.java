@@ -82,7 +82,8 @@ public class TigrisConfiguration {
   /** Builder class for {@link TigrisConfiguration} */
   public static final class Builder {
 
-    private final String baseURL;
+    private static final int DEFAULT_GRPC_PORT = 443;
+    private String baseURL;
     private TigrisConfiguration.NetworkConfig network;
     private TigrisConfiguration.AuthConfig authConfig;
     private ObjectMapper objectMapper;
@@ -134,6 +135,9 @@ public class TigrisConfiguration {
     }
 
     public TigrisConfiguration build() {
+      if (!this.baseURL.contains(":")) {
+        this.baseURL = this.baseURL + ":" + DEFAULT_GRPC_PORT;
+      }
       return new TigrisConfiguration(this);
     }
 

@@ -13,6 +13,7 @@
         <module>client</module>
         <module>schema-generator</module>
         <module>types</module>
+        <module>tigris-spring-boot-autoconfigure</module>
     </modules>
     <profiles>
         <profile>

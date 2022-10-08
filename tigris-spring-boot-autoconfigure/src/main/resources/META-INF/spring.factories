@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.tigrisdata.spring.autoconfigure.TigrisSpringAutoConfiguration,\
+com.tigrisdata.spring.autoconfigure.TigrisAsyncSpringAutoConfiguration

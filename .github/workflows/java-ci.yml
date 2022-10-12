@@ -7,16 +7,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Setup SSH deploy keys
-        uses: webfactory/ssh-agent@v0.5.4
-        with:
-          ssh-private-key: ${{ secrets.API_DEPLOY_KEY }}
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: 'true'
       - name: Set up JDK 8
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           java-version: '8'
           distribution: 'adopt'
@@ -24,7 +20,7 @@ jobs:
         id: mvn-tests
         run: mvn --batch-mode --update-snapshots verify
       - name: Generate JaCoCo Badge
-        uses: cicirello/jacoco-badge-generator@v2.5.0
+        uses: cicirello/jacoco-badge-generator@v2.7.0
         id: jacoco
         with:
           generate-branches-badge: true
@@ -32,6 +28,6 @@ jobs:
           on-missing-report: fail
           generate-summary: true
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v3
         with:
           files: ./client/target/site/jacoco/jacoco.xml

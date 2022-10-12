@@ -15,6 +15,7 @@ package com.tigrisdata.spring.autoconfigure;
 
 import com.tigrisdata.db.client.StandardTigrisClient;
 import com.tigrisdata.db.client.TigrisClient;
+import com.tigrisdata.db.client.TigrisDatabase;
 import com.tigrisdata.db.client.config.TigrisConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,5 +53,24 @@ public class TigrisSpringAutoConfiguration {
   public TigrisClient tigrisClient(TigrisConfiguration configuration) {
     log.debug("Initializing Tigris sync client");
     return StandardTigrisClient.getInstance(configuration);
+  }
+
+  @Bean
+  public TigrisDatabase tigrisPrimaryDatabase(
+      TigrisClient tigrisClient, @Value("${tigris.db.name}") String dbName) {
+    return tigrisClient.getDatabase(dbName);
+  }
+
+  @Bean
+  @ConditionalOnProperty(
+      prefix = "tigris.aync-client.initializer",
+      name = "enabled",
+      havingValue = "true",
+      matchIfMissing = true)
+  public TigrisInitializer tigrisAsyncInitializer(
+      @Value("${tigris.db.name}") String dbName,
+      @Value("${tigris.db.collectionClasses}") String collectionClasses,
+      TigrisClient tigrisClient) {
+    return new TigrisInitializer(dbName, collectionClasses, tigrisClient);
   }
 }

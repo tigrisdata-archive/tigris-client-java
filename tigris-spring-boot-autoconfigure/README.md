@@ -6,12 +6,19 @@ This module provides Tigris autoconfiguration for your spring project.
 
 ```yaml
 tigris:
-  # by default tigris.sync-client.enabled is true
+  # by default tigris.sync-client.enabled is true  
   sync-client:
     enabled: true
+    initializer:
+      # by default tigris.sync-client.initializer.enabled is true
+      enabled: true 
+      
   # by default tigris-async-client.enabled is false  
   async-client:
     enabled: false
+    initializer:
+      # by default tigris.async-client.initializer.enabled is true
+      enabled: true
   server-url: <YOUR_TIGRIS_SERVER_URL>
   network:
     # by default tigris.network.usePlainText is set to false

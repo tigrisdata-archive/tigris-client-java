@@ -28,8 +28,8 @@ public class ReadRequestOptions {
     this.readOptions = readOptions;
   }
 
-  public ReadRequestOptions(ReadOptions readOptions, long skip, long limit) {
-    this.readOptions = readOptions;
+  public ReadRequestOptions(long skip, long limit) {
+    this.readOptions = ReadOptions.DEFAULT_INSTANCE;
     this.skip = skip;
     this.limit = limit;
   }

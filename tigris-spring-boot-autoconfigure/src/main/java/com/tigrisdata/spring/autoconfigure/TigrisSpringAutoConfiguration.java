@@ -63,7 +63,7 @@ public class TigrisSpringAutoConfiguration {
 
   @Bean
   @ConditionalOnProperty(
-      prefix = "tigris.aync-client.initializer",
+      prefix = "tigris.sync-client.initializer",
       name = "enabled",
       havingValue = "true",
       matchIfMissing = true)

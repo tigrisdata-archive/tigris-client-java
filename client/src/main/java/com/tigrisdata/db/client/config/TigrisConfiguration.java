@@ -208,6 +208,8 @@ public class TigrisConfiguration {
 
     private final Duration deadline;
     private final boolean usePlainText;
+    private final boolean disablePing;
+    private final long pingIntervalMs;
 
     public static Builder newBuilder() {
       return new Builder();
@@ -216,6 +218,16 @@ public class TigrisConfiguration {
     private NetworkConfig(Builder builder) {
       this.deadline = builder.deadline;
       this.usePlainText = builder.usePlainText;
+      this.disablePing = builder.disablePing;
+      this.pingIntervalMs = builder.pingIntervalMs;
+    }
+
+    public boolean isDisablePing() {
+      return disablePing;
+    }
+
+    public long getPingIntervalMs() {
+      return pingIntervalMs;
     }
 
     public Duration getDeadline() {
@@ -243,13 +255,21 @@ public class TigrisConfiguration {
     public static class Builder {
 
       public static final Duration DEFAULT_DEADLINE = Duration.ofSeconds(5);
+      public static final boolean DEFAULT_DISABLE_PING = false;
+      public static final long DEFAULT_PING_INTERVAL_MS = 300_000l;
+      public static final boolean DEFAULT_USE_PLAIN_TEXT = false;
 
       private Duration deadline;
       private boolean usePlainText;
 
+      private boolean disablePing;
+      private long pingIntervalMs;
+
       public Builder() {
         this.deadline = DEFAULT_DEADLINE;
-        this.usePlainText = false;
+        this.usePlainText = DEFAULT_USE_PLAIN_TEXT;
+        this.disablePing = DEFAULT_DISABLE_PING;
+        this.pingIntervalMs = DEFAULT_PING_INTERVAL_MS;
       }
 
       /**
@@ -271,6 +291,30 @@ public class TigrisConfiguration {
        */
       public Builder usePlainText() {
         this.usePlainText = true;
+        return this;
+      }
+
+      /**
+       * Tigris SDK will periodically ping Tigris server. This is required to keep the connection
+       * active in case of the user workload is heavy pub/sub dependent with no messages exchanged
+       * for long time.
+       *
+       * <p>This method will help user disable these pings.
+       *
+       * @return ongoing builder
+       */
+      public Builder disablePing() {
+        this.disablePing = true;
+        return this;
+      }
+
+      /**
+       * Allows user to customize ping interval. defaults to 300_000 (i.e. 5min)
+       *
+       * @return ongoing builder
+       */
+      public Builder withPingIntervalMs(long pingIntervalMs) {
+        this.pingIntervalMs = pingIntervalMs;
         return this;
       }
 

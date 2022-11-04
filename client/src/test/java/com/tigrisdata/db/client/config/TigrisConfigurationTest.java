@@ -15,6 +15,7 @@ package com.tigrisdata.db.client.config;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -32,6 +33,9 @@ public class TigrisConfigurationTest {
     assertNotNull(defaultConfiguration.getObjectMapper());
 
     assertEquals(Duration.ofSeconds(5), defaultConfiguration.getNetwork().getDeadline());
+    assertFalse(defaultConfiguration.getNetwork().isDisablePing());
+    assertEquals(300_000l, defaultConfiguration.getNetwork().getPingIntervalMs());
+
     assertNull(defaultConfiguration.getAuthConfig());
   }
 

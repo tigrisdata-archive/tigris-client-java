@@ -1,6 +1,8 @@
 package com.tigrisdata.db.client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tigrisdata.db.api.v1.grpc.Health;
+import com.tigrisdata.db.api.v1.grpc.HealthAPIGrpc;
 import com.tigrisdata.db.client.config.TigrisConfiguration;
 import com.tigrisdata.tools.schema.core.ModelToJsonSchema;
 import io.grpc.ManagedChannel;
@@ -10,11 +12,17 @@ import io.grpc.stub.MetadataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 abstract class AbstractTigrisClient {
   protected final ManagedChannel channel;
   protected final ObjectMapper objectMapper;
   protected final ModelToJsonSchema modelToJsonSchema;
   protected final TigrisConfiguration configuration;
+
+  private final HealthAPIGrpc.HealthAPIBlockingStub healthAPIBlockingStub;
   private static final Metadata.Key<String> USER_AGENT_KEY =
       Metadata.Key.of("user-agent", Metadata.ASCII_STRING_MARSHALLER);
   private static final Metadata.Key<String> CLIENT_VERSION_KEY =
@@ -41,6 +49,33 @@ abstract class AbstractTigrisClient {
     this.objectMapper = configuration.getObjectMapper();
     this.modelToJsonSchema = modelToJsonSchema;
     this.configuration = configuration;
+    this.healthAPIBlockingStub = HealthAPIGrpc.newBlockingStub(channel);
+
+    if (!configuration.getNetwork().isDisablePing()) {
+      // setup periodic ping
+      ScheduledExecutorService scheduledExecutorService =
+          Executors.newSingleThreadScheduledExecutor(
+              r -> {
+                Thread thread = new Thread(r);
+                thread.setName("tigris-ping");
+                return thread;
+              });
+      scheduledExecutorService.scheduleWithFixedDelay(
+          () -> {
+            try {
+              Health.HealthCheckResponse healthCheckResponse =
+                  this.healthAPIBlockingStub.health(Health.HealthCheckInput.newBuilder().build());
+              log.debug(healthCheckResponse.getResponse());
+            } catch (Exception ex) {
+              log.warn("Failed to ping", ex);
+            }
+          },
+          configuration.getNetwork().getPingIntervalMs(),
+          configuration.getNetwork().getPingIntervalMs(),
+          TimeUnit.MILLISECONDS);
+      // close the ping on shutdown
+      Runtime.getRuntime().addShutdownHook(new Thread(scheduledExecutorService::shutdown));
+    }
   }
 
   protected AbstractTigrisClient(
@@ -54,6 +89,7 @@ abstract class AbstractTigrisClient {
     this.objectMapper = configuration.getObjectMapper();
     this.modelToJsonSchema = modelToJsonSchema;
     this.configuration = configuration;
+    this.healthAPIBlockingStub = HealthAPIGrpc.newBlockingStub(channel);
   }
 
   private static Metadata getDefaultHeaders(TigrisConfiguration configuration) {

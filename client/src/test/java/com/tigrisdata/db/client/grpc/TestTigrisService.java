@@ -13,8 +13,6 @@
  */
 package com.tigrisdata.db.client.grpc;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -28,7 +26,6 @@ import com.tigrisdata.db.api.v1.grpc.Api.SearchFacet;
 import com.tigrisdata.db.api.v1.grpc.Api.SearchHit;
 import com.tigrisdata.db.api.v1.grpc.Api.SearchMetadata;
 import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
-import com.tigrisdata.db.client.collection.ChatMessage;
 import io.grpc.Metadata;
 import io.grpc.protobuf.ProtoUtils;
 import io.grpc.stub.StreamObserver;
@@ -525,22 +522,6 @@ public class TestTigrisService extends TigrisGrpc.TigrisImplBase {
     }
     builder.setStatus("published: " + request.getMessagesCount());
     responseObserver.onNext(builder.build());
-    responseObserver.onCompleted();
-  }
-
-  @Override
-  public void subscribe(
-      Api.SubscribeRequest request, StreamObserver<Api.SubscribeResponse> responseObserver) {
-    try {
-      ChatMessage msg1 = new ChatMessage("hello", "user1", "user2");
-      msg1.setId(1);
-      responseObserver.onNext(
-          Api.SubscribeResponse.newBuilder()
-              .setMessage(ByteString.copyFromUtf8(new ObjectMapper().writeValueAsString(msg1)))
-              .build());
-    } catch (JsonProcessingException e) {
-      responseObserver.onError(e);
-    }
     responseObserver.onCompleted();
   }
 

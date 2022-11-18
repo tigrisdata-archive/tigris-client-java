@@ -18,7 +18,6 @@ import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import static com.tigrisdata.db.client.Constants.BEGIN_TRANSACTION_FAILED;
 import static com.tigrisdata.db.client.Constants.CREATE_OR_UPDATE_COLLECTION_FAILED;
-import static com.tigrisdata.db.client.Constants.CREATE_OR_UPDATE_TOPIC_FAILED;
 import static com.tigrisdata.db.client.Constants.DESCRIBE_DB_FAILED;
 import static com.tigrisdata.db.client.Constants.DROP_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.Constants.LIST_COLLECTION_FAILED;
@@ -26,7 +25,6 @@ import static com.tigrisdata.db.client.Constants.TRANSACTION_FAILED;
 import com.tigrisdata.db.client.config.TigrisConfiguration;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisDocumentCollectionType;
-import com.tigrisdata.db.type.TigrisMessageCollectionType;
 import com.tigrisdata.tools.schema.core.CollectionType;
 import com.tigrisdata.tools.schema.core.ModelToJsonSchema;
 import io.grpc.ClientInterceptor;
@@ -108,13 +106,6 @@ class StandardTigrisDatabase extends AbstractTigrisDatabase implements TigrisDat
   }
 
   @Override
-  public <C extends TigrisMessageCollectionType> TigrisTopic<C> getTopic(
-      Class<C> messageCollectionTypeClass) {
-    return new StandardTigrisTopic<>(
-        db, messageCollectionTypeClass, blockingStub, objectMapper, configuration);
-  }
-
-  @Override
   public TransactionSession beginTransaction(TransactionOptions transactionOptions)
       throws TigrisException {
     try {
@@ -180,39 +171,6 @@ class StandardTigrisDatabase extends AbstractTigrisDatabase implements TigrisDat
         transactionSession.rollback();
       }
       throw new TigrisException(CREATE_OR_UPDATE_COLLECTION_FAILED, ex);
-    }
-  }
-
-  @Override
-  public CreateOrUpdateTopicResponse createOrUpdateTopics(
-      Class<? extends TigrisMessageCollectionType>... topicModelTypes) throws TigrisException {
-    TransactionSession transactionSession = null;
-    try {
-      transactionSession = beginTransaction(TransactionOptions.DEFAULT_INSTANCE);
-      for (Class<? extends TigrisMessageCollectionType> topicModelType : topicModelTypes) {
-        TigrisSchema schema =
-            new TigrisJSONSchema(
-                modelToJsonSchema.toJsonSchema(CollectionType.MESSAGES, topicModelType).toString());
-        this.createOrUpdateCollections(
-            transactionSession, schema, CollectionOptions.DEFAULT_INSTANCE);
-      }
-      transactionSession.commit();
-      // TODO: revisit the response
-      return new CreateOrUpdateTopicResponse(
-          "Topics created successfully", "Topics created successfully");
-    } catch (StatusRuntimeException statusRuntimeException) {
-      if (transactionSession != null) {
-        transactionSession.rollback();
-      }
-      throw new TigrisException(
-          CREATE_OR_UPDATE_TOPIC_FAILED,
-          TypeConverter.extractTigrisError(statusRuntimeException),
-          statusRuntimeException);
-    } catch (Exception ex) {
-      if (transactionSession != null) {
-        transactionSession.rollback();
-      }
-      throw new TigrisException(CREATE_OR_UPDATE_TOPIC_FAILED, ex);
     }
   }
 

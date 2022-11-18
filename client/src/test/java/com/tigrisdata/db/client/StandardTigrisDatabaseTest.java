@@ -13,7 +13,6 @@
  */
 package com.tigrisdata.db.client;
 
-import com.tigrisdata.db.client.collection.ChatMessage;
 import com.tigrisdata.db.client.collection.DB1_C1;
 import com.tigrisdata.db.client.collection.DB1_C5;
 import com.tigrisdata.db.client.collection.User;
@@ -139,14 +138,6 @@ public class StandardTigrisDatabaseTest {
             new CollectionInfo("db1_c4"),
             new CollectionInfo("db1_c5"),
             new CollectionInfo("db1_c6")));
-  }
-
-  @Test
-  public void testCreateOrUpdateTopicsFromModel() throws TigrisException {
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("db1");
-    CreateOrUpdateTopicResponse response = db1.createOrUpdateTopics(ChatMessage.class);
-    Assert.assertEquals("Topics created successfully", response.getMessage());
   }
 
   @Test

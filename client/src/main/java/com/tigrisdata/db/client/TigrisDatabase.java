@@ -15,7 +15,6 @@ package com.tigrisdata.db.client;
 
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisDocumentCollectionType;
-import com.tigrisdata.db.type.TigrisMessageCollectionType;
 
 import java.util.List;
 import java.util.Optional;
@@ -42,16 +41,6 @@ public interface TigrisDatabase {
    */
   CreateOrUpdateCollectionsResponse createOrUpdateCollections(
       Class<? extends TigrisDocumentCollectionType>... collectionModelTypes) throws TigrisException;
-
-  /**
-   * Creates or updates topics
-   *
-   * @param topicModelTypes an array of topic model classes
-   * @return response
-   * @throws TigrisException in case of an error.
-   */
-  CreateOrUpdateTopicResponse createOrUpdateTopics(
-      Class<? extends TigrisMessageCollectionType>... topicModelTypes) throws TigrisException;
 
   /**
    * Creates or updates collections by scanning classpath packages and applying user's filter
@@ -88,15 +77,6 @@ public interface TigrisDatabase {
    */
   <C extends TigrisDocumentCollectionType> TigrisCollection<C> getCollection(
       Class<C> documentCollectionTypeClass);
-
-  /**
-   * Return an instance of {@link TigrisTopic}
-   *
-   * @param messageTypeClass Class type of the topic
-   * @param <C> type of the message collection that is of type {@link TigrisMessageCollectionType}
-   * @return an instance of {@link TigrisTopic}
-   */
-  <C extends TigrisMessageCollectionType> TigrisTopic<C> getTopic(Class<C> messageTypeClass);
 
   /**
    * Begins the transaction on current database

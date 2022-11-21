@@ -28,7 +28,6 @@ import static com.tigrisdata.db.client.TypeConverter.toDropCollectionRequest;
 import com.tigrisdata.db.client.config.TigrisConfiguration;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisDocumentCollectionType;
-import com.tigrisdata.db.type.TigrisMessageCollectionType;
 import com.tigrisdata.tools.schema.core.CollectionType;
 import com.tigrisdata.tools.schema.core.ModelToJsonSchema;
 import io.grpc.ClientInterceptor;
@@ -126,42 +125,6 @@ class StandardTigrisAsyncDatabase extends AbstractTigrisDatabase implements Tigr
   }
 
   @Override
-  public CompletableFuture<CreateOrUpdateTopicResponse> createOrUpdateTopics(
-      Class<? extends TigrisMessageCollectionType>... topicModelTypes) {
-    CompletableFuture<CreateOrUpdateTopicResponse> result = new CompletableFuture<>();
-
-    CompletableFuture<TransactionSession> transactionResponseCompletableFuture =
-        beginTransaction(TransactionOptions.DEFAULT_INSTANCE);
-
-    transactionResponseCompletableFuture.whenComplete(
-        ((transactionSession, throwable) -> {
-          // pass on the error
-          if (throwable != null) {
-            result.completeExceptionally(throwable);
-          }
-          CreateOrUpdateTopicResponse response = null;
-          for (Class<? extends TigrisMessageCollectionType> topicModel : topicModelTypes) {
-            try {
-              String schemaContent =
-                  modelToJsonSchema.toJsonSchema(CollectionType.MESSAGES, topicModel).toString();
-
-              response =
-                  createOrUpdateTopics(
-                      transactionSession,
-                      new TigrisJSONSchema(schemaContent),
-                      CollectionOptions.DEFAULT_INSTANCE);
-            } catch (Exception ex) {
-              result.completeExceptionally(ex);
-            }
-          }
-          if (response != null) {
-            result.complete(response);
-          }
-        }));
-    return result;
-  }
-
-  @Override
   public CompletableFuture<CreateOrUpdateCollectionsResponse> createOrUpdateCollections(
       String[] packagesToScan,
       Optional<Predicate<Class<? extends TigrisDocumentCollectionType>>> filter) {
@@ -191,20 +154,6 @@ class StandardTigrisAsyncDatabase extends AbstractTigrisDatabase implements Tigr
       Class<C> documentCollectionTypeClass) {
     return new StandardTigrisAsyncCollection<>(
         db, documentCollectionTypeClass, channel, executor, objectMapper, configuration);
-  }
-
-  @Override
-  public <T extends TigrisMessageCollectionType> TigrisAsyncTopic<T> getTopic(
-      Class<T> messageCollectionTypeClass) {
-    return new StandardTigrisAsyncTopic<>(
-        db,
-        messageCollectionTypeClass,
-        blockingStub,
-        channel,
-        objectMapper,
-        configuration,
-        executor,
-        futureStub);
   }
 
   @Override

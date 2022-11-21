@@ -33,8 +33,6 @@ final class Constants {
   public static final String LIST_COLLECTION_FAILED = "Failed to list collection(s)";
   public static final String CREATE_OR_UPDATE_COLLECTION_FAILED =
       "Failed to create collections in transaction";
-  public static final String CREATE_OR_UPDATE_TOPIC_FAILED =
-      "Failed to create topics in transaction";
   public static final String DROP_COLLECTION_FAILED = "Failed to drop collection";
   public static final String BEGIN_TRANSACTION_FAILED = "Failed to begin transaction";
   public static final String COMMIT_TRANSACTION_FAILED = "Failed to commit transaction";

@@ -15,7 +15,6 @@ package com.tigrisdata.db.client;
 
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisDocumentCollectionType;
-import com.tigrisdata.db.type.TigrisMessageCollectionType;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,15 +39,6 @@ public interface TigrisAsyncDatabase {
    */
   CompletableFuture<CreateOrUpdateCollectionsResponse> createOrUpdateCollections(
       Class<? extends TigrisDocumentCollectionType>... collectionModelTypes);
-
-  /**
-   * Creates or updates topics
-   *
-   * @param topicModelTypes an array of topic model classes
-   * @return future to the {@link CreateOrUpdateTopicResponse}
-   */
-  CompletableFuture<CreateOrUpdateTopicResponse> createOrUpdateTopics(
-      Class<? extends TigrisMessageCollectionType>... topicModelTypes);
 
   /**
    * Creates or updates collections by scanning classpath packages and applying user's filter *
@@ -82,16 +72,6 @@ public interface TigrisAsyncDatabase {
    */
   <C extends TigrisDocumentCollectionType> TigrisAsyncCollection<C> getCollection(
       Class<C> documentCollectionTypeClass);
-
-  /**
-   * Return an instance of {@link TigrisAsyncTopic}
-   *
-   * @param messageCollectionTypeClass Class type of the messages collection
-   * @param <C> type of the message collection that is of type {@link TigrisMessageCollectionType}
-   * @return an instance of {@link TigrisAsyncTopic}
-   */
-  <C extends TigrisMessageCollectionType> TigrisAsyncTopic<C> getTopic(
-      Class<C> messageCollectionTypeClass);
 
   /**
    * Begins the transaction on current database

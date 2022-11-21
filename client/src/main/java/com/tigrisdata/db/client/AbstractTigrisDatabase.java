@@ -47,20 +47,4 @@ abstract class AbstractTigrisDatabase {
           statusRuntimeException);
     }
   }
-
-  protected CreateOrUpdateTopicResponse createOrUpdateTopics(
-      TransactionSession session, TigrisSchema schema, CollectionOptions collectionOptions)
-      throws TigrisException {
-    try {
-      Api.CreateOrUpdateCollectionResponse response =
-          TypeConverter.transactionAwareStub(blockingStub, ((StandardTransactionSession) session))
-              .createOrUpdateCollection(toCreateCollectionRequest(db, schema, collectionOptions));
-      return new CreateOrUpdateTopicResponse(response.getStatus(), response.getMessage());
-    } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisException(
-          Constants.CREATE_OR_UPDATE_TOPIC_FAILED,
-          TypeConverter.extractTigrisError(statusRuntimeException),
-          statusRuntimeException);
-    }
-  }
 }

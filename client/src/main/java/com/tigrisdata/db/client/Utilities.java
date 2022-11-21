@@ -106,6 +106,7 @@ final class Utilities {
         CaseFormat.LOWER_UNDERSCORE, English.plural(clazz.getSimpleName()));
   }
 
+  // unused keeping it around
   static String getTopicName(Class<? extends TigrisMessageCollectionType> clazz) {
     TigrisCollection tigrisCollection = clazz.getAnnotation(TigrisCollection.class);
     if (tigrisCollection != null) {

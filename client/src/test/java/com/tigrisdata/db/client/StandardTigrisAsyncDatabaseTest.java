@@ -13,7 +13,6 @@
  */
 package com.tigrisdata.db.client;
 
-import com.tigrisdata.db.client.collection.ChatMessage;
 import com.tigrisdata.db.client.collection.DB1_C1;
 import com.tigrisdata.db.client.collection.DB1_C5;
 import com.tigrisdata.db.client.collection.User;
@@ -142,16 +141,6 @@ public class StandardTigrisAsyncDatabaseTest {
             new CollectionInfo("db1_c4"),
             new CollectionInfo("db1_c5"),
             new CollectionInfo("db1_c6")));
-  }
-
-  @Test
-  public void testCreateOrUpdateTopics() throws InterruptedException, ExecutionException {
-    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
-    TigrisAsyncDatabase db1 = asyncClient.getDatabase("db1");
-    CompletableFuture<CreateOrUpdateTopicResponse> response =
-        db1.createOrUpdateTopics(ChatMessage.class);
-    Assert.assertEquals("created", response.get().getStatus());
-    Assert.assertEquals("Collections created or changes applied", response.get().getMessage());
   }
 
   @Test

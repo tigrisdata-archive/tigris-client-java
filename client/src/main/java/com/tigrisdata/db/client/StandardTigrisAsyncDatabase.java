@@ -28,13 +28,13 @@ import static com.tigrisdata.db.client.TypeConverter.toDropCollectionRequest;
 import com.tigrisdata.db.client.config.TigrisConfiguration;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisDocumentCollectionType;
-import com.tigrisdata.tools.schema.core.CollectionType;
 import com.tigrisdata.tools.schema.core.ModelToJsonSchema;
 import io.grpc.ClientInterceptor;
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
 import io.grpc.stub.MetadataUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -103,10 +103,7 @@ class StandardTigrisAsyncDatabase extends AbstractTigrisDatabase implements Tigr
           for (Class<? extends TigrisDocumentCollectionType> collectionModel :
               collectionModelTypes) {
             try {
-              String schemaContent =
-                  modelToJsonSchema
-                      .toJsonSchema(CollectionType.DOCUMENTS, collectionModel)
-                      .toString();
+              String schemaContent = modelToJsonSchema.toJsonSchema(collectionModel).toString();
 
               response =
                   createOrUpdateCollections(
@@ -136,17 +133,20 @@ class StandardTigrisAsyncDatabase extends AbstractTigrisDatabase implements Tigr
   public <T extends TigrisDocumentCollectionType>
       CompletableFuture<DropCollectionResponse> dropCollection(
           Class<T> documentCollectionTypeClass) {
-    ListenableFuture<Api.DropCollectionResponse> dropCollectionResponseListenableFuture =
-        futureStub.dropCollection(
-            toDropCollectionRequest(
-                db,
-                Utilities.getCollectionName(documentCollectionTypeClass),
-                CollectionOptions.DEFAULT_INSTANCE));
-    return Utilities.transformFuture(
-        dropCollectionResponseListenableFuture,
-        response -> new DropCollectionResponse(response.getStatus(), response.getMessage()),
-        executor,
-        DROP_COLLECTION_FAILED);
+    return this.dropCollection(Utilities.getCollectionName(documentCollectionTypeClass));
+  }
+
+  @Override
+  public CompletableFuture<Void> dropAllCollections() {
+    List<CompletableFuture> futures = new ArrayList<>();
+    listCollections()
+        .whenComplete(
+            (collectionInfos, throwable) -> {
+              for (CollectionInfo collectionInfo : collectionInfos) {
+                futures.add(this.dropCollection(collectionInfo.getCollectionName()));
+              }
+            });
+    return CompletableFuture.allOf(futures.toArray(new CompletableFuture[futures.size()]));
   }
 
   @Override
@@ -200,6 +200,17 @@ class StandardTigrisAsyncDatabase extends AbstractTigrisDatabase implements Tigr
   @Override
   public String name() {
     return db;
+  }
+
+  private CompletableFuture<DropCollectionResponse> dropCollection(String collectionName) {
+    ListenableFuture<Api.DropCollectionResponse> dropCollectionResponseListenableFuture =
+        futureStub.dropCollection(
+            toDropCollectionRequest(db, collectionName, CollectionOptions.DEFAULT_INSTANCE));
+    return Utilities.transformFuture(
+        dropCollectionResponseListenableFuture,
+        response -> new DropCollectionResponse(response.getStatus(), response.getMessage()),
+        executor,
+        DROP_COLLECTION_FAILED);
   }
 
   @Override

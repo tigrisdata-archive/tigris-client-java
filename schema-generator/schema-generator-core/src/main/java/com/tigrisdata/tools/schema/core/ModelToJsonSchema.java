@@ -8,9 +8,8 @@ public interface ModelToJsonSchema {
   /**
    * Generates JSON schema for the given Java class
    *
-   * @param collectionType - type of collection
    * @param model a class that is of type {@link TigrisCollectionType}
    * @return JsonNode representing the schema
    */
-  JsonNode toJsonSchema(CollectionType collectionType, Class<? extends TigrisCollectionType> model);
+  JsonNode toJsonSchema(Class<? extends TigrisCollectionType> model);
 }

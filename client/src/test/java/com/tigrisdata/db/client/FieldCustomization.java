@@ -28,7 +28,7 @@ public class FieldCustomization {
 
   @Test
   public void with_idField() throws JsonProcessingException {
-    ObjectMapper objectMapper = TigrisConfiguration.newBuilder("").build().getObjectMapper();
+    ObjectMapper objectMapper = TigrisConfiguration.newBuilder("", "").build().getObjectMapper();
     UUID generatedId = UUID.randomUUID();
     Order order =
         objectMapper.readValue(
@@ -46,7 +46,7 @@ public class FieldCustomization {
 
   @Test
   public void withCustomization() throws JsonProcessingException {
-    ObjectMapper objectMapper = TigrisConfiguration.newBuilder("").build().getObjectMapper();
+    ObjectMapper objectMapper = TigrisConfiguration.newBuilder("", "").build().getObjectMapper();
     UUID generatedId = UUID.randomUUID();
     final String jsonContent =
         "{\"buyerId\":1,\"sellerId\":2,\"tradePrice\":12.34,\"_id\":\"" + generatedId + "\"}";
@@ -59,7 +59,7 @@ public class FieldCustomization {
 
   @Test
   public void withIdFieldMissing() throws JsonProcessingException {
-    ObjectMapper objectMapper = TigrisConfiguration.newBuilder("").build().getObjectMapper();
+    ObjectMapper objectMapper = TigrisConfiguration.newBuilder("", "").build().getObjectMapper();
     UUID generatedId = UUID.randomUUID();
     final String jsonContent =
         "{\"buyerId\":1,\"sellerId\":2,\"tradePrice\":12.34,\"_id\":\"" + generatedId + "\"}";

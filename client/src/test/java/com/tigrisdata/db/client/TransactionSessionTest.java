@@ -47,8 +47,8 @@ public class TransactionSessionTest {
 
   @Test
   public void testValidSequences() throws TigrisException {
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("db1");
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup, "db1");
+    TigrisDatabase db1 = client.getDatabase();
     TransactionSession transactionSession = db1.beginTransaction(new TransactionOptions());
     transactionSession.commit();
 
@@ -58,8 +58,8 @@ public class TransactionSessionTest {
 
   @Test
   public void testInvalidSequences1() throws TigrisException {
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("db1");
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup, "db1");
+    TigrisDatabase db1 = client.getDatabase();
     TransactionSession transactionSession = db1.beginTransaction(new TransactionOptions());
     transactionSession.commit();
     try {
@@ -72,8 +72,8 @@ public class TransactionSessionTest {
 
   @Test
   public void testInvalidSequences2() throws TigrisException {
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("db1");
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup, "db1");
+    TigrisDatabase db1 = client.getDatabase();
     TransactionSession transactionSession = db1.beginTransaction(new TransactionOptions());
     transactionSession.rollback();
     try {
@@ -86,8 +86,8 @@ public class TransactionSessionTest {
 
   @Test
   public void testHeadersOnServer() throws TigrisException {
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("db1");
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup, "db1");
+    TigrisDatabase db1 = client.getDatabase();
     TransactionSession transactionSession = db1.beginTransaction(new TransactionOptions());
     TigrisCollection<DB1_C1> c1TigrisCollection = db1.getCollection(DB1_C1.class);
 

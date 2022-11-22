@@ -14,43 +14,17 @@
 package com.tigrisdata.db.client;
 
 import java.io.Closeable;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /** Tigris async client */
 public interface TigrisAsyncClient extends Closeable {
 
   /**
-   * Retrieves the database instance
+   * Retrieves the database instance for the given projectName
    *
-   * @param databaseName databaseName
    * @return an instance of {@link TigrisAsyncDatabase}
    */
-  TigrisAsyncDatabase getDatabase(String databaseName);
-
-  /**
-   * Lists the available databases for the current Api.
-   *
-   * @param listDatabaseOptions options
-   * @return a future to the list of @{@link TigrisAsyncDatabase}
-   */
-  CompletableFuture<List<TigrisAsyncDatabase>> listDatabases(DatabaseOptions listDatabaseOptions);
-
-  /**
-   * Creates the database if not already present
-   *
-   * @param databaseName name of the database
-   * @return a future to the {@link TigrisAsyncDatabase}
-   */
-  CompletableFuture<TigrisAsyncDatabase> createDatabaseIfNotExists(String databaseName);
-
-  /**
-   * Drops the database
-   *
-   * @param databaseName name of the database
-   * @return a future to the {@link DropDatabaseResponse}
-   */
-  CompletableFuture<DropDatabaseResponse> dropDatabase(String databaseName);
+  TigrisAsyncDatabase getDatabase();
 
   /** @return future to the server metadata */
   CompletableFuture<ServerMetadata> getServerMetadata();

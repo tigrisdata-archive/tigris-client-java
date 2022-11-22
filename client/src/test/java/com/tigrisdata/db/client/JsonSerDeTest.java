@@ -31,14 +31,16 @@ public class JsonSerDeTest {
   public void dateTimeSerialization() throws JsonProcessingException {
     JsonSerDeTestModel model = new JsonSerDeTestModel();
     model.setCreatedAt(new Date(TEST_DATE));
-    TigrisConfiguration configuration = TigrisConfiguration.newBuilder("test-url").build();
+    TigrisConfiguration configuration =
+        TigrisConfiguration.newBuilder("test-url", "test-project").build();
     String serializedModel = configuration.getObjectMapper().writeValueAsString(model);
     Assert.assertEquals("{\"createdAt\":\"2022-11-02T18:34:31.053+00:00\"}", serializedModel);
   }
 
   @Test
   public void dateTimeDeSerialization() throws JsonProcessingException {
-    TigrisConfiguration configuration = TigrisConfiguration.newBuilder("test-url").build();
+    TigrisConfiguration configuration =
+        TigrisConfiguration.newBuilder("test-url", "test-project").build();
     JsonSerDeTestModel reconstructedModel =
         configuration
             .getObjectMapper()

@@ -13,16 +13,11 @@
  */
 package com.tigrisdata.db.client;
 
-import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.grpc.FailingTestTigrisService;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.testing.GrpcCleanupRule;
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Test;
-
-import java.util.UUID;
 
 public class StandardTigrisClientFailureTest {
 
@@ -39,46 +34,5 @@ public class StandardTigrisClientFailureTest {
                 .addService(new FailingTestTigrisService())
                 .build())
         .start();
-  }
-
-  @Test
-  public void testListDatabases() {
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    try {
-      client.listDatabases(DatabaseOptions.DEFAULT_INSTANCE);
-      Assert.fail("This must fail");
-    } catch (TigrisException tigrisException) {
-      Assert.assertEquals(
-          "Failed to list database(s) Cause: FAILED_PRECONDITION: Test failure listDatabases",
-          tigrisException.getMessage());
-    }
-  }
-
-  @Test
-  public void testCreateDatabase() {
-    String dbName = UUID.randomUUID().toString();
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    try {
-      client.createDatabaseIfNotExists(dbName);
-      Assert.fail("This must fail");
-    } catch (TigrisException tigrisException) {
-      Assert.assertEquals(
-          "Failed to create database Cause: FAILED_PRECONDITION: Test failure " + dbName,
-          tigrisException.getMessage());
-    }
-  }
-
-  @Test
-  public void testDropDatabase() {
-    String dbName = UUID.randomUUID().toString();
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    try {
-      client.dropDatabase(dbName);
-      Assert.fail("This must fail");
-    } catch (TigrisException tigrisException) {
-      Assert.assertEquals(
-          "Failed to drop database Cause: FAILED_PRECONDITION: Test failure " + dbName,
-          tigrisException.getMessage());
-    }
   }
 }

@@ -39,11 +39,13 @@ public class TigrisAsyncSpringAutoConfiguration {
   @ConditionalOnMissingBean(TigrisConfiguration.class)
   public TigrisConfiguration tigrisConfiguration(
       @Value("${tigris.server.url}") String serverURL,
+      @Value("${tigris.project.name}") String projectName,
       @Value("${tigris.network.usePlainText:false}") boolean usePlainText,
       @Value("${tigris.auth.clientId:#{null}}") Optional<String> clientId,
       @Value("${tigris.auth.clientSecret:#{null}}") Optional<String> clientSecret) {
     log.debug("Initializing Tigris async client configuration");
-    return TigrisUtilities.tigrisConfiguration(serverURL, usePlainText, clientId, clientSecret);
+    return TigrisUtilities.tigrisConfiguration(
+        serverURL, projectName, usePlainText, clientId, clientSecret);
   }
 
   @Bean
@@ -53,9 +55,8 @@ public class TigrisAsyncSpringAutoConfiguration {
   }
 
   @Bean
-  public TigrisAsyncDatabase tigrisPrimaryAsyncDatabase(
-      TigrisAsyncClient tigrisAsyncClient, @Value("${tigris.db.name}") String dbName) {
-    return tigrisAsyncClient.getDatabase(dbName);
+  public TigrisAsyncDatabase tigrisPrimaryAsyncDatabase(TigrisAsyncClient tigrisAsyncClient) {
+    return tigrisAsyncClient.getDatabase();
   }
 
   @Bean
@@ -65,9 +66,9 @@ public class TigrisAsyncSpringAutoConfiguration {
       havingValue = "true",
       matchIfMissing = true)
   public TigrisAsyncInitializer tigrisAsyncInitializer(
-      @Value("${tigris.db.name}") String dbName,
+      @Value("${tigris.project.name}") String projectName,
       @Value("${tigris.db.collectionClasses}") String collectionClasses,
       TigrisAsyncClient tigrisAsyncClient) {
-    return new TigrisAsyncInitializer(dbName, collectionClasses, tigrisAsyncClient);
+    return new TigrisAsyncInitializer(projectName, collectionClasses, tigrisAsyncClient);
   }
 }

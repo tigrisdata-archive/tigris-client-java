@@ -26,7 +26,7 @@ import org.junit.Test;
 public class HitTest {
 
   private static final ObjectMapper DEFAULT_OBJECT_MAPPER =
-      TigrisConfiguration.newBuilder("test").build().getObjectMapper();
+      TigrisConfiguration.newBuilder("test", "db1").build().getObjectMapper();
 
   // TODO: Add deserialization for meta as well
   @Test

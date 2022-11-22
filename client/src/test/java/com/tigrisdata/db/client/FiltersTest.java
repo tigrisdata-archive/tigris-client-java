@@ -33,7 +33,7 @@ import org.junit.runners.Parameterized.Parameters;
 public class FiltersTest {
 
   private static final ObjectMapper DEFAULT_OBJECT_MAPPER =
-      TigrisConfiguration.newBuilder("test").build().getObjectMapper();
+      TigrisConfiguration.newBuilder("test", "db1").build().getObjectMapper();
 
   @Parameter(0)
   public String testCaseLabel;

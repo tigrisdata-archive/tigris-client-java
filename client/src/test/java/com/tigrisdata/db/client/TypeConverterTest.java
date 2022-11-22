@@ -36,7 +36,7 @@ public class TypeConverterTest {
   private static final String DB_NAME = "db1";
   private static final String COLLECTION_NAME = "coll1";
   private static final ObjectMapper DEFAULT_OBJECT_MAPPER =
-      TigrisConfiguration.newBuilder("test").build().getObjectMapper();
+      TigrisConfiguration.newBuilder("test", "db1").build().getObjectMapper();
 
   @Test
   public void apiDatabaseInfoToModelTest() {

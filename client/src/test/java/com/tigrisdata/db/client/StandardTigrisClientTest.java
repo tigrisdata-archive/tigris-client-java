@@ -22,8 +22,6 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.testing.GrpcCleanupRule;
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -31,8 +29,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
-
-import java.util.List;
 
 public class StandardTigrisClientTest {
 
@@ -60,50 +56,10 @@ public class StandardTigrisClientTest {
   }
 
   @Test
-  public void testGetDatabase() {
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("db1");
+  public void testGetDatabase() throws TigrisException {
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup, "db1");
+    TigrisDatabase db1 = client.getDatabase();
     Assert.assertEquals("db1", db1.name());
-  }
-
-  @Test
-  public void testListDatabases() throws TigrisException {
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    List<TigrisDatabase> databases = client.listDatabases(DatabaseOptions.DEFAULT_INSTANCE);
-
-    Assert.assertEquals(3, databases.size());
-    // note: equals ignores stub and channel so avoid passing them
-    MatcherAssert.assertThat(
-        databases,
-        Matchers.containsInAnyOrder(
-            new StandardTigrisDatabase("db1", null, null, null, null, null),
-            new StandardTigrisDatabase("db2", null, null, null, null, null),
-            new StandardTigrisDatabase("db3", null, null, null, null, null)));
-  }
-
-  @Test
-  public void testCreateDatabase() throws TigrisException {
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db4 = client.createDatabaseIfNotExists("db4");
-    Assert.assertNotNull(db4);
-    // 4th db created
-    Assert.assertEquals(4, client.listDatabases(DatabaseOptions.DEFAULT_INSTANCE).size());
-  }
-
-  @Test
-  public void testDropDatabase() throws TigrisException {
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    DropDatabaseResponse response = client.dropDatabase("db2");
-    Assert.assertEquals("db2 dropped", response.getMessage());
-    Assert.assertEquals("dropped", response.getStatus());
-
-    // 4th db created
-    Assert.assertEquals(2, client.listDatabases(DatabaseOptions.DEFAULT_INSTANCE).size());
-    MatcherAssert.assertThat(
-        client.listDatabases(DatabaseOptions.DEFAULT_INSTANCE),
-        Matchers.containsInAnyOrder(
-            new StandardTigrisDatabase("db1", null, null, null, null, null),
-            new StandardTigrisDatabase("db3", null, null, null, null, null)));
   }
 
   @Test
@@ -116,14 +72,14 @@ public class StandardTigrisClientTest {
 
     TigrisClient client =
         new StandardTigrisClient(
-            TigrisConfiguration.newBuilder("some-url").build(), mockedChannelBuilder);
+            TigrisConfiguration.newBuilder("some-url", "db1").build(), mockedChannelBuilder);
     client.close();
     Mockito.verify(mockedChannel, Mockito.times(1)).shutdown();
   }
 
   @Test
   public void testServerMetadata() throws Exception {
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup, "db1");
     ServerMetadata serverMetadata = client.getServerMetadata();
     Assert.assertEquals("1.2.3-alpha.4", serverMetadata.getServerVersion());
   }

@@ -55,15 +55,15 @@ public class AuthorizationTigrisClientTest {
 
   @Test
   public void testListCollections() throws Exception {
-    TigrisClient client = TestUtils.getTestAuthEnabledClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("db1");
+    TigrisClient client = TestUtils.getTestAuthEnabledClient(SERVER_NAME, grpcCleanup, "db1");
+    TigrisDatabase db1 = client.getDatabase();
     db1.listCollections();
   }
 
   @Test
   public void testDropCollection() throws Exception {
-    TigrisClient client = TestUtils.getTestAuthEnabledClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("db1");
+    TigrisClient client = TestUtils.getTestAuthEnabledClient(SERVER_NAME, grpcCleanup, "db1");
+    TigrisDatabase db1 = client.getDatabase();
     db1.dropCollection(DB1_C3.class);
   }
 
@@ -71,16 +71,16 @@ public class AuthorizationTigrisClientTest {
   public void testBeginTransaction() throws Exception {
     String dbName = UUID.randomUUID().toString();
 
-    TigrisClient client = TestUtils.getTestAuthEnabledClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db = client.getDatabase(dbName);
+    TigrisClient client = TestUtils.getTestAuthEnabledClient(SERVER_NAME, grpcCleanup, "db1");
+    TigrisDatabase db = client.getDatabase();
     db.beginTransaction(TransactionOptions.DEFAULT_INSTANCE);
   }
 
   @Test
   public void testCommitTransaction() throws Exception {
     String dbName = FailingTestTigrisService.ALLOW_BEGIN_TRANSACTION_DB_NAME;
-    TigrisClient client = TestUtils.getTestAuthEnabledClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db = client.getDatabase(dbName);
+    TigrisClient client = TestUtils.getTestAuthEnabledClient(SERVER_NAME, grpcCleanup, "db1");
+    TigrisDatabase db = client.getDatabase();
     TransactionSession transactionSession =
         db.beginTransaction(TransactionOptions.DEFAULT_INSTANCE);
     Assert.assertNotNull(transactionSession);
@@ -90,8 +90,8 @@ public class AuthorizationTigrisClientTest {
   @Test
   public void testRollbackTransaction() throws Exception {
     String dbName = FailingTestTigrisService.ALLOW_BEGIN_TRANSACTION_DB_NAME;
-    TigrisClient client = TestUtils.getTestAuthEnabledClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db = client.getDatabase(dbName);
+    TigrisClient client = TestUtils.getTestAuthEnabledClient(SERVER_NAME, grpcCleanup, "db1");
+    TigrisDatabase db = client.getDatabase();
     TransactionSession transactionSession =
         db.beginTransaction(TransactionOptions.DEFAULT_INSTANCE);
     Assert.assertNotNull(transactionSession);

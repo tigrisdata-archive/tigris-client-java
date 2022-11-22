@@ -22,25 +22,23 @@ import org.springframework.boot.CommandLineRunner;
 
 public class TigrisInitializer implements CommandLineRunner {
 
-  private final String dbName;
+  private final String projectName;
   private final String[] collectionClasses;
   private final TigrisClient tigrisClient;
   private static final Logger log = LoggerFactory.getLogger(TigrisInitializer.class);
 
   public TigrisInitializer(
-      @Value("${tigris.db.name}") String dbName,
+      @Value("${tigris.project.name}") String projectName,
       @Value("${tigris.db.collectionClasses}") String collectionClasses,
       TigrisClient tigrisClient) {
-    this.dbName = dbName;
+    this.projectName = projectName;
     this.tigrisClient = tigrisClient;
     this.collectionClasses = collectionClasses.split(",");
   }
 
   @Override
   public void run(String... args) throws Exception {
-    log.info("Creating tigris database");
-    TigrisDatabase db = tigrisClient.createDatabaseIfNotExists(this.dbName);
-    log.info("Created tigris database");
+    TigrisDatabase db = tigrisClient.getDatabase();
 
     log.info("Resolving collection classes");
     Class[] classes = new Class[collectionClasses.length];
@@ -55,9 +53,9 @@ public class TigrisInitializer implements CommandLineRunner {
       }
     }
 
-    log.info("Creating tigris collections for db={}", dbName);
+    log.info("Creating tigris collections for db={}", projectName);
     db.createOrUpdateCollections(classes);
-    log.info("Created tigris collections for db={}", dbName);
+    log.info("Created tigris collections for db={}", projectName);
     log.info("Tigris initialization completed successfully.");
   }
 }

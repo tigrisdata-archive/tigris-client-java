@@ -16,45 +16,16 @@ package com.tigrisdata.db.client;
 import com.tigrisdata.db.client.error.TigrisException;
 
 import java.io.Closeable;
-import java.util.List;
 
 /** Tigris client */
 public interface TigrisClient extends Closeable {
 
   /**
-   * Retrieves the database instance
+   * Retrieves the database instance for the given project
    *
-   * @param databaseName databaseName
    * @return an instance of {@link TigrisDatabase}
    */
-  TigrisDatabase getDatabase(String databaseName);
-
-  /**
-   * Lists the available databases for the current Api.
-   *
-   * @param listDatabaseOptions options
-   * @return a list of @{@link TigrisDatabase}
-   * @throws TigrisException authentication failure or any other error
-   */
-  List<TigrisDatabase> listDatabases(DatabaseOptions listDatabaseOptions) throws TigrisException;
-
-  /**
-   * Creates the database if the database is not already present
-   *
-   * @param databaseName name of the database
-   * @return an instance of {@link TigrisDatabase} from server
-   * @throws TigrisException in case of auth error or any other failure.
-   */
-  TigrisDatabase createDatabaseIfNotExists(String databaseName) throws TigrisException;
-
-  /**
-   * Drops the database
-   *
-   * @param databaseName name of the database
-   * @return an instance of {@link DropDatabaseResponse} from server
-   * @throws TigrisException in case of auth error or any other failure.
-   */
-  DropDatabaseResponse dropDatabase(String databaseName) throws TigrisException;
+  TigrisDatabase getDatabase();
 
   /**
    * @return server metadata

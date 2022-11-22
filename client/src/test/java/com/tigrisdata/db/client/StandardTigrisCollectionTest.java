@@ -64,8 +64,8 @@ public class StandardTigrisCollectionTest {
 
   @Test
   public void testRead() throws TigrisException {
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("db1");
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup, "db1");
+    TigrisDatabase db1 = client.getDatabase();
     inspectDocs(
         db1,
         new DB1_C1(0L, "db1_c1_d0"),
@@ -77,8 +77,8 @@ public class StandardTigrisCollectionTest {
 
   @Test
   public void testReadAll() throws TigrisException {
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("db1");
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup, "db1");
+    TigrisDatabase db1 = client.getDatabase();
     inspectDocs(
         true,
         db1,
@@ -98,8 +98,8 @@ public class StandardTigrisCollectionTest {
   @Test
   public void testReadSpecificFields() throws TigrisException {
 
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("db1");
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup, "db1");
+    TigrisDatabase db1 = client.getDatabase();
     Iterator<DB1_C1> c1Iterator =
         db1.getCollection(DB1_C1.class)
             .read(Filters.eq("id", 0L), ReadFields.newBuilder().includeField("name").build());
@@ -111,8 +111,8 @@ public class StandardTigrisCollectionTest {
 
   @Test
   public void testReadOne() throws TigrisException {
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("db1");
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup, "db1");
+    TigrisDatabase db1 = client.getDatabase();
     Optional<DB1_C1> result = db1.getCollection(DB1_C1.class).readOne(Filters.eq("id", 0));
     Assert.assertTrue(result.isPresent());
     Assert.assertEquals(0L, result.get().getId());
@@ -121,16 +121,16 @@ public class StandardTigrisCollectionTest {
 
   @Test
   public void testReadOneEmpty() throws TigrisException {
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("db1");
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup, "db1");
+    TigrisDatabase db1 = client.getDatabase();
     Optional<DB1_C1> result = db1.getCollection(DB1_C1.class).readOne(Filters.eq("id", 100));
     Assert.assertFalse(result.isPresent());
   }
 
   @Test
   public void testSearch() throws TigrisException {
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("db1");
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup, "db1");
+    TigrisDatabase db1 = client.getDatabase();
     TigrisCollection<DB1_C1> collection = db1.getCollection(DB1_C1.class);
     SearchRequest searchRequest =
         SearchRequest.newBuilder()
@@ -159,8 +159,8 @@ public class StandardTigrisCollectionTest {
 
   @Test
   public void testPaginatedSearch() throws TigrisException {
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("db1");
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup, "db1");
+    TigrisDatabase db1 = client.getDatabase();
     TigrisCollection<DB1_C1> collection = db1.getCollection(DB1_C1.class);
     SearchRequest searchRequest = SearchRequest.matchAll().build();
     SearchRequestOptions paginationParams = SearchRequestOptions.getDefault();
@@ -186,8 +186,8 @@ public class StandardTigrisCollectionTest {
 
   @Test
   public void testInsert() throws TigrisException {
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("db1");
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup, "db1");
+    TigrisDatabase db1 = client.getDatabase();
     InsertResponse response =
         db1.getCollection(DB1_C1.class)
             .insert(
@@ -206,8 +206,8 @@ public class StandardTigrisCollectionTest {
 
   @Test
   public void testInsertAutoGenerateKeys() throws TigrisException {
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("autoGenerateTestDB");
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup, "autoGenerateTestDB");
+    TigrisDatabase db1 = client.getDatabase();
     AutoGeneratingPKeysModel input = new AutoGeneratingPKeysModel("name-without-id");
     InsertResponse<AutoGeneratingPKeysModel> response =
         db1.getCollection(AutoGeneratingPKeysModel.class).insert(input);
@@ -241,8 +241,8 @@ public class StandardTigrisCollectionTest {
 
   @Test
   public void testInsertOne() throws TigrisException {
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("db1");
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup, "db1");
+    TigrisDatabase db1 = client.getDatabase();
     InsertResponse response =
         db1.getCollection(DB1_C1.class).insert(new DB1_C1(5L, "db1_c1_test-inserted"));
     Assert.assertNotNull(response);
@@ -258,8 +258,8 @@ public class StandardTigrisCollectionTest {
 
   @Test
   public void testInsertOrReplace() throws TigrisException {
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("db1");
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup, "db1");
+    TigrisDatabase db1 = client.getDatabase();
     List<DB1_C1> replacePayload = new ArrayList<>();
     replacePayload.add(new DB1_C1(1L, "testReplace1"));
     replacePayload.add(new DB1_C1(3L, "testReplace3"));
@@ -279,8 +279,8 @@ public class StandardTigrisCollectionTest {
 
   @Test
   public void testInsertOrReplaceOverloaded() throws TigrisException {
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("db1");
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup, "db1");
+    TigrisDatabase db1 = client.getDatabase();
     List<DB1_C1> replacePayload = new ArrayList<>();
     replacePayload.add(new DB1_C1(1L, "testReplace1"));
     replacePayload.add(new DB1_C1(3L, "testReplace3"));
@@ -299,8 +299,8 @@ public class StandardTigrisCollectionTest {
 
   @Test
   public void testInsertOrReplaceAutoGenerate() throws TigrisException {
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("autoGenerateTestDB");
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup, "autoGenerateTestDB");
+    TigrisDatabase db1 = client.getDatabase();
     InsertOrReplaceResponse<AutoGeneratingPKeysModel> response =
         db1.getCollection(AutoGeneratingPKeysModel.class)
             .insertOrReplace(
@@ -343,8 +343,8 @@ public class StandardTigrisCollectionTest {
 
   @Test
   public void testDelete() throws TigrisException {
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("db1");
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup, "db1");
+    TigrisDatabase db1 = client.getDatabase();
     DeleteResponse response =
         db1.getCollection(DB1_C1.class).delete(Filters.eq("id", 3), new DeleteRequestOptions());
     Assert.assertNotNull(response);
@@ -364,8 +364,8 @@ public class StandardTigrisCollectionTest {
 
   @Test
   public void testDeleteOverloaded() throws TigrisException {
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("db1");
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup, "db1");
+    TigrisDatabase db1 = client.getDatabase();
     DeleteResponse response =
         db1.getCollection(DB1_C1.class).delete(Filters.eq("id", 3), new DeleteRequestOptions());
     Assert.assertNotNull(response);
@@ -384,8 +384,8 @@ public class StandardTigrisCollectionTest {
 
   @Test
   public void testUpdate() throws TigrisException {
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("db1");
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup, "db1");
+    TigrisDatabase db1 = client.getDatabase();
     UpdateResponse response =
         db1.getCollection(DB1_C1.class)
             .update(
@@ -402,17 +402,17 @@ public class StandardTigrisCollectionTest {
   }
 
   @Test
-  public void testName() {
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db1 = client.getDatabase("db1");
+  public void testName() throws TigrisException {
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup, "db1");
+    TigrisDatabase db1 = client.getDatabase();
     TigrisCollection<DB1_C1> collection = db1.getCollection(DB1_C1.class);
     Assert.assertEquals("db1_c1", collection.name());
   }
 
   @Test
   public void testDescribe() throws TigrisException, IOException {
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisCollection<DB1_C5> collection = client.getDatabase("db1").getCollection(DB1_C5.class);
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup, "db1");
+    TigrisCollection<DB1_C5> collection = client.getDatabase().getCollection(DB1_C5.class);
     CollectionDescription description = collection.describe(CollectionOptions.DEFAULT_INSTANCE);
     Assert.assertEquals("db1_c5", description.getName());
     Assert.assertEquals(

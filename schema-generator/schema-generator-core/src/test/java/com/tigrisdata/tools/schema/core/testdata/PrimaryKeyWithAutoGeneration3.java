@@ -14,11 +14,11 @@
 package com.tigrisdata.tools.schema.core.testdata;
 
 import com.tigrisdata.db.annotation.TigrisPrimaryKey;
-import com.tigrisdata.db.type.TigrisDocumentCollectionType;
+import com.tigrisdata.db.type.TigrisCollectionType;
 
 import java.util.UUID;
 
-public class PrimaryKeyWithAutoGeneration3 implements TigrisDocumentCollectionType {
+public class PrimaryKeyWithAutoGeneration3 implements TigrisCollectionType {
   @TigrisPrimaryKey(order = 1, autoGenerate = true)
   private UUID id;
 

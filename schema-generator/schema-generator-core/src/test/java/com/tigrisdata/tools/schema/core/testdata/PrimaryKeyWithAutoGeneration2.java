@@ -14,9 +14,9 @@
 package com.tigrisdata.tools.schema.core.testdata;
 
 import com.tigrisdata.db.annotation.TigrisPrimaryKey;
-import com.tigrisdata.db.type.TigrisDocumentCollectionType;
+import com.tigrisdata.db.type.TigrisCollectionType;
 
-public class PrimaryKeyWithAutoGeneration2 implements TigrisDocumentCollectionType {
+public class PrimaryKeyWithAutoGeneration2 implements TigrisCollectionType {
   @TigrisPrimaryKey(order = 1, autoGenerate = true)
   private long id;
 

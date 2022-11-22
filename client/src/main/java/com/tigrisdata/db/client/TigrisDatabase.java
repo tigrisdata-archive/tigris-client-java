@@ -14,7 +14,7 @@
 package com.tigrisdata.db.client;
 
 import com.tigrisdata.db.client.error.TigrisException;
-import com.tigrisdata.db.type.TigrisDocumentCollectionType;
+import com.tigrisdata.db.type.TigrisCollectionType;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,7 +40,7 @@ public interface TigrisDatabase {
    * @throws TigrisException in case of an error.
    */
   CreateOrUpdateCollectionsResponse createOrUpdateCollections(
-      Class<? extends TigrisDocumentCollectionType>... collectionModelTypes) throws TigrisException;
+      Class<? extends TigrisCollectionType>... collectionModelTypes) throws TigrisException;
 
   /**
    * Creates or updates collections by scanning classpath packages and applying user's filter
@@ -53,20 +53,19 @@ public interface TigrisDatabase {
    * @throws TigrisException in case of an error.
    */
   CreateOrUpdateCollectionsResponse createOrUpdateCollections(
-      String[] packagesToScan,
-      Optional<Predicate<Class<? extends TigrisDocumentCollectionType>>> filter)
+      String[] packagesToScan, Optional<Predicate<Class<? extends TigrisCollectionType>>> filter)
       throws TigrisException;
 
   /**
    * Drops the collection.
    *
    * @param collectionType type of the collection
-   * @param <T> type of the collection that is of type {@link TigrisDocumentCollectionType}
+   * @param <T> type of the collection that is of type {@link TigrisCollectionType}
    * @return the instance of {@link DropCollectionResponse} from server
    * @throws TigrisException in case of an error.
    */
-  <T extends TigrisDocumentCollectionType> DropCollectionResponse dropCollection(
-      Class<T> collectionType) throws TigrisException;
+  <T extends TigrisCollectionType> DropCollectionResponse dropCollection(Class<T> collectionType)
+      throws TigrisException;
 
   /**
    * Drops all the collections.
@@ -79,10 +78,10 @@ public interface TigrisDatabase {
    * Return an instance of {@link TigrisCollection}
    *
    * @param documentCollectionTypeClass Class type of the collection
-   * @param <C> type of the collection that is of type {@link TigrisDocumentCollectionType}
+   * @param <C> type of the collection that is of type {@link TigrisCollectionType}
    * @return an instance of {@link TigrisCollection}
    */
-  <C extends TigrisDocumentCollectionType> TigrisCollection<C> getCollection(
+  <C extends TigrisCollectionType> TigrisCollection<C> getCollection(
       Class<C> documentCollectionTypeClass);
 
   /**

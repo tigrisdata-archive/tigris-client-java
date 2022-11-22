@@ -36,6 +36,5 @@
       "type" : "integer"
     }
   },
-  "collection_type" : "documents",
   "primary_key" : [ "id" ]
 }

@@ -20,7 +20,7 @@ import com.tigrisdata.db.client.collection.collection2.DB1_C3;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.grpc.ContextSettingServerInterceptor;
 import com.tigrisdata.db.client.grpc.TestTigrisService;
-import com.tigrisdata.db.type.TigrisDocumentCollectionType;
+import com.tigrisdata.db.type.TigrisCollectionType;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.testing.GrpcCleanupRule;
 import org.hamcrest.MatcherAssert;
@@ -122,7 +122,7 @@ public class StandardTigrisDatabaseTest {
       throws TigrisException {
     TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup, "db1");
     TigrisDatabase db1 = client.getDatabase();
-    Predicate<Class<? extends TigrisDocumentCollectionType>> filter =
+    Predicate<Class<? extends TigrisCollectionType>> filter =
         clazz -> clazz.getSimpleName().startsWith("DB1");
     CreateOrUpdateCollectionsResponse response =
         db1.createOrUpdateCollections(

@@ -187,7 +187,6 @@ public class StandardModelToTigrisJsonSchema implements ModelToJsonSchema {
       }
     }
 
-    objectNode.put(COLLECTION_TYPE, "documents");
     ArrayNode primaryKeys = objectNode.putArray(PRIMARY_KEYS);
 
     if (!primaryKeysMap.isEmpty()) {

@@ -14,10 +14,10 @@
 package com.tigrisdata.tools.schema.core.testdata;
 
 import com.tigrisdata.db.annotation.TigrisCollection;
-import com.tigrisdata.db.type.TigrisDocumentCollectionType;
+import com.tigrisdata.db.type.TigrisCollectionType;
 
 @TigrisCollection("ByteArrayMultiDimensional")
-public class ByteArrayMultiDimensional implements TigrisDocumentCollectionType {
+public class ByteArrayMultiDimensional implements TigrisCollectionType {
   byte[] byteArr1d;
   byte[][] byteArr2d;
   byte[][][] byteArr3d;

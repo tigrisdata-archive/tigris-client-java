@@ -242,12 +242,6 @@ public interface TigrisCollection<T extends TigrisCollectionType>
    */
   CollectionDescription describe(CollectionOptions collectionOptions) throws TigrisException;
 
-  /**
-   * @return stream of events.
-   * @throws TigrisException in case of an error.
-   */
-  Iterator<StreamEvent> events() throws TigrisException;
-
   /** @return Name of the collection */
   String name();
 }

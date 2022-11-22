@@ -14,14 +14,14 @@
 package com.tigrisdata.db.client;
 
 import com.google.protobuf.Timestamp;
-import com.tigrisdata.db.type.TigrisDocumentCollectionType;
+import com.tigrisdata.db.type.TigrisCollectionType;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 /** Represents Server response for Insert operation */
-public class InsertResponse<T extends TigrisDocumentCollectionType> extends DMLResponse {
+public class InsertResponse<T extends TigrisCollectionType> extends DMLResponse {
   private final Map<String, Object>[] generatedKeys;
 
   InsertResponse(

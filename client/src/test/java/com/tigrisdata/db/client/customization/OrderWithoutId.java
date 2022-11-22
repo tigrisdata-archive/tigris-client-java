@@ -13,11 +13,11 @@
  */
 package com.tigrisdata.db.client.customization;
 
-import com.tigrisdata.db.type.TigrisDocumentCollectionType;
+import com.tigrisdata.db.type.TigrisCollectionType;
 
 import java.util.Objects;
 
-public class OrderWithoutId implements TigrisDocumentCollectionType {
+public class OrderWithoutId implements TigrisCollectionType {
   private long buyerId;
   private long sellerId;
   private double tradePrice;

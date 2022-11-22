@@ -27,7 +27,7 @@ import static com.tigrisdata.db.client.TypeConverter.toDatabaseDescription;
 import static com.tigrisdata.db.client.TypeConverter.toDropCollectionRequest;
 import com.tigrisdata.db.client.config.TigrisConfiguration;
 import com.tigrisdata.db.client.error.TigrisException;
-import com.tigrisdata.db.type.TigrisDocumentCollectionType;
+import com.tigrisdata.db.type.TigrisCollectionType;
 import com.tigrisdata.tools.schema.core.ModelToJsonSchema;
 import io.grpc.ClientInterceptor;
 import io.grpc.ManagedChannel;
@@ -87,7 +87,7 @@ class StandardTigrisAsyncDatabase extends AbstractTigrisDatabase implements Tigr
 
   @Override
   public CompletableFuture<CreateOrUpdateCollectionsResponse> createOrUpdateCollections(
-      Class<? extends TigrisDocumentCollectionType>... collectionModelTypes) {
+      Class<? extends TigrisCollectionType>... collectionModelTypes) {
     CompletableFuture<CreateOrUpdateCollectionsResponse> result = new CompletableFuture<>();
 
     CompletableFuture<TransactionSession> transactionResponseCompletableFuture =
@@ -100,8 +100,7 @@ class StandardTigrisAsyncDatabase extends AbstractTigrisDatabase implements Tigr
             result.completeExceptionally(throwable);
           }
           CreateOrUpdateCollectionsResponse response = null;
-          for (Class<? extends TigrisDocumentCollectionType> collectionModel :
-              collectionModelTypes) {
+          for (Class<? extends TigrisCollectionType> collectionModel : collectionModelTypes) {
             try {
               String schemaContent = modelToJsonSchema.toJsonSchema(collectionModel).toString();
 
@@ -123,16 +122,14 @@ class StandardTigrisAsyncDatabase extends AbstractTigrisDatabase implements Tigr
 
   @Override
   public CompletableFuture<CreateOrUpdateCollectionsResponse> createOrUpdateCollections(
-      String[] packagesToScan,
-      Optional<Predicate<Class<? extends TigrisDocumentCollectionType>>> filter) {
+      String[] packagesToScan, Optional<Predicate<Class<? extends TigrisCollectionType>>> filter) {
     return this.createOrUpdateCollections(
         Utilities.scanTigrisCollectionModels(packagesToScan, filter));
   }
 
   @Override
-  public <T extends TigrisDocumentCollectionType>
-      CompletableFuture<DropCollectionResponse> dropCollection(
-          Class<T> documentCollectionTypeClass) {
+  public <T extends TigrisCollectionType> CompletableFuture<DropCollectionResponse> dropCollection(
+      Class<T> documentCollectionTypeClass) {
     return this.dropCollection(Utilities.getCollectionName(documentCollectionTypeClass));
   }
 
@@ -150,7 +147,7 @@ class StandardTigrisAsyncDatabase extends AbstractTigrisDatabase implements Tigr
   }
 
   @Override
-  public <C extends TigrisDocumentCollectionType> TigrisAsyncCollection<C> getCollection(
+  public <C extends TigrisCollectionType> TigrisAsyncCollection<C> getCollection(
       Class<C> documentCollectionTypeClass) {
     return new StandardTigrisAsyncCollection<>(
         db, documentCollectionTypeClass, channel, executor, objectMapper, configuration);

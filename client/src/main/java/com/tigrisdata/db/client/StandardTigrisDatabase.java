@@ -24,7 +24,7 @@ import static com.tigrisdata.db.client.Constants.LIST_COLLECTION_FAILED;
 import static com.tigrisdata.db.client.Constants.TRANSACTION_FAILED;
 import com.tigrisdata.db.client.config.TigrisConfiguration;
 import com.tigrisdata.db.client.error.TigrisException;
-import com.tigrisdata.db.type.TigrisDocumentCollectionType;
+import com.tigrisdata.db.type.TigrisCollectionType;
 import com.tigrisdata.tools.schema.core.ModelToJsonSchema;
 import io.grpc.ClientInterceptor;
 import io.grpc.ManagedChannel;
@@ -79,13 +79,13 @@ class StandardTigrisDatabase extends AbstractTigrisDatabase implements TigrisDat
   }
 
   @Override
-  public <T extends TigrisDocumentCollectionType> DropCollectionResponse dropCollection(
+  public <T extends TigrisCollectionType> DropCollectionResponse dropCollection(
       Class<T> collectionType) throws TigrisException {
     return this.dropCollection(Utilities.getCollectionName(collectionType));
   }
 
   @Override
-  public <C extends TigrisDocumentCollectionType> TigrisCollection<C> getCollection(
+  public <C extends TigrisCollectionType> TigrisCollection<C> getCollection(
       Class<C> documentCollectionTypeClass) {
     return new StandardTigrisCollection<>(
         db, documentCollectionTypeClass, blockingStub, objectMapper, configuration);
@@ -125,13 +125,11 @@ class StandardTigrisDatabase extends AbstractTigrisDatabase implements TigrisDat
 
   @Override
   public CreateOrUpdateCollectionsResponse createOrUpdateCollections(
-      Class<? extends TigrisDocumentCollectionType>... collectionModelTypes)
-      throws TigrisException {
+      Class<? extends TigrisCollectionType>... collectionModelTypes) throws TigrisException {
     TransactionSession transactionSession = null;
     try {
       transactionSession = beginTransaction(TransactionOptions.DEFAULT_INSTANCE);
-      for (Class<? extends TigrisDocumentCollectionType> collectionModelType :
-          collectionModelTypes) {
+      for (Class<? extends TigrisCollectionType> collectionModelType : collectionModelTypes) {
         TigrisSchema schema =
             new TigrisJSONSchema(modelToJsonSchema.toJsonSchema(collectionModelType).toString());
         this.createOrUpdateCollections(
@@ -159,8 +157,7 @@ class StandardTigrisDatabase extends AbstractTigrisDatabase implements TigrisDat
 
   @Override
   public CreateOrUpdateCollectionsResponse createOrUpdateCollections(
-      String[] packagesToScan,
-      Optional<Predicate<Class<? extends TigrisDocumentCollectionType>>> filter)
+      String[] packagesToScan, Optional<Predicate<Class<? extends TigrisCollectionType>>> filter)
       throws TigrisException {
     return this.createOrUpdateCollections(
         Utilities.scanTigrisCollectionModels(packagesToScan, filter));

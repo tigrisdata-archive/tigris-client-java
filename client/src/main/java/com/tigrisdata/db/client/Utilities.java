@@ -25,8 +25,7 @@ import com.tigrisdata.db.api.v1.grpc.ObservabilityGrpc;
 import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import com.tigrisdata.db.client.config.TigrisConfiguration;
 import com.tigrisdata.db.client.error.TigrisException;
-import com.tigrisdata.db.type.TigrisDocumentCollectionType;
-import com.tigrisdata.db.type.TigrisMessageCollectionType;
+import com.tigrisdata.db.type.TigrisCollectionType;
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
 import org.atteo.evo.inflector.English;
@@ -57,26 +56,24 @@ final class Utilities {
 
   /**
    * Scans the classpath for the given packages and searches for all the top level classes that are
-   * of type {@link TigrisDocumentCollectionType} and optionally filters them using user supplied
-   * filter.
+   * of type {@link TigrisCollectionType} and optionally filters them using user supplied filter.
    *
    * @param packagesToScan packages to scan
    * @param filter filter to select classes from scanned classes
    * @return tigris db collection model classes
    */
-  static Class<? extends TigrisDocumentCollectionType>[] scanTigrisCollectionModels(
-      String[] packagesToScan,
-      Optional<Predicate<Class<? extends TigrisDocumentCollectionType>>> filter) {
-    Set<Class<? extends TigrisDocumentCollectionType>> scannedClasses = new HashSet<>();
+  static Class<? extends TigrisCollectionType>[] scanTigrisCollectionModels(
+      String[] packagesToScan, Optional<Predicate<Class<? extends TigrisCollectionType>>> filter) {
+    Set<Class<? extends TigrisCollectionType>> scannedClasses = new HashSet<>();
     for (String packageToScan : packagesToScan) {
       log.debug("scanning package {}", packageToScan);
       try {
-        Set<Class<? extends TigrisDocumentCollectionType>> scannedClassesFromThisPackage =
+        Set<Class<? extends TigrisCollectionType>> scannedClassesFromThisPackage =
             ClassPath.from(ClassLoader.getSystemClassLoader())
                 .getTopLevelClassesRecursive(packageToScan).stream()
                 .map(ClassPath.ClassInfo::load)
-                .filter(clazz -> TigrisDocumentCollectionType.class.isAssignableFrom(clazz))
-                .map(clazz -> (Class<? extends TigrisDocumentCollectionType>) clazz)
+                .filter(clazz -> TigrisCollectionType.class.isAssignableFrom(clazz))
+                .map(clazz -> (Class<? extends TigrisCollectionType>) clazz)
                 .filter(
                     clazz -> filter.map(classPredicate -> classPredicate.test(clazz)).orElse(true))
                 .collect(Collectors.toSet());
@@ -87,9 +84,9 @@ final class Utilities {
       }
     }
 
-    Class<? extends TigrisDocumentCollectionType> result[] = new Class[scannedClasses.size()];
+    Class<? extends TigrisCollectionType> result[] = new Class[scannedClasses.size()];
     int i = 0;
-    for (Class<? extends TigrisDocumentCollectionType> scannedClass : scannedClasses) {
+    for (Class<? extends TigrisCollectionType> scannedClass : scannedClasses) {
       result[i] = scannedClass;
       i++;
     }
@@ -97,17 +94,7 @@ final class Utilities {
     return result;
   }
 
-  static String getCollectionName(Class<? extends TigrisDocumentCollectionType> clazz) {
-    TigrisCollection tigrisCollection = clazz.getAnnotation(TigrisCollection.class);
-    if (tigrisCollection != null) {
-      return tigrisCollection.value();
-    }
-    return CaseFormat.UPPER_CAMEL.to(
-        CaseFormat.LOWER_UNDERSCORE, English.plural(clazz.getSimpleName()));
-  }
-
-  // unused keeping it around
-  static String getTopicName(Class<? extends TigrisMessageCollectionType> clazz) {
+  static String getCollectionName(Class<? extends TigrisCollectionType> clazz) {
     TigrisCollection tigrisCollection = clazz.getAnnotation(TigrisCollection.class);
     if (tigrisCollection != null) {
       return tigrisCollection.value();

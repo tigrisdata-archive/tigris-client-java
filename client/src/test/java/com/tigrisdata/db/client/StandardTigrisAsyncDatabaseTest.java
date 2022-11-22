@@ -19,7 +19,7 @@ import com.tigrisdata.db.client.collection.User;
 import com.tigrisdata.db.client.collection.collection2.DB1_C3;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.grpc.TestTigrisService;
-import com.tigrisdata.db.type.TigrisDocumentCollectionType;
+import com.tigrisdata.db.type.TigrisCollectionType;
 import io.grpc.inprocess.InProcessServerBuilder;
 import io.grpc.testing.GrpcCleanupRule;
 import org.hamcrest.MatcherAssert;
@@ -124,7 +124,7 @@ public class StandardTigrisAsyncDatabaseTest {
       throws InterruptedException, ExecutionException {
     TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup, "db1");
     TigrisAsyncDatabase db1 = asyncClient.getDatabase();
-    Predicate<Class<? extends TigrisDocumentCollectionType>> filter =
+    Predicate<Class<? extends TigrisCollectionType>> filter =
         clazz -> clazz.getSimpleName().startsWith("DB1");
 
     CompletableFuture<CreateOrUpdateCollectionsResponse> response =

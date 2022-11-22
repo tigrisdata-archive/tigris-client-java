@@ -35,13 +35,13 @@ import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.search.SearchRequest;
 import com.tigrisdata.db.client.search.SearchRequestOptions;
 import com.tigrisdata.db.client.search.SearchResult;
-import com.tigrisdata.db.type.TigrisDocumentCollectionType;
+import com.tigrisdata.db.type.TigrisCollectionType;
 import io.grpc.StatusRuntimeException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
 
-abstract class AbstractTigrisCollection<T extends TigrisDocumentCollectionType> {
+abstract class AbstractTigrisCollection<T extends TigrisCollectionType> {
 
   protected final String databaseName;
   protected final String collectionName;

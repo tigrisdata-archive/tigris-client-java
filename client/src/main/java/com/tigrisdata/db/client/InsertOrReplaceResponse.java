@@ -14,7 +14,7 @@
 package com.tigrisdata.db.client;
 
 import com.google.protobuf.Timestamp;
-import com.tigrisdata.db.type.TigrisDocumentCollectionType;
+import com.tigrisdata.db.type.TigrisCollectionType;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /** Represents Server response for InsertOrReplace operation */
-public class InsertOrReplaceResponse<T extends TigrisDocumentCollectionType> extends DMLResponse {
+public class InsertOrReplaceResponse<T extends TigrisCollectionType> extends DMLResponse {
   private final Map<String, Object>[] generatedKeys;
   private final List<T> docs;
 

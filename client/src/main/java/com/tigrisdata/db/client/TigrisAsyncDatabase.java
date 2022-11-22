@@ -14,7 +14,7 @@
 package com.tigrisdata.db.client;
 
 import com.tigrisdata.db.client.error.TigrisException;
-import com.tigrisdata.db.type.TigrisDocumentCollectionType;
+import com.tigrisdata.db.type.TigrisCollectionType;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,7 +38,7 @@ public interface TigrisAsyncDatabase {
    * @return future to the {@link CreateOrUpdateCollectionsResponse}
    */
   CompletableFuture<CreateOrUpdateCollectionsResponse> createOrUpdateCollections(
-      Class<? extends TigrisDocumentCollectionType>... collectionModelTypes);
+      Class<? extends TigrisCollectionType>... collectionModelTypes);
 
   /**
    * Creates or updates collections by scanning classpath packages and applying user's filter *
@@ -50,17 +50,16 @@ public interface TigrisAsyncDatabase {
    * @return future to the {@link CreateOrUpdateCollectionsResponse}
    */
   CompletableFuture<CreateOrUpdateCollectionsResponse> createOrUpdateCollections(
-      String[] packagesToScan,
-      Optional<Predicate<Class<? extends TigrisDocumentCollectionType>>> filter);
+      String[] packagesToScan, Optional<Predicate<Class<? extends TigrisCollectionType>>> filter);
 
   /**
    * Drops the collection.
    *
    * @param documentCollectionTypeClass Class type of the collection
-   * @param <T> type of the collection that is of type {@link TigrisDocumentCollectionType}
+   * @param <T> type of the collection that is of type {@link TigrisCollectionType}
    * @return the future to the {@link DropCollectionResponse}
    */
-  <T extends TigrisDocumentCollectionType> CompletableFuture<DropCollectionResponse> dropCollection(
+  <T extends TigrisCollectionType> CompletableFuture<DropCollectionResponse> dropCollection(
       Class<T> documentCollectionTypeClass);
 
   /**
@@ -74,10 +73,10 @@ public interface TigrisAsyncDatabase {
    * Return an instance of {@link TigrisCollection}
    *
    * @param documentCollectionTypeClass Class type of the collection
-   * @param <C> type of the collection that is of type {@link TigrisDocumentCollectionType}
+   * @param <C> type of the collection that is of type {@link TigrisCollectionType}
    * @return an instance of {@link TigrisAsyncCollection}
    */
-  <C extends TigrisDocumentCollectionType> TigrisAsyncCollection<C> getCollection(
+  <C extends TigrisCollectionType> TigrisAsyncCollection<C> getCollection(
       Class<C> documentCollectionTypeClass);
 
   /**

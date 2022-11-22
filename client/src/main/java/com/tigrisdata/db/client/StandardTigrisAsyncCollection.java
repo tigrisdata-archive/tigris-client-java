@@ -44,7 +44,7 @@ import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.client.search.SearchRequest;
 import com.tigrisdata.db.client.search.SearchRequestOptions;
 import com.tigrisdata.db.client.search.SearchResult;
-import com.tigrisdata.db.type.TigrisDocumentCollectionType;
+import com.tigrisdata.db.type.TigrisCollectionType;
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
@@ -63,7 +63,7 @@ import java.util.concurrent.Executor;
  *
  * @param <T> type of the collection
  */
-class StandardTigrisAsyncCollection<T extends TigrisDocumentCollectionType>
+class StandardTigrisAsyncCollection<T extends TigrisCollectionType>
     extends AbstractTigrisCollection<T> implements TigrisAsyncCollection<T> {
 
   private final Executor executor;
@@ -440,7 +440,7 @@ class StandardTigrisAsyncCollection<T extends TigrisDocumentCollectionType>
         filter, new DeleteRequestOptions(WriteOptions.DEFAULT_INSTANCE), session);
   }
 
-  static class ReadManyResponseObserverAdapter<T extends TigrisDocumentCollectionType>
+  static class ReadManyResponseObserverAdapter<T extends TigrisCollectionType>
       implements StreamObserver<Api.ReadResponse> {
 
     private final TigrisAsyncReader<T> reader;
@@ -488,7 +488,7 @@ class StandardTigrisAsyncCollection<T extends TigrisDocumentCollectionType>
     }
   }
 
-  static class ReadSingleResponseObserverAdapter<T extends TigrisDocumentCollectionType>
+  static class ReadSingleResponseObserverAdapter<T extends TigrisCollectionType>
       implements StreamObserver<Api.ReadResponse> {
 
     private final CompletableFuture<Optional<T>> completableFuture;
@@ -536,7 +536,7 @@ class StandardTigrisAsyncCollection<T extends TigrisDocumentCollectionType>
     }
   }
 
-  static class SearchResponseObserverAdapter<T extends TigrisDocumentCollectionType>
+  static class SearchResponseObserverAdapter<T extends TigrisCollectionType>
       implements StreamObserver<Api.SearchResponse> {
 
     private final TigrisAsyncSearchReader<T> reader;

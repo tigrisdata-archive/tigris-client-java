@@ -37,6 +37,5 @@
       "format" : "date-time"
     }
   },
-  "collection_type" : "documents",
   "primary_key" : [ "aInteger" ]
 }

@@ -16,7 +16,7 @@ package com.tigrisdata.db.client.search;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tigrisdata.db.api.v1.grpc.Api;
-import com.tigrisdata.db.type.TigrisDocumentCollectionType;
+import com.tigrisdata.db.type.TigrisCollectionType;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  *
  * @param <T> type of the Tigris collection
  */
-public final class SearchResult<T extends TigrisDocumentCollectionType> {
+public final class SearchResult<T extends TigrisCollectionType> {
 
   private final List<Hit<T>> hits;
   private final Map<String, FacetCountDistribution> facets;
@@ -79,7 +79,7 @@ public final class SearchResult<T extends TigrisDocumentCollectionType> {
    * @param <R> Tigris collection class type
    * @return {@link SearchResult}
    */
-  public static <R extends TigrisDocumentCollectionType> SearchResult<R> from(
+  public static <R extends TigrisCollectionType> SearchResult<R> from(
       Api.SearchResponse resp, ObjectMapper objectMapper, Class<R> collectionClass) {
     Objects.requireNonNull(resp);
 

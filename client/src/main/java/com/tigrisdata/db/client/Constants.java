@@ -23,10 +23,8 @@ final class Constants {
   // messages
   // error
   // client
-  public static final String LIST_DBS_FAILED = "Failed to list database(s)";
   public static final String CREATE_DB_FAILED = "Failed to create database";
   public static final String DROP_DB_FAILED = "Failed to drop database";
-  public static final String DB_ALREADY_EXISTS = "Database already exists";
   public static final String SERVER_METADATA_FAILED = "Failed to retrieve server metadata";
 
   // database
@@ -48,13 +46,7 @@ final class Constants {
   public static final String DELETE_FAILED = "Failed to delete";
   public static final String READ_FAILED = "Failed to read";
   public static final String SEARCH_FAILED = "Failed to search";
-  public static final String EVENTS_FAILED = "Failed to stream events";
-  public static final String EVENTS_CONVERT_FAILED = "Failed to convert event data";
   public static final String DESCRIBE_COLLECTION_FAILED = "Failed to describe collection";
-
-  // topic
-  public static final String SUBSCRIBE_FAILED = "Failed to stream messages";
-  public static final String PUBLISH_FAILED = "Failed to publish";
 
   // JSON
   public static final String JSON_SER_DE_ERROR =

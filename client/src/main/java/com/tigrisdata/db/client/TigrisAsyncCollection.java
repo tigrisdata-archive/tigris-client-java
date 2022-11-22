@@ -223,9 +223,6 @@ public interface TigrisAsyncCollection<T extends TigrisCollectionType>
   CompletableFuture<CollectionDescription> describe(CollectionOptions collectionOptions)
       throws TigrisException;
 
-  /** @param eventer streamer callback */
-  void events(TigrisAsyncEventer eventer);
-
   /** @return Name of the collection */
   String name();
 }

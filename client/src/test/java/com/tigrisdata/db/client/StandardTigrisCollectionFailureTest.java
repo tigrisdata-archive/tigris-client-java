@@ -45,10 +45,10 @@ public class StandardTigrisCollectionFailureTest {
   }
 
   @Test
-  public void testRead() {
+  public void testRead() throws TigrisException {
     String dbName = UUID.randomUUID().toString();
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db = client.getDatabase(dbName);
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup, dbName);
+    TigrisDatabase db = client.getDatabase();
     try {
       db.getCollection(DB1_C1.class).readOne(Filters.eq("id", 0));
       Assert.fail("This must fail");
@@ -65,8 +65,8 @@ public class StandardTigrisCollectionFailureTest {
   @Test
   public void testInsert() {
     String dbName = UUID.randomUUID().toString();
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db = client.getDatabase(dbName);
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup, dbName);
+    TigrisDatabase db = client.getDatabase();
     try {
       db.getCollection(DB1_C1.class).insert(new DB1_C1(6, "name6"));
       Assert.fail("This must fail");
@@ -83,8 +83,8 @@ public class StandardTigrisCollectionFailureTest {
   @Test
   public void testInsertOrReplace() {
     String dbName = UUID.randomUUID().toString();
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db = client.getDatabase(dbName);
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup, dbName);
+    TigrisDatabase db = client.getDatabase();
     try {
       db.getCollection(DB1_C1.class)
           .insertOrReplace(Collections.singletonList(new DB1_C1(6, "name6")));
@@ -100,10 +100,10 @@ public class StandardTigrisCollectionFailureTest {
   }
 
   @Test
-  public void testDelete() {
+  public void testDelete() throws TigrisException {
     String dbName = UUID.randomUUID().toString();
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db = client.getDatabase(dbName);
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup, dbName);
+    TigrisDatabase db = client.getDatabase();
     try {
       db.getCollection(DB1_C1.class).delete(Filters.eq("id", 0));
       Assert.fail("This must fail");
@@ -118,10 +118,10 @@ public class StandardTigrisCollectionFailureTest {
   }
 
   @Test
-  public void testUpdate() {
+  public void testUpdate() throws TigrisException {
     String dbName = UUID.randomUUID().toString();
-    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup);
-    TigrisDatabase db = client.getDatabase(dbName);
+    TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup, dbName);
+    TigrisDatabase db = client.getDatabase();
     try {
       db.getCollection(DB1_C1.class)
           .update(

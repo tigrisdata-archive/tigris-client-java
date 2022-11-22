@@ -23,23 +23,23 @@ public final class TestUtils {
   private TestUtils() {}
 
   public static StandardTigrisClient getTestClient(
-      String grpcServerName, GrpcCleanupRule grpcCleanupRule) {
+      String grpcServerName, GrpcCleanupRule grpcCleanupRule, String projectName) {
     ManagedChannelBuilder<InProcessChannelBuilder> channelBuilder =
         InProcessChannelBuilder.forName(grpcServerName);
     StandardTigrisClient client =
         new StandardTigrisClient(
-            TigrisConfiguration.newBuilder("some-url").build(), channelBuilder);
+            TigrisConfiguration.newBuilder("some-url", projectName).build(), channelBuilder);
     grpcCleanupRule.register(client.getChannel());
     return client;
   }
 
   public static StandardTigrisClient getTestAuthEnabledClient(
-      String grpcServerName, GrpcCleanupRule grpcCleanupRule) {
+      String grpcServerName, GrpcCleanupRule grpcCleanupRule, String projectName) {
     ManagedChannelBuilder<InProcessChannelBuilder> channelBuilder =
         InProcessChannelBuilder.forName(grpcServerName);
     StandardTigrisClient client =
         new StandardTigrisClient(
-            TigrisConfiguration.newBuilder("some-url")
+            TigrisConfiguration.newBuilder("some-url", projectName)
                 .withAuthConfig(
                     new TigrisConfiguration.AuthConfig("test-client-id", "test-client-secret"))
                 .build(),
@@ -49,12 +49,12 @@ public final class TestUtils {
   }
 
   public static StandardTigrisAsyncClient getTestAsyncClient(
-      String grpcServerName, GrpcCleanupRule grpcCleanupRule) {
+      String grpcServerName, GrpcCleanupRule grpcCleanupRule, String projectName) {
     ManagedChannelBuilder<InProcessChannelBuilder> channelBuilder =
         InProcessChannelBuilder.forName(grpcServerName);
     StandardTigrisAsyncClient client =
         new StandardTigrisAsyncClient(
-            TigrisConfiguration.newBuilder("some-url").build(), channelBuilder);
+            TigrisConfiguration.newBuilder("some-url", projectName).build(), channelBuilder);
     grpcCleanupRule.register(client.getChannel());
     return client;
   }

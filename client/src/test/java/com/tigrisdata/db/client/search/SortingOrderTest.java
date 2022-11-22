@@ -31,7 +31,7 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class SortingOrderTest {
   private static final ObjectMapper DEFAULT_OBJECT_MAPPER =
-      TigrisConfiguration.newBuilder("test").build().getObjectMapper();
+      TigrisConfiguration.newBuilder("test", "db1").build().getObjectMapper();
 
   @Parameter(0)
   public String testCaseLabel;

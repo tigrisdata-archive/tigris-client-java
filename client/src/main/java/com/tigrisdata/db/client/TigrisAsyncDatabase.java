@@ -64,6 +64,13 @@ public interface TigrisAsyncDatabase {
       Class<T> documentCollectionTypeClass);
 
   /**
+   * Drops all the collections.
+   *
+   * @return the future to the {@link DropCollectionResponse}
+   */
+  CompletableFuture<Void> dropAllCollections();
+
+  /**
    * Return an instance of {@link TigrisCollection}
    *
    * @param documentCollectionTypeClass Class type of the collection

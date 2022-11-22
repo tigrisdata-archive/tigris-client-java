@@ -16,17 +16,11 @@ package com.tigrisdata.db.client;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.tigrisdata.db.api.v1.grpc.Api;
 import com.tigrisdata.db.api.v1.grpc.ObservabilityGrpc;
 import com.tigrisdata.db.api.v1.grpc.ObservabilityOuterClass;
 import com.tigrisdata.db.api.v1.grpc.TigrisGrpc;
 import static com.tigrisdata.db.client.Constants.CREATE_DB_FAILED;
-import static com.tigrisdata.db.client.Constants.DROP_DB_FAILED;
-import static com.tigrisdata.db.client.Constants.LIST_DBS_FAILED;
 import static com.tigrisdata.db.client.Constants.SERVER_METADATA_FAILED;
-import static com.tigrisdata.db.client.TypeConverter.toCreateDatabaseRequest;
-import static com.tigrisdata.db.client.TypeConverter.toDropDatabaseRequest;
-import static com.tigrisdata.db.client.TypeConverter.toListDatabasesRequest;
 import static com.tigrisdata.db.client.TypeConverter.toServerMetadata;
 import com.tigrisdata.db.client.config.TigrisConfiguration;
 import com.tigrisdata.db.client.error.TigrisException;
@@ -39,9 +33,6 @@ import io.grpc.StatusRuntimeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -105,9 +96,9 @@ public class StandardTigrisAsyncClient extends AbstractTigrisClient implements T
   }
 
   @Override
-  public TigrisAsyncDatabase getDatabase(String databaseName) {
+  public TigrisAsyncDatabase getDatabase() {
     return new StandardTigrisAsyncDatabase(
-        databaseName,
+        configuration.getProjectName(),
         futureStub,
         blockingStub,
         channel,
@@ -115,78 +106,6 @@ public class StandardTigrisAsyncClient extends AbstractTigrisClient implements T
         objectMapper,
         modelToJsonSchema,
         configuration);
-  }
-
-  @Override
-  public CompletableFuture<List<TigrisAsyncDatabase>> listDatabases(
-      DatabaseOptions listDatabaseOptions) {
-
-    ListenableFuture<Api.ListDatabasesResponse> listenableFuture =
-        futureStub.listDatabases(toListDatabasesRequest(listDatabaseOptions));
-    return Utilities.transformFuture(
-        listenableFuture,
-        listDatabasesResponse -> {
-          List<TigrisAsyncDatabase> tigrisAsyncDatabases = new ArrayList<>();
-          for (Api.DatabaseInfo databaseInfo : listDatabasesResponse.getDatabasesList()) {
-            tigrisAsyncDatabases.add(
-                new StandardTigrisAsyncDatabase(
-                    databaseInfo.getDb(),
-                    futureStub,
-                    blockingStub,
-                    channel,
-                    executor,
-                    objectMapper,
-                    modelToJsonSchema,
-                    configuration));
-          }
-          return tigrisAsyncDatabases;
-        },
-        executor,
-        LIST_DBS_FAILED);
-  }
-
-  @Override
-  public CompletableFuture<TigrisAsyncDatabase> createDatabaseIfNotExists(String databaseName) {
-    ListenableFuture<Api.CreateDatabaseResponse> createDatabaseResponse =
-        futureStub.createDatabase(
-            toCreateDatabaseRequest(databaseName, DatabaseOptions.DEFAULT_INSTANCE));
-    return Utilities.transformFuture(
-        createDatabaseResponse,
-        response ->
-            new StandardTigrisAsyncDatabase(
-                databaseName,
-                futureStub,
-                blockingStub,
-                channel,
-                executor,
-                objectMapper,
-                modelToJsonSchema,
-                configuration),
-        executor,
-        CREATE_DB_FAILED,
-        Optional.of(
-            new CreateDatabaseExceptionHandler(
-                databaseName,
-                stub,
-                futureStub,
-                blockingStub,
-                executor,
-                channel,
-                objectMapper,
-                modelToJsonSchema,
-                configuration)));
-  }
-
-  @Override
-  public CompletableFuture<DropDatabaseResponse> dropDatabase(String databaseName) {
-    ListenableFuture<Api.DropDatabaseResponse> dropDatabaseResponse =
-        futureStub.dropDatabase(
-            toDropDatabaseRequest(databaseName, DatabaseOptions.DEFAULT_INSTANCE));
-    return Utilities.transformFuture(
-        dropDatabaseResponse,
-        response -> new DropDatabaseResponse(response.getStatus(), response.getMessage()),
-        executor,
-        DROP_DB_FAILED);
   }
 
   @Override

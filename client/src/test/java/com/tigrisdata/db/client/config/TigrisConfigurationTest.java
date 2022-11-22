@@ -28,7 +28,7 @@ public class TigrisConfigurationTest {
   @Test
   public void testDefault() {
     TigrisConfiguration defaultConfiguration =
-        TigrisConfiguration.newBuilder("some-host:443").build();
+        TigrisConfiguration.newBuilder("some-host:443", "project1").build();
     assertEquals("some-host:443", defaultConfiguration.getServerURL());
     assertNotNull(defaultConfiguration.getObjectMapper());
 
@@ -43,7 +43,7 @@ public class TigrisConfigurationTest {
   public void testCustomization() {
     ObjectMapper objectMapper = new ObjectMapper();
     TigrisConfiguration customConfiguration =
-        TigrisConfiguration.newBuilder("some-host:443")
+        TigrisConfiguration.newBuilder("some-host:443", "project1")
             .withNetwork(
                 TigrisConfiguration.NetworkConfig.newBuilder()
                     .usePlainText()
@@ -54,6 +54,7 @@ public class TigrisConfigurationTest {
             .build();
 
     assertEquals("some-host:443", customConfiguration.getServerURL());
+    assertEquals("project1", customConfiguration.getProjectName());
     assertTrue(objectMapper == customConfiguration.getObjectMapper());
 
     assertTrue(customConfiguration.getNetwork().isUsePlainText());
@@ -69,7 +70,7 @@ public class TigrisConfigurationTest {
   public void testEqualsAndHashCode() {
     ObjectMapper objectMapper = new ObjectMapper();
     TigrisConfiguration ob1 =
-        TigrisConfiguration.newBuilder("some-host:443")
+        TigrisConfiguration.newBuilder("some-host:443", "project1")
             .withNetwork(
                 TigrisConfiguration.NetworkConfig.newBuilder()
                     .usePlainText()
@@ -79,7 +80,7 @@ public class TigrisConfigurationTest {
             .withObjectMapper(objectMapper)
             .build();
     TigrisConfiguration ob2 =
-        TigrisConfiguration.newBuilder("some-host:443")
+        TigrisConfiguration.newBuilder("some-host:443", "project1")
             .withNetwork(
                 TigrisConfiguration.NetworkConfig.newBuilder()
                     .usePlainText()

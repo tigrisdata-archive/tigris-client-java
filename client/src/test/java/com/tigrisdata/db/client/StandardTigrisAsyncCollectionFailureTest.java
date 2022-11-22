@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Assert;
@@ -50,23 +51,23 @@ public class StandardTigrisAsyncCollectionFailureTest {
   }
 
   @Test
-  public void testRead() {
-    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
-    readAndExpectError(asyncClient.getDatabase("db1"));
+  public void testRead() throws ExecutionException, InterruptedException {
+    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup, "db1");
+    readAndExpectError(asyncClient.getDatabase());
   }
 
   @Test
-  public void testSearch() {
-    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
-    searchAndExpectError(asyncClient.getDatabase("db1"));
+  public void testSearch() throws ExecutionException, InterruptedException {
+    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup, "db1");
+    searchAndExpectError(asyncClient.getDatabase());
   }
 
   @Test
-  public void testReadOne() {
+  public void testReadOne() throws ExecutionException, InterruptedException {
     String dbName = UUID.randomUUID().toString();
 
-    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
-    TigrisAsyncDatabase db1 = asyncClient.getDatabase(dbName);
+    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup, dbName);
+    TigrisAsyncDatabase db1 = asyncClient.getDatabase();
     CompletableFuture<Optional<DB1_C1>> result =
         db1.getCollection(DB1_C1.class).readOne(Filters.eq("id", 1L));
     try {
@@ -82,12 +83,12 @@ public class StandardTigrisAsyncCollectionFailureTest {
   }
 
   @Test
-  public void testInsert() throws TigrisException {
+  public void testInsert() throws TigrisException, ExecutionException, InterruptedException {
     String dbName = UUID.randomUUID().toString();
 
-    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup, dbName);
     CompletableFuture<InsertResponse<DB1_C1>> result =
-        asyncClient.getDatabase(dbName).getCollection(DB1_C1.class).insert(new DB1_C1(1, "msg"));
+        asyncClient.getDatabase().getCollection(DB1_C1.class).insert(new DB1_C1(1, "msg"));
     try {
       result.join();
       Assert.fail("This must fail");
@@ -102,12 +103,13 @@ public class StandardTigrisAsyncCollectionFailureTest {
   }
 
   @Test
-  public void testInsertAndReplace() throws TigrisException {
+  public void testInsertAndReplace()
+      throws TigrisException, ExecutionException, InterruptedException {
     String dbName = UUID.randomUUID().toString();
-    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup);
+    TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup, dbName);
     CompletableFuture<InsertOrReplaceResponse<DB1_C1>> result =
         asyncClient
-            .getDatabase(dbName)
+            .getDatabase()
             .getCollection(DB1_C1.class)
             .insertOrReplace(Collections.singletonList(new DB1_C1(1, "msg")));
     try {

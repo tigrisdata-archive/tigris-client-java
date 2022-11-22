@@ -22,25 +22,23 @@ import org.springframework.boot.CommandLineRunner;
 
 public class TigrisAsyncInitializer implements CommandLineRunner {
 
-  private final String dbName;
+  private final String projectName;
   private final String[] collectionClasses;
   private final TigrisAsyncClient tigrisAsyncClient;
   private static final Logger log = LoggerFactory.getLogger(TigrisAsyncInitializer.class);
 
   public TigrisAsyncInitializer(
-      @Value("${tigris.db.name}") String dbName,
+      @Value("${tigris.project.name}") String projectName,
       @Value("${tigris.db.collectionClasses}") String collectionClasses,
       TigrisAsyncClient tigrisAsyncClient) {
-    this.dbName = dbName;
+    this.projectName = projectName;
     this.tigrisAsyncClient = tigrisAsyncClient;
     this.collectionClasses = collectionClasses.split(",");
   }
 
   @Override
   public void run(String... args) throws Exception {
-    log.info("Creating tigris database");
-    TigrisAsyncDatabase db = tigrisAsyncClient.createDatabaseIfNotExists(this.dbName).get();
-    log.info("Created tigris database");
+    TigrisAsyncDatabase db = tigrisAsyncClient.getDatabase();
 
     log.info("Resolving collection classes");
     Class[] classes = new Class[collectionClasses.length];
@@ -55,9 +53,9 @@ public class TigrisAsyncInitializer implements CommandLineRunner {
       }
     }
 
-    log.info("Creating tigris collections for db={}", dbName);
+    log.info("Creating tigris collections for db={}", projectName);
     db.createOrUpdateCollections(classes).get();
-    log.info("Created tigris collections for db={}", dbName);
+    log.info("Created tigris collections for db={}", projectName);
     log.info("Tigris initialization completed successfully.");
   }
 }

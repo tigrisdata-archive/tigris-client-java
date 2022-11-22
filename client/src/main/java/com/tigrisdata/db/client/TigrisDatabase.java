@@ -69,6 +69,13 @@ public interface TigrisDatabase {
       Class<T> collectionType) throws TigrisException;
 
   /**
+   * Drops all the collections.
+   *
+   * @throws TigrisException in case of an error.
+   */
+  void dropAllCollections() throws TigrisException;
+
+  /**
    * Return an instance of {@link TigrisCollection}
    *
    * @param documentCollectionTypeClass Class type of the collection

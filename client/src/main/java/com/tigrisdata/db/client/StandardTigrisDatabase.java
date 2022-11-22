@@ -25,7 +25,6 @@ import static com.tigrisdata.db.client.Constants.TRANSACTION_FAILED;
 import com.tigrisdata.db.client.config.TigrisConfiguration;
 import com.tigrisdata.db.client.error.TigrisException;
 import com.tigrisdata.db.type.TigrisDocumentCollectionType;
-import com.tigrisdata.tools.schema.core.CollectionType;
 import com.tigrisdata.tools.schema.core.ModelToJsonSchema;
 import io.grpc.ClientInterceptor;
 import io.grpc.ManagedChannel;
@@ -82,20 +81,7 @@ class StandardTigrisDatabase extends AbstractTigrisDatabase implements TigrisDat
   @Override
   public <T extends TigrisDocumentCollectionType> DropCollectionResponse dropCollection(
       Class<T> collectionType) throws TigrisException {
-    try {
-      Api.DropCollectionRequest dropCollectionRequest =
-          Api.DropCollectionRequest.newBuilder()
-              .setDb(db)
-              .setCollection(Utilities.getCollectionName(collectionType))
-              .build();
-      Api.DropCollectionResponse response = blockingStub.dropCollection(dropCollectionRequest);
-      return new DropCollectionResponse(response.getStatus(), response.getMessage());
-    } catch (StatusRuntimeException statusRuntimeException) {
-      throw new TigrisException(
-          DROP_COLLECTION_FAILED,
-          TypeConverter.extractTigrisError(statusRuntimeException),
-          statusRuntimeException);
-    }
+    return this.dropCollection(Utilities.getCollectionName(collectionType));
   }
 
   @Override
@@ -147,10 +133,7 @@ class StandardTigrisDatabase extends AbstractTigrisDatabase implements TigrisDat
       for (Class<? extends TigrisDocumentCollectionType> collectionModelType :
           collectionModelTypes) {
         TigrisSchema schema =
-            new TigrisJSONSchema(
-                modelToJsonSchema
-                    .toJsonSchema(CollectionType.DOCUMENTS, collectionModelType)
-                    .toString());
+            new TigrisJSONSchema(modelToJsonSchema.toJsonSchema(collectionModelType).toString());
         this.createOrUpdateCollections(
             transactionSession, schema, CollectionOptions.DEFAULT_INSTANCE);
       }
@@ -237,6 +220,27 @@ class StandardTigrisDatabase extends AbstractTigrisDatabase implements TigrisDat
     } catch (Throwable ex) {
       session.rollback();
       throw new TigrisException(TRANSACTION_FAILED, ex);
+    }
+  }
+
+  @Override
+  public void dropAllCollections() throws TigrisException {
+    for (CollectionInfo listCollection : listCollections()) {
+      dropCollection(listCollection.getCollectionName());
+    }
+  }
+
+  private DropCollectionResponse dropCollection(String collectionName) throws TigrisException {
+    try {
+      Api.DropCollectionRequest dropCollectionRequest =
+          Api.DropCollectionRequest.newBuilder().setDb(db).setCollection(collectionName).build();
+      Api.DropCollectionResponse response = blockingStub.dropCollection(dropCollectionRequest);
+      return new DropCollectionResponse(response.getStatus(), response.getMessage());
+    } catch (StatusRuntimeException statusRuntimeException) {
+      throw new TigrisException(
+          DROP_COLLECTION_FAILED,
+          TypeConverter.extractTigrisError(statusRuntimeException),
+          statusRuntimeException);
     }
   }
 }

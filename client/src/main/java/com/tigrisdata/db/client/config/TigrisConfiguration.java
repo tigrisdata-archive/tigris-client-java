@@ -30,12 +30,14 @@ import java.util.TimeZone;
 /** Tigris client configuration */
 public class TigrisConfiguration {
   private final String serverURL;
+  private final String projectName;
   private final TigrisConfiguration.NetworkConfig network;
   private final TigrisConfiguration.AuthConfig authConfig;
   private final ObjectMapper objectMapper;
 
   private TigrisConfiguration(Builder builder) {
     this.serverURL = builder.baseURL;
+    this.projectName = builder.projectName;
     this.network = builder.network;
     this.objectMapper = builder.objectMapper;
     this.authConfig = builder.authConfig;
@@ -47,12 +49,16 @@ public class TigrisConfiguration {
    * @param baseURL server base URL
    * @return an instance of {@link Builder}
    */
-  public static Builder newBuilder(final String baseURL) {
-    return new Builder(baseURL);
+  public static Builder newBuilder(final String baseURL, final String proejctName) {
+    return new Builder(baseURL, proejctName);
   }
 
   public String getServerURL() {
     return this.serverURL;
+  }
+
+  public String getProjectName() {
+    return projectName;
   }
 
   public TigrisConfiguration.NetworkConfig getNetwork() {
@@ -88,12 +94,14 @@ public class TigrisConfiguration {
 
     private static final int DEFAULT_GRPC_PORT = 443;
     private String baseURL;
+    private String projectName;
     private TigrisConfiguration.NetworkConfig network;
     private TigrisConfiguration.AuthConfig authConfig;
     private ObjectMapper objectMapper;
 
-    private Builder(String baseURL) {
+    private Builder(String baseURL, String projectName) {
       this.baseURL = baseURL;
+      this.projectName = projectName;
       this.network = NetworkConfig.newBuilder().build();
       // configure ObjectMapper to work with immutable objects
       this.objectMapper =

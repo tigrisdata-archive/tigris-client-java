@@ -63,8 +63,7 @@ public class StandardModelToTigrisJsonSchema implements ModelToJsonSchema {
   private static final Logger log = LoggerFactory.getLogger(StandardModelToTigrisJsonSchema.class);
 
   @Override
-  public JsonNode toJsonSchema(
-      CollectionType collectionType, Class<? extends TigrisCollectionType> clazz) {
+  public JsonNode toJsonSchema(Class<? extends TigrisCollectionType> clazz) {
     SchemaGeneratorConfigBuilder configBuilder =
         new SchemaGeneratorConfigBuilder(SchemaVersion.DRAFT_2020_12, OptionPreset.PLAIN_JSON);
     SchemaGeneratorConfig config =
@@ -104,7 +103,7 @@ public class StandardModelToTigrisJsonSchema implements ModelToJsonSchema {
 
     SchemaGenerator generator = new SchemaGenerator(config);
     JsonNode jsonSchema = generator.generateSchema(clazz);
-    JsonNode result = customizeSchema(collectionType, jsonSchema, clazz);
+    JsonNode result = customizeSchema(jsonSchema, clazz);
     log.info("Collection type class: {}, schema: {}", clazz.getName(), result.toPrettyString());
     return result;
   }
@@ -145,9 +144,7 @@ public class StandardModelToTigrisJsonSchema implements ModelToJsonSchema {
   }
 
   private static JsonNode customizeSchema(
-      CollectionType collectionType,
-      JsonNode jsonSchema,
-      Class<? extends TigrisCollectionType> clazz) {
+      JsonNode jsonSchema, Class<? extends TigrisCollectionType> clazz) {
     String schemaName = TypeUtils.getCollectionName(clazz);
     TigrisCollection tigrisCollection = clazz.getAnnotation(TigrisCollection.class);
     String description = null;
@@ -190,7 +187,7 @@ public class StandardModelToTigrisJsonSchema implements ModelToJsonSchema {
       }
     }
 
-    objectNode.put(COLLECTION_TYPE, collectionType.name().toLowerCase());
+    objectNode.put(COLLECTION_TYPE, "documents");
     ArrayNode primaryKeys = objectNode.putArray(PRIMARY_KEYS);
 
     if (!primaryKeysMap.isEmpty()) {

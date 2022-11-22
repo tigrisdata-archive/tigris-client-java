@@ -25,7 +25,7 @@ import org.junit.Test;
 public class FacetQueryOptionsTest {
 
   private static final ObjectMapper DEFAULT_OBJECT_MAPPER =
-      TigrisConfiguration.newBuilder("test").build().getObjectMapper();
+      TigrisConfiguration.newBuilder("test", "db1").build().getObjectMapper();
 
   @Test
   public void defaultInstance() {

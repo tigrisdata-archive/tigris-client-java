@@ -12,7 +12,7 @@ import java.util.UUID;
 
 public class UpdateFieldsTest {
   private static ObjectMapper DEFAULT_OBJECT_MAPPER =
-      TigrisConfiguration.newBuilder("test").build().getObjectMapper();
+      TigrisConfiguration.newBuilder("test", "db1").build().getObjectMapper();
 
   @Test(expected = IllegalStateException.class)
   public void testEmptySet() {

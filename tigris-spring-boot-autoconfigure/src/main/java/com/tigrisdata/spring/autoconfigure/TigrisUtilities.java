@@ -23,10 +23,12 @@ final class TigrisUtilities {
 
   static TigrisConfiguration tigrisConfiguration(
       String serverURL,
+      String projectName,
       boolean usePlainText,
       Optional<String> clientId,
       Optional<String> clientSecret) {
-    TigrisConfiguration.Builder configBuilder = TigrisConfiguration.newBuilder(serverURL);
+    TigrisConfiguration.Builder configBuilder =
+        TigrisConfiguration.newBuilder(serverURL, projectName);
     if (usePlainText) {
       // no TLS
       configBuilder.withNetwork(

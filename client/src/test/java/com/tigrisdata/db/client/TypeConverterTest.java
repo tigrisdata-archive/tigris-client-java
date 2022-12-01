@@ -33,7 +33,7 @@ import org.junit.Test;
 
 public class TypeConverterTest {
 
-  private static final String DB_NAME = "db1";
+  private static final String PROJECT_NAME = "db1";
   private static final String COLLECTION_NAME = "coll1";
   private static final ObjectMapper DEFAULT_OBJECT_MAPPER =
       TigrisConfiguration.newBuilder("test", "db1").build().getObjectMapper();
@@ -41,8 +41,8 @@ public class TypeConverterTest {
   @Test
   public void apiDatabaseInfoToModelTest() {
     DatabaseInfo convertedDatabaseInfo1 =
-        TypeConverter.toDatabaseInfo(Api.DatabaseInfo.newBuilder().setDb(DB_NAME).build());
-    DatabaseInfo databaseInfo1 = new DatabaseInfo(DB_NAME);
+        TypeConverter.toDatabaseInfo(Api.ProjectInfo.newBuilder().setProject(PROJECT_NAME).build());
+    DatabaseInfo databaseInfo1 = new DatabaseInfo(PROJECT_NAME);
     Assert.assertEquals(convertedDatabaseInfo1, databaseInfo1);
   }
 
@@ -59,7 +59,7 @@ public class TypeConverterTest {
   public void unreadableSchemaCreateCollectionRequestConversionTest() {
     try {
       TypeConverter.toCreateCollectionRequest(
-          DB_NAME, new TigrisJSONSchema("invalid-schema"), CollectionOptions.DEFAULT_INSTANCE);
+          PROJECT_NAME, new TigrisJSONSchema("invalid-schema"), CollectionOptions.DEFAULT_INSTANCE);
       Assert.fail("This must fail");
     } catch (TigrisException ignore) {
     }
@@ -90,7 +90,7 @@ public class TypeConverterTest {
         SearchRequestOptions.newBuilder().withPage(8).withPerPage(30).build();
     Api.SearchRequest apiSearchRequest =
         TypeConverter.toSearchRequest(
-            DB_NAME, COLLECTION_NAME, input, options, DEFAULT_OBJECT_MAPPER);
+            PROJECT_NAME, COLLECTION_NAME, input, options, DEFAULT_OBJECT_MAPPER);
 
     Assert.assertEquals(input.getQuery().toJSON(DEFAULT_OBJECT_MAPPER), apiSearchRequest.getQ());
     Assert.assertNotNull(apiSearchRequest.getSearchFieldsList());
@@ -107,7 +107,8 @@ public class TypeConverterTest {
   public void toSearchRequest_withSortOrder() {
     SearchRequest input = SearchRequest.newBuilder().withSort(Sort.descending("field_1")).build();
     Api.SearchRequest apiSearchRequest =
-        TypeConverter.toSearchRequest(DB_NAME, COLLECTION_NAME, input, null, DEFAULT_OBJECT_MAPPER);
+        TypeConverter.toSearchRequest(
+            PROJECT_NAME, COLLECTION_NAME, input, null, DEFAULT_OBJECT_MAPPER);
     Assert.assertNotNull(apiSearchRequest.getSort());
     Assert.assertEquals("[{\"field_1\":\"$desc\"}]", apiSearchRequest.getSort().toStringUtf8());
   }

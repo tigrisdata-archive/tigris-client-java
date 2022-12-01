@@ -74,7 +74,8 @@ class StandardTigrisAsyncDatabase extends AbstractTigrisDatabase implements Tigr
   @Override
   public CompletableFuture<List<CollectionInfo>> listCollections() {
     ListenableFuture<Api.ListCollectionsResponse> listListenableFuture =
-        futureStub.listCollections(Api.ListCollectionsRequest.newBuilder().setDb(this.db).build());
+        futureStub.listCollections(
+            Api.ListCollectionsRequest.newBuilder().setProject(this.db).build());
     return Utilities.transformFuture(
         listListenableFuture,
         listCollectionsResponse ->
@@ -179,7 +180,8 @@ class StandardTigrisAsyncDatabase extends AbstractTigrisDatabase implements Tigr
   @Override
   public CompletableFuture<DatabaseDescription> describe() throws TigrisException {
     ListenableFuture<Api.DescribeDatabaseResponse> describeDatabaseResponseListenableFuture =
-        futureStub.describeDatabase(Api.DescribeDatabaseRequest.newBuilder().setDb(db).build());
+        futureStub.describeDatabase(
+            Api.DescribeDatabaseRequest.newBuilder().setProject(db).build());
 
     return Utilities.transformFuture(
         describeDatabaseResponseListenableFuture,

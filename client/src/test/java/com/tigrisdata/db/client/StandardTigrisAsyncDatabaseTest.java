@@ -189,7 +189,6 @@ public class StandardTigrisAsyncDatabaseTest {
     TigrisAsyncClient asyncClient = TestUtils.getTestAsyncClient(SERVER_NAME, grpcCleanup, "db1");
     TigrisAsyncDatabase db1 = asyncClient.getDatabase();
     DatabaseDescription databaseDescription = db1.describe().get();
-    Assert.assertEquals("db1", databaseDescription.getName());
     Assert.assertEquals(
         "{\"title\":\"db1_c5\",\"description\":\"This document records the details of user for tigris store\","
             + "\"properties\":{\"id\":{\"description\":\"A unique identifier for the user\",\"type\":\"int\"},"

@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 
 public class TestTigrisService extends TigrisGrpc.TigrisImplBase {
 
-  private Set<String> dbs;
+  private Set<String> projects;
   private Map<String, Set<String>> dbToCollectionsMap;
   private Map<String, List<JsonObject>> collectionToDocumentsMap;
   private String txId;
@@ -53,8 +53,8 @@ public class TestTigrisService extends TigrisGrpc.TigrisImplBase {
   }
 
   public void reset() {
-    // default dbs
-    this.dbs =
+    // default projects
+    this.projects =
         new LinkedHashSet<String>() {
           {
             add("db1");
@@ -65,7 +65,7 @@ public class TestTigrisService extends TigrisGrpc.TigrisImplBase {
 
     this.dbToCollectionsMap = new HashMap<>();
     this.collectionToDocumentsMap = new HashMap<>();
-    for (String db : dbs) {
+    for (String db : projects) {
       Set<String> collections = new LinkedHashSet<>();
       for (int i = 0; i < 5; i++) {
         collections.add(db + "_c" + i);
@@ -73,7 +73,7 @@ public class TestTigrisService extends TigrisGrpc.TigrisImplBase {
       dbToCollectionsMap.put(db, collections);
     }
 
-    for (String db : dbs) {
+    for (String db : projects) {
       for (String collection : dbToCollectionsMap.get(db)) {
         List<JsonObject> documents =
             collectionToDocumentsMap.computeIfAbsent(collection, k -> new ArrayList<>());
@@ -130,7 +130,7 @@ public class TestTigrisService extends TigrisGrpc.TigrisImplBase {
   @Override
   public void insert(
       Api.InsertRequest request, StreamObserver<Api.InsertResponse> responseObserver) {
-    if (request.getDb().equals("autoGenerateTestDB")) {
+    if (request.getProject().equals("autoGenerateTestDB")) {
       Api.InsertResponse.Builder builder = Api.InsertResponse.newBuilder();
       for (int i = 0; i < 5; i++) {
         builder.addKeys(
@@ -153,7 +153,7 @@ public class TestTigrisService extends TigrisGrpc.TigrisImplBase {
       responseObserver.onNext(builder.build());
       responseObserver.onCompleted();
     } else {
-      if (dbToCollectionsMap.get(request.getDb()).contains(request.getCollection())) {
+      if (dbToCollectionsMap.get(request.getProject()).contains(request.getCollection())) {
         for (ByteString bytes : request.getDocumentsList()) {
           collectionToDocumentsMap
               .get(request.getCollection())
@@ -171,7 +171,7 @@ public class TestTigrisService extends TigrisGrpc.TigrisImplBase {
   @Override
   public void replace(
       Api.ReplaceRequest request, StreamObserver<Api.ReplaceResponse> responseObserver) {
-    if (request.getDb().equals("autoGenerateTestDB")) {
+    if (request.getProject().equals("autoGenerateTestDB")) {
       Api.ReplaceResponse.Builder builder = Api.ReplaceResponse.newBuilder();
       for (int i = 0; i < 5; i++) {
         builder.addKeys(
@@ -194,7 +194,7 @@ public class TestTigrisService extends TigrisGrpc.TigrisImplBase {
       responseObserver.onNext(builder.build());
       responseObserver.onCompleted();
     } else {
-      if (dbToCollectionsMap.get(request.getDb()).contains(request.getCollection())) {
+      if (dbToCollectionsMap.get(request.getProject()).contains(request.getCollection())) {
         for (ByteString docBytes : request.getDocumentsList()) {
           JsonObject doc = JsonParser.parseString(docBytes.toStringUtf8()).getAsJsonObject();
           boolean matched = false;
@@ -232,7 +232,7 @@ public class TestTigrisService extends TigrisGrpc.TigrisImplBase {
      Filter shape
      {"id":1}
     */
-    if (dbToCollectionsMap.get(request.getDb()).contains(request.getCollection())) {
+    if (dbToCollectionsMap.get(request.getProject()).contains(request.getCollection())) {
       List<JsonObject> newDocs = new ArrayList<>();
       for (JsonObject document : collectionToDocumentsMap.get(request.getCollection())) {
         // delete doc matching the ID, by adding all but the matching
@@ -267,7 +267,7 @@ public class TestTigrisService extends TigrisGrpc.TigrisImplBase {
     JsonObject fieldJsonObject =
         JsonParser.parseString(request.getFields().toStringUtf8()).getAsJsonObject();
 
-    if (dbToCollectionsMap.get(request.getDb()).contains(request.getCollection())) {
+    if (dbToCollectionsMap.get(request.getProject()).contains(request.getCollection())) {
       for (JsonObject document : collectionToDocumentsMap.get(request.getCollection())) {
         // delete doc matching the ID, by adding all but the matching
         if (document.get("id").getAsLong() == filterJsonObject.get("id").getAsLong()) {
@@ -294,7 +294,7 @@ public class TestTigrisService extends TigrisGrpc.TigrisImplBase {
     // for test assume there is only one key
     boolean filterNothing = filterJsonObject.toString().equals("{}");
     if (filterNothing) {
-      if (dbToCollectionsMap.get(request.getDb()).contains(request.getCollection())) {
+      if (dbToCollectionsMap.get(request.getProject()).contains(request.getCollection())) {
         for (JsonObject jsonObject : collectionToDocumentsMap.get(request.getCollection())) {
           responseObserver.onNext(
               Api.ReadResponse.newBuilder()
@@ -306,7 +306,7 @@ public class TestTigrisService extends TigrisGrpc.TigrisImplBase {
     } else {
       @SuppressWarnings("OptionalGetWithoutIsPresent")
       String filterKey = filterJsonObject.keySet().stream().findAny().get();
-      if (dbToCollectionsMap.get(request.getDb()).contains(request.getCollection())) {
+      if (dbToCollectionsMap.get(request.getProject()).contains(request.getCollection())) {
         for (JsonObject jsonObject : collectionToDocumentsMap.get(request.getCollection())) {
           // if field exists in the doc, then filter
           if (jsonObject.keySet().contains(filterKey)) {
@@ -334,7 +334,7 @@ public class TestTigrisService extends TigrisGrpc.TigrisImplBase {
       Api.SearchRequest request, StreamObserver<Api.SearchResponse> responseObserver) {
     // returns all collection documents batched by a single document per Search hit in Response
 
-    if (dbToCollectionsMap.get(request.getDb()).contains(request.getCollection())) {
+    if (dbToCollectionsMap.get(request.getProject()).contains(request.getCollection())) {
       List<JsonObject> documents = collectionToDocumentsMap.get(request.getCollection());
       // start off with current page and increment before sending response
 
@@ -378,7 +378,7 @@ public class TestTigrisService extends TigrisGrpc.TigrisImplBase {
   public void createOrUpdateCollection(
       Api.CreateOrUpdateCollectionRequest request,
       StreamObserver<Api.CreateOrUpdateCollectionResponse> responseObserver) {
-    dbToCollectionsMap.get(request.getDb()).add(request.getCollection());
+    dbToCollectionsMap.get(request.getProject()).add(request.getCollection());
     responseObserver.onNext(
         Api.CreateOrUpdateCollectionResponse.newBuilder()
             .setStatus("created")
@@ -391,7 +391,7 @@ public class TestTigrisService extends TigrisGrpc.TigrisImplBase {
   public void dropCollection(
       Api.DropCollectionRequest request,
       StreamObserver<Api.DropCollectionResponse> responseObserver) {
-    dbToCollectionsMap.get(request.getDb()).remove(request.getCollection());
+    dbToCollectionsMap.get(request.getProject()).remove(request.getCollection());
     responseObserver.onNext(
         Api.DropCollectionResponse.newBuilder()
             .setMessage(request.getCollection() + " dropped")
@@ -400,13 +400,12 @@ public class TestTigrisService extends TigrisGrpc.TigrisImplBase {
   }
 
   @Override
-  public void listDatabases(
-      Api.ListDatabasesRequest request,
-      StreamObserver<Api.ListDatabasesResponse> responseObserver) {
-    Api.ListDatabasesResponse.Builder listDatabasesResponseBuilder =
-        Api.ListDatabasesResponse.newBuilder();
-    for (String db : dbs) {
-      listDatabasesResponseBuilder.addDatabases(Api.DatabaseInfo.newBuilder().setDb(db).build());
+  public void listProjects(
+      Api.ListProjectsRequest request, StreamObserver<Api.ListProjectsResponse> responseObserver) {
+    Api.ListProjectsResponse.Builder listDatabasesResponseBuilder =
+        Api.ListProjectsResponse.newBuilder();
+    for (String db : projects) {
+      listDatabasesResponseBuilder.addProjects(Api.ProjectInfo.newBuilder().setProject(db).build());
     }
     responseObserver.onNext(listDatabasesResponseBuilder.build());
     responseObserver.onCompleted();
@@ -417,7 +416,7 @@ public class TestTigrisService extends TigrisGrpc.TigrisImplBase {
       Api.ListCollectionsRequest request,
       StreamObserver<Api.ListCollectionsResponse> responseObserver) {
     Api.ListCollectionsResponse.Builder builder = Api.ListCollectionsResponse.newBuilder();
-    for (String collectionName : dbToCollectionsMap.get(request.getDb())) {
+    for (String collectionName : dbToCollectionsMap.get(request.getProject())) {
       builder.addCollections(Api.CollectionInfo.newBuilder().setCollection(collectionName).build());
     }
     responseObserver.onNext(builder.build());
@@ -425,11 +424,11 @@ public class TestTigrisService extends TigrisGrpc.TigrisImplBase {
   }
 
   @Override
-  public void createDatabase(
-      Api.CreateDatabaseRequest request,
-      StreamObserver<Api.CreateDatabaseResponse> responseObserver) {
+  public void createProject(
+      Api.CreateProjectRequest request,
+      StreamObserver<Api.CreateProjectResponse> responseObserver) {
     // to test already exists
-    if (request.getDb().equals("pre-existing-db-name")) {
+    if (request.getProject().equals("pre-existing-db-name")) {
       Metadata metadata = new Metadata();
       Metadata.Key<ErrorInfo> errorResponseKey =
           ProtoUtils.keyForProto(ErrorInfo.getDefaultInstance());
@@ -444,20 +443,23 @@ public class TestTigrisService extends TigrisGrpc.TigrisImplBase {
               .asRuntimeException(metadata));
       return;
     }
-    this.dbs.add(request.getDb());
+    this.projects.add(request.getProject());
     responseObserver.onNext(
-        Api.CreateDatabaseResponse.newBuilder().setMessage(request.getDb() + " created").build());
+        Api.CreateProjectResponse.newBuilder()
+            .setMessage(request.getProject() + " created")
+            .build());
     responseObserver.onCompleted();
   }
 
   @Override
-  public void dropDatabase(
-      Api.DropDatabaseRequest request, StreamObserver<Api.DropDatabaseResponse> responseObserver) {
-    this.dbs.remove(request.getDb());
+  public void deleteProject(
+      Api.DeleteProjectRequest request,
+      StreamObserver<Api.DeleteProjectResponse> responseObserver) {
+    this.projects.remove(request.getProject());
     responseObserver.onNext(
-        Api.DropDatabaseResponse.newBuilder()
+        Api.DeleteProjectResponse.newBuilder()
             .setStatus("dropped")
-            .setMessage(request.getDb() + " dropped")
+            .setMessage(request.getProject() + " dropped")
             .build());
     responseObserver.onCompleted();
   }
@@ -469,8 +471,7 @@ public class TestTigrisService extends TigrisGrpc.TigrisImplBase {
 
     responseObserver.onNext(
         Api.DescribeDatabaseResponse.newBuilder()
-            .setDb(request.getDb())
-            .setMetadata(Api.DatabaseMetadata.newBuilder().build())
+            .setMetadata(Api.ProjectMetadata.newBuilder().build())
             .addCollections(
                 Api.CollectionDescription.newBuilder()
                     .setCollection("c1")
@@ -510,18 +511,6 @@ public class TestTigrisService extends TigrisGrpc.TigrisImplBase {
                         + "\"balance\":{\"description\":\"user balance in USD\","
                         + "\"type\":\"double\"}},\"primary_key\":[\"id\"]}"))
             .build());
-    responseObserver.onCompleted();
-  }
-
-  @Override
-  public void publish(
-      Api.PublishRequest request, StreamObserver<Api.PublishResponse> responseObserver) {
-    Api.PublishResponse.Builder builder = Api.PublishResponse.newBuilder();
-    for (int i = 1; i <= request.getMessagesCount(); i++) {
-      builder.addKeys(ByteString.copyFromUtf8("{\"id\": " + i + "}"));
-    }
-    builder.setStatus("published: " + request.getMessagesCount());
-    responseObserver.onNext(builder.build());
     responseObserver.onCompleted();
   }
 

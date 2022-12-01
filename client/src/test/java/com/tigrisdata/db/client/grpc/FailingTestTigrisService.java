@@ -27,7 +27,7 @@ public class FailingTestTigrisService extends TigrisGrpc.TigrisImplBase {
   public void beginTransaction(
       Api.BeginTransactionRequest request,
       StreamObserver<Api.BeginTransactionResponse> responseObserver) {
-    if (request.getDb().contains(ALLOW_BEGIN_TRANSACTION_DB_NAME)) {
+    if (request.getProject().contains(ALLOW_BEGIN_TRANSACTION_DB_NAME)) {
       responseObserver.onNext(
           Api.BeginTransactionResponse.newBuilder()
               .setTxCtx(Api.TransactionCtx.newBuilder().build())
@@ -38,7 +38,7 @@ public class FailingTestTigrisService extends TigrisGrpc.TigrisImplBase {
 
     responseObserver.onError(
         Status.FAILED_PRECONDITION
-            .withDescription("Test failure " + request.getDb())
+            .withDescription("Test failure " + request.getProject())
             .asRuntimeException());
   }
 
@@ -48,7 +48,7 @@ public class FailingTestTigrisService extends TigrisGrpc.TigrisImplBase {
       StreamObserver<Api.CommitTransactionResponse> responseObserver) {
     responseObserver.onError(
         Status.FAILED_PRECONDITION
-            .withDescription("Test failure " + request.getDb())
+            .withDescription("Test failure " + request.getProject())
             .asRuntimeException());
   }
 
@@ -56,7 +56,7 @@ public class FailingTestTigrisService extends TigrisGrpc.TigrisImplBase {
   public void rollbackTransaction(
       Api.RollbackTransactionRequest request,
       StreamObserver<Api.RollbackTransactionResponse> responseObserver) {
-    if (request.getDb().contains(ALLOW_ROLLBACK_TRANSACTION_DB_NAME)) {
+    if (request.getProject().contains(ALLOW_ROLLBACK_TRANSACTION_DB_NAME)) {
       responseObserver.onNext(Api.RollbackTransactionResponse.newBuilder().build());
       responseObserver.onCompleted();
       return;
@@ -64,7 +64,7 @@ public class FailingTestTigrisService extends TigrisGrpc.TigrisImplBase {
 
     responseObserver.onError(
         Status.FAILED_PRECONDITION
-            .withDescription("Test failure " + request.getDb())
+            .withDescription("Test failure " + request.getProject())
             .asRuntimeException());
   }
 
@@ -73,7 +73,7 @@ public class FailingTestTigrisService extends TigrisGrpc.TigrisImplBase {
       Api.InsertRequest request, StreamObserver<Api.InsertResponse> responseObserver) {
     responseObserver.onError(
         Status.FAILED_PRECONDITION
-            .withDescription("Test failure " + request.getDb())
+            .withDescription("Test failure " + request.getProject())
             .asRuntimeException());
   }
 
@@ -82,7 +82,7 @@ public class FailingTestTigrisService extends TigrisGrpc.TigrisImplBase {
       Api.ReplaceRequest request, StreamObserver<Api.ReplaceResponse> responseObserver) {
     responseObserver.onError(
         Status.FAILED_PRECONDITION
-            .withDescription("Test failure " + request.getDb())
+            .withDescription("Test failure " + request.getProject())
             .asRuntimeException());
   }
 
@@ -91,7 +91,7 @@ public class FailingTestTigrisService extends TigrisGrpc.TigrisImplBase {
       Api.DeleteRequest request, StreamObserver<Api.DeleteResponse> responseObserver) {
     responseObserver.onError(
         Status.FAILED_PRECONDITION
-            .withDescription("Test failure " + request.getDb())
+            .withDescription("Test failure " + request.getProject())
             .asRuntimeException());
   }
 
@@ -100,7 +100,7 @@ public class FailingTestTigrisService extends TigrisGrpc.TigrisImplBase {
       Api.UpdateRequest request, StreamObserver<Api.UpdateResponse> responseObserver) {
     responseObserver.onError(
         Status.FAILED_PRECONDITION
-            .withDescription("Test failure " + request.getDb())
+            .withDescription("Test failure " + request.getProject())
             .asRuntimeException());
   }
 
@@ -108,7 +108,7 @@ public class FailingTestTigrisService extends TigrisGrpc.TigrisImplBase {
   public void read(Api.ReadRequest request, StreamObserver<Api.ReadResponse> responseObserver) {
     responseObserver.onError(
         Status.FAILED_PRECONDITION
-            .withDescription("Test failure " + request.getDb())
+            .withDescription("Test failure " + request.getProject())
             .asRuntimeException());
   }
 
@@ -117,7 +117,7 @@ public class FailingTestTigrisService extends TigrisGrpc.TigrisImplBase {
       Api.SearchRequest request, StreamObserver<Api.SearchResponse> responseObserver) {
     responseObserver.onError(
         Status.FAILED_PRECONDITION
-            .withDescription("Test failure " + request.getDb())
+            .withDescription("Test failure " + request.getProject())
             .asRuntimeException());
   }
 
@@ -127,7 +127,7 @@ public class FailingTestTigrisService extends TigrisGrpc.TigrisImplBase {
       StreamObserver<Api.CreateOrUpdateCollectionResponse> responseObserver) {
     responseObserver.onError(
         Status.FAILED_PRECONDITION
-            .withDescription("Test failure " + request.getDb())
+            .withDescription("Test failure " + request.getProject())
             .asRuntimeException());
   }
 
@@ -137,14 +137,13 @@ public class FailingTestTigrisService extends TigrisGrpc.TigrisImplBase {
       StreamObserver<Api.DropCollectionResponse> responseObserver) {
     responseObserver.onError(
         Status.FAILED_PRECONDITION
-            .withDescription("Test failure " + request.getDb())
+            .withDescription("Test failure " + request.getProject())
             .asRuntimeException());
   }
 
   @Override
-  public void listDatabases(
-      Api.ListDatabasesRequest request,
-      StreamObserver<Api.ListDatabasesResponse> responseObserver) {
+  public void listProjects(
+      Api.ListProjectsRequest request, StreamObserver<Api.ListProjectsResponse> responseObserver) {
     responseObserver.onError(
         Status.FAILED_PRECONDITION
             .withDescription("Test failure listDatabases")
@@ -157,26 +156,27 @@ public class FailingTestTigrisService extends TigrisGrpc.TigrisImplBase {
       StreamObserver<Api.ListCollectionsResponse> responseObserver) {
     responseObserver.onError(
         Status.FAILED_PRECONDITION
-            .withDescription("Test failure " + request.getDb())
+            .withDescription("Test failure " + request.getProject())
             .asRuntimeException());
   }
 
   @Override
-  public void createDatabase(
-      Api.CreateDatabaseRequest request,
-      StreamObserver<Api.CreateDatabaseResponse> responseObserver) {
+  public void createProject(
+      Api.CreateProjectRequest request,
+      StreamObserver<Api.CreateProjectResponse> responseObserver) {
     responseObserver.onError(
         Status.FAILED_PRECONDITION
-            .withDescription("Test failure " + request.getDb())
+            .withDescription("Test failure " + request.getProject())
             .asRuntimeException());
   }
 
   @Override
-  public void dropDatabase(
-      Api.DropDatabaseRequest request, StreamObserver<Api.DropDatabaseResponse> responseObserver) {
+  public void deleteProject(
+      Api.DeleteProjectRequest request,
+      StreamObserver<Api.DeleteProjectResponse> responseObserver) {
     responseObserver.onError(
         Status.FAILED_PRECONDITION
-            .withDescription("Test failure " + request.getDb())
+            .withDescription("Test failure " + request.getProject())
             .asRuntimeException());
   }
 }

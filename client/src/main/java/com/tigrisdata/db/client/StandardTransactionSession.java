@@ -57,7 +57,7 @@ class StandardTransactionSession implements TransactionSession {
   public CommitTransactionResponse commit() throws TigrisException {
     try {
       Api.CommitTransactionRequest commitTransactionRequest =
-          Api.CommitTransactionRequest.newBuilder().setDb(databaseName).build();
+          Api.CommitTransactionRequest.newBuilder().setProject(databaseName).build();
       Api.CommitTransactionResponse response =
           TypeConverter.transactionAwareStub(stub, this)
               .commitTransaction(commitTransactionRequest);
@@ -74,7 +74,7 @@ class StandardTransactionSession implements TransactionSession {
   public RollbackTransactionResponse rollback() throws TigrisException {
     try {
       Api.RollbackTransactionRequest rollbackTransactionRequest =
-          Api.RollbackTransactionRequest.newBuilder().setDb(databaseName).build();
+          Api.RollbackTransactionRequest.newBuilder().setProject(databaseName).build();
       Api.RollbackTransactionResponse response =
           TypeConverter.transactionAwareStub(stub, this)
               .rollbackTransaction(rollbackTransactionRequest);

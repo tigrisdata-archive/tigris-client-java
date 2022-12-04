@@ -52,45 +52,37 @@ final class TypeConverter {
   static final Metadata.Key<String> OUTBOUND_COOKIE_KEY =
       Metadata.Key.of("Cookie", Metadata.ASCII_STRING_MARSHALLER);
 
-  public static Api.ListDatabasesRequest toListDatabasesRequest(DatabaseOptions databaseOptions) {
-    return Api.ListDatabasesRequest.newBuilder().build();
+  public static Api.ListProjectsRequest toListDatabasesRequest(DatabaseOptions databaseOptions) {
+    return Api.ListProjectsRequest.newBuilder().build();
   }
 
-  public static Api.CreateDatabaseRequest toCreateDatabaseRequest(
-      String databaseName, DatabaseOptions databaseOptions) {
-    return Api.CreateDatabaseRequest.newBuilder()
-        .setDb(databaseName)
-        .setOptions(Api.DatabaseOptions.newBuilder().build())
-        .build();
+  static Api.CreateProjectRequest toCreateDatabaseRequest(String databaseName) {
+    return Api.CreateProjectRequest.newBuilder().setProject(databaseName).build();
   }
 
-  public static Api.DropDatabaseRequest toDropDatabaseRequest(
-      String databaseName, DatabaseOptions databaseOptions) {
-    return Api.DropDatabaseRequest.newBuilder()
-        .setDb(databaseName)
-        .setOptions(Api.DatabaseOptions.newBuilder().build())
-        .build();
+  static Api.DeleteProjectRequest toDropDatabaseRequest(String databaseName) {
+    return Api.DeleteProjectRequest.newBuilder().setProject(databaseName).build();
   }
 
-  public static ServerMetadata toServerMetadata(
+  static ServerMetadata toServerMetadata(
       ObservabilityOuterClass.GetInfoResponse apiGetInfoResponse) {
     return new ServerMetadata(apiGetInfoResponse.getServerVersion());
   }
 
-  public static CollectionInfo toCollectionInfo(Api.CollectionInfo collectionInfo) {
+  static CollectionInfo toCollectionInfo(Api.CollectionInfo collectionInfo) {
     return new CollectionInfo(collectionInfo.getCollection());
   }
 
-  public static DatabaseInfo toDatabaseInfo(Api.DatabaseInfo databaseInfo) {
-    return new DatabaseInfo(databaseInfo.getDb());
+  static DatabaseInfo toDatabaseInfo(Api.ProjectInfo projectInfo) {
+    return new DatabaseInfo(projectInfo.getProject());
   }
 
-  public static Api.CreateOrUpdateCollectionRequest toCreateCollectionRequest(
+  static Api.CreateOrUpdateCollectionRequest toCreateCollectionRequest(
       String databaseName, TigrisSchema schema, CollectionOptions collectionOptions)
       throws TigrisException {
     try {
       return Api.CreateOrUpdateCollectionRequest.newBuilder()
-          .setDb(databaseName)
+          .setProject(databaseName)
           .setCollection(schema.getName())
           .setSchema(ByteString.copyFromUtf8(schema.getSchemaContent()))
           .setOptions(toCollectionOptions(collectionOptions))
@@ -141,7 +133,7 @@ final class TypeConverter {
   public static Api.DropCollectionRequest toDropCollectionRequest(
       String databaseName, String collectionName, CollectionOptions collectionOptions) {
     return Api.DropCollectionRequest.newBuilder()
-        .setDb(databaseName)
+        .setProject(databaseName)
         .setCollection(collectionName)
         .setOptions(toCollectionOptions(collectionOptions))
         .build();
@@ -150,7 +142,7 @@ final class TypeConverter {
   public static Api.BeginTransactionRequest toBeginTransactionRequest(
       String databaseName, TransactionOptions transactionOptions) {
     return Api.BeginTransactionRequest.newBuilder()
-        .setDb(databaseName)
+        .setProject(databaseName)
         .setOptions(Api.TransactionOptions.newBuilder().build())
         .build();
   }
@@ -170,7 +162,7 @@ final class TypeConverter {
 
     Api.ReadRequest.Builder readRequestBuilder =
         Api.ReadRequest.newBuilder()
-            .setDb(databaseName)
+            .setProject(databaseName)
             .setCollection(collectionName)
             .setFilter(ByteString.copyFromUtf8(filter.toJSON(objectMapper)))
             .setOptions(readRequestOptionsAPI);
@@ -188,7 +180,7 @@ final class TypeConverter {
       ObjectMapper objectMapper) {
     Api.SearchRequest.Builder builder =
         Api.SearchRequest.newBuilder()
-            .setDb(databaseName)
+            .setProject(databaseName)
             .setCollection(collectionName)
             .setQ(req.getQuery().toJSON(objectMapper))
             .addAllIncludeFields(req.getIncludeFields())
@@ -221,7 +213,7 @@ final class TypeConverter {
       throws JsonProcessingException {
     Api.InsertRequest.Builder insertRequestBuilder =
         Api.InsertRequest.newBuilder()
-            .setDb(databaseName)
+            .setProject(databaseName)
             .setCollection(collectionName)
             .setOptions(
                 Api.InsertRequestOptions.newBuilder()
@@ -274,7 +266,7 @@ final class TypeConverter {
       throws JsonProcessingException {
     Api.ReplaceRequest.Builder replaceRequestBuilder =
         Api.ReplaceRequest.newBuilder()
-            .setDb(databaseName)
+            .setProject(databaseName)
             .setCollection(collectionName)
             .setOptions(
                 Api.ReplaceRequestOptions.newBuilder()
@@ -297,7 +289,7 @@ final class TypeConverter {
       ObjectMapper objectMapper) {
 
     return Api.UpdateRequest.newBuilder()
-        .setDb(databaseName)
+        .setProject(databaseName)
         .setCollection(collectionName)
         .setFilter(ByteString.copyFromUtf8(filter.toJSON(objectMapper)))
         .setFields(ByteString.copyFromUtf8(updateFields.toJSON(objectMapper)))
@@ -315,7 +307,7 @@ final class TypeConverter {
       DeleteRequestOptions deleteRequestOptions,
       ObjectMapper objectMapper) {
     return Api.DeleteRequest.newBuilder()
-        .setDb(databaseName)
+        .setProject(databaseName)
         .setCollection(collectionName)
         .setFilter(ByteString.copyFromUtf8(filter.toJSON(objectMapper)))
         .setOptions(
@@ -333,7 +325,7 @@ final class TypeConverter {
     }
 
     DatabaseMetadata metadata = toDatabaseMetadata(response.getMetadata());
-    return new DatabaseDescription(response.getDb(), metadata, collectionsDescription);
+    return new DatabaseDescription(metadata, collectionsDescription);
   }
 
   public static Api.CollectionOptions toCollectionOptions(CollectionOptions collectionOptions) {
@@ -390,7 +382,7 @@ final class TypeConverter {
     return Optional.empty();
   }
 
-  private static DatabaseMetadata toDatabaseMetadata(Api.DatabaseMetadata databaseMetadata) {
+  private static DatabaseMetadata toDatabaseMetadata(Api.ProjectMetadata databaseMetadata) {
     // empty metadata for now
     return new DatabaseMetadata();
   }

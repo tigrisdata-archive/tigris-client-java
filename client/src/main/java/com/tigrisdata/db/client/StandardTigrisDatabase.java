@@ -64,7 +64,7 @@ class StandardTigrisDatabase extends AbstractTigrisDatabase implements TigrisDat
   public List<CollectionInfo> listCollections() throws TigrisException {
     try {
       Api.ListCollectionsRequest listCollectionsRequest =
-          Api.ListCollectionsRequest.newBuilder().setDb(db).build();
+          Api.ListCollectionsRequest.newBuilder().setProject(db).build();
       Api.ListCollectionsResponse listCollectionsResponse =
           blockingStub.listCollections(listCollectionsRequest);
       return listCollectionsResponse.getCollectionsList().stream()
@@ -97,7 +97,7 @@ class StandardTigrisDatabase extends AbstractTigrisDatabase implements TigrisDat
     try {
       Api.BeginTransactionRequest beginTransactionRequest =
           Api.BeginTransactionRequest.newBuilder()
-              .setDb(db)
+              .setProject(db)
               .setOptions(Api.TransactionOptions.newBuilder().build())
               .build();
       AtomicReference<Metadata> headersCapturer = new AtomicReference<>();
@@ -167,7 +167,8 @@ class StandardTigrisDatabase extends AbstractTigrisDatabase implements TigrisDat
   public DatabaseDescription describe() throws TigrisException {
     try {
       Api.DescribeDatabaseResponse response =
-          blockingStub.describeDatabase(Api.DescribeDatabaseRequest.newBuilder().setDb(db).build());
+          blockingStub.describeDatabase(
+              Api.DescribeDatabaseRequest.newBuilder().setProject(db).build());
       return TypeConverter.toDatabaseDescription(response);
     } catch (StatusRuntimeException statusRuntimeException) {
       throw new TigrisException(
@@ -230,7 +231,10 @@ class StandardTigrisDatabase extends AbstractTigrisDatabase implements TigrisDat
   private DropCollectionResponse dropCollection(String collectionName) throws TigrisException {
     try {
       Api.DropCollectionRequest dropCollectionRequest =
-          Api.DropCollectionRequest.newBuilder().setDb(db).setCollection(collectionName).build();
+          Api.DropCollectionRequest.newBuilder()
+              .setProject(db)
+              .setCollection(collectionName)
+              .build();
       Api.DropCollectionResponse response = blockingStub.dropCollection(dropCollectionRequest);
       return new DropCollectionResponse(response.getStatus(), response.getMessage());
     } catch (StatusRuntimeException statusRuntimeException) {

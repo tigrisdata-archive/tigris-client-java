@@ -19,20 +19,13 @@ import java.util.Objects;
 
 /** Represents database description */
 public class DatabaseDescription {
-  private final String name;
   private final DatabaseMetadata metadata;
   private final List<CollectionDescription> collectionsDescription;
 
   DatabaseDescription(
-      String name, DatabaseMetadata metadata, List<CollectionDescription> collectionsDescription) {
-    this.name = name;
+      DatabaseMetadata metadata, List<CollectionDescription> collectionsDescription) {
     this.metadata = metadata;
     this.collectionsDescription = collectionsDescription;
-  }
-
-  /** @return database name */
-  public String getName() {
-    return name;
   }
 
   /** @return metadata about database */
@@ -50,13 +43,12 @@ public class DatabaseDescription {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     DatabaseDescription that = (DatabaseDescription) o;
-    return Objects.equals(name, that.name)
-        && Objects.equals(metadata, that.metadata)
+    return Objects.equals(metadata, that.metadata)
         && Objects.equals(collectionsDescription, that.collectionsDescription);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, metadata, collectionsDescription);
+    return Objects.hash(metadata, collectionsDescription);
   }
 }

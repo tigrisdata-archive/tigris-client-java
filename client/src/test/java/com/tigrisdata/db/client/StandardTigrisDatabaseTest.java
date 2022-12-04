@@ -195,7 +195,6 @@ public class StandardTigrisDatabaseTest {
     TigrisClient client = TestUtils.getTestClient(SERVER_NAME, grpcCleanup, "db1");
     TigrisDatabase db1 = client.getDatabase();
     DatabaseDescription databaseDescription = db1.describe();
-    Assert.assertEquals("db1", databaseDescription.getName());
     Assert.assertEquals(
         "{\"title\":\"db1_c5\",\"description\":\"This document records the details of user for tigris store\","
             + "\"properties\":{\"id\":{\"description\":\"A unique identifier for the user\","

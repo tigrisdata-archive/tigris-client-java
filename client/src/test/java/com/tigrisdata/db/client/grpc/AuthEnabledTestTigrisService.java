@@ -128,14 +128,13 @@ public class AuthEnabledTestTigrisService extends TestTigrisService {
   }
 
   @Override
-  public void listDatabases(
-      Api.ListDatabasesRequest request,
-      StreamObserver<Api.ListDatabasesResponse> responseObserver) {
+  public void listProjects(
+      Api.ListProjectsRequest request, StreamObserver<Api.ListProjectsResponse> responseObserver) {
     if (!containsAuthHeaders()) {
       responseObserver.onError(new StatusRuntimeException(Status.UNAUTHENTICATED));
       return;
     }
-    super.listDatabases(request, responseObserver);
+    super.listProjects(request, responseObserver);
   }
 
   @Override
@@ -150,24 +149,25 @@ public class AuthEnabledTestTigrisService extends TestTigrisService {
   }
 
   @Override
-  public void createDatabase(
-      Api.CreateDatabaseRequest request,
-      StreamObserver<Api.CreateDatabaseResponse> responseObserver) {
+  public void createProject(
+      Api.CreateProjectRequest request,
+      StreamObserver<Api.CreateProjectResponse> responseObserver) {
     if (!containsAuthHeaders()) {
       responseObserver.onError(new StatusRuntimeException(Status.UNAUTHENTICATED));
       return;
     }
-    super.createDatabase(request, responseObserver);
+    super.createProject(request, responseObserver);
   }
 
   @Override
-  public void dropDatabase(
-      Api.DropDatabaseRequest request, StreamObserver<Api.DropDatabaseResponse> responseObserver) {
+  public void deleteProject(
+      Api.DeleteProjectRequest request,
+      StreamObserver<Api.DeleteProjectResponse> responseObserver) {
     if (!containsAuthHeaders()) {
       responseObserver.onError(new StatusRuntimeException(Status.UNAUTHENTICATED));
       return;
     }
-    super.dropDatabase(request, responseObserver);
+    super.deleteProject(request, responseObserver);
   }
 
   private boolean containsAuthHeaders() {

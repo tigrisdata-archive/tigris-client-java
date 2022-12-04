@@ -130,13 +130,12 @@ public class TransactionTestTigrisService extends TestTigrisService {
   }
 
   @Override
-  public void listDatabases(
-      Api.ListDatabasesRequest request,
-      StreamObserver<Api.ListDatabasesResponse> responseObserver) {
+  public void listProjects(
+      Api.ListProjectsRequest request, StreamObserver<Api.ListProjectsResponse> responseObserver) {
     if (isValidTransactionState()) {
       responseObserver.onError(new IllegalStateException("Transaction is not active"));
     }
-    super.listDatabases(request, responseObserver);
+    super.listProjects(request, responseObserver);
   }
 
   @Override
@@ -150,22 +149,23 @@ public class TransactionTestTigrisService extends TestTigrisService {
   }
 
   @Override
-  public void createDatabase(
-      Api.CreateDatabaseRequest request,
-      StreamObserver<Api.CreateDatabaseResponse> responseObserver) {
+  public void createProject(
+      Api.CreateProjectRequest request,
+      StreamObserver<Api.CreateProjectResponse> responseObserver) {
     if (isValidTransactionState()) {
       responseObserver.onError(new IllegalStateException("Transaction is not active"));
     }
-    super.createDatabase(request, responseObserver);
+    super.createProject(request, responseObserver);
   }
 
   @Override
-  public void dropDatabase(
-      Api.DropDatabaseRequest request, StreamObserver<Api.DropDatabaseResponse> responseObserver) {
+  public void deleteProject(
+      Api.DeleteProjectRequest request,
+      StreamObserver<Api.DeleteProjectResponse> responseObserver) {
     if (isValidTransactionState()) {
       responseObserver.onError(new IllegalStateException("Transaction is not active"));
     }
-    super.dropDatabase(request, responseObserver);
+    super.deleteProject(request, responseObserver);
   }
 
   @Override

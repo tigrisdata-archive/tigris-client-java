@@ -382,7 +382,7 @@ final class TypeConverter {
     return Optional.empty();
   }
 
-  private static DatabaseMetadata toDatabaseMetadata(Api.ProjectMetadata databaseMetadata) {
+  private static DatabaseMetadata toDatabaseMetadata(Api.DatabaseMetadata databaseMetadata) {
     // empty metadata for now
     return new DatabaseMetadata();
   }

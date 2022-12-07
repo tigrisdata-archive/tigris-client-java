@@ -471,7 +471,7 @@ public class TestTigrisService extends TigrisGrpc.TigrisImplBase {
 
     responseObserver.onNext(
         Api.DescribeDatabaseResponse.newBuilder()
-            .setMetadata(Api.ProjectMetadata.newBuilder().build())
+            .setMetadata(Api.DatabaseMetadata.newBuilder().build())
             .addCollections(
                 Api.CollectionDescription.newBuilder()
                     .setCollection("c1")

@@ -14,6 +14,7 @@
 package com.tigrisdata.db.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.tigrisdata.db.client.collection.Employee;
 import com.tigrisdata.db.client.collection.JsonSerDeTestModel;
 import com.tigrisdata.db.client.config.TigrisConfiguration;
 import org.junit.Assert;
@@ -49,5 +50,26 @@ public class JsonSerDeTest {
                 JsonSerDeTestModel.class);
 
     Assert.assertEquals(TEST_DATE, reconstructedModel.getCreatedAt().getTime());
+  }
+
+  @Test
+  public void customJsonSerDeBoolFieldWithIsPrefix() throws JsonProcessingException {
+    Employee e1 = new Employee("Name1", true);
+
+    TigrisConfiguration c1 = TigrisConfiguration.newBuilder("test-url", "test-project").build();
+    Assert.assertEquals(
+        "{\"name\":\"Name1\",\"active\":true}", c1.getObjectMapper().writeValueAsString(e1));
+
+    TigrisConfiguration c2 =
+        TigrisConfiguration.newBuilder("test-url", "test-project")
+            .keepIsPrefixForBooleanFields()
+            .build();
+    Assert.assertEquals(
+        "{\"name\":\"Name1\",\"isActive\":true}", c2.getObjectMapper().writeValueAsString(e1));
+
+    Employee deserialized =
+        c1.getObjectMapper().readValue("{\"name\":\"Name1\",\"isActive\":true}", Employee.class);
+    Assert.assertEquals("Name1", deserialized.getName());
+    Assert.assertTrue(deserialized.isActive());
   }
 }

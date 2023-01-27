@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
+import com.fasterxml.jackson.module.kotlin.KotlinModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.tigrisdata.db.jackson.TigrisAnnotationIntrospector;
 
@@ -112,6 +113,7 @@ public class TigrisConfiguration {
           new ObjectMapper()
               .setAnnotationIntrospector(new TigrisAnnotationIntrospector())
               .registerModule(new ParameterNamesModule(JsonCreator.Mode.PROPERTIES))
+              .registerModule(new KotlinModule.Builder().build())
               .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
               .setDateFormat(
                   new StdDateFormat()

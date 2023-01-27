@@ -5,11 +5,11 @@
     <parent>
         <groupId>com.tigrisdata</groupId>
         <artifactId>tigris-client-java</artifactId>
-        <version>1.0.0-beta.8</version>
+        <version>1.0.0-beta.9-SNAPSHOT</version>
     </parent>
     <groupId>com.tigrisdata.tools</groupId>
     <artifactId>schema-generator</artifactId>
-    <version>1.0.0-beta.8</version>
+    <version>1.0.0-beta.9-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>

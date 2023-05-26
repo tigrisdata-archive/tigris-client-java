@@ -9,7 +9,7 @@
 
     <artifactId>tigris-spring-boot-autoconfigure</artifactId>
     <properties>
-        <spring-boot.version>2.7.4</spring-boot.version>
+        <spring-boot.version>2.7.12</spring-boot.version>
     </properties>
     <dependencies>
         <dependency>

@@ -8,9 +8,13 @@
 [![slack](https://img.shields.io/badge/slack-tigrisdata-34D058.svg?logo=slack)](https://tigrisdata.slack.com)
 [![GitHub](https://img.shields.io/github/license/tigrisdata/tigris-client-java)](https://github.com/tigrisdata/tigris-client-java/blob/main/LICENSE)
 
-Tigris provides an easy-to-use and intuitive interface for Java combined with data modeling that is incorporated into your application code as Java classes.
+<p align="center">
+Tigris is a globally distributed, multi-cloud object storage service with built-in support for the S3 API. It uses Dynamic Data Placement and Access-Based Rebalancing to deliver low-latency access worldwide — without the need to manage replication or caching.
+</p>
 
-The Tigris Java client libraries offer both asynchronous and synchronous clients.
+<p align="center">
+This repository is deprecated and contains a prior version of the Tigris Java Client.
+</p>
 
 # Documentation
 - [Quickstart](https://docs.tigrisdata.com/quickstart)
